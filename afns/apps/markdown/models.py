@@ -3,7 +3,7 @@ from django.contrib.admin import widgets as admin_widgets
 from afns.apps.markdown import widgets as markdown_widgets
 try:
     from south.modelsinspector import add_introspection_rules
-    add_introspection_rules([], ['^afns\.apps\.markdown\.models\.HTMLField'])
+    add_introspection_rules([], ['^afns\.apps\.markdown\.models\.MarkdownField'])
 except ImportError:
     pass
 
