@@ -8,5 +8,5 @@ setup(name="afns",
       author='Chris Sinchok',
       author_email='csinchok@theonion.com',
       url='http://gitlab.theonion.com/afns',
-      packages=['afns', 'afns.apps', 'afns.apps.images'],
+      packages=['afns', 'afns.apps', 'afns.apps.images', 'afns.apps.markdown'],
      )
