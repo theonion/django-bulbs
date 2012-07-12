@@ -1,5 +1,3 @@
-import markdown
-
 from django import template
 from django.conf import settings
 from django.utils.encoding import smart_str, force_unicode
@@ -16,4 +14,4 @@ def markdown(value, arg=''):
             raise template.TemplateSyntaxError("Error in 'markdown' filter: The Python markdown library isn't installed.")
         return force_unicode(value)
     else:
-        return mark_safe(markdown.markdown(force_unicode(value), ['smartypants','onion'], safe_mode=False))
+        return mark_safe(markdown.markdown(force_unicode(value), ['smartypants','onion']), safe_mode=False)
