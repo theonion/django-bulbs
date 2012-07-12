@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from distutils.core import setup
+from setuptools import setup, find_packages
 
 setup(name="afns",
       version='1.0',
@@ -8,5 +8,6 @@ setup(name="afns",
       author='Chris Sinchok',
       author_email='csinchok@theonion.com',
       url='http://gitlab.theonion.com/afns',
-      packages=['afns', 'afns.apps', 'afns.apps.images', 'afns.apps.markdown'],
+      packages = find_packages(),
+      include_package_data = True,
      )
