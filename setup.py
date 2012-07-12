@@ -9,7 +9,7 @@ import sys
 
 name = 'django-afns'
 package = 'afns'
-description = ''
+description = "AMerica's Finest Namespace"
 url = 'http://gitlab.theonion.com/afns'
 author = 'Chris Sinchok'
 author_email = 'chris@sinchok.com'

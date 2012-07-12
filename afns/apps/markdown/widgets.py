@@ -43,8 +43,7 @@ class Markdown(forms.Textarea):
         html = render_to_string('markdown/markdown-widget.html', {  'name': name, 
                                                                     'attrs': flatatt(final_attrs), 
                                                                     'value': escape(value)})
-
-        return mark_safe(u'\n'.join(html))
+        return html
 
 class AdminMarkdown(admin_widgets.AdminTextareaWidget, Markdown):
     pass
