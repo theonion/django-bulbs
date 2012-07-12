@@ -2,7 +2,7 @@
 
 from setuptools import setup, find_packages
 
-setup(name="afns",
+setup(name="django-afns",
       version='1.0',
       description="America's finest namespace",
       author='Chris Sinchok',
