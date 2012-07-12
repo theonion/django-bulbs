@@ -1,0 +1,35 @@
+<div{{attrs|safe}} data-widget="markdown-editor">
+	<div class="editor">
+		<div class="toolbar">
+			<div class="formatting">
+				<button class="bold">**B**</button>
+				<button class="italic">*I*</button>
+			</div>
+
+			<div class="insertion">
+				<button class="link">Link</button>
+				<button class="image">Image</button>
+				<button class="video">Video</button>
+				<button class="h2">## Sub-heading</button>
+				<button class="h3">### Sub-sub-heading</button>
+			</div>
+				
+			<div class="preview">
+				<button class="preview">Preview &rarr;</button>
+			</div>
+		</div>
+			
+		<div class="edit-pane">
+			<textarea class="code">{{ value }}</textarea>
+			</div>
+		</div>
+	</div>
+		
+	<!-- <div class="preview">
+		<h3>
+			Preview
+			<button class="expand-preview">Expand Preview</button>
+		</h3>
+		<div class="preview-guts"></div>
+	</div> -->
+</div>
