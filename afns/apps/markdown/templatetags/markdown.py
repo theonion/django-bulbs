@@ -1,4 +1,4 @@
-import markdown
+import markdown as markdown_lib
 
 from django import template
 from django.conf import settings
@@ -9,4 +9,4 @@ register = template.Library()
 
 @register.filter(is_safe=True)
 def markdown(value, arg=''):
-    return mark_safe(markdown.markdown(force_unicode(value), ['smartypants','onion']), safe_mode=False)
+    return mark_safe(markdown_lib.markdown(force_unicode(value), ['smartypants','onion']), safe_mode=False)
