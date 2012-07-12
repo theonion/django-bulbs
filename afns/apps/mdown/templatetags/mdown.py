@@ -13,4 +13,4 @@ def markdown(value, arg=''):
         if settings.DEBUG:
             raise template.TemplateSyntaxError("Error in 'markdown' filter: The Python markdown library isn't installed.")
         return force_unicode(value)
-    return mark_safe(markdown_lib.markdown(force_unicode(value), ['smartypants','onion']), safe_mode=False)
+    return mark_safe(markdown_lib.markdown(force_unicode(value), ['smartypants','onion'],  safe_mode=False))
