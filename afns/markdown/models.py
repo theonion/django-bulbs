@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.admin import widgets as admin_widgets
-from afns.mdown import widgets as markdown_widgets
+from afns.markdown import widgets as markdown_widgets
 try:
     from south.modelsinspector import add_introspection_rules
     add_introspection_rules([], ['^afns\.apps\.markdown\.models\.MarkdownField'])
