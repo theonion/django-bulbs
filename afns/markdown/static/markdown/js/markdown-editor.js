@@ -3,20 +3,20 @@ window.o = window.o || {};
 o.markdownEditor = (function(){
     var exports = {};
     
-    django.jQueryfunction(){
-        django.jQuery'[data-widget="markdown-editor"]').each( buildEditor );
+    django.jQuery(function(){
+        django.jQuery('[data-widget="markdown-editor"]').each( buildEditor );
     });
 	
 	function buildEditor(){
-        var textarea = django.jQuery'textarea', this );
-		var toolbar = django.jQuery'.toolbar', this );
-		var boldBtn = django.jQuery'.bold', toolbar );
-		var italicBtn = django.jQuery'.italic', toolbar );
-		var linkBtn = django.jQuery'.link', toolbar );
-		var imageBtn = django.jQuery'.image', toolbar );
-		var videoBtn = django.jQuery'.video', toolbar );
-		var h2Btn = django.jQuery'.h2', toolbar );
-		var h3Btn = django.jQuery'.h3', toolbar );
+        var textarea = django.jQuery('textarea', this );
+		var toolbar = django.jQuery('.toolbar', this );
+		var boldBtn = django.jQuery('.bold', toolbar );
+		var italicBtn = django.jQuery('.italic', toolbar );
+		var linkBtn = django.jQuery('.link', toolbar );
+		var imageBtn = django.jQuery('.image', toolbar );
+		var videoBtn = django.jQuery('.video', toolbar );
+		var h2Btn = django.jQuery('.h2', toolbar );
+		var h3Btn = django.jQuery('.h3', toolbar );
 
         var editor = CodeMirror.fromTextArea( textarea[0], {
           mode: 'markdown',
@@ -153,8 +153,8 @@ o.markdownEditor = (function(){
 		);
 		var modal = showModal( guts, cbk );
 		
-		django.jQuery'.insert-url', modal ).click(function(){
-			var url = django.jQuery'[name="image-url"]', modal ).val();
+		django.jQuery('.insert-url', modal ).click(function(){
+			var url = django.jQuery('[name="image-url"]', modal ).val();
 			if( ! url ) return;
 			
 			cbk && cbk( null, { url: url });
@@ -183,10 +183,10 @@ o.markdownEditor = (function(){
 		);
 		
 		var modal = showModal( guts, cbk );
-		var finder = o.contentFinder({ quick: true, types: ['image']}, django.jQuery'.finder', modal )[0]);
+		var finder = o.contentFinder({ quick: true, types: ['image']}, django.jQuery('.finder', modal )[0]);
 		
-		django.jQuery'.insert-url', modal ).click(function(){
-			var url = django.jQuery'[name="image-url"]', modal ).val();
+		django.jQuery('.insert-url', modal ).click(function(){
+			var url = django.jQuery('[name="image-url"]', modal ).val();
 			if( ! url ) return;
 			
 			cbk && cbk( null, { url: url });
@@ -206,7 +206,7 @@ o.markdownEditor = (function(){
 			+ '</div>'
 		);
 		var modal = showModal( guts, cbk );
-		var field = django.jQuery'[name="url"]', modal );
+		var field = django.jQuery('[name="url"]', modal );
 		
 		field.keyup(function( e ){
 			if( e.keyCode !== 13 /* Enter/Return */ ) return;
@@ -222,14 +222,14 @@ o.markdownEditor = (function(){
 	}
 	
 	function showModal( html, cbk ){
-		var elem = django.jQuery''
+		var elem = django.jQuery(''
 			+ '<div class="edit-modal">'
 				+ html
 				+ '<button class="close">&times;</button>'
 			+ '</div>'
 		);
 		
-		django.jQuery'button.close', elem ).click(function(){
+		django.jQuery('button.close', elem ).click(function(){
 			elem.remove();
 			cbk && cbk('closed');
 		});
@@ -259,7 +259,7 @@ o.contentFinder = (function(){
 		}
 		
 		function build(){
-			django.jQueryroot).html(''
+			django.jQuery(root).html(''
 				+ '<div class="quick-finder">'
 					+ '<div class="controls">'
 						+ '<div class="field">'
