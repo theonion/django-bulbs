@@ -6,11 +6,11 @@ from django.utils.safestring import mark_safe
 register = template.Library()
 
 @register.filter(is_safe=True)
-def markdown(value, arg=''):
+def mdown(value, arg=''):
     try:
-        import markdown as markdown_lib
+        import markdown
     except ImportError:
         if settings.DEBUG:
             raise template.TemplateSyntaxError("Error in 'markdown' filter: The Python markdown library isn't installed.")
         return force_unicode(value)
-    return mark_safe(markdown_lib.markdown(force_unicode(value), ['smartypants','onion'],  safe_mode=False))
+    return mark_safe(markdown.markdown(force_unicode(value), ['smartypants','onion'],  safe_mode=False))

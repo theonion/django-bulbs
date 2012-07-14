@@ -35,9 +35,9 @@ class Markdown(forms.Textarea):
         final_attrs = self.build_attrs(attrs)
         final_attrs['name'] = name
         if 'class' in final_attrs:
-            final_attrs['class'] += ' markdown-editor'
+            final_attrs['class'] += ' code'
         else:
-            final_attrs['class'] = 'markdown-editor'
+            final_attrs['class'] = 'code'
         assert 'id' in final_attrs, "Markdown widget attributes must contain 'id'"
 
         html = render_to_string('markdown/markdown-widget.html', {  'name': name, 
