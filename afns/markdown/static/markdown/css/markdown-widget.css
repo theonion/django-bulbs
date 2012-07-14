@@ -38,6 +38,8 @@
 	width: 600px;
 	border: 1px #e5e5e5 solid;
 	font-family: helvetica;
+	display: block;
+	float: left;
 }
 		
 	.markdown-editor .toolbar {
