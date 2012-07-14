@@ -6,7 +6,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.http import Http404, HttpResponse, HttpResponseServerError
 
-from afns.apps.images.models import Image, ImageSubject, ImageAspectRatio
+from afns.images.models import Image, ImageSubject, ImageAspectRatio
 
 register = template.Library()
 

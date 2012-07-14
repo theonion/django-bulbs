@@ -10,8 +10,8 @@ from django.template import RequestContext
 
 from PIL import Image as PImage
 
-from afns.apps.images.models import Image, ImageSubject, ImageAspectRatio, ImageSelection
-from afns.apps.images.tasks import clear_selection
+from afns.images.models import Image, ImageSubject, ImageAspectRatio, ImageSelection
+from afns.images.tasks import clear_selection
 
 def crop_ratios(request, image_id):
     try:
