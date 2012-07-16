@@ -4,7 +4,7 @@ import shutil
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 
-from afns.images.models import ImageCrop
+from bulbs.images.models import ImageCrop
 
 class Command(BaseCommand):
     help = 'Clears all the image crops'

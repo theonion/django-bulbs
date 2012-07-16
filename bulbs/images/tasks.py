@@ -17,7 +17,7 @@ def clear_selection(selection_id):
     
     logger = logging.getLogger()
     
-    from afns.images.models import ImageSelection
+    from bulbs.images.models import ImageSelection
     selection = ImageSelection.objects.get(id=selection_id)
     crop_path = selection.image.crop_path(selection.ratio.slug, 10, absolute=True)
     directory = os.path.split(crop_path)[0]
@@ -50,7 +50,7 @@ def clear_crops(image_id):
     
     logger = logging.getLogger()
     
-    from afns.images.models import Image
+    from bulbs.images.models import Image
     image = Image.objects.get(id=image_id)
     directory = "%s%s/%s/" % (settings.IMAGE_CROP_ROOT, image.id/1000, image.id)
     

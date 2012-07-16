@@ -12,7 +12,7 @@ from django.db import models
 from django.dispatch import dispatcher
 from django.contrib.auth.models import User
 
-from afns.images.tasks import clear_crops
+from bulbs.images.tasks import clear_crops
 
 MAXIMUM_IMAGE_SIZE = (2000,3000)
 

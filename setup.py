@@ -7,12 +7,12 @@ import os
 import sys
 
 
-name = 'django-afns'
-package = 'afns'
-description = "AMerica's Finest Namespace"
+name = 'django-blub'
+package = 'blub'
+description = "America's Finest Namespace"
 url = 'http://gitlab.theonion.com/afns'
 author = 'Chris Sinchok'
-author_email = 'chris@sinchok.com'
+author_email = 'csinchok@theonion.com'
 license = 'BSD'
 install_requires = []
 
