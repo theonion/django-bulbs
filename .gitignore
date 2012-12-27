@@ -1,0 +1,8 @@
+*.py[cod]
+.DS_Store
+bin
+include
+lib
+.Python
+*.db
+.coverage
