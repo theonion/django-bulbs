@@ -1,5 +1,4 @@
 import os
-from PIL import Image as pImage
 
 from django.db import models
 
