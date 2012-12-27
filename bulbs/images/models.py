@@ -12,8 +12,6 @@ from django.db import models
 from django.dispatch import dispatcher
 from django.contrib.auth.models import User
 
-from bulbs.images.tasks import clear_crops
-
 MAXIMUM_IMAGE_SIZE = (2000,3000)
 
 class ImageLicense(models.Model):
@@ -88,15 +86,16 @@ class Image(models.Model):
 
     def get_width(self):
         """This method caches the width of the image on a field on the model"""
-        if not self._width:                
+        if not self._width:
             try:
-                width = self.location.width 
+                width = self.location.width
                 Image.objects.filter(pk=self.pk).update(_width=width)
                 return width
             except:
                 return 0
         else:
             return self._width
+
     def set_width(self, value):
         self._width = value
     width = property(get_width, set_width)
@@ -112,6 +111,7 @@ class Image(models.Model):
                 return 0
         else:
             return self._height
+
     def set_height(self, value):
         self._height = value
     height = property(get_height, set_height)
@@ -130,8 +130,6 @@ class Image(models.Model):
 
         # cache width and height of this image by calling the proxy methods
         width, height = self.width, self.height
-        
-        clear_crops.delay(self.id)
 
         # inspect the image to see if it doesn't fit in max size box and if it doesn't, resize
         im = pImage.open(self.location.path)
