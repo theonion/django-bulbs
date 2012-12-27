@@ -1,2 +1,5 @@
 git+git://github.com/django/django.git@1.5b2
 south==0.7.6
+
+# install our `bulbs` package in editable mode. don't do this in prod.
+-e .  
