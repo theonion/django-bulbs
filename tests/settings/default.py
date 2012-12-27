@@ -23,6 +23,7 @@ INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
 
+    'bulbs.base',
     'bulbs.images',
     'bulbs.markdown',
 )
