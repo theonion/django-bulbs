@@ -7,8 +7,8 @@ import os
 import sys
 
 
-name = 'django-blub'
-package = 'blub'
+name = 'django-bulbs'
+package = 'bulbs'
 description = "America's Finest Namespace"
 url = 'http://gitlab.theonion.com/afns'
 author = 'Chris Sinchok'

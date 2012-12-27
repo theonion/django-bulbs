@@ -7,3 +7,5 @@ lib
 *.db
 .coverage
 *~
+dist
+django_bulbs.egg-info
