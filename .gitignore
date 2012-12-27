@@ -3,6 +3,7 @@
 bin
 include
 lib
+share
 .Python
 *.db
 .coverage
