@@ -7,3 +7,6 @@ share
 .Python
 *.db
 .coverage
+*~
+dist
+django_bulbs.egg-info
