@@ -11,7 +11,6 @@ def runtests(verbosity=1, interactive=True, failfast=True, settings_module='sett
     here = abspath(dirname(__file__))
     root = pjoin(here, os.pardir)
     sys.path.extend([here, root])
-    print(sys.path)
     os.environ['DJANGO_SETTINGS_MODULE'] = settings_module
     from django.test.utils import get_runner
     print "Running tests for '%s'" % settings_module
