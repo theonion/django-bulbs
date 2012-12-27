@@ -1,7 +1,6 @@
 import os
 import StringIO
 import urllib2
-from tempfile import mkstemp
 
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect, HttpResponseBadRequest, Http404
@@ -10,8 +9,9 @@ from django.template import RequestContext
 
 from PIL import Image as PImage
 
-from bulbs.images.models import Image, ImageSubject, ImageAspectRatio, ImageSelection
+from bulbs.images.models import Image, ImageAspectRatio, ImageSelection
 from bulbs.images.tasks import clear_selection
+
 
 def crop_ratios(request, image_id):
     try:
@@ -20,15 +20,8 @@ def crop_ratios(request, image_id):
         return not_found(request)
     ratios = ImageAspectRatio.objects.all()
     selections = [ImageSelection.objects.get_or_create_for_image_and_ratio(image, ratio) for ratio in ratios]
-    
-    if settings.DEBUG and getattr(settings, "IMAGE_CROP_FROM_HTTP", False) and not os.path.exists(image.location.path):
-        if settings.SITE_NAME == 'onion':
-            hack_media = "http://o.onionstatic.com/"
-        elif settings.SITE_NAME == 'avclub':
-            hack_media = "http://media.avclub.com/"
-        image_url = "%s%s" % (hack_media, image.location)
-    else:
-        image_url = image.location.url
+
+    image_url = image.location.url
 
     context = {
         'image_url': image_url,
@@ -54,7 +47,8 @@ def crop_ratios(request, image_id):
         "images/cropper.html", context, RequestContext(request),
     )
     return response
-    
+
+
 def crop_for_ratio(request, image_id, ratio_slug, width):
     width = int(width)
     if width > 1200:
@@ -74,10 +68,10 @@ def crop_for_ratio(request, image_id, ratio_slug, width):
         response['Cache-Control'] = 'max-age=86400'
         return response
     except IOError:
-        pass # generate file below
+        pass  # generate file below
 
     try:
-        im = PImage.open('%s/%s' % (settings.MEDIA_ROOT, image.location))
+        im = PImage.open(image.location.open())
     except IOError:
         # if we can't open the file, we should 404, but if this is development we can fall back to
         # trying to retrieve the file via http for cropping

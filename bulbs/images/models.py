@@ -1,7 +1,6 @@
 import os
 from PIL import Image as pImage
 
-from django.contrib.contenttypes import generic
 from django.db import models
 
 from bulbs.images.conf import settings
@@ -26,25 +25,15 @@ def image_upload_to(instance, filename):
 
 
 class Image(models.Model):
-    user = models.ForeignKey('auth.User', null=True, blank=True)  # for image attribution
-
-    # images need to be tied to a particular objectwhy
-    content_type = models.ForeignKey('contenttypes.ContentType')
-    object_id = models.PositiveIntegerField(db_index=True)
-    content_object = generic.GenericForeignKey()
     _width = models.IntegerField(blank=True, null=True, db_column='width')
     _height = models.IntegerField(blank=True, null=True, db_column='height')
 
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
-    location = models.ImageField(max_length=255, upload_to=image_upload_to)
-    caption = models.TextField(blank=True)
-    alt = models.TextField(max_length=255, blank=True)
-    credit = models.TextField(max_length=255, blank=True)
-    notes = models.TextField(max_length=255, blank=True)
-
-    class Meta:
-        unique_together = (("content_type", "object_id"),)
+    original = models.ImageField(max_length=255, upload_to=image_upload_to)
+    caption = models.TextField(null=True, blank=True)
+    alt = models.TextField(max_length=255, null=True, blank=True)
+    credit = models.TextField(max_length=255, null=True, blank=True)
 
     def __repr__(self):
         cap = self.caption and (' %r' % self.caption) or ''
@@ -84,34 +73,10 @@ class Image(models.Model):
         self._height = value
     height = property(get_height, set_height)
 
-    def save(self):
-        # save old filename for deletion
-        old_image_location = None
-        if self.id:
-            # XXX this will effectively retrieve self when we switch to
-            # singletons, so we should come up with a workaround for keeping
-            # track of the "previous" location/sort
-            old_image = Image.objects.get(pk=self.id)
-            old_image_location = old_image.location
-
-        super(Image, self).save()
-
+    def save(self, *args, **kwargs):
+        super(Image, self).save(*args, **kwargs)
         # cache width and height of this image by calling the proxy methods
         width, height = self.width, self.height
-
-        # inspect the image to see if it doesn't fit in max size box and if it doesn't, resize
-        im = pImage.open(self.location.path)
-        if im.size[0] > MAXIMUM_IMAGE_SIZE[0] or im.size[1] > MAXIMUM_IMAGE_SIZE[1]:
-            im.thumbnail(MAXIMUM_IMAGE_SIZE)
-            im.save(self.location.path, quality=90)
-
-        # delete an old image if we updated this image
-        if old_image_location and self.location.path != old_image_location.path:
-            try:
-                os.unlink(old_image_location.path)
-            except OSError:
-                # file doesn't exist, just fail the delete operation silently
-                pass
 
     def crop_path(self, ratio_slug, width, absolute=False):
         path = "%s/%s/%s/%s.jpg" % (self.id / 1000, self.id, ratio_slug, width)
