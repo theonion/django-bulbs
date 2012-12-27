@@ -6,3 +6,4 @@ lib
 .Python
 *.db
 .coverage
+*~
