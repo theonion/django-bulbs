@@ -14,7 +14,7 @@ url = 'http://gitlab.theonion.com/afns'
 author = 'Chris Sinchok'
 author_email = 'csinchok@theonion.com'
 license = 'BSD'
-install_requires = []
+install_requires = ['django', 'markdown', 'mdx_smartypants']
 
 
 def get_version(package):

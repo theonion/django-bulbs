@@ -4,7 +4,7 @@ import sys
 from os.path import abspath, dirname, join as pjoin
 from django.conf import settings
 
-TESTABLE_APPS = ['images', 'markdown']
+TESTABLE_APPS = ['images', 'markdown', 'base']
 
 
 def runtests(verbosity=1, interactive=True, failfast=True, settings_module='settings.default'):

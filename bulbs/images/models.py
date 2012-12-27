@@ -1,71 +1,39 @@
-from operator import contains
 import os
-import shutil
-import urllib2
-import StringIO
 from PIL import Image as pImage
 
 from django.contrib.contenttypes import generic
-from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
-from django.dispatch import dispatcher
-from django.contrib.auth.models import User
 
-MAXIMUM_IMAGE_SIZE = (2000,3000)
+from bulbs.images.conf import settings
 
-class ImageLicense(models.Model):
-    name = models.CharField(max_length=64)
+MAXIMUM_IMAGE_SIZE = (2000, 3000)
 
-    def __unicode__(self):
-        return self.name
-
-class ImageSubject(models.Model):
-    name = models.CharField(max_length=32, db_index=True)
-    content_type = models.ForeignKey('contenttypes.ContentType')
-
-    def __repr__(self):
-        return u'<ImageSubject %s>' % (self.name,)
-
-    def __unicode__(self):
-        return self.name
 
 def image_locname(content_type, object_id, filename):
     pieces = [
         'images',
         content_type.app_label,
         content_type.model,
-        str(int(object_id)/1000),
+        str(int(object_id) / 1000),
         str(object_id),
         filename,
     ]
     return os.path.join(*pieces)
 
+
 def image_upload_to(instance, filename):
     return image_locname(instance.content_type, instance.object_id, filename)
 
-class ImageSource(models.Model):
-    name = models.CharField(max_length=64, db_index=True)
-
-    def __repr__(self):
-        return u'<ImageSource %s>' % (self.name,)
-
-    def __unicode__(self):
-        return self.name
 
 class Image(models.Model):
-    subject = models.ForeignKey(ImageSubject)
-    user = models.ForeignKey('auth.User', null=True, blank=True) # for image attribution
-    license = models.ForeignKey(ImageLicense, null=True, blank=True)
-    source = models.ManyToManyField(ImageSource, blank=True, null=True, validators=[], related_name='images')
-    altered = models.BooleanField(default=False)
+    user = models.ForeignKey('auth.User', null=True, blank=True)  # for image attribution
 
     # images need to be tied to a particular objectwhy
     content_type = models.ForeignKey('contenttypes.ContentType')
     object_id = models.PositiveIntegerField(db_index=True)
     content_object = generic.GenericForeignKey()
-    _width = models.IntegerField(blank=True,null=True,db_column='width')
-    _height = models.IntegerField(blank=True,null=True,db_column='height')
+    _width = models.IntegerField(blank=True, null=True, db_column='width')
+    _height = models.IntegerField(blank=True, null=True, db_column='height')
 
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
@@ -146,7 +114,7 @@ class Image(models.Model):
                 pass
 
     def crop_path(self, ratio_slug, width, absolute=False):
-        path = "%s/%s/%s/%s.jpg" % (self.id/1000, self.id, ratio_slug, width)
+        path = "%s/%s/%s/%s.jpg" % (self.id / 1000, self.id, ratio_slug, width)
         if absolute:
             return "%s%s" % (settings.IMAGE_CROP_ROOT, path)
         else:
@@ -155,9 +123,7 @@ class Image(models.Model):
     def crop_url(self, ratio_slug, width):
         return "%s%s" % (settings.IMAGE_CROP_URL, self.crop_path(ratio_slug, width))
 
-"""
-Fancy new dynamic image stuff
-"""
+
 class ImageAspectRatioManager(models.Manager):
     # This manager is heavily influenced by the ContentType manager in django core
     _cache = {}
@@ -192,9 +158,9 @@ class ImageAspectRatio(models.Model):
     slug = models.SlugField()
     width = models.IntegerField()
     height = models.IntegerField()
-    
+
     description = models.TextField(null=True, blank=True)
-    
+
     def __unicode__(self):
         return "%s (%sx%s)" % (self.slug, self.width, self.height)
 
@@ -209,21 +175,21 @@ class ImageAspectRatio(models.Model):
             return ((self.width * height) / self.height, height)
         return (0, 0)
 
+
 class ImageSelectionManger(models.Manager):
     def get_or_create_for_image_and_ratio(self, image, ratio, commit=False):
         try:
             return self.model.objects.get(aspectratio=ratio, image=image)
         except ImageSelection.DoesNotExist:
-            pass # creating the new ImageSelection below
-        
+            pass  # creating the new ImageSelection below
         try:
             center = self.model.objects.filter(image=image)[0].get_center()
         except IndexError:
             # this will calculate the width and height from the image on disk
-            center = (image.width/2, image.height/2)
-        
+            center = (image.width / 2, image.height / 2)
+
         selection = self.model(image=image, aspectratio=ratio)
-        
+
         if ((image.width / ratio.width) * ratio.height) <= image.height:
             selection.width = image.width
             selection_height = (image.width / ratio.width) * ratio.height
@@ -246,8 +212,9 @@ class ImageSelectionManger(models.Manager):
 
         if commit:
             selection.save()
-        
+
         return selection
+
 
 class ImageSelection(models.Model):
     aspectratio = models.ForeignKey(ImageAspectRatio)
@@ -259,7 +226,7 @@ class ImageSelection(models.Model):
     objects = ImageSelectionManger()
 
     class Meta:
-        unique_together = (("aspectratio","image"),)
+        unique_together = (("aspectratio", "image"),)
 
     # use a caching manager to store the ratio in python memory
     # since this will be called many many times per page
@@ -274,8 +241,7 @@ class ImageSelection(models.Model):
 
     def get_center(self):
         height = (self.ratio.height * self.width) / self.ratio.width
-        return (self.origin_x + (self.width /2), self.origin_y + (height /2))
+        return (self.origin_x + (self.width / 2), self.origin_y + (height / 2))
 
     def __unicode__(self):
         return "%s cropping for %s" % (self.ratio.slug, self.image.location)
-
