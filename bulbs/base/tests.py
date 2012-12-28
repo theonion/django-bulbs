@@ -11,14 +11,41 @@ class TagsTestCase(DBTestCase):
         self.tag1 = Tag.objects.create(tag="tag1")
         self.tag2 = Tag.objects.create(tag="tag2")
 
-        generic_stub_content = ContentType.objects.filter(model=u"contenttype")[0]  # need some object to pretend its content
-
-        self.content_stub1 = generic_stub_content
+        self.content_stub1 = ContentType.objects.filter(model=u"contenttype")[0]  # need some object to pretend it's content
         self.content1 = Content.objects.create(title="content1",
                                                object_id=self.content_stub1.pk,
                                                content_type=ContentType.objects.get_for_model(self.content_stub1))
 
 
-    def test_foo(self):
-        self.assertEqual(1, 1)
+        self.content_stub2 = ContentType.objects.filter(model=u"tag")[0]  # need another object to pretend it's content
+        self.content2 = Content.objects.create(title="content2",
+                                       object_id=self.content_stub2.pk,
+                                       content_type=ContentType.objects.get_for_model(self.content_stub2))
+
+
+    def test_tags(self):
+        self.content1.tags.add(self.tag1)
+        tagged = list(Content.objects.filter(tags__tag="tag1"))
+
+        self.assertEqual(1, len(tagged))
+        self.assertEqual(self.content1, tagged[0])
+
+        self.content2.tags.add(self.tag1)
+        tagged = list(Content.objects.filter(tags__tag="tag1"))
+
+        self.assertEqual(2, len(tagged))
+        self.assertTrue(self.content1 in tagged)
+        self.assertTrue(self.content2 in tagged)
+
+        self.content2.tags.add(self.tag2)
+        tagged = list(Content.objects.filter(tags__tag="tag2"))
+
+        self.assertEqual(1, len(tagged))
+        self.assertTrue(self.content2 in tagged)
+
+        tagged = list(Content.objects.filter(tags__tag__in=["tag1", "tag2"]).distinct())
+
+        self.assertEqual(2, len(tagged))
+        self.assertTrue(self.content1 in tagged)
+        self.assertTrue(self.content2 in tagged)
 
