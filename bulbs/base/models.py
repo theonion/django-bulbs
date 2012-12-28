@@ -8,6 +8,9 @@ class Tag(models.Model):
 
 
 class Content(models.Model):
+    """
+    Base Content object.
+    """
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
@@ -27,6 +30,7 @@ class Content(models.Model):
 
     class Meta:
         unique_together = (('content_type', 'object_id'),)
+        verbose_name_plural = "content"
 
 
 class ContentMixin(object):

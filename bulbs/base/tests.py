@@ -16,11 +16,10 @@ class TagsTestCase(DBTestCase):
                                                object_id=self.content_stub1.pk,
                                                content_type=ContentType.objects.get_for_model(self.content_stub1))
 
-
         self.content_stub2 = ContentType.objects.filter(model=u"tag")[0]  # need another object to pretend it's content
         self.content2 = Content.objects.create(title="content2",
-                                       object_id=self.content_stub2.pk,
-                                       content_type=ContentType.objects.get_for_model(self.content_stub2))
+                                               object_id=self.content_stub2.pk,
+                                               content_type=ContentType.objects.get_for_model(self.content_stub2))
 
 
     def test_tags(self):
