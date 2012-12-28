@@ -6,7 +6,12 @@ from bulbs.videos.models import Video, VideoSource
 from bulbs.videos.widgets import AmazonUploadWidget
 
 
+class VideoSourceInline(admin.StackedInline):
+    model = VideoSource
+
+
 class VideoAdmin(admin.ModelAdmin):
+    inlines = [VideoSourceInline]
     formfield_overrides = {
         models.URLField: {'widget': AmazonUploadWidget}
     }
