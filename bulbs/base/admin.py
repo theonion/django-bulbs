@@ -7,5 +7,9 @@ class ContentInline(generic.GenericStackedInline):
     model = Content
     max_num = 1
 
-admin.site.register(Content)
+class ContentAdmin(admin.ModelAdmin):
+    list_display = ('title', 'content_type',)
+    list_filter = ('content_type',)
+
+admin.site.register(Content, ContentAdmin)
 admin.site.register(Tag)

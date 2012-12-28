@@ -75,6 +75,15 @@ class TagsTestCase(DBTestCase):
         self.assertEqual(2, Content.objects.tagged_as("tag1", "tag2").count())
         self.assertEqual(1, Content.objects.tagged_as("tag1", "tag2").filter(title="content1").count())
 
+    def test_only_type_manager(self):
+        test_obj1 = TestContentObj.objects.create(field1="myfield1",
+                                                  field2="myfield2")
+        test_obj1_content = Content.objects.create(object_id=test_obj1.pk,
+                                                   content_type=ContentType.objects.get_for_model(test_obj1),
+                                                   title="content1")
+
+        self.assertEquals([test_obj1_content], list(Content.objects.only_type(TestContentObj)))
+        self.assertEquals([test_obj1_content], list(Content.objects.only_type(test_obj1)))
 
 
 class ContentMixinTestCase(DBTestCase):
