@@ -6,6 +6,9 @@ from django.contrib.contenttypes.models import ContentType
 class Tag(models.Model):
     tag = models.CharField(max_length=255)
 
+    def __unicode__(self):
+        return self.tag
+
 
 class Content(models.Model):
     """
