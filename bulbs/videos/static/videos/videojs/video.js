@@ -757,7 +757,6 @@ _V_.ControlBar = _V_.Component.extend({
 
   init: function(player, options){
     this._super(player, options);
-    console.log("init control bar");
     player.one("play", this.proxy(function(){
       this.fadeIn();
       this.player.on("mouseover", this.proxy(this.fadeIn));
@@ -2667,7 +2666,7 @@ _V_.Player = _V_.Component.extend({
       var techName = j[i],
           tech = _V_[techName];
           // tech = _V_.tech[techName];
-      console.log(techName);
+
       // Check if the browser supports this technology
       if (tech.isSupported()) {
 
@@ -4711,7 +4710,6 @@ window.onYouTubePlayerAPIReady = function() {
   // Fire a techready event for each loading player
   var loadingEl;
   while ((loadingEl = _V_.youtube.loadingEls.shift())) {
-    console.log('techready')
     loadingEl.player.triggerEvent("techready");
   }
 };
