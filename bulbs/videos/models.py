@@ -1,10 +1,10 @@
 from django.db import models
 
-from bulbs.base.models import ContentMixin
+
 from bulbs.images.models import Image
 
 
-class Video(models.Model, ContentMixin):
+class Video(models.Model):
     title = models.CharField(max_length=255)
     poster = models.ForeignKey(Image, null=True, blank=True)
     original = models.URLField(null=True, blank=True)
