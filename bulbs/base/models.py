@@ -20,7 +20,7 @@ class Content(models.Model):
     object_id = models.PositiveIntegerField()
     content_object = generic.GenericForeignKey('content_type', 'object_id')
 
-    
+
     def __unicode__(self):
         return self.title
 
@@ -28,3 +28,16 @@ class Content(models.Model):
     class Meta:
         unique_together = (('content_type', 'object_id'),)
 
+
+class ContentMixin(object):
+    """
+    Mixin for objects that'd like to be considered 'content.'
+    """
+
+    @property
+    def content(self):
+        """
+        Return the corresponding `base.models.Content` object.
+        """
+        return Content.objects.get(object_id=self.pk,
+                                   content_type=ContentType.objects.get_for_model(self).id)
