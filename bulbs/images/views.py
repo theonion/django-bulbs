@@ -10,7 +10,6 @@ from django.template import RequestContext
 from PIL import Image as PImage
 
 from bulbs.images.models import Image, ImageAspectRatio, ImageSelection
-from bulbs.images.tasks import clear_selection
 
 
 def crop_ratios(request, image_id):
