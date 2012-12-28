@@ -40,7 +40,6 @@ def crop_ratios(request, image_id):
         selection.width = int(request.POST.get('width', '0'))
         selection.save()
         context['edited_ratio'] = ratio.slug
-        clear_selection.delay(selection.id)
 
     response = render_to_response(
         "images/cropper.html", context, RequestContext(request),
@@ -118,8 +117,8 @@ def crop_for_ratio(request, image_id, ratio_slug, width):
             return not_found(request)
         selection = ImageSelection.objects.get_or_create_for_image_and_ratio(image, ratio)
         height = (ratio.height * int(width)) / ratio.width
-        im = im.crop(selection.get_box())        
-    
+        im = im.crop(selection.get_box())
+
     im = im.resize((int(width), int(height)), PImage.ANTIALIAS)
     save_path = image.crop_path(ratio_slug, width, absolute=True)
 
@@ -127,9 +126,9 @@ def crop_for_ratio(request, image_id, ratio_slug, width):
         # Create the parent folder(s) for this crop.
         try:
             os.makedirs(os.path.split(save_path)[0])
-        except (IOError, OSError): # this can happen if path exists
+        except (IOError, OSError):  # this can happen if path exists
             pass
-            
+
         f = file(save_path, "wb+")
         im.save(f, quality=90)
         f.seek(0)
@@ -138,7 +137,7 @@ def crop_for_ratio(request, image_id, ratio_slug, width):
         response['Content-Type'] = 'image/jpeg'
         response['Cache-Control'] = 'max-age=86400'
         return response
-    except (IOError, OSError): # this can happen if we don't have write access for this file
+    except (IOError, OSError):  # this can happen if we don't have write access for this file
         import logging
         logger = logging.root
         logger.warning("Error generating image: %s" % (save_path))
@@ -154,6 +153,7 @@ def crop_for_ratio(request, image_id, ratio_slug, width):
             return response
         else:
             return HttpResponseBadRequest("whoops")
+
 
 def not_found(request):
     response = HttpResponseNotFound("404: Not Found")
