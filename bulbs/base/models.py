@@ -59,6 +59,8 @@ class Content(models.Model):
     def __unicode__(self):
         return self.title
 
+    def get_absolute_url(self):
+        return self.content_type.model_class().get_absolute_url(self)
 
     class Meta:
         unique_together = (('content_type', 'object_id'),)  # sets up a one-one-relationship between this and a child content object
@@ -69,6 +71,12 @@ class ContentMixin(object):
     """
     Mixin for objects that'd like to be considered 'content.'
     """
+
+    @classmethod
+    def get_absolute_url(content):
+        if hasattr(content.content_object, 'get_absolute_url'):
+            return content.content_object.get_absolute_url()
+        return None
 
     @classmethod
     def create_content(cls, **kwargs):
@@ -104,7 +112,6 @@ class ContentMixin(object):
 
         return obj_instance
 
-
     @property
     def content(self):
         """
@@ -115,8 +122,3 @@ class ContentMixin(object):
         # TODO cache this.
         return Content.objects.get(object_id=self.pk,
                                    content_type=ContentType.objects.get_for_model(self).id)
-
-
-class TestContentObj(models.Model, ContentMixin):
-    field1 = models.CharField(max_length=255)
-    field2 = models.CharField(max_length=255)

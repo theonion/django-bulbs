@@ -1,9 +1,12 @@
-from django.utils import unittest
 from django.test import TestCase as DBTestCase
-from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
-from .models import Tag, Content, TestContentObj
+from bulbs.base.models import Tag, Content
+try:
+    from testapp.models import TestContentObj
+except:
+    raise ImportError("Something with your test app isn't configured correctly")
+
 
 class TagsTestCase(DBTestCase):
 
@@ -20,7 +23,6 @@ class TagsTestCase(DBTestCase):
         self.content2 = Content.objects.create(title="content2",
                                                object_id=self.content_stub2.pk,
                                                content_type=ContentType.objects.get_for_model(self.content_stub2))
-
 
     def test_tags(self):
         self.content1.tags.add(self.tag1)
@@ -47,7 +49,6 @@ class TagsTestCase(DBTestCase):
         self.assertEqual(2, len(tagged))
         self.assertTrue(self.content1 in tagged)
         self.assertTrue(self.content2 in tagged)
-
 
     def test_tag_manager(self):
         test_obj1 = TestContentObj.objects.create(field1="myfield1",
@@ -88,6 +89,9 @@ class TagsTestCase(DBTestCase):
 
 class ContentMixinTestCase(DBTestCase):
 
+    def test_content_url(self):
+        pass
+
     def test_content_property(self):
         test_obj1 = TestContentObj.objects.create(field1="myfield1",
                                                   field2="myfield2")
@@ -97,12 +101,10 @@ class ContentMixinTestCase(DBTestCase):
 
         self.assertEquals(test_obj1.content.title, "content1")
 
-
     def test_content_property_raises_obj_not_exist(self):
         test_obj1 = TestContentObj.objects.create(field1="myfield1",
                                                   field2="myfield2")
         self.assertRaises(Content.DoesNotExist, lambda: test_obj1.content)
-
 
     def test_create_content(self):
         TestContentObj.create_content(content__title="content_title",

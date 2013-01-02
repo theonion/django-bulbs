@@ -23,6 +23,9 @@ INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
 
+    # A test app to help with mixin stuff
+    'testapp',
+
     'bulbs.base',
     'bulbs.images',
     'bulbs.markdown',
