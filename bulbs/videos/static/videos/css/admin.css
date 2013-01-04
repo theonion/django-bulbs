@@ -1,3 +1,11 @@
+.hidden {
+    display: none;
+}
+
+.video-upload-close {
+    margin-left: 10px;
+}
+
 .progress-wrap {
     position: relative;
     float: left;
