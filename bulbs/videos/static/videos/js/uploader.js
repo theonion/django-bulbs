@@ -27,15 +27,11 @@ function uploadClick(e) {
     
     var filename = "s3://" + aws_attrs.bucket + "/" + path
     
-    
-    var root = django.jQuery(fileInput[0]).parent();
-    var labelHTML = root.find("label")[0].outerHTML;
-    var finishedHTML = labelHTML + constructFinishedHTML( root, filename );
-    var errorHTML =  labelHTML + "Could not upload the file at this time. Are you connected to the internet?";
+    var root = django.jQuery(fileInput[0]).closest('div');
+    var error = "Could not upload the file at this time. Are you connected to the internet?";
 
-    root.find("input").remove();
-    root.find("a").remove();
-
+    root.find(".initial").hide();
+    root.find(".upload").hide();
     var progress = ProgressBar( root, true );
     
     // TODO: use this: http://bencoe.tumblr.com/post/30685403088/browser-side-amazon-s3-uploads-using-cors
@@ -43,7 +39,9 @@ function uploadClick(e) {
     
     xhr.onreadystatechange = function(e){
         if( xhr.readyState !== 4 ){ return; }
-        root.html( finishedHTML );
+        progress.remove();
+        showInitial( root );
+        root.find('.initial input').val( filename );
     }
     
     xhr.upload.addEventListener('progress', function( e ){
@@ -52,12 +50,13 @@ function uploadClick(e) {
     }, false);
     
     xhr.upload.addEventListener('error', function( e ){
-        root.html( errorHTML );
-        root.html();
+        showInitial( root );
+        alert( error );
     }, false);
     
     xhr.upload.addEventListener('abort', function( e ){
-        root.html( errorHTML );
+        showInitial( root );
+        alert( error );
     }, false);
     
     xhr.open("POST", url);
@@ -91,20 +90,37 @@ function ProgressBar( div, append ){
         progressValue.css("width", percent + "%");
     }
     
+    function remove(){
+        root.find(".progress-wrap").remove();
+    }
+    
     var exports = {};
     exports.update = update;
+    exports.remove = remove;
     return exports;
 }
 
-function constructFinishedHTML( container, filename ){
-    var name = container.find("input[type='file']").attr('name');
-    var id = container.find("input[type='file']").attr('name');;
-    return "<input class='vURLField' type='text' name='" + name + "' id='" + id + "' value='" + filename + "'/>";
+function showUpload( root ){
+    root.find(".upload").show();
+    root.find(".initial").hide();
 }
 
+function showInitial( root ){
+    root.find(".upload").hide();
+    root.find(".initial").show();
+}
 
-django.jQuery(document).ready(function($) {
+django.jQuery(document).ready(function($) { 
     $('.video-upload').each(function(index, element) {
         $(element).click(uploadClick);
+    });
+    
+    $(".video-choose").click(function(e){
+        showUpload( $(this).closest('div') );
+
+    });
+    
+    $(".video-upload-close").click(function(e){
+        showInitial( $(this).closest('div') );
     });
 });

@@ -1,7 +1,9 @@
+.hidden {
+    display: none;
+}
 
-
-.form-row a {
-    vertical-align: middle;
+.video-upload-close {
+    margin-left: 10px;
 }
 
 .progress-wrap {

@@ -10,8 +10,8 @@ class AmazonUploadWidget(forms.ClearableFileInput):
 
     initial_text = ugettext_lazy('Currently')
     input_text = ugettext_lazy('Change')
-    template_with_initial = '<a href="%(initial)s">%(initial)s</a> %(blank_template)s <a href="#">Choose New Video</a>'
-    blank_template = '%(input)s <a class="video-upload" href="#upload" data-url="https://onionwebtech.s3.amazonaws.com" >Upload Video</a>'
+    template = '<span class="initial" %(initial_extras)s><input %(initial)s/> <a href="#" class="video-choose">Choose New Video</a> </span>\
+        <span class="upload" %(upload_extras)s>%(input)s <a class="video-upload" href="#upload" data-url="https://onionwebtech.s3.amazonaws.com" >Upload Video</a><a class="video-upload-close" href="#">Close</a></span>'
 
 
     class Media:
@@ -28,19 +28,26 @@ class AmazonUploadWidget(forms.ClearableFileInput):
         substitutions = {
             'initial_text': self.initial_text,
             'input_text': self.input_text,
-            'extras': {}
+            'initial': self.build_attrs({
+                'class':"vURLField",
+                'value': escape(value) if value else '',
+                'name': name,
+                'type': 'text',
+                'id': 'id_%s' % name
+            }),
+            "initial_extras": "",
+            "upload_extras": ""
         }
         
-        template = self.blank_template
-        substitutions['input'] = super(AmazonUploadWidget, self).render(name, value, attrs)
-                
         if value:
-            template = self.template_with_initial
-            substitutions['initial'] = escape(value)
-            substitutions['extras']['style'] = "display:none;"
-            substitutions['blank_template'] = self.blank_template % substitutions
+            substitutions['upload_extras'] = "style='display:none;'"
+        else:
+            substitutions['initial_extras'] = "style='display:none;'"
+        
+        template = self.template
+        substitutions['input'] = super(AmazonUploadWidget, self).render(name, value, attrs)
+        substitutions['initial'] = flatatt(substitutions['initial'])
 
-        substitutions['extras'] = flatatt(substitutions['extras'])
         return mark_safe(template % substitutions)
         
     def value_from_datadict(self, data, files, name):
