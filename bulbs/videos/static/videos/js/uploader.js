@@ -25,9 +25,12 @@ function uploadClick(e) {
         return;
     }
     
+    var filename = "s3://" + aws_attrs.bucket + "/" + path
+    
+    
     var root = django.jQuery(fileInput[0]).parent();
     var labelHTML = root.find("label")[0].outerHTML;
-    var finishedHTML = labelHTML + constructFinishedHTML( root, url + "/" + path );
+    var finishedHTML = labelHTML + constructFinishedHTML( root, filename );
     var errorHTML =  labelHTML + "Could not upload the file at this time. Are you connected to the internet?";
 
     root.find("input").remove();

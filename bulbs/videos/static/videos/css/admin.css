@@ -1,3 +1,9 @@
+
+
+.form-row a {
+    vertical-align: middle;
+}
+
 .progress-wrap {
     position: relative;
     float: left;

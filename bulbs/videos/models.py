@@ -7,7 +7,7 @@ from bulbs.images.models import Image
 class Video(models.Model):
     title = models.CharField(max_length=255)
     poster = models.ForeignKey(Image, null=True, blank=True)
-    original = models.URLField(null=True, blank=True)
+    original = models.TextField(null=True, blank=True)
 
     def __unicode__(self):
         return self.title

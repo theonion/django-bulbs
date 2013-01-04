@@ -12,7 +12,7 @@ class VideoSourceInline(admin.StackedInline):
 class VideoAdmin(admin.ModelAdmin):
     inlines = [VideoSourceInline]
     formfield_overrides = {
-        models.URLField: {'widget': AmazonUploadWidget}
+        models.TextField: {'widget': AmazonUploadWidget}
     }
 
 admin.site.register(Video, VideoAdmin)
