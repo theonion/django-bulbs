@@ -28,6 +28,7 @@ function uploadClick(e) {
     var filename = "s3://" + aws_attrs.bucket + "/" + path
     
     var root = django.jQuery(fileInput[0]).closest('div');
+    var input = root.find(".initial input");
     var error = "Could not upload the file at this time. Are you connected to the internet?";
 
     root.find(".initial").hide();
@@ -41,7 +42,7 @@ function uploadClick(e) {
         if( xhr.readyState !== 4 ){ return; }
         progress.remove();
         showInitial( root );
-        root.find('.initial input').val( filename );
+        input.val( filename );
     }
     
     xhr.upload.addEventListener('progress', function( e ){
@@ -51,11 +52,13 @@ function uploadClick(e) {
     
     xhr.upload.addEventListener('error', function( e ){
         showInitial( root );
+        input.val('');
         alert( error );
     }, false);
     
     xhr.upload.addEventListener('abort', function( e ){
         showInitial( root );
+        input.val('');
         alert( error );
     }, false);
     
