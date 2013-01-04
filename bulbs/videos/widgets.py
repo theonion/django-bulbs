@@ -13,11 +13,13 @@ class AmazonUploadWidget(forms.FileInput):
 
     class Media:
         js = (static('videos/js/uploader.js'))
+        css = {'all': [static('videos/css/admin.css')]}
 
     @property
     def media(self):
         js = [static('videos/js/uploader.js'), reverse('bulbs.videos.views.aws_attrs')]
-        return forms.Media(js=js)
+        css = {'all': [static('videos/css/admin.css')]}
+        return forms.Media(js=js, css=css)
 
     def render(self, name, value, attrs=None):
 

@@ -1,0 +1,29 @@
+.progress-wrap {
+    position: relative;
+    float: left;
+}
+
+.progress-wrap, .progress-value {
+    border-radius: 4px;
+    -moz-border-radius: 4px;
+}
+
+.progress-wrap, .progress-value, .progress-text {
+    /* The width and height of your image */
+    width: 30.75em; 
+    height: 2em;
+}
+
+.progress-wrap, .progress-value {
+    background: #bdbdbd top left no-repeat;
+}
+
+.progress-text {
+    position: absolute;
+    top:0; left:0;
+
+    padding-top: 5px;
+    color: #fff;
+    text-align: center;
+    width: 100%;
+}
