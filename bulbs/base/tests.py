@@ -90,7 +90,11 @@ class TagsTestCase(DBTestCase):
 class ContentMixinTestCase(DBTestCase):
 
     def test_content_url(self):
-        pass
+        TestContentObj.create_content(content__title="content_title",
+                              field1="myfield1",
+                              field2="myfield2")
+        content_object = Content.objects.get()
+        self.assertEquals(content_object.get_absolute_url(), "/testobject/%s" % content_object.pk)
 
     def test_content_property(self):
         test_obj1 = TestContentObj.objects.create(field1="myfield1",

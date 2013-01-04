@@ -9,6 +9,9 @@ class Video(models.Model):
     poster = models.ForeignKey(Image, null=True, blank=True)
     original = models.URLField(null=True, blank=True)
 
+    def __unicode__(self):
+        return self.title
+
 
 class VideoSource(models.Model):
 

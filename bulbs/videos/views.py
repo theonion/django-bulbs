@@ -15,17 +15,16 @@ def upload_successful(request):
 def aws_attrs(request):
 
     expiration = datetime.datetime.utcnow() + datetime.timedelta(hours=1)
-    directory = getattr(settings, 'video_directory', '')
+    directory = getattr(settings, 'VIDEO_DIRECTORY', '')
     callback_url = 'http://' + request.get_host() + reverse('bulbs.videos.views.upload_successful')
 
     policy_dict = {
-        "expiration": expiration.isoformat(),
+        "expiration": "2020-01-01T00:00:00Z",
         "conditions": [
             {"bucket": settings.VIDEO_BUCKET},
             {"acl": "private"},
             {"success_action_redirect": callback_url},
             ["starts-with", "$key", directory],
-            ["starts-with", "$Content-Type", ""],
             ["content-length-range", 0, 104857600],
         ]
     }

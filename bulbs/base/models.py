@@ -26,7 +26,6 @@ class ContentManager(models.Manager):
         else:
             return super(ContentManager, self).get_query_set()
 
-
     def only_type(self, cls_or_instance):
         """
         Only return content of the specified type.
@@ -60,7 +59,10 @@ class Content(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return self.content_type.model_class().get_absolute_url(self)
+        content_class = self.content_type.model_class()
+        if hasattr(content_class, "get_content_url"):
+            print(content_class.get_content_url)
+            return content_class.get_content_url(self)
 
     class Meta:
         unique_together = (('content_type', 'object_id'),)  # sets up a one-one-relationship between this and a child content object
@@ -73,10 +75,11 @@ class ContentMixin(object):
     """
 
     @classmethod
-    def get_absolute_url(content):
-        if hasattr(content.content_object, 'get_absolute_url'):
-            return content.content_object.get_absolute_url()
+    def get_content_url(cls, content):
         return None
+
+    def get_absolute_url(self):
+        return self.content_object.get_absolute_url()
 
     @classmethod
     def create_content(cls, **kwargs):

@@ -9,7 +9,7 @@ class ContentInline(generic.GenericStackedInline):
 
 class ContentAdmin(admin.ModelAdmin):
     list_display = ('title', 'content_type',)
-    list_filter = ('content_type',)
+    list_filter = ('content_type',)        
 
 admin.site.register(Content, ContentAdmin)
 admin.site.register(Tag)
