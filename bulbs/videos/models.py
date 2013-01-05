@@ -1,6 +1,5 @@
 import requests
 import json
-import urlparse
 
 from django.db import models
 from django.conf import settings
@@ -20,29 +19,40 @@ class Video(models.Model):
         super(Video, self).save(*args, **kwargs)
 
         if self.original and not self.sources.exists():
-            path = urlparse.urlparse(self.original).path
             output_format_params = {
                 'bucket': settings.VIDEO_BUCKET,
-                'directory': settings.VIDEO_DIRECTORY,
+                'directory': getattr(settings, 'VIDEO_OUTPUT_DIRECTORY', 'videos/output'),
                 'pk': self.pk,
                 'size': 'high'
             }
             payload = {
-                'input': 's3:/%s' % path,
+                'input': self.original,
                 'outputs': [
                     {
                         "format": "mp4",
                         "public": True,
-                        "url": "s3://%(bucket)s/%(directory)s/%(pk)s/%(size)s.mp4" % output_format_params
+                        "url": "s3://%(bucket)s/%(directory)s/%(pk)s/%(size)s.mp4" % output_format_params,
+                        "width": 640,
+                        "height": 320
                     },
                     {
                         "format": "webm",
                         "public": True,
-                        "url": "s3://%(bucket)s/%(directory)s/%(pk)s/%(size)s.webm" % output_format_params
+                        "url": "s3://%(bucket)s/%(directory)s/%(pk)s/%(size)s.webm" % output_format_params,
+                        "width": 640,
+                        "height": 320
                     }
                 ]
             }
-            requests.post('https://app.zencoder.com/api/v2/jobs', data=json.dumps(payload), headers={'Zencoder-Api-Key': settings.ZENCODER_API_KEY})
+            auth_headers = {'Zencoder-Api-Key': settings.ZENCODER_API_KEY}
+            response = requests.post('https://app.zencoder.com/api/v2/jobs', data=json.dumps(payload), headers=auth_headers)
+            for output in response.json()['outputs']:
+                src = output['url']
+
+                # TODO: Maybe use os.path.splittext ?
+                extension = src.split(".")[-1]
+
+                VideoSource.objects.create(video=self, type="video/%s" % extension, src=src)
 
 
 class VideoSource(models.Model):

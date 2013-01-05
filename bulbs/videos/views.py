@@ -15,7 +15,7 @@ def upload_successful(request):
 def aws_attrs(request):
 
     expiration = datetime.datetime.utcnow() + datetime.timedelta(hours=1)
-    directory = getattr(settings, 'VIDEO_DIRECTORY', '')
+    directory = getattr(settings, 'VIDEO_INPUT_DIRECTORY', 'videos/input')
     callback_url = 'http://' + request.get_host() + reverse('bulbs.videos.views.upload_successful')
 
     policy_dict = {
