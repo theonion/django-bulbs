@@ -10,7 +10,7 @@ class Tag(models.Model):
         return self.name
 
 
-class ContentManager(models.Manager):
+class HandleManager(models.Manager):
     def tagged_as(self, *tag_names):
         """
         Return content that's been tagged with tags of the specified names.
@@ -22,9 +22,9 @@ class ContentManager(models.Manager):
         Will return objects tagged with tags named 'tag1' OR 'tag2.'
         """
         if tag_names:
-            return super(ContentManager, self).get_query_set().filter(tags__name__in=tag_names).distinct()
+            return super(HandleManager, self).get_query_set().filter(tags__name__in=tag_names).distinct()
         else:
-            return super(ContentManager, self).get_query_set()
+            return super(HandleManager, self).get_query_set()
 
     def only_type(self, cls_or_instance):
         """
@@ -34,10 +34,10 @@ class ContentManager(models.Manager):
 
             Content.objects.only_type(TestContentObj).filter(author="mbone")
         """
-        return super(ContentManager, self).filter(content_type=ContentType.objects.get_for_model(cls_or_instance))
+        return super(HandleManager, self).filter(content_type=ContentType.objects.get_for_model(cls_or_instance))
 
 
-class Content(models.Model):
+class Handle(models.Model):
     """
     Base Content object.
     """
@@ -53,7 +53,7 @@ class Content(models.Model):
     object_id = models.PositiveIntegerField()
     content_object = generic.GenericForeignKey('content_type', 'object_id')
 
-    objects = ContentManager()
+    objects = HandleManager()
 
     def __unicode__(self):
         return self.title
@@ -61,7 +61,6 @@ class Content(models.Model):
     def get_absolute_url(self):
         content_class = self.content_type.model_class()
         if hasattr(content_class, "get_content_url"):
-            print(content_class.get_content_url)
             return content_class.get_content_url(self)
 
     class Meta:
@@ -74,8 +73,8 @@ class ContentMixin(object):
     Mixin for objects that'd like to be considered 'content.'
     """
 
-    @classmethod
-    def get_content_url(cls, content):
+    @staticmethod
+    def get_content_url(content):
         return None
 
     def get_absolute_url(self):
@@ -93,7 +92,7 @@ class ContentMixin(object):
                                           field2="my field two",
                                           content__title="my title")
 
-        Creates a `TestContentObj` instance first with the fields you'd expect, AND a `Content` instance tied to the
+        Creates a `TestContentObj` instance first with the fields you'd expect, AND a `Handle` instance tied to the
         `TestContentObj` instance that's just been created.
         """
         content_kwargs = {}
@@ -111,17 +110,17 @@ class ContentMixin(object):
 
         content_kwargs.update({'content_type': ContentType.objects.get_for_model(obj_instance),
                                'object_id': obj_instance.pk})
-        Content.objects.create(**content_kwargs)
+        Handle.objects.create(**content_kwargs)
 
         return obj_instance
 
     @property
     def content(self):
         """
-        Return the corresponding `base.models.Content` object.
+        Return the corresponding `base.models.Handle` object.
 
-        It should always exist, but if it doesn't, a `Content.DoesNotExist` exception will be raised.
+        It should always exist, but if it doesn't, a `Handle.DoesNotExist` exception will be raised.
         """
         # TODO cache this.
-        return Content.objects.get(object_id=self.pk,
+        return Handle.objects.get(object_id=self.pk,
                                    content_type=ContentType.objects.get_for_model(self).id)

@@ -1,4 +1,4 @@
-git+git://github.com/django/django.git@1.5b2
+git+git://github.com/django/django.git@f58aae9311ade7a59ca97ec1e5dee7c08ab86f28#egg=Django-dev
 Markdown==2.2.1
 Pillow==1.7.8
 coverage==3.6b1

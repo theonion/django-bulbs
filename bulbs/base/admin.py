@@ -1,15 +1,17 @@
 from django.contrib import admin
 from django.contrib.contenttypes import generic
 
-from bulbs.base.models import Content, Tag
+from bulbs.base.models import Handle, Tag
 
-class ContentInline(generic.GenericStackedInline):
-    model = Content
+
+class HandleInline(generic.GenericStackedInline):
+    model = Handle
     max_num = 1
 
-class ContentAdmin(admin.ModelAdmin):
-    list_display = ('title', 'content_type',)
-    list_filter = ('content_type',)        
 
-admin.site.register(Content, ContentAdmin)
+class HandleAdmin(admin.ModelAdmin):
+    list_display = ('title', 'content_type',)
+    list_filter = ('content_type',)
+
+admin.site.register(Handle, HandleAdmin)
 admin.site.register(Tag)

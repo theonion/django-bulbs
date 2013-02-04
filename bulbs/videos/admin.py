@@ -7,6 +7,7 @@ from bulbs.videos.widgets import AmazonUploadWidget
 
 class VideoSourceInline(admin.StackedInline):
     model = VideoSource
+    fields = ('src', 'type')
 
 
 class VideoAdmin(admin.ModelAdmin):
