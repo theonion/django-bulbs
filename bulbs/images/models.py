@@ -20,7 +20,14 @@ def image_locname(content_type, object_id, filename):
 
 
 def image_upload_to(instance, filename):
-    return image_locname(instance.content_type, instance.object_id, filename)
+    pieces = [
+        'images',
+        str(int(instance.id) / 1000),
+        str(instance.id),
+        "original",
+        filename
+    ]
+    return os.path.join(*pieces)
 
 
 class Image(models.Model):

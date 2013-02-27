@@ -1,6 +1,11 @@
+import datetime
+import rawes
+
 from django.db import models
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
+from django.conf import settings
+from django.utils import timezone
 
 
 class Tag(models.Model):
@@ -10,7 +15,15 @@ class Tag(models.Model):
         return self.name
 
 
-class HandleManager(models.Manager):
+class ContentManager(models.Manager):
+
+    def search(self, **kwargs):
+        """
+        If ElasticSearch is being used, we'll use that for the query, and otherwise
+        fall back to Django's .filter().
+        """
+        self.es = rawes.Elastic(**settings.ES_SERVER)
+
     def tagged_as(self, *tag_names):
         """
         Return content that's been tagged with tags of the specified names.
@@ -22,9 +35,9 @@ class HandleManager(models.Manager):
         Will return objects tagged with tags named 'tag1' OR 'tag2.'
         """
         if tag_names:
-            return super(HandleManager, self).get_query_set().filter(tags__name__in=tag_names).distinct()
+            return super(ContentManager, self).get_query_set().filter(tags__name__in=tag_names).distinct()
         else:
-            return super(HandleManager, self).get_query_set()
+            return super(ContentManager, self).get_query_set()
 
     def only_type(self, cls_or_instance):
         """
@@ -34,18 +47,24 @@ class HandleManager(models.Manager):
 
             Content.objects.only_type(TestContentObj).filter(author="mbone")
         """
-        return super(HandleManager, self).filter(content_type=ContentType.objects.get_for_model(cls_or_instance))
+        return super(ContentManager, self).filter(content_type=ContentType.objects.get_for_model(cls_or_instance))
 
 
-class Handle(models.Model):
+class Content(models.Model):
     """
     Base Content object.
+
+    This object includes all shared data.
+
     """
-    created = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(default=timezone.now)
+    modified = models.DateTimeField(default=timezone.now)
 
     title = models.CharField(max_length=255)
-    author = models.CharField(max_length=255)
+    slug = models.SlugField()
+    description = models.CharField(max_length=510)
+    _byline = models.CharField(max_length=255, null=True, blank=True)
+    _subhead = models.CharField(max_length=255, null=True, blank=True)  # NY Times calls this a "kicker"? This would probably be used as a "feature type".
 
     tags = models.ManyToManyField(Tag)
 
@@ -53,37 +72,52 @@ class Handle(models.Model):
     object_id = models.PositiveIntegerField()
     content_object = generic.GenericForeignKey('content_type', 'object_id')
 
-    objects = HandleManager()
+    objects = ContentManager()
 
     def __unicode__(self):
         return self.title
 
     def get_absolute_url(self):
         content_class = self.content_type.model_class()
-        if hasattr(content_class, "get_content_url"):
-            return content_class.get_content_url(self)
+        return content_class.get_content_url(self) or content_object.get_absolute_url()
+
+    def byline(self):
+        content_class = self.content_type.model_class()
+        if hasattr(content_class, "byline"):
+            return content_class.byline(self)
+        return self._byline
+
+    def subhead(self):
+        content_class = self.content_type.model_class()
+        if hasattr(content_class, "subhead"):
+            return content_class.subhead(self)
+        return self._subhead
+
+    def save(self, *args, **kwargs):
+        super(Content, self).save(*args, **kwargs)
+        es = rawes.Elastic(**settings.ES_SERVER)
+        es_data = {
+            'slug': self.slug,
+            'title': self.title,
+            'description': self.description,
+            'byline': self.byline(),
+            'subhead': self.subhead(),
+            'created': self.created,
+            'modified': self.modified,
+            'type': '%s-%s' % (self.content_type.app_label, self.content_type.model),
+        }
+        es.put('content/%d' % self.id, data=es_data)
 
     class Meta:
         unique_together = (('content_type', 'object_id'),)  # sets up a one-one-relationship between this and a child content object
         verbose_name_plural = "content"
 
 
-class ContentMixin(object):
-    """
-    Mixin for objects that'd like to be considered 'content.'
-    """
-
-    @staticmethod
-    def get_content_url(content):
-        return None
-
-    def get_absolute_url(self):
-        return self.content_object.get_absolute_url()
-
-    @classmethod
-    def create_content(cls, **kwargs):
+class ContentDelegateManager(models.Manager):
+    
+    def create(self, **kwargs):
         """
-        Create this object and the parent content object.
+        Create the delegate object and the parent content object.
 
         Pass all the regular kwargs you'd like to this method and pass kwargs to the parent Content object by prefixing
         them with `content__`. For example:
@@ -92,35 +126,48 @@ class ContentMixin(object):
                                           field2="my field two",
                                           content__title="my title")
 
-        Creates a `TestContentObj` instance first with the fields you'd expect, AND a `Handle` instance tied to the
+        Creates a `TestContentObj` instance first with the fields you'd expect, AND a `Content` instance tied to the
         `TestContentObj` instance that's just been created.
         """
+        
+        content_keys = ['title', 'slug', 'description', 'byline', 'subhead', 'tags']  # The keys you want
         content_kwargs = {}
-        obj_kwargs = {}
+        for key in content_keys:
+            if key in kwargs:
+                content_kwargs[key] = kwargs[key]
+                del kwargs[key]
 
-        for key, value in kwargs.iteritems():
-            if key.startswith("content__"):
-                new_key = "".join(key.split("content__")[1:])
-                content_kwargs[new_key] = value
-            else:
-                obj_kwargs[key] = value
-
-        # TODO wrap in transaction
-        obj_instance = cls.objects.create(**obj_kwargs)
-
+        obj_instance = super(ContentDelegateManager, self).create(**kwargs)
         content_kwargs.update({'content_type': ContentType.objects.get_for_model(obj_instance),
                                'object_id': obj_instance.pk})
-        Handle.objects.create(**content_kwargs)
+        Content.objects.create(**content_kwargs)
 
         return obj_instance
+
+class ContentDelegateBase(models.Model):
+    """
+    Mixin for objects that'd like to be considered 'content.'
+    """
+
+    class Meta:
+        abstract = True
+
+    objects = ContentDelegateManager()
+
+    @staticmethod
+    def get_content_url(content):
+        return None
+
+    def get_absolute_url(self):
+        return self.content_object.get_absolute_url()
 
     @property
     def content(self):
         """
-        Return the corresponding `base.models.Handle` object.
+        Return the corresponding `base.models.Content` object.
 
-        It should always exist, but if it doesn't, a `Handle.DoesNotExist` exception will be raised.
+        It should always exist, but if it doesn't, a `Content.DoesNotExist` exception will be raised.
         """
         # TODO cache this.
-        return Handle.objects.get(object_id=self.pk,
+        return Content.objects.get(object_id=self.pk,
                                    content_type=ContentType.objects.get_for_model(self).id)

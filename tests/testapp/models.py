@@ -1,8 +1,9 @@
 from django.db import models
-from bulbs.base.models import ContentMixin
+from bulbs.base.models import ContentDelegateBase
 
 
-class TestContentObj(models.Model, ContentMixin):
+class TestContentObj(ContentDelegateBase):
+
     field1 = models.CharField(max_length=255)
     field2 = models.CharField(max_length=255)
 
