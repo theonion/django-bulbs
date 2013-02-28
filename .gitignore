@@ -10,3 +10,4 @@ share
 *~
 dist
 django_bulbs.egg-info
+.vagrant

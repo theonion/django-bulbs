@@ -24,6 +24,7 @@ class ContentManager(models.Manager):
         """
         self.es = rawes.Elastic(**settings.ES_SERVER)
 
+
     def tagged_as(self, *tag_names):
         """
         Return content that's been tagged with tags of the specified names.

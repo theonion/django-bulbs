@@ -14,8 +14,21 @@ url = 'http://gitlab.theonion.com/afns'
 author = 'Chris Sinchok'
 author_email = 'csinchok@theonion.com'
 license = 'BSD'
-install_requires = ['django', 'markdown', 'mdx_smartypants', 'Pillow']
-
+requires = [
+    "Django==1.5",
+    "Markdown==2.2.1",
+    "Pillow==1.7.8",
+    "South==0.7.6",
+    "mdx-smartypants==1.3",
+    "namedentities==1.301",
+    "python-dateutil==2.1",
+    "pytz==2012h",
+    "rawes==0.3.6",
+    "requests==1.1.0",
+    "six==1.2.0",
+    "thrift==0.8.0",
+    "wsgiref==0.1.2"
+]
 
 def get_version(package):
     """
@@ -69,5 +82,5 @@ setup(
     author_email=author_email,
     packages=get_packages(package),
     package_data=get_package_data(package),
-    install_requires=install_requires
+    install_requires=requires
 )
