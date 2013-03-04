@@ -21,8 +21,16 @@ class ContentManager(models.Manager):
         """
         If ElasticSearch is being used, we'll use that for the query, and otherwise
         fall back to Django's .filter().
+
+        Allowed params:
+
+         * query
+         * tag(s)?
+         * content_type
+         * published
         """
-        self.es = rawes.Elastic(**settings.ES_SERVER)
+
+        self.es = rawes.Elastic(**settings.ES_SERVER)  # TODO: Connection pooling
 
 
     def tagged_as(self, *tag_names):
@@ -64,7 +72,10 @@ class Content(models.Model):
     title = models.CharField(max_length=255)
     slug = models.SlugField()
     description = models.CharField(max_length=510)
+    
+    authors = models.ManyToManyField(settings.AUTH_USER_MODEL)
     _byline = models.CharField(max_length=255, null=True, blank=True)
+    
     _subhead = models.CharField(max_length=255, null=True, blank=True)  # NY Times calls this a "kicker"? This would probably be used as a "feature type".
 
     tags = models.ManyToManyField(Tag)
@@ -83,10 +94,22 @@ class Content(models.Model):
         return content_class.get_content_url(self) or content_object.get_absolute_url()
 
     def byline(self):
+        
+        # If the delegate has customized how the Byline is generated, we'll use that.
         content_class = self.content_type.model_class()
         if hasattr(content_class, "byline"):
             return content_class.byline(self)
-        return self._byline
+
+        # If we have an override byline, we'll use that first.
+        if self._byline:
+            return self._byline
+
+        # If we have authors, just put them in a list
+        if self.authors.exists():
+            return ", ".join([user.get_full_name() for user in self.authors.all()])
+
+        # Well, shit. I guess there's no byline.
+        return None
 
     def subhead(self):
         content_class = self.content_type.model_class()
@@ -105,7 +128,7 @@ class Content(models.Model):
             'subhead': self.subhead(),
             'created': self.created,
             'modified': self.modified,
-            'type': '%s-%s' % (self.content_type.app_label, self.content_type.model),
+            'content_type': '%s-%s' % (self.content_type.app_label, self.content_type.model),
         }
         es.put('content/%d' % self.id, data=es_data)
 
@@ -131,17 +154,26 @@ class ContentDelegateManager(models.Manager):
         `TestContentObj` instance that's just been created.
         """
         
-        content_keys = ['title', 'slug', 'description', 'byline', 'subhead', 'tags']  # The keys you want
+        content_keys = ['title', 'slug', 'description', 'byline', 'subhead']  # The keys you want
         content_kwargs = {}
         for key in content_keys:
             if key in kwargs:
                 content_kwargs[key] = kwargs[key]
                 del kwargs[key]
 
+        tags = []
+        if 'tags' in kwargs:
+            tags = kwargs["tags"]
+            del kwargs["tags"]
+
+
         obj_instance = super(ContentDelegateManager, self).create(**kwargs)
         content_kwargs.update({'content_type': ContentType.objects.get_for_model(obj_instance),
                                'object_id': obj_instance.pk})
-        Content.objects.create(**content_kwargs)
+        content = Content.objects.create(**content_kwargs)
+        for tag in tags:
+            content.tags.add(tag)
+            content.save()
 
         return obj_instance
 

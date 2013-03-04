@@ -8,8 +8,11 @@ ADMINS = (
 )
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'bulbs_tests',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'bulbs',
+        'HOST': '127.0.0.1',
+        'USER': 'postgres',
+        'PASSWORD': 'onion321'
     }
 }
 STATIC_ROOT = pjoin(PROJ_ROOT, 'static')

@@ -1,5 +1,6 @@
 import rawes
 import copy
+import itertools
 
 from django.test import TestCase as DBTestCase
 from django.contrib.contenttypes.models import ContentType
@@ -8,7 +9,7 @@ from django.conf import settings
 
 from bulbs.base.models import Tag, Content
 try:
-    from testapp.models import TestContentObj
+    from testapp.models import TestContentObj, TestContentObjTwo
 except:
     raise ImportError("Something with your test app isn't configured correctly")
 
@@ -26,6 +27,31 @@ class ESTestCase(DBTestCase):
         del server_conf['path']
         es = rawes.Elastic(**server_conf)
         es.delete(index_name)
+
+
+class SearchTestCase(ESTestCase):
+
+    def setUp(self):
+        super(SearchTestCase, self).setUp()
+        self.tag1 = Tag.objects.create(name="tag1")
+        self.tag2 = Tag.objects.create(name="tag2")
+        self.tag3 = Tag.objects.create(name="tag3")
+
+        for tags in itertools.combinations([self.tag1, self.tag2, self.tag3], 2):
+            TestContentObj.objects.create(title="Tags: %s,%s" % (tags[0].name, tags[1].name),
+                                            tags=tags,
+                                            field1=tags[0].name,
+                                            field2=tags[1].name)
+
+            TestContentObjTwo.objects.create(title="Tags: %s,%s" % tags,
+                                tags=tags,
+                                field1=tags[0].name,
+                                field2=tags[1].name,
+                                field3=3)
+
+    def test_search(self):
+        results = Content.objects.search(tags=["tag1", "tag2"])
+        print(results)
 
 
 class TagsTestCase(ESTestCase):
