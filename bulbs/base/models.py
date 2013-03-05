@@ -1,4 +1,3 @@
-import datetime
 import rawes
 
 from django.db import models
@@ -31,7 +30,6 @@ class ContentManager(models.Manager):
         """
 
         self.es = rawes.Elastic(**settings.ES_SERVER)  # TODO: Connection pooling
-
 
     def tagged_as(self, *tag_names):
         """
@@ -72,10 +70,10 @@ class Content(models.Model):
     title = models.CharField(max_length=255)
     slug = models.SlugField()
     description = models.CharField(max_length=510)
-    
+
     authors = models.ManyToManyField(settings.AUTH_USER_MODEL)
     _byline = models.CharField(max_length=255, null=True, blank=True)
-    
+
     _subhead = models.CharField(max_length=255, null=True, blank=True)  # NY Times calls this a "kicker"? This would probably be used as a "feature type".
 
     tags = models.ManyToManyField(Tag)
@@ -91,10 +89,10 @@ class Content(models.Model):
 
     def get_absolute_url(self):
         content_class = self.content_type.model_class()
-        return content_class.get_content_url(self) or content_object.get_absolute_url()
+        return content_class.get_content_url(self) or self.content_object.get_absolute_url()
 
     def byline(self):
-        
+
         # If the delegate has customized how the Byline is generated, we'll use that.
         content_class = self.content_type.model_class()
         if hasattr(content_class, "byline"):
@@ -138,7 +136,7 @@ class Content(models.Model):
 
 
 class ContentDelegateManager(models.Manager):
-    
+
     def create(self, **kwargs):
         """
         Create the delegate object and the parent content object.
@@ -153,7 +151,7 @@ class ContentDelegateManager(models.Manager):
         Creates a `TestContentObj` instance first with the fields you'd expect, AND a `Content` instance tied to the
         `TestContentObj` instance that's just been created.
         """
-        
+
         content_keys = ['title', 'slug', 'description', 'byline', 'subhead']  # The keys you want
         content_kwargs = {}
         for key in content_keys:
@@ -176,6 +174,7 @@ class ContentDelegateManager(models.Manager):
             content.save()
 
         return obj_instance
+
 
 class ContentDelegateBase(models.Model):
     """

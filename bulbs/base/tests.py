@@ -38,16 +38,18 @@ class SearchTestCase(ESTestCase):
         self.tag3 = Tag.objects.create(name="tag3")
 
         for tags in itertools.combinations([self.tag1, self.tag2, self.tag3], 2):
-            TestContentObj.objects.create(title="Tags: %s,%s" % (tags[0].name, tags[1].name),
-                                            tags=tags,
-                                            field1=tags[0].name,
-                                            field2=tags[1].name)
+            TestContentObj.objects.create(
+                title="Tags: %s,%s" % (tags[0].name, tags[1].name),
+                tags=tags,
+                field1=tags[0].name,
+                field2=tags[1].name)
 
-            TestContentObjTwo.objects.create(title="Tags: %s,%s" % tags,
-                                tags=tags,
-                                field1=tags[0].name,
-                                field2=tags[1].name,
-                                field3=3)
+            TestContentObjTwo.objects.create(
+                title="Tags: %s,%s" % tags,
+                tags=tags,
+                field1=tags[0].name,
+                field2=tags[1].name,
+                field3=3)
 
     def test_search(self):
         results = Content.objects.search(tags=["tag1", "tag2"])
@@ -98,13 +100,15 @@ class TagsTestCase(ESTestCase):
         self.assertTrue(self.content2 in tagged)
 
     def test_tag_manager(self):
-        test_obj1 = TestContentObj.objects.create(title="content1",
-                                                    field1="myfield1",
-                                                    field2="myfield2")
+        test_obj1 = TestContentObj.objects.create(
+            title="content1",
+            field1="myfield1",
+            field2="myfield2")
 
-        test_obj2 = TestContentObj.objects.create(title="content2",
-                                                    field1="mysecondfield1",
-                                                    field2="mysecondfield2")
+        test_obj2 = TestContentObj.objects.create(
+            title="content2",
+            field1="mysecondfield1",
+            field2="mysecondfield2")
 
         self.assertEqual(0, Content.objects.tagged_as("tag1").count())
 
@@ -120,9 +124,10 @@ class TagsTestCase(ESTestCase):
         self.assertEqual(1, Content.objects.tagged_as("tag1", "tag2").filter(title="content1").count())
 
     def test_only_type_manager(self):
-        test_obj1 = TestContentObj.objects.create(title="content1",
-                                                    field1="myfield1",
-                                                    field2="myfield2")
+        test_obj1 = TestContentObj.objects.create(
+            title="content1",
+            field1="myfield1",
+            field2="myfield2")
 
         self.assertEquals([test_obj1.content], list(Content.objects.only_type(TestContentObj)))
         self.assertEquals([test_obj1.content], list(Content.objects.only_type(test_obj1)))
@@ -131,16 +136,18 @@ class TagsTestCase(ESTestCase):
 class ContentMixinTestCase(ESTestCase):
 
     def test_content_url(self):
-        TestContentObj.objects.create(title="content_title",
-                              field1="myfield1",
-                              field2="myfield2")
+        TestContentObj.objects.create(
+            title="content_title",
+            field1="myfield1",
+            field2="myfield2")
         content_object = Content.objects.get()
         self.assertEquals(content_object.get_absolute_url(), "/testobject/%s" % content_object.pk)
 
     def test_content_property(self):
-        test_obj1 = TestContentObj.objects.create(title="content1",
-                                                    field1="myfield1",
-                                                    field2="myfield2")
+        test_obj1 = TestContentObj.objects.create(
+            title="content1",
+            field1="myfield1",
+            field2="myfield2")
 
         self.assertEquals(test_obj1.content.title, "content1")
 

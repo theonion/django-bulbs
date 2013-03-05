@@ -10,7 +10,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'bulbs',
-        'HOST': '127.0.0.1',
+        'HOST': 'localhost',
+        'PORT': 6543,
         'USER': 'postgres',
         'PASSWORD': 'onion321'
     }

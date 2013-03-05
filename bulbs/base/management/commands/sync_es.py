@@ -28,9 +28,9 @@ class Command(BaseCommand):
                         "modified": {"type": "date"},
                         "description": {"type": "string"},
                         "byline": {"type": "string"},
-                        "subhead": {"type" : "string"},
-                        "tags": {"type" : "string", "index_name" : "tag"},
-                        "content_type": {"type" : "string"},
+                        "subhead": {"type": "string"},
+                        "tags": {"type": "string", "index_name": "tag"},
+                        "content_type": {"type": "string"},
                     }
                 }
             }
