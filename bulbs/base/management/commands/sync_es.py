@@ -24,13 +24,12 @@ class Command(BaseCommand):
                     "properties": {
                         "title": {"type": "string"},
                         "slug": {"type": "string", "index": "not_analyzed"},
-                        "created": {"type": "date"},
-                        "modified": {"type": "date"},
+                        "published": {"type": "date"},
                         "description": {"type": "string"},
                         "byline": {"type": "string"},
                         "subhead": {"type": "string"},
                         "tags": {"type": "string", "index_name": "tag"},
-                        "content_type": {"type": "string"},
+                        "content_type": {"type": "string", "index": "not_analyzed"},
                     }
                 }
             }

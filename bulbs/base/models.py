@@ -14,6 +14,94 @@ class Tag(models.Model):
         return self.name
 
 
+class ContentQuerySet(object):
+
+    def __init__(self, published=True, content_type=None, tags=[]):
+        self.published = published
+        self.tags = tags
+        self.content_type = content_type
+
+    def data(self):
+        must = []
+        if self.published:
+            must.append(self.published)
+
+        if self.tags:
+            must.append(self.tags)
+
+        if self.content_type:
+            must.append(self.content_type)
+
+        search_data = {
+            'query': {
+                'bool': {
+                    'must': must
+                },
+            }
+        }
+        return search_data
+
+    @property
+    def content_type(self):
+        return self._content_type
+
+    @content_type.setter
+    def content_type(self, value):
+        self._content_type = None
+        if type(value) is str:
+            self._content_type = {
+                'term': {
+                    'content_type': value
+                }
+            }
+        elif value is not None:
+            self._content_type = {
+                'terms': {
+                    'content_type': value,
+                    'minimum_match': 1
+                }
+            }
+
+    @property
+    def tags(self):
+        return self._tags
+
+    @tags.setter
+    def tags(self, value):
+        # TODO: Test for actual Tag() objects
+        self._tags = []
+        for tag in value:
+            self._tags.append({
+                'term': {
+                    "tag": tag,
+                }
+            })
+
+    @property
+    def published(self):
+        return self._published
+
+    @published.setter
+    def published(self, value):
+        if value is True:
+            self._published = {
+                'range': {
+                    'published': {
+                        'to': timezone.now(),
+                    }
+                }
+            }
+        if value is False:
+            self._published = {
+                'range': {
+                    'published': {
+                        'from': timezone.now(),
+                    }
+                }
+            }
+        # TODO: Test for datetime
+
+
 class ContentManager(models.Manager):
 
     def search(self, **kwargs):
@@ -29,7 +117,17 @@ class ContentManager(models.Manager):
          * published
         """
 
-        self.es = rawes.Elastic(**settings.ES_SERVER)  # TODO: Connection pooling
+        es = rawes.Elastic(**settings.ES_SERVER)  # TODO: Connection pooling
+
+        query = ContentQuerySet(**kwargs)
+
+        # if 'query' in kwargs:
+        #     search_data['query']['query_string'] = {
+        #         'query': kwargs['query']
+        #     }
+
+        results = es.get('content/_search', data=query.data())
+        return results
 
     def tagged_as(self, *tag_names):
         """
@@ -61,11 +159,10 @@ class Content(models.Model):
     """
     Base Content object.
 
-    This object includes all shared data.
+    This object includes all the "head" data.
 
     """
-    created = models.DateTimeField(default=timezone.now)
-    modified = models.DateTimeField(default=timezone.now)
+    published = models.DateTimeField(null=True, blank=True)
 
     title = models.CharField(max_length=255)
     slug = models.SlugField()
@@ -74,13 +171,13 @@ class Content(models.Model):
     authors = models.ManyToManyField(settings.AUTH_USER_MODEL)
     _byline = models.CharField(max_length=255, null=True, blank=True)
 
-    _subhead = models.CharField(max_length=255, null=True, blank=True)  # NY Times calls this a "kicker"? This would probably be used as a "feature type".
+    _subhead = models.CharField(max_length=255, null=True, blank=True)
 
     tags = models.ManyToManyField(Tag)
 
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
-    content_object = generic.GenericForeignKey('content_type', 'object_id')
+    body = generic.GenericForeignKey('content_type', 'object_id')
 
     objects = ContentManager()
 
@@ -89,7 +186,7 @@ class Content(models.Model):
 
     def get_absolute_url(self):
         content_class = self.content_type.model_class()
-        return content_class.get_content_url(self) or self.content_object.get_absolute_url()
+        return content_class.get_content_url(self) or self.body.get_absolute_url()
 
     def byline(self):
 
@@ -124,10 +221,11 @@ class Content(models.Model):
             'description': self.description,
             'byline': self.byline(),
             'subhead': self.subhead(),
-            'created': self.created,
-            'modified': self.modified,
+            'published': self.published,
             'content_type': '%s-%s' % (self.content_type.app_label, self.content_type.model),
         }
+        if self.tags.exists():
+            es_data['tags'] = list(self.tags.values_list('name', flat=True))
         es.put('content/%d' % self.id, data=es_data)
 
     class Meta:
@@ -152,31 +250,25 @@ class ContentDelegateManager(models.Manager):
         `TestContentObj` instance that's just been created.
         """
 
-        content_keys = ['title', 'slug', 'description', 'byline', 'subhead']  # The keys you want
-        content_kwargs = {}
-        for key in content_keys:
-            if key in kwargs:
-                content_kwargs[key] = kwargs[key]
-                del kwargs[key]
-
         tags = []
         if 'tags' in kwargs:
             tags = kwargs["tags"]
             del kwargs["tags"]
 
+        obj = self.model()
+        obj._head = Content()
+        for key, value in kwargs.items():
+            setattr(obj, key, value)
+        obj.save(force_insert=True)
 
-        obj_instance = super(ContentDelegateManager, self).create(**kwargs)
-        content_kwargs.update({'content_type': ContentType.objects.get_for_model(obj_instance),
-                               'object_id': obj_instance.pk})
-        content = Content.objects.create(**content_kwargs)
         for tag in tags:
-            content.tags.add(tag)
-            content.save()
+            obj.tags.add(tag)
+        obj.save()
 
-        return obj_instance
+        return obj
 
 
-class ContentDelegateBase(models.Model):
+class ContentBody(models.Model):
     """
     Mixin for objects that'd like to be considered 'content.'
     """
@@ -186,6 +278,25 @@ class ContentDelegateBase(models.Model):
 
     objects = ContentDelegateManager()
 
+    def __getattr__(self, name):
+        if name == '_head':
+            return None
+        return self.head.__getattribute__(name)
+
+    def save(self, *args, **kwargs):
+        # TODO: wrap this in a transaction
+        super(ContentBody, self).save(*args, **kwargs)
+        if self.head:
+            ignore_fields = ['tags', 'authors', 'content_type', self.head._meta.pk.attname]
+            for name in Content._meta.get_all_field_names():
+                if name in ignore_fields:
+                    continue
+                value = getattr(self, name)
+                setattr(self.head, name, value)
+            self.head.content_type = ContentType.objects.get_for_model(self.__class__)
+            self.head.object_id = self.pk
+            self.head.save(force_insert=kwargs.get('force_insert', False))
+
     @staticmethod
     def get_content_url(content):
         return None
@@ -194,12 +305,12 @@ class ContentDelegateBase(models.Model):
         return self.content_object.get_absolute_url()
 
     @property
-    def content(self):
-        """
-        Return the corresponding `base.models.Content` object.
+    def head(self):
+        if self._head:
+            return self._head
 
-        It should always exist, but if it doesn't, a `Content.DoesNotExist` exception will be raised.
-        """
-        # TODO cache this.
-        return Content.objects.get(object_id=self.pk,
-                                   content_type=ContentType.objects.get_for_model(self).id)
+        try:
+            self._head = Content.objects.get(object_id=self.pk, content_type=ContentType.objects.get_for_model(self).id)
+            return self._head
+        except Content.DoesNotExist:
+            return None

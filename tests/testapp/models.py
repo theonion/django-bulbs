@@ -1,8 +1,8 @@
 from django.db import models
-from bulbs.base.models import ContentDelegateBase
+from bulbs.base.models import ContentBody
 
 
-class TestContentObj(ContentDelegateBase):
+class TestContentObj(ContentBody):
 
     field1 = models.CharField(max_length=255)
     field2 = models.CharField(max_length=255)
@@ -12,7 +12,7 @@ class TestContentObj(ContentDelegateBase):
         return "/testobject/%s" % content_object.pk
 
 
-class TestContentObjTwo(ContentDelegateBase):
+class TestContentObjTwo(ContentBody):
 
     field1 = models.CharField(max_length=255)
     field2 = models.CharField(max_length=255)

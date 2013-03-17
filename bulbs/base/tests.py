@@ -1,11 +1,13 @@
 import rawes
 import copy
 import itertools
+import datetime
 
 from django.test import TestCase as DBTestCase
 from django.contrib.contenttypes.models import ContentType
 from django.core.management import call_command
 from django.conf import settings
+from django.utils import timezone
 
 from bulbs.base.models import Tag, Content
 try:
@@ -36,24 +38,31 @@ class SearchTestCase(ESTestCase):
         self.tag1 = Tag.objects.create(name="tag1")
         self.tag2 = Tag.objects.create(name="tag2")
         self.tag3 = Tag.objects.create(name="tag3")
+        self.tag4 = Tag.objects.create(name="tag4")
 
-        for tags in itertools.combinations([self.tag1, self.tag2, self.tag3], 2):
+        for tags in itertools.combinations([self.tag1, self.tag2, self.tag3, self.tag4], 2):
+            one_hour_ago = timezone.now() - datetime.timedelta(hours=1)
             TestContentObj.objects.create(
                 title="Tags: %s,%s" % (tags[0].name, tags[1].name),
                 tags=tags,
                 field1=tags[0].name,
-                field2=tags[1].name)
+                field2=tags[1].name,
+                published=one_hour_ago)
 
             TestContentObjTwo.objects.create(
-                title="Tags: %s,%s" % tags,
+                title="Tags: %s,%s" % (tags[0].name, tags[1].name),
                 tags=tags,
                 field1=tags[0].name,
                 field2=tags[1].name,
-                field3=3)
+                field3=3,
+                published=one_hour_ago)
+
+        self.es.get('_refresh')
 
     def test_search(self):
-        results = Content.objects.search(tags=["tag1", "tag2"])
-        print(results)
+        results = Content.objects.search(content_type=["testapp-testcontentobjtwo", "testapp-testcontentobj"], tags=["tag1", "tag2"])
+        import pprint
+        pprint.pprint(results)
 
 
 class TagsTestCase(ESTestCase):
@@ -112,13 +121,13 @@ class TagsTestCase(ESTestCase):
 
         self.assertEqual(0, Content.objects.tagged_as("tag1").count())
 
-        test_obj1.content.tags.add(self.tag1)
+        test_obj1.head.tags.add(self.tag1)
         self.assertEqual(1, Content.objects.tagged_as("tag1").count())
 
-        test_obj2.content.tags.add(self.tag1)
+        test_obj2.head.tags.add(self.tag1)
         self.assertEqual(2, Content.objects.tagged_as("tag1").count())
 
-        test_obj2.content.tags.add(self.tag2)
+        test_obj2.head.tags.add(self.tag2)
         self.assertEqual(1, Content.objects.tagged_as("tag2").count())
         self.assertEqual(2, Content.objects.tagged_as("tag1", "tag2").count())
         self.assertEqual(1, Content.objects.tagged_as("tag1", "tag2").filter(title="content1").count())
@@ -129,8 +138,8 @@ class TagsTestCase(ESTestCase):
             field1="myfield1",
             field2="myfield2")
 
-        self.assertEquals([test_obj1.content], list(Content.objects.only_type(TestContentObj)))
-        self.assertEquals([test_obj1.content], list(Content.objects.only_type(test_obj1)))
+        self.assertEquals([test_obj1.head], list(Content.objects.only_type(TestContentObj)))
+        self.assertEquals([test_obj1.head], list(Content.objects.only_type(test_obj1)))
 
 
 class ContentMixinTestCase(ESTestCase):
@@ -148,8 +157,16 @@ class ContentMixinTestCase(ESTestCase):
             title="content1",
             field1="myfield1",
             field2="myfield2")
+        self.assertEquals(test_obj1.head.title, "content1")
+        self.assertEquals(test_obj1.title, "content1")
 
-        self.assertEquals(test_obj1.content.title, "content1")
+        test_obj1.title = "content1-alt"
+        self.assertEquals(test_obj1.title, "content1-alt")
+        self.assertNotEquals(test_obj1.head.title, "content1-alt")
+
+        test_obj1.save()
+        self.assertEquals(test_obj1.title, "content1-alt")
+        self.assertEquals(test_obj1.head.title, "content1-alt")
 
     def test_create_content(self):
         TestContentObj.objects.create(title="content_title",
@@ -158,4 +175,4 @@ class ContentMixinTestCase(ESTestCase):
 
         self.assertEquals(TestContentObj.objects.get().field1, "myfield1")
         self.assertEquals(TestContentObj.objects.get().field2, "myfield2")
-        self.assertEquals(TestContentObj.objects.get().content.title, "content_title")
+        self.assertEquals(TestContentObj.objects.get().head.title, "content_title")
