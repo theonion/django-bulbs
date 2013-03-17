@@ -250,20 +250,11 @@ class ContentDelegateManager(models.Manager):
         `TestContentObj` instance that's just been created.
         """
 
-        tags = []
-        if 'tags' in kwargs:
-            tags = kwargs["tags"]
-            del kwargs["tags"]
-
         obj = self.model()
         obj._head = Content()
         for key, value in kwargs.items():
             setattr(obj, key, value)
         obj.save(force_insert=True)
-
-        for tag in tags:
-            obj.tags.add(tag)
-        obj.save()
 
         return obj
 

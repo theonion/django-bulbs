@@ -42,20 +42,20 @@ class SearchTestCase(ESTestCase):
 
         for tags in itertools.combinations([self.tag1, self.tag2, self.tag3, self.tag4], 2):
             one_hour_ago = timezone.now() - datetime.timedelta(hours=1)
-            TestContentObj.objects.create(
+            test_obj_1 = TestContentObj.objects.create(
                 title="Tags: %s,%s" % (tags[0].name, tags[1].name),
-                tags=tags,
                 field1=tags[0].name,
                 field2=tags[1].name,
                 published=one_hour_ago)
+            test_obj_1.tags.add(*tags)
 
-            TestContentObjTwo.objects.create(
+            test_obj_2 = TestContentObjTwo.objects.create(
                 title="Tags: %s,%s" % (tags[0].name, tags[1].name),
-                tags=tags,
                 field1=tags[0].name,
                 field2=tags[1].name,
                 field3=3,
                 published=one_hour_ago)
+            test_obj_2.tags.add(*tags)
 
         self.es.get('_refresh')
 
