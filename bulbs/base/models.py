@@ -5,6 +5,7 @@ from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 from django.utils import timezone
+from django.db.models.signals import m2m_changed
 
 
 class Tag(models.Model):
@@ -120,12 +121,8 @@ class ContentManager(models.Manager):
         es = rawes.Elastic(**settings.ES_SERVER)  # TODO: Connection pooling
 
         query = ContentQuerySet(**kwargs)
-
-        # if 'query' in kwargs:
-        #     search_data['query']['query_string'] = {
-        #         'query': kwargs['query']
-        #     }
-
+        import pprint
+        pprint.pprint(query.data())
         results = es.get('content/_search', data=query.data())
         return results
 
@@ -226,11 +223,21 @@ class Content(models.Model):
         }
         if self.tags.exists():
             es_data['tags'] = list(self.tags.values_list('name', flat=True))
-        es.put('content/%d' % self.id, data=es_data)
+        es.put('content/%d' % self.pk, data=es_data)
 
     class Meta:
         unique_together = (('content_type', 'object_id'),)  # sets up a one-one-relationship between this and a child content object
         verbose_name_plural = "content"
+
+
+def tags_changed(sender, instance, action, model, **kwargs):
+    es = rawes.Elastic(**settings.ES_SERVER)
+
+    if action == "post_add" and instance.tags.exists():
+        es_data = es.get('content/%d' % instance.pk)['_source']
+        es_data['tags'] = list(instance.tags.values_list('name', flat=True))
+        es.put('content/%d' % instance.pk, data=es_data)
+m2m_changed.connect(tags_changed, sender=Content.tags.through)
 
 
 class ContentDelegateManager(models.Manager):
