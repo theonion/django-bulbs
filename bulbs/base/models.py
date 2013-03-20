@@ -1,106 +1,32 @@
 import rawes
+import logging
 
 from django.db import models
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
-from django.utils import timezone
-from django.db.models.signals import m2m_changed
+from django.utils import timezone, six
+
+from bulbs.images.models import Image
 
 
 class Tag(models.Model):
     name = models.CharField(max_length=255)
+    slug = models.SlugField(unique=True)
+    description = models.TextField(null=True, blank=True)
+    image = models.ForeignKey(Image, null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        super(Tag, self).save(*args, **kwargs)
+        es = rawes.Elastic(**settings.ES_SERVER)
+        es_data = {
+            'name': self.name,
+            'description': self.description,
+        }
+        es.put('tag/%d' % self.pk, data=es_data)
 
     def __unicode__(self):
         return self.name
-
-
-class ContentQuerySet(object):
-
-    def __init__(self, published=True, content_type=None, tags=[]):
-        self.published = published
-        self.tags = tags
-        self.content_type = content_type
-
-    def data(self):
-        must = []
-        if self.published:
-            must.append(self.published)
-
-        if self.tags:
-            must.append(self.tags)
-
-        if self.content_type:
-            must.append(self.content_type)
-
-        search_data = {
-            'query': {
-                'bool': {
-                    'must': must
-                },
-            }
-        }
-        return search_data
-
-    @property
-    def content_type(self):
-        return self._content_type
-
-    @content_type.setter
-    def content_type(self, value):
-        self._content_type = None
-        if type(value) is str:
-            self._content_type = {
-                'term': {
-                    'content_type': value
-                }
-            }
-        elif value is not None:
-            self._content_type = {
-                'terms': {
-                    'content_type': value,
-                    'minimum_match': 1
-                }
-            }
-
-    @property
-    def tags(self):
-        return self._tags
-
-    @tags.setter
-    def tags(self, value):
-        # TODO: Test for actual Tag() objects
-        self._tags = []
-        for tag in value:
-            self._tags.append({
-                'term': {
-                    "tag": tag,
-                }
-            })
-
-    @property
-    def published(self):
-        return self._published
-
-    @published.setter
-    def published(self, value):
-        if value is True:
-            self._published = {
-                'range': {
-                    'published': {
-                        'to': timezone.now(),
-                    }
-                }
-            }
-        if value is False:
-            self._published = {
-                'range': {
-                    'published': {
-                        'from': timezone.now(),
-                    }
-                }
-            }
-        # TODO: Test for datetime
 
 
 class ContentManager(models.Manager):
@@ -118,13 +44,7 @@ class ContentManager(models.Manager):
          * published
         """
 
-        es = rawes.Elastic(**settings.ES_SERVER)  # TODO: Connection pooling
-
-        query = ContentQuerySet(**kwargs)
-        import pprint
-        pprint.pprint(query.data())
-        results = es.get('content/_search', data=query.data())
-        return results
+        return ElasticQuerySet(**kwargs)
 
     def tagged_as(self, *tag_names):
         """
@@ -159,18 +79,19 @@ class Content(models.Model):
     This object includes all the "head" data.
 
     """
+    HEAD_FIELDS = ['published', 'title', 'subhead', 'slug', 'description', 'byline', 'tags', 'feature_type', 'content_type', 'object_id']
+
     published = models.DateTimeField(null=True, blank=True)
 
     title = models.CharField(max_length=255)
     slug = models.SlugField()
+    subhead = models.CharField(max_length=255, null=True, blank=True)
     description = models.CharField(max_length=510)
 
     authors = models.ManyToManyField(settings.AUTH_USER_MODEL)
     _byline = models.CharField(max_length=255, null=True, blank=True)
-
-    _subhead = models.CharField(max_length=255, null=True, blank=True)
-
-    tags = models.ManyToManyField(Tag)
+    _tags = models.TextField(null=True, blank=True)
+    _feature_type = models.CharField(max_length=255, null=True, blank=True)
 
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
@@ -185,9 +106,23 @@ class Content(models.Model):
         content_class = self.content_type.model_class()
         return content_class.get_content_url(self) or self.body.get_absolute_url()
 
-    def byline(self):
+    @property
+    def tags(self):
+        if self._tags:
+            return [tag.strip().lower() for tag in self._tags.split(",")]
+        return None
 
-        # If the delegate has customized how the Byline is generated, we'll use that.
+    @tags.setter
+    def tags(self, value):
+        # TODO: is this too terrible? Should a setter really have this behavior? Too implicit?
+        if isinstance(value, basestring):
+            self._tags = ",".join([tag.strip().lower() for tag in self._tags.split(",")])
+        else:
+            self._tags = ",".join([tag.strip().lower() for tag in value])
+
+    @property
+    def byline(self):
+        # If the body has customized how the Byline is generated, we'll use that.
         content_class = self.content_type.model_class()
         if hasattr(content_class, "byline"):
             return content_class.byline(self)
@@ -203,11 +138,25 @@ class Content(models.Model):
         # Well, shit. I guess there's no byline.
         return None
 
-    def subhead(self):
+    @byline.setter
+    def byline(self, value):
+        self._byline = value
+
+    @property
+    def feature_type(self):
+        # If the body has customized how the Byline is generated, we'll use that.
         content_class = self.content_type.model_class()
-        if hasattr(content_class, "subhead"):
-            return content_class.subhead(self)
-        return self._subhead
+        if hasattr(content_class, "feature_type"):
+            return content_class.feature_type(self)
+
+        if self._feature_type:
+            return self._feature_type
+
+        return None
+
+    @feature_type.setter
+    def feature_type(self, value):
+        self._feature_type = value
 
     def save(self, *args, **kwargs):
         super(Content, self).save(*args, **kwargs)
@@ -216,28 +165,19 @@ class Content(models.Model):
             'slug': self.slug,
             'title': self.title,
             'description': self.description,
-            'byline': self.byline(),
-            'subhead': self.subhead(),
+            'byline': self.byline,
+            'subhead': self.subhead,
             'published': self.published,
+            'feature_type': self.feature_type,
+            'tags': self.tags,
             'content_type': '%s-%s' % (self.content_type.app_label, self.content_type.model),
+            'object_id': self.object_id
         }
-        if self.tags.exists():
-            es_data['tags'] = list(self.tags.values_list('name', flat=True))
         es.put('content/%d' % self.pk, data=es_data)
 
     class Meta:
         unique_together = (('content_type', 'object_id'),)  # sets up a one-one-relationship between this and a child content object
         verbose_name_plural = "content"
-
-
-def tags_changed(sender, instance, action, model, **kwargs):
-    es = rawes.Elastic(**settings.ES_SERVER)
-
-    if action == "post_add" and instance.tags.exists():
-        es_data = es.get('content/%d' % instance.pk)['_source']
-        es_data['tags'] = list(instance.tags.values_list('name', flat=True))
-        es.put('content/%d' % instance.pk, data=es_data)
-m2m_changed.connect(tags_changed, sender=Content.tags.through)
 
 
 class ContentDelegateManager(models.Manager):
@@ -281,16 +221,19 @@ class ContentBody(models.Model):
             return None
         return self.head.__getattribute__(name)
 
+    def __unicode__(self):
+        return "<%s: #%s>" % (self.__class__.__name__, self.pk)
+
     def save(self, *args, **kwargs):
         # TODO: wrap this in a transaction
         super(ContentBody, self).save(*args, **kwargs)
         if self.head:
-            ignore_fields = ['tags', 'authors', 'content_type', self.head._meta.pk.attname]
-            for name in Content._meta.get_all_field_names():
-                if name in ignore_fields:
+            for name in Content.HEAD_FIELDS:
+                try:
+                    value = object.__getattribute__(self, name)
+                    setattr(self.head, name, value)
+                except AttributeError:
                     continue
-                value = getattr(self, name)
-                setattr(self.head, name, value)
             self.head.content_type = ContentType.objects.get_for_model(self.__class__)
             self.head.object_id = self.pk
             self.head.save(force_insert=kwargs.get('force_insert', False))
