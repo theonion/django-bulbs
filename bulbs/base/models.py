@@ -8,6 +8,7 @@ from django.conf import settings
 from django.utils import timezone, six
 
 from bulbs.images.models import Image
+from bulbs.base.query import ElasticQuerySet
 
 
 class Tag(models.Model):
@@ -44,7 +45,7 @@ class ContentManager(models.Manager):
          * published
         """
 
-        return ElasticQuerySet(**kwargs)
+        return ElasticQuerySet(Content)
 
     def tagged_as(self, *tag_names):
         """

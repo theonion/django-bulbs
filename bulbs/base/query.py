@@ -4,8 +4,6 @@ import logging
 from django.utils import timezone
 from django.conf import settings
 
-from bulbs.base.models import Content
-
 
 class ElasticSearchQuery(object):
     def __init__(self, published=True, content_type=None, tags=[]):
@@ -91,7 +89,7 @@ class ElasticQuerySet(object):
 
     Supports chaining (a la QuerySet) to narrow the search.
     """
-    def __init__(self, query=None):
+    def __init__(self, model, query=None):
         # ``_using`` should only ever be a value other than ``None`` if it's
         # been forced with the ``.using`` method.
         self._es = rawes.Elastic(**settings.ES_SERVER)
@@ -102,6 +100,7 @@ class ElasticQuerySet(object):
         if query is not None:
             self.query = query
 
+        self.model = model
         self._result_cache = []
         self._result_count = None
         self._cache_full = False
@@ -252,7 +251,7 @@ class ElasticQuerySet(object):
         to_cache = []
 
         for result in results:
-            content = Content()
+            content = self.model()
             content.pk = result['_id']
             for key, value in result['_source'].items():
                 if key == "content_type":
