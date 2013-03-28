@@ -45,32 +45,7 @@ class ContentManager(models.Manager):
          * published
         """
 
-        return ElasticQuerySet(Content)
-
-    def tagged_as(self, *tag_names):
-        """
-        Return content that's been tagged with tags of the specified names.
-
-        For example:
-
-            Content.objects.tagged_as("tag1", "tag2")
-
-        Will return objects tagged with tags named 'tag1' OR 'tag2.'
-        """
-        if tag_names:
-            return super(ContentManager, self).get_query_set().filter(tags__name__in=tag_names).distinct()
-        else:
-            return super(ContentManager, self).get_query_set()
-
-    def only_type(self, cls_or_instance):
-        """
-        Only return content of the specified type.
-
-        For example:
-
-            Content.objects.only_type(TestContentObj).filter(author="mbone")
-        """
-        return super(ContentManager, self).filter(content_type=ContentType.objects.get_for_model(cls_or_instance))
+        return ElasticQuerySet(Content).search(**kwargs)
 
 
 class Content(models.Model):
