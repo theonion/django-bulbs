@@ -125,9 +125,10 @@ class ElasticQuerySet(object):
     def _objectify(self, result):
         content = self.model()
         content.pk = result['_id']
+        # TODO: make this a "shallow" object, including only the head variables, and disable the setting/getting of body varibles
         for key, value in result['_source'].items():
             if key == "content_type":
-                app_label, model = value.split("-")
+                app_label, model = value.split(".")
                 content_type = ContentType.objects.get(app_label=app_label, model=model)
                 content.content_type = content_type
                 continue

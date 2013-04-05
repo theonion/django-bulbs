@@ -8,7 +8,7 @@ from django.core.management import call_command
 from django.conf import settings
 from django.utils import timezone
 
-from bulbs.base.models import Tag, Content
+from bulbs.base.models import Content
 try:
     from testapp.models import TestContentObj, TestContentObjTwo
 except:
@@ -34,8 +34,6 @@ class SearchTestCase(ESTestCase):
 
     def setUp(self):
         super(SearchTestCase, self).setUp()
-        self.tag1 = Tag.objects.create(name="tag1", slug="tag1", description="This is a more important tag")
-        self.tag4 = Tag.objects.create(name="tag4", slug="tag4", description="This is a WAY more important tag")
 
         for tags in itertools.combinations(["tag1", "tag2", "tag3", "tag4"], 2):
             one_hour_ago = timezone.now() - datetime.timedelta(hours=1)
@@ -60,7 +58,7 @@ class SearchTestCase(ESTestCase):
         results = Content.objects.all()
         self.assertEqual(len(results), 12)
 
-        results = Content.objects.search(content_type=["testapp-testcontentobjtwo", "testapp-testcontentobj"], tags=["tag1", "tag2"])
+        results = Content.objects.search(content_type=["testapp.testcontentobjtwo", "testapp.testcontentobj"], tags=["tag1", "tag2"])
         self.assertEqual(len(results), 2)
         for result in results:
             self.assertTrue('tag1' in result.tags)
@@ -68,41 +66,8 @@ class SearchTestCase(ESTestCase):
             self.assertFalse('tag3' in result.tags)
             self.assertFalse('tag4' in result.tags)
 
-        results = Content.objects.search(content_type=["testapp-testcontentobjtwo"])
+        results = Content.objects.search(content_type=["testapp.testcontentobjtwo"])
         self.assertEqual(len(results), 6)
 
-
-class ContentMixinTestCase(ESTestCase):
-
-    def test_content_url(self):
-        TestContentObj.objects.create(
-            title="content_title",
-            field1="myfield1",
-            field2="myfield2")
-        content_object = Content.objects.get()
-        self.assertEquals(content_object.get_absolute_url(), "/testobject/%s" % content_object.pk)
-
-    def test_content_property(self):
-        test_obj1 = TestContentObj.objects.create(
-            title="content1",
-            field1="myfield1",
-            field2="myfield2")
-        self.assertEquals(test_obj1.head.title, "content1")
-        self.assertEquals(test_obj1.title, "content1")
-
-        test_obj1.title = "content1-alt"
-        self.assertEquals(test_obj1.title, "content1-alt")
-        self.assertNotEquals(test_obj1.head.title, "content1-alt")
-
-        test_obj1.save()
-        self.assertEquals(test_obj1.title, "content1-alt")
-        self.assertEquals(test_obj1.head.title, "content1-alt")
-
-    def test_create_content(self):
-        TestContentObj.objects.create(title="content_title",
-                                      field1="myfield1",
-                                      field2="myfield2")
-
-        self.assertEquals(TestContentObj.objects.get().field1, "myfield1")
-        self.assertEquals(TestContentObj.objects.get().field2, "myfield2")
-        self.assertEquals(TestContentObj.objects.get().head.title, "content_title")
+        results = Content.objects.search(content_type=["testapp.testcontentobj"])
+        self.assertEqual(len(results), 6)

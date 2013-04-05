@@ -1,23 +1,21 @@
 from django.db import models
-from bulbs.base.models import ContentBody
+from bulbs.base.models import ContentBase
 
 
-class TestContentObj(ContentBody):
+class TestContentObj(ContentBase):
 
     field1 = models.CharField(max_length=255)
     field2 = models.CharField(max_length=255)
 
-    @staticmethod
-    def get_content_url(content_object):
-        return "/testobject/%s" % content_object.pk
+    def get_absolute_url(self):
+        return "/testobject/%s" % self.pk
 
 
-class TestContentObjTwo(ContentBody):
+class TestContentObjTwo(ContentBase):
 
     field1 = models.CharField(max_length=255)
     field2 = models.CharField(max_length=255)
     field3 = models.IntegerField()
 
-    @staticmethod
-    def get_content_url(content_object):
-        return "/testobject2/%s" % content_object.pk
+    def get_absolute_url(self):
+        return "/testobject2/%s" % self.pk
