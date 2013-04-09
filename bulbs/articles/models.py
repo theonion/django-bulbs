@@ -5,5 +5,4 @@ from bulbs.images.models import Image
 
 
 class Article(ContentBase):
-    image = models.ForeignKey(Image, null=True, blank=True)
     body = models.TextField()
