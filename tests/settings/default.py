@@ -26,6 +26,7 @@ INSTALLED_APPS = (
     # A test app to help with mixin stuff
     'testapp',
 
+    'bulbs.articles',
     'bulbs.base',
     'bulbs.images',
     'bulbs.markdown',
