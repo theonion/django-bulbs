@@ -38,6 +38,7 @@ class Command(BaseCommand):
                         "slug": {"type": "string", "index": "not_analyzed"},
                         "subhead": {"type": "string"},
                         "description": {"type": "string"},
+                        "image": {"type": "integer"},
                         "byline": {"type": "string"},
                         "published": {"type": "date"},
                         "tags": {"type": "string", "index_name": "tag", "analyzer": "keyword"},

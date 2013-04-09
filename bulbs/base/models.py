@@ -5,6 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 
 from bulbs.base.query import ElasticQuerySet
+from bulbs.images.models import Image
 
 
 class ContentManager(models.Manager):
@@ -53,13 +54,14 @@ class ContentBase(models.Model):
 
     title = models.CharField(max_length=255)
     slug = models.SlugField()
-    subhead = models.CharField(max_length=255, null=True, blank=True)
     description = models.CharField(max_length=510)
+    image = models.ForeignKey(Image, null=True, blank=True)
 
     authors = models.ManyToManyField(settings.AUTH_USER_MODEL)
     _byline = models.CharField(max_length=255, null=True, blank=True)  # This is an overridable field that is by default the author names
     _tags = models.TextField(null=True, blank=True)  # A comma-separated list of slugs, exposed as a list of strings
     _feature_type = models.CharField(max_length=255, null=True, blank=True)  # "New in Brief", "Newswire", etc.
+    subhead = models.CharField(max_length=255, null=True, blank=True)
 
     class Meta:
         abstract = True
@@ -80,6 +82,7 @@ class ContentBase(models.Model):
             'slug': self.slug,
             'title': self.title,
             'description': self.description,
+            'image': self.image_id,
             'byline': self.byline,
             'subhead': self.subhead,
             'published': self.published,

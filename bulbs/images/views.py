@@ -1,6 +1,4 @@
 import os
-import StringIO
-import urllib2
 
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect, HttpResponseBadRequest, Http404
@@ -10,6 +8,9 @@ from django.template import RequestContext
 from PIL import Image as PImage
 
 from bulbs.images.models import Image, ImageAspectRatio, ImageSelection
+
+MAX_WIDTH = 1200
+QUALITY_OPTIONS = [35, 90]
 
 
 def crop_ratios(request, image_id):
@@ -47,9 +48,15 @@ def crop_ratios(request, image_id):
     return response
 
 
-def crop_for_ratio(request, image_id, ratio_slug, width):
+def crop_for_ratio(request, image_id, ratio_slug, width, quality='90'):
     width = int(width)
-    if width > 1200:
+    if width > MAX_WIDTH:
+        return HttpResponseBadRequest()
+    try:
+        quality = int(quality)
+    except ValueError:
+        return HttpResponseBadRequest()
+    if quality not in QUALITY_OPTIONS:
         return HttpResponseBadRequest("Please send a message to an admin if you know what you're doing.")
 
     try:
@@ -71,36 +78,10 @@ def crop_for_ratio(request, image_id, ratio_slug, width):
     try:
         im = PImage.open(image.location.open())
     except IOError:
-        # if we can't open the file, we should 404, but if this is development we can fall back to
-        # trying to retrieve the file via http for cropping
+        # if we can't open the file, we should 404, but if this is development we'll just return a placeholder.
         if settings.DEBUG:
-            if getattr(settings, "IMAGE_CROP_FROM_HTTP", False):
-                if settings.SITE_NAME == 'onion':
-                    hack_media = "http://o.onionstatic.com/"
-                elif settings.SITE_NAME == 'avclub':
-                    hack_media = "http://media.avclub.com/"
-                else:
-                    raise Http404
-                f = StringIO.StringIO()
-                try:
-                    f.write(urllib2.urlopen("%s%s" % (hack_media, image.location)).read())
-                except urllib2.HTTPError:
-                    # if the file moved for some reason... return a placeholder
-                    ratio = ImageAspectRatio.objects.get_for_slug(ratio_slug)
-                    return HttpResponseRedirect("http://placehold.it/%sx%s" % ratio.get_size(width=width))
-
-                f.seek(0)
-                im = PImage.open(f)
-
-                # if the image is loaded over http, it is not on the filesystem
-                # and we will need to cache the image width and height for cropping with
-                # imageselection below
-                Image.objects.filter(pk=image.pk).update(_width=im.size[0], _height=im.size[1])
-                image.width, image.height = im.size
-            else:
-                # if we're not enabled for cropping from HTTP, return a placeholder
-                ratio = ImageAspectRatio.objects.get_for_slug(ratio_slug)
-                return HttpResponseRedirect("http://placehold.it/%sx%s" % ratio.get_size(width=width))
+            ratio = ImageAspectRatio.objects.get_for_slug(ratio_slug)
+            return HttpResponseRedirect("http://placehold.it/%sx%s" % ratio.get_size(width=width))
         else:
             return HttpResponseNotFound("404: Not Found")
 
@@ -114,7 +95,7 @@ def crop_for_ratio(request, image_id, ratio_slug, width):
         try:
             ratio = ImageAspectRatio.objects.get(slug=ratio_slug)
         except ImageAspectRatio.DoesNotExist:
-            return not_found(request)
+            raise Http404
         selection = ImageSelection.objects.get_or_create_for_image_and_ratio(image, ratio)
         height = (ratio.height * int(width)) / ratio.width
         im = im.crop(selection.get_box())
@@ -130,7 +111,7 @@ def crop_for_ratio(request, image_id, ratio_slug, width):
             pass
 
         f = file(save_path, "wb+")
-        im.save(f, quality=90)
+        im.save(f, quality=quality)
         f.seek(0)
         response = HttpResponse(f.read())
         f.close()
@@ -138,21 +119,7 @@ def crop_for_ratio(request, image_id, ratio_slug, width):
         response['Cache-Control'] = 'max-age=86400'
         return response
     except (IOError, OSError):  # this can happen if we don't have write access for this file
-        import logging
-        logger = logging.root
-        logger.warning("Error generating image: %s" % (save_path))
-
-        if settings.ADMIN_SITE or settings.DEBUG:
-            out = StringIO.StringIO()
-            im.save(out, "JPEG", quality=90)
-            out.seek(0)
-            response = HttpResponse(out.read())
-            out.close()
-            response['Content-Type'] = 'image/jpeg'
-            response['Cache-Control'] = 'max-age=86400'
-            return response
-        else:
-            return HttpResponseBadRequest("whoops")
+        return HttpResponseBadRequest("whoops")
 
 
 def not_found(request):
