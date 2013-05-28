@@ -8,7 +8,7 @@ from django.core.management import call_command
 from django.conf import settings
 from django.utils import timezone
 
-from bulbs.base.models import Contentish
+from bulbs.base.models import Contentish, Tagish
 try:
     from testapp.models import TestContentObj, TestContentObjTwo
 except:
@@ -50,7 +50,7 @@ class SearchTestCase(ESTestCase):
 
         self.es.refresh()
 
-    def test_search(self):
+    def test_content_search(self):
         results = Contentish.search()
         self.assertEqual(results.count(), 12)
 
@@ -66,7 +66,30 @@ class SearchTestCase(ESTestCase):
             self.assertFalse(any(tag.slug == 'tag-4' for tag in result.tags))
 
         results = Contentish.search(types=[TestContentObjTwo])
-        self.assertEqual(len(results), 6)
+        self.assertEqual(results.count(), 6)
 
         results = Contentish.search(types=[TestContentObj])
         self.assertEqual(len(results), 6)
+
+        results = Tagish.search()
+        self.assertEqual(results.count(), 4)
+
+
+class TagSearchTestCase(ESTestCase):
+    def setUp(self):
+        super(TagSearchTestCase, self).setUp()
+        for name in ["Foo", "Bar", "Baz", "FooBar", "FooBaz", "A.V. Foo"]:
+            tag = Tagish.from_name(name)
+            tag.index()
+
+        self.es.refresh()
+
+    def test_tag_search(self):
+        results = Tagish.search()
+        self.assertEqual(results.count(), 6)
+
+        results = Tagish.search('foo')
+        self.assertEqual(results.count(), 4)
+
+        results = Tagish.search('foob')
+        self.assertEqual(results.count(), 2)

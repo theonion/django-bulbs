@@ -62,6 +62,9 @@ class Tagish(models.Model):
     class Meta:
         abstract = True
 
+    def __unicode__(self):
+        return "Tag: %s" % self.name
+
     @classmethod
     def from_name(cls, name):
         obj = cls()
@@ -75,17 +78,19 @@ class Tagish(models.Model):
         es.index(index, 'tag', self.extract_document(), self.slug)
 
     def extract_document(self):
-        data = {'_id': self.slug, 'name': self.name, 'slug': self.slug}
+        data = {'name': self.name, 'slug': self.slug}
         # if getattr(self, 'id', None):
         #     data['content_type'] = self._meta.db_table
         #     data['object_id'] = self.id
         return data
 
     @classmethod
-    def search(cls):
+    def search(cls, query=None):
         index = settings.ES_INDEXES.get('default')
-        return TagishS().indexes(index).doctypes('tag')
-
+        results = TagishS().indexes(index).doctypes('tag')
+        if query:
+            results = results.query(name__wildcard="%s*" % query)
+        return results
 
 BASE_CONTENT_MAPPING = {
     "properties": {

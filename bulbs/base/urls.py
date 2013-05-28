@@ -1,6 +1,5 @@
-from django.conf.urls.defaults import *
+from django.conf.urls import patterns, url
 
-urlpatterns = patterns('',
-    #('^[0-9]+/(?P<image_id>\d+)/(?P<ratio_slug>[a-z0-9-]+)/(?P<width>\d{1,4}).jpg$', 'bulbs.images.views.crop_for_ratio'),
-    #('^crop/(?P<image_id>\d+)/$', 'bulbs.images.views.crop_ratios'),
+urlpatterns = patterns('bulbs.base.views',
+    url(r'^search/tags$', 'search_tags', name="search_tags"),
 )

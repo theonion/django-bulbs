@@ -7,18 +7,6 @@ from bulbs.images.conf import settings
 MAXIMUM_IMAGE_SIZE = (2000, 3000)
 
 
-def image_locname(content_type, object_id, filename):
-    pieces = [
-        'images',
-        content_type.app_label,
-        content_type.model,
-        str(int(object_id) / 1000),
-        str(object_id),
-        filename,
-    ]
-    return os.path.join(*pieces)
-
-
 def image_upload_to(instance, filename):
     pieces = [
         'images',

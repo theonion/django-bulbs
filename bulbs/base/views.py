@@ -5,12 +5,18 @@ from django.http import Http404, HttpResponse
 from django.core.paginator import Paginator, InvalidPage
 from django.shortcuts import render
 
-from bulbs.base.models import Content
+from bulbs.base.models import Contentish, Tagish
 
 
 def render_json(page):
     data = {'object_list': [obj.to_dict() for obj in page.object_list]}
     return HttpResponse(json.dumps(data), content_type="application/json")
+
+
+def search_tags(request):
+    tags = Tagish.search(request.GET.get('q'))
+    tag_data = [tag.name for tag in tags]
+    return HttpResponse(json.dumps(tag_data), content_type='application/json')
 
 
 class ContentListView(View):
