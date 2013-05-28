@@ -1,8 +1,8 @@
 from django.db import models
 
-from bulbs.base.models import ContentBase
+from bulbs.base.models import Contentish
 from bulbs.images.models import Image
 
 
-class Article(ContentBase):
+class Article(Contentish):
     body = models.TextField()

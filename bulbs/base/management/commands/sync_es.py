@@ -1,50 +1,48 @@
-from django.core.management.base import BaseCommand
 from django.conf import settings
+from django.core.management.base import NoArgsCommand
+from django.core.management.color import no_style
+from django.db import models
 
-import rawes
-import copy
+from elasticutils import get_es
+from pyelasticsearch.exceptions import IndexAlreadyExistsError
 
 
-class Command(BaseCommand):
+from bulbs.base.models import Contentish, Tagish
+
+
+class Command(NoArgsCommand):
     args = ''
-    help = 'Syncs the data model with Elastic Search'
+    help = "Create the Elastic Search indexes and mappings tables for all apps in INSTALLED_APPS."
 
-    def handle(self, *args, **options):
-        server_conf = copy.deepcopy(settings.ES_SERVER)
-        index_name = server_conf['path']
-        del server_conf['path']
-        es = rawes.Elastic(**server_conf)
+    def handle(self, **options):
+        self.style = no_style()
 
-        if es.head(index_name) is False:
-            es.put(index_name)
+        es = get_es(urls=settings.ES_URLS)
+        index = settings.ES_INDEXES.get('default')
+        try:
+            es.create_index(index)
+        except IndexAlreadyExistsError:
+            pass
 
-        if es.head('%s/tag' % index_name) is False:
-            mapping_data = {
-                "tag": {
-                    "properties": {
-                        "name": {"type": "string"},
-                        "slug": {"type": "string", "analyzer": "keyword"},
-                        "description": {"type": "string"}
-                    }
+        for app in models.get_apps():
+            for model in models.get_models(app, include_auto_created=True):
+                if isinstance(model(), Contentish):
+                    # print("Syncing: %s" % model.get_mapping_type_name())
+                    es.put_mapping(
+                        index,
+                        model.get_mapping_type_name(),
+                        model.get_mapping()
+                    )
+
+        tag_mapping = {
+            "tag": {
+                "properties": {
+                    "name": {"type": "string"},
+                    "slug": {"type": "string", "index": "not_analyzed"},
+                    "content_type": {"type": "string", "index": "not_analyzed"},
+                    "object_id": {"type": "integer"}
                 }
             }
-            es.put('%s/tag/_mapping' % index_name, data=mapping_data)
+        }
 
-        if es.head('%s/content' % index_name) is False:
-            mapping_data = {
-                "content": {
-                    "properties": {
-                        "title": {"type": "string"},
-                        "slug": {"type": "string", "index": "not_analyzed"},
-                        "subhead": {"type": "string"},
-                        "description": {"type": "string"},
-                        "image": {"type": "integer"},
-                        "byline": {"type": "string"},
-                        "published": {"type": "date"},
-                        "tags": {"type": "string", "index_name": "tag", "analyzer": "keyword"},
-                        "content_type": {"type": "string", "index": "not_analyzed"},
-                        "object_id": {"type": "integer"}
-                    }
-                }
-            }
-            es.put('%s/content/_mapping' % index_name, data=mapping_data)
+        es.put_mapping(index, "tag", tag_mapping)

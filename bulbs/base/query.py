@@ -1,10 +1,10 @@
-import rawes
 import logging
 
 from django.utils import timezone
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-
+from elasticutils import get_es
+from elasticutils import S
 
 REPR_OUTPUT_SIZE = 25
 FETCH_LIMIT = 25
@@ -32,13 +32,20 @@ class ElasticSearchQuery(object):
         # TODO: Test for datetime
 
         # TODO: Test for actual Tag() objects
-        self.tags = []
-        for tag in tags:
-            self.tags.append({
-                'term': {
-                    "tag": tag,
+        self.tags = None
+        if tags:
+            self.tags = {
+                'nested': {
+                    'path': 'tags',
+                    'query': {
+                        'bool': {
+                            'must': [{
+                                'term': {'tags.slug': [tag for tag in tags]}
+                            }]
+                        }
+                    }
                 }
-            })
+            }
 
         self.content_type = None
         if type(content_type) is str:
@@ -89,7 +96,7 @@ class ElasticQuerySet(object):
     def __init__(self, model, query=None):
         # ``_using`` should only ever be a value other than ``None`` if it's
         # been forced with the ``.using`` method.
-        self._es = rawes.Elastic(**settings.ES_SERVER)
+        es = get_es(urls=settings.ES_URLS)
 
         if query is None:
             self.query = ElasticSearchQuery()
@@ -137,7 +144,11 @@ class ElasticQuerySet(object):
         return content
 
     def _search(self, data=None, params={}):
-        return self._es.get('content/_search', data=data, params=params)
+        import pprint
+        response = self._es.get('content/_search', data=data, params=params)
+        pprint.pprint(data)
+        pprint.pprint(response)
+        return response
 
     def _lazy_cache(self, k):
         if len(self._result_cache) == 0:

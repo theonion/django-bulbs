@@ -1,55 +1,153 @@
-import rawes
+import datetime
+import time
 
 from django.db import models
-from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
+from django.utils import timezone
+from django.template.defaultfilters import slugify
+from django.contrib.contenttypes.models import ContentType
+
+from elasticutils import get_es, S, F, MappingType
 
 from bulbs.base.query import ElasticQuerySet
 from bulbs.images.models import Image
+from bulbs.base.base62 import base10to62, base62to10
 
 
-class ContentManager(models.Manager):
+class ContentMappingType(MappingType):
 
-    def all(self):
-        return ElasticQuerySet(Content).all()
+    @classmethod
+    def get_index(cls):
+        index = settings.ES_INDEXES.get('default')
+        return index
 
-    def search(self, **kwargs):
-        """
-        If ElasticSearch is being used, we'll use that for the query, and otherwise
-        fall back to Django's .filter().
-
-        Allowed params:
-
-         * query
-         * tag(s)?
-         * content_type
-         * published
-        """
-
-        return ElasticQuerySet(Content).search(**kwargs)
+    @classmethod
+    def get_mapping_type_name(cls):
+        return 'content'
 
 
-class Content(object):
-    """
-    Base Content object.
+class ChildEnabledS(S):
 
-    This object includes all the "head" data.
+    def process_filter_has_child(self, key, val, action):
+        return {
+            "has_child": {
+                "type": key,
+                "query": val
+            },
+        }
 
-    """
-    objects = ContentManager()
+    def _do_search(self):
+        results = super(ChildEnabledS, self)._do_search()
+        objects = []
+        for result in results:
+            app_label, model = result.content_type.split(".")
+            cls = ContentType.objects.get_by_natural_key(app_label, model).model_class()
+            obj = cls(pk=result._id)
+            obj.load_from_source(result._source)
+        return results
+
+
+# class ContentishManager(models.Manager):
+
+#     def all(self):
+#         return S().order_by('-published')
+
+#     def search(self, **kwargs):
+#         """
+#         If ElasticSearch is being used, we'll use that for the query, and otherwise
+#         fall back to Django's .filter().
+
+#         Allowed params:
+
+#          * query
+#          * tag(s)?
+#          * content_type
+#          * published
+#         """
+
+#         results = S()
+#         if kwargs.get('published', True):
+#             now = timezone.now()
+#             results = results.query(published__lte=now, must=True)
+
+#         for tag in kwargs.get('tags', []):
+#             tag_query_string = "tags.slug:%s" % tag
+#             results = results.query(__query_string=tag_query_string)
+
+#         # for tag in kwargs.get('tags', []):
+#         #     results = results.filter(tag__has_child={
+#         #         'term': {
+#         #             "slug": tag
+#         #         }
+#         #     })
+
+#         return results.order_by('-published')
+
+
+# class Content(object):
+#     """
+#     Base Content object.
+
+#     This object includes all the "head" data.
+
+#     """
+#     objects = ContentManager()
 
 
 class Tagish(models.Model):
-    pass
+
+    name = models.CharField(max_length=255)
+    slug = models.SlugField()
+
+    class Meta:
+        abstract = True
+
+    @classmethod
+    def from_name(cls, name):
+        obj = cls()
+        obj.name = name
+        obj.slug = slugify(name)
+        return obj
+
+    def index(self):
+        es = get_es(urls=settings.ES_URLS)
+        index = settings.ES_INDEXES.get('default')
+        es.index(index, 'tag', self.extract_document(), self.slug)
+
+    def extract_document(self):
+        data = {'_id': self.slug, 'name': self.name, 'slug': self.slug}
+        if getattr(self, 'id', None):
+            data['content_type'] = self._meta.db_table
+            data['object_id'] = self.id
+        return data
 
 
-class ContentBase(models.Model):
+BASE_CONTENT_MAPPING = {
+    "properties": {
+        "title": {"type": "string"},
+        "slug": {"type": "string", "index": "not_analyzed"},
+        "subhead": {"type": "string"},
+        "description": {"type": "string"},
+        "feature_type": {"type": "string"},
+        "image": {"type": "integer"},
+        "byline": {"type": "string"},
+        "published": {"type": "date"},
+        "tags": {
+            "properties": {
+                "name": {"type": "string"},
+                "slug": {"type": "string", "index": "not_analyzed"}
+            }
+        }
+    }
+}
+
+
+class Contentish(models.Model):
     """
     Abstract base class for objects that'd like to be considered 'content.'
     """
 
-    # TODO: Add universal content ID?
-    es_id = models.CharField(max_length=255, null=True, blank=True)
+    elastic_id = models.SlugField(null=True, blank=True)
     published = models.DateTimeField(null=True, blank=True)
 
     title = models.CharField(max_length=255)
@@ -59,7 +157,7 @@ class ContentBase(models.Model):
 
     authors = models.ManyToManyField(settings.AUTH_USER_MODEL)
     _byline = models.CharField(max_length=255, null=True, blank=True)  # This is an overridable field that is by default the author names
-    _tags = models.TextField(null=True, blank=True)  # A comma-separated list of slugs, exposed as a list of strings
+    _tags = models.TextField(null=True, blank=True)  # A return-separated list of tag names, exposed as a list of strings
     _feature_type = models.CharField(max_length=255, null=True, blank=True)  # "New in Brief", "Newswire", etc.
     subhead = models.CharField(max_length=255, null=True, blank=True)
 
@@ -73,50 +171,56 @@ class ContentBase(models.Model):
         return ""
 
     def save(self, *args, **kwargs):
-        super(ContentBase, self).save(*args, **kwargs)
-        self.update_index()
+        super(Contentish, self).save(*args, **kwargs)
+        if self.elastic_id is None:
+            elastic_id = "%d%d" % (ContentType.objects.get_for_model(self).id, self.id)
+            self.elastic_id = base10to62(int(elastic_id))
+            super(Contentish, self).save(update_fields=['elastic_id'])
+        self.index()
 
-    def to_dict(self):
-        content_type = ContentType.objects.get_for_model(self)
-        data = {
-            'slug': self.slug,
-            'title': self.title,
-            'description': self.description,
-            'image': self.image_id,
-            'byline': self.byline,
-            'subhead': self.subhead,
-            'published': self.published,
-            'feature_type': self.feature_type,
-            'tags': self.tags,
-            'content_type': '%s.%s' % (content_type.app_label, content_type.model),
-            'object_id': self.id
-        }
-        return data
+    @classmethod
+    def search(self, **kwargs):
+        """
+        If ElasticSearch is being used, we'll use that for the query, and otherwise
+        fall back to Django's .filter().
 
-    def update_index(self):
-        es = rawes.Elastic(**settings.ES_SERVER)
-        es_data = self.to_dict()
+        Allowed params:
 
-        if self.es_id:
-            response = es.put('content/%s' % self.es_id, data=es_data)
-        else:
-            response = es.post('content/', data=es_data)
-            self.es_id = response['_id']
-            self.save()
+         * query
+         * tag(s)?
+         * content_type
+         * published
+        """
+        es = get_es(urls=settings.ES_URLS)
+        index = settings.ES_INDEXES.get('default')
+
+        results = S().indexes(index)
+        if kwargs.get('published', True):
+            now = timezone.now()
+            results = results.query(published__lte=now, must=True)
+
+        for tag in kwargs.get('tags', []):
+            tag_query_string = "tags.slug:%s" % tag
+            results = results.query(__query_string=tag_query_string)
+
+        if kwargs.get('types'):
+            results = results.doctypes(*[type_class.get_mapping_type_name() for type_class in kwargs['types']])
+
+        return results.order_by('-published')
 
     @property
     def tags(self):
         if self._tags:
-            return [tag.strip().lower() for tag in self._tags.split(",")]
-        return None
+            return [Tagish.from_name(name) for name in self._tags.split("\n")]
+        return []
 
     @tags.setter
     def tags(self, value):
         # TODO: is this too terrible? Should a setter really have this behavior? Too implicit?
         if isinstance(value, basestring):
-            self._tags = ",".join([tag.strip().lower() for tag in self._tags.split(",")])
+            self._tags = "\n".join([tag.strip() for tag in self._tags.split("\n")])
         else:
-            self._tags = ",".join([tag.strip().lower() for tag in value])
+            self._tags = "\n".join([tag.strip() for tag in value])
 
     @property
     def byline(self):
@@ -153,3 +257,48 @@ class ContentBase(models.Model):
     @feature_type.setter
     def feature_type(self, value):
         self._feature_type = value
+
+    # ElasticUtils stuff
+    def index(self):
+        es = get_es(urls=settings.ES_URLS)
+        index = settings.ES_INDEXES.get('default')
+        es.index(index, self.get_mapping_type_name(), self.extract_document(), self.elastic_id)
+
+        for tag in self.tags:
+            tag.index()
+
+    def load_from_source(self, _source):
+        self.slug = _source['slug']
+        self.title = _source['title']
+        self.description = _source['description']
+        self.subhead = _source['subhead']
+        self.published = _source['published']
+        self.feature_type = _source['feature_type']
+        # [self._for tag in _source['tags']]
+
+    @classmethod
+    def get_mapping_type_name(cls):
+        return "%s_%s" % (cls._meta.app_label, cls.__name__.lower())
+
+    @classmethod
+    def get_mapping(cls):
+        return {
+            cls.get_mapping_type_name(): BASE_CONTENT_MAPPING
+        }
+
+    def extract_document(self):
+        data = {
+            'slug': self.slug,
+            'title': self.title,
+            'description': self.description,
+            'image': self.image_id,
+            'byline': self.byline,
+            'subhead': self.subhead,
+            'published': self.published,
+            'feature_type': self.feature_type,
+            'tags': [{
+                'name': tag.name,
+                'slug': tag.slug
+            } for tag in self.tags]
+        }
+        return data

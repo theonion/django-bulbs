@@ -1,8 +1,8 @@
 from django.db import models
-from bulbs.base.models import ContentBase
+from bulbs.base.models import Contentish
 
 
-class TestContentObj(ContentBase):
+class TestContentObj(Contentish):
 
     field1 = models.CharField(max_length=255)
     field2 = models.CharField(max_length=255)
@@ -11,7 +11,7 @@ class TestContentObj(ContentBase):
         return "/testobject/%s" % self.pk
 
 
-class TestContentObjTwo(ContentBase):
+class TestContentObjTwo(Contentish):
 
     field1 = models.CharField(max_length=255)
     field2 = models.CharField(max_length=255)

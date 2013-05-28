@@ -36,9 +36,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 )
 SECRET_KEY = '9uab*ok!i=cnpkzcbuoa3y9d#&g589pq**4(n9t-jhsp-^yh7='
 USE_TZ = True
-ES_SERVER = {
-    'url': 'localhost:9200',
-    'path': 'testing',
-    'timeout': 30,
-    'connection_type': None
+ES_URLS = ["http://localhost:9200"]
+ES_INDEXES = {
+    'default': 'testing'
 }
