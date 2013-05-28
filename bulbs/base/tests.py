@@ -1,5 +1,6 @@
 import itertools
 import datetime
+import json
 
 from elasticutils import get_es, S
 
@@ -7,6 +8,7 @@ from django.test import TestCase as DBTestCase
 from django.core.management import call_command
 from django.conf import settings
 from django.utils import timezone
+from django.test.client import Client
 
 from bulbs.base.models import Contentish, Tagish
 try:
@@ -93,3 +95,11 @@ class TagSearchTestCase(ESTestCase):
 
         results = Tagish.search('foob')
         self.assertEqual(results.count(), 2)
+
+    def test_tag_search_view(self):
+        client = Client()
+        response = client.get('/base/search/tags?q=foo')
+        self.assertEqual(response.status_code, 200)
+
+        response_data = json.loads(response.content)
+        self.assertEqual(len(response_data), 4)
