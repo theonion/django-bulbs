@@ -8,6 +8,7 @@ from django.template.defaultfilters import slugify
 from django.contrib.contenttypes.models import ContentType
 
 from elasticutils import get_es, S, F, MappingType
+from pyelasticsearch.exceptions import ElasticHttpNotFoundError
 
 from bulbs.base.query import ElasticQuerySet
 from bulbs.images.models import Image
@@ -26,72 +27,31 @@ class ContentMappingType(MappingType):
         return 'content'
 
 
-class ChildEnabledS(S):
-
-    def process_filter_has_child(self, key, val, action):
-        return {
-            "has_child": {
-                "type": key,
-                "query": val
-            },
-        }
+class ContentishS(S):
 
     def _do_search(self):
-        results = super(ChildEnabledS, self)._do_search()
+        results = super(ContentishS, self)._do_search()
         objects = []
         for result in results:
-            app_label, model = result.content_type.split(".")
-            cls = ContentType.objects.get_by_natural_key(app_label, model).model_class()
-            obj = cls(pk=result._id)
+            app_label, model = result._type.split("_")
+            content_type = ContentType.objects.get_by_natural_key(app_label, model)
+            cls = content_type.model_class()
+            pk = str(result._id).replace(str(content_type.id), '', 1)
+            obj = cls(pk=pk)
             obj.load_from_source(result._source)
-        return results
+            objects.append(obj)
+        return objects
 
 
-# class ContentishManager(models.Manager):
+class TagishS(S):
 
-#     def all(self):
-#         return S().order_by('-published')
-
-#     def search(self, **kwargs):
-#         """
-#         If ElasticSearch is being used, we'll use that for the query, and otherwise
-#         fall back to Django's .filter().
-
-#         Allowed params:
-
-#          * query
-#          * tag(s)?
-#          * content_type
-#          * published
-#         """
-
-#         results = S()
-#         if kwargs.get('published', True):
-#             now = timezone.now()
-#             results = results.query(published__lte=now, must=True)
-
-#         for tag in kwargs.get('tags', []):
-#             tag_query_string = "tags.slug:%s" % tag
-#             results = results.query(__query_string=tag_query_string)
-
-#         # for tag in kwargs.get('tags', []):
-#         #     results = results.filter(tag__has_child={
-#         #         'term': {
-#         #             "slug": tag
-#         #         }
-#         #     })
-
-#         return results.order_by('-published')
-
-
-# class Content(object):
-#     """
-#     Base Content object.
-
-#     This object includes all the "head" data.
-
-#     """
-#     objects = ContentManager()
+    def _do_search(self):
+        results = super(TagishS, self)._do_search()
+        objects = []
+        for result in results:
+            obj = Tagish(slug=result._source['slug'], name=result._source['name'])
+            objects.append(obj)
+        return objects
 
 
 class Tagish(models.Model):
@@ -116,10 +76,15 @@ class Tagish(models.Model):
 
     def extract_document(self):
         data = {'_id': self.slug, 'name': self.name, 'slug': self.slug}
-        if getattr(self, 'id', None):
-            data['content_type'] = self._meta.db_table
-            data['object_id'] = self.id
+        # if getattr(self, 'id', None):
+        #     data['content_type'] = self._meta.db_table
+        #     data['object_id'] = self.id
         return data
+
+    @classmethod
+    def search(cls):
+        index = settings.ES_INDEXES.get('default')
+        return TagishS().indexes(index).doctypes('tag')
 
 
 BASE_CONTENT_MAPPING = {
@@ -191,10 +156,9 @@ class Contentish(models.Model):
          * content_type
          * published
         """
-        es = get_es(urls=settings.ES_URLS)
         index = settings.ES_INDEXES.get('default')
 
-        results = S().indexes(index)
+        results = ContentishS().indexes(index)
         if kwargs.get('published', True):
             now = timezone.now()
             results = results.query(published__lte=now, must=True)
@@ -211,7 +175,7 @@ class Contentish(models.Model):
     @property
     def tags(self):
         if self._tags:
-            return [Tagish.from_name(name) for name in self._tags.split("\n")]
+            return Tagish.search().query(slug__terms=[tag for tag in self._tags.split("\n")])
         return []
 
     @tags.setter
@@ -264,8 +228,12 @@ class Contentish(models.Model):
         index = settings.ES_INDEXES.get('default')
         es.index(index, self.get_mapping_type_name(), self.extract_document(), self.elastic_id)
 
-        for tag in self.tags:
-            tag.index()
+        for tag_name in self._tags.split("\n"):
+            tag = Tagish.from_name(tag_name)
+            try:
+                tag = es.get(index, 'tag', tag.slug)
+            except ElasticHttpNotFoundError:
+                tag.index()
 
     def load_from_source(self, _source):
         self.slug = _source['slug']
@@ -274,7 +242,7 @@ class Contentish(models.Model):
         self.subhead = _source['subhead']
         self.published = _source['published']
         self.feature_type = _source['feature_type']
-        # [self._for tag in _source['tags']]
+        self.tags = [tag['slug'] for tag in _source['tags']]
 
     @classmethod
     def get_mapping_type_name(cls):
@@ -297,8 +265,8 @@ class Contentish(models.Model):
             'published': self.published,
             'feature_type': self.feature_type,
             'tags': [{
-                'name': tag.name,
-                'slug': tag.slug
-            } for tag in self.tags]
+                'name': tag_name,
+                'slug': slugify(tag_name)
+            } for tag_name in self._tags.split("\n")]
         }
         return data

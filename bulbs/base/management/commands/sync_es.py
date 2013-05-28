@@ -44,5 +44,4 @@ class Command(NoArgsCommand):
                 }
             }
         }
-
         es.put_mapping(index, "tag", tag_mapping)

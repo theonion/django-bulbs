@@ -59,17 +59,14 @@ class SearchTestCase(ESTestCase):
 
         results = Contentish.search(tags=["tag-1", "tag-2"])
         self.assertEqual(len(results), 2)
-        # for result in results:
-        #     self.assertTrue('tag1' in result.tags)
-        #     self.assertTrue('tag2' in result.tags)
-        #     self.assertFalse('tag3' in result.tags)
-        #     self.assertFalse('tag4' in result.tags)
+        for result in results:
+            self.assertTrue(any(tag.slug == 'tag-1' for tag in result.tags))
+            self.assertTrue(any(tag.slug == 'tag-2' for tag in result.tags))
+            self.assertFalse(any(tag.slug == 'tag-3' for tag in result.tags))
+            self.assertFalse(any(tag.slug == 'tag-4' for tag in result.tags))
 
         results = Contentish.search(types=[TestContentObjTwo])
         self.assertEqual(len(results), 6)
 
         results = Contentish.search(types=[TestContentObj])
         self.assertEqual(len(results), 6)
-
-        # results = Content.objects.search(content_type=["testapp.testcontentobj"])
-        # self.assertEqual(len(results), 6)
