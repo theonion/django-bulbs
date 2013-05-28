@@ -3,6 +3,7 @@
 bin
 include
 lib
+src
 share
 .Python
 *.db
