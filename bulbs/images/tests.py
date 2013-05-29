@@ -40,11 +40,11 @@ class ImageTagsTestCase(TestCase):
         rendered = test_template.render(test_context)
         self.assertEqual(rendered, "/images/crops/1/1x1/200_90.jpg")
 
-        test_template = Template("""{% load images %}{% image_url image 200 ratio="1x1" format="png" %}""")
+        test_template = Template("""{% load images %}{% image_url image 200 ratio="1x1" extension="png" %}""")
         rendered = test_template.render(test_context)
         self.assertEqual(rendered, "/images/crops/1/1x1/200_100.png")
 
-        test_template = Template("""{% load images %}{% image_url image 200 ratio="1x1" format="png" %}""")
+        test_template = Template("""{% load images %}{% image_url image 200 ratio="1x1" extension="png" %}""")
         rendered = test_template.render(test_context)
         self.assertEqual(rendered, "/images/crops/1/1x1/200_100.png")
 

@@ -11,6 +11,11 @@ from bulbs.images.models import Image, ImageAspectRatio, ImageSelection
 
 MAX_WIDTH = 1200
 QUALITY_OPTIONS = [35, 90, 100]
+MIME_TYPES = {
+    'jpg': 'image/jpeg',
+    'png': 'image/png',
+    'gif': 'image/gif'
+}
 
 
 def crop_ratios(request, image_id):
@@ -48,7 +53,10 @@ def crop_ratios(request, image_id):
     return response
 
 
-def crop_for_ratio(request, image_id, width, ratio, format="jpg", quality='90'):
+def crop_for_ratio(request, image_id, width, ratio, extension, quality):
+    mime_type = MIME_TYPES.get(extension)
+    if mime_type is None:
+        return HttpResponseNotFound()
     width = int(width)
     if width > MAX_WIDTH:
         return HttpResponseNotFound()
@@ -67,9 +75,9 @@ def crop_for_ratio(request, image_id, width, ratio, format="jpg", quality='90'):
     # theoretically this url should be proected by nginx if the file already exists
     # but as a fallback in case nginx isn't configured properly
     try:
-        f = file(image.crop_path(ratio, width, format, quality, absolute=True), "rb+")
+        f = file(image.crop_path(ratio, width, extension, quality, absolute=True), "rb+")
         response = HttpResponse(f.read())
-        response['Content-Type'] = 'image/%s' % format
+        response['Content-Type'] = mime_type
         response['Cache-Control'] = 'max-age=86400'
         return response
     except IOError:
@@ -100,7 +108,7 @@ def crop_for_ratio(request, image_id, width, ratio, format="jpg", quality='90'):
         im = im.crop(selection.get_box())
 
     im = im.resize((int(width), int(height)), PImage.ANTIALIAS)
-    save_path = image.crop_path(ratio, width, format, quality, absolute=True)
+    save_path = image.crop_path(ratio, width, extension, quality, absolute=True)
 
     try:
         # Create the parent folder(s) for this crop.
@@ -114,7 +122,7 @@ def crop_for_ratio(request, image_id, width, ratio, format="jpg", quality='90'):
         f.seek(0)
         response = HttpResponse(f.read())
         f.close()
-        response['Content-Type'] = 'image/%s' % format
+        response['Content-Type'] = mime_type
         response['Cache-Control'] = 'max-age=86400'
         return response
     except (IOError, OSError):  # this can happen if we don't have write access for this file

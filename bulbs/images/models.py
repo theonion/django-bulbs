@@ -72,17 +72,17 @@ class Image(models.Model):
         # cache width and height of this image by calling the proxy methods
         width, height = self.width, self.height
 
-    def crop_path(self, ratio, width, format, quality, absolute=False):
-        if format == 'png':  # Quality is not a thing when it comes to PNGs
+    def crop_path(self, ratio, width, extension, quality, absolute=False):
+        if extension == 'png':  # Quality is not a thing when it comes to PNGs
             quality = 100
-        path = "%s/%s/%s_%s.%s" % (self.id, ratio, width, quality, format)
+        path = "%s/%s/%s_%s.%s" % (self.id, ratio, width, quality, extension)
         if absolute:
             return "%s%s" % (settings.IMAGE_CROP_ROOT, path)
         else:
             return path
 
-    def crop_url(self, ratio, width, format, quality):
-        return "%s%s" % (settings.IMAGE_CROP_URL, self.crop_path(ratio, width, format, quality))
+    def crop_url(self, ratio, width, extension, quality):
+        return "%s%s" % (settings.IMAGE_CROP_URL, self.crop_path(ratio, width, extension, quality))
 
 
 class ImageAspectRatioManager(models.Manager):
