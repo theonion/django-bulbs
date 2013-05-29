@@ -27,7 +27,6 @@ class ESTestCase(DBTestCase):
     def tearDown(self):
         self.es.delete_index(settings.ES_INDEXES.get('default'))
 
-
 class ContentishTestCase(ESTestCase):
 
     def setUp(self):
@@ -51,6 +50,15 @@ class ContentishTestCase(ESTestCase):
                 published=one_hour_ago)
 
         self.es.refresh()
+
+    def test_no_tags(self):
+        one_hour_ago = timezone.now() - datetime.timedelta(hours=1)
+        no_tags = TestContentObj.objects.create(
+            title="No Tags",
+            field1="No",
+            field2="Tags",
+            tags=[],
+            published=one_hour_ago)
 
     def test_content_search(self):
         results = Contentish.search()

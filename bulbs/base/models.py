@@ -229,6 +229,9 @@ class Contentish(models.Model):
         index = settings.ES_INDEXES.get('default')
         es.index(index, self.get_mapping_type_name(), self.extract_document(), self.elastic_id)
 
+        if not self._tags:
+            return
+
         for tag_name in self._tags.split("\n"):
             tag = Tagish.from_name(tag_name)
             try:
