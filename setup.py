@@ -19,15 +19,17 @@ requires = [
     "Markdown==2.2.1",
     "Pillow==1.7.8",
     "South==0.7.6",
+    "elasticutils==0.7.dev",
     "mdx-smartypants==1.3",
     "namedentities==1.301",
+    "pyelasticsearch==0.5",
     "python-dateutil==2.1",
     "pytz==2012h",
-    "rawes==0.3.6",
     "requests==1.1.0",
+    "simplejson==3.3.0",
     "six==1.2.0",
     "thrift==0.8.0",
-    "wsgiref==0.1.2"
+    "wsgiref==0.1.2",
 ]
 
 def get_version(package):
