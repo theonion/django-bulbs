@@ -90,6 +90,7 @@ class Tagish(models.Model):
 
 BASE_CONTENT_MAPPING = {
     "properties": {
+        "object_id": {"type": "integer"},
         "title": {"type": "string"},
         "slug": {"type": "string", "index": "not_analyzed"},
         "subhead": {"type": "string"},
@@ -260,6 +261,7 @@ class Contentish(models.Model):
 
     def extract_document(self):
         data = {
+            'object_id': self.id,
             'slug': self.slug,
             'title': self.title,
             'description': self.description,
