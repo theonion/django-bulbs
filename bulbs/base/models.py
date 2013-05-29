@@ -265,9 +265,10 @@ class Contentish(models.Model):
             'subhead': self.subhead,
             'published': self.published,
             'feature_type': self.feature_type,
-            'tags': [{
+        }
+        if self._tags:
+            data['tags'] = [{
                 'name': tag_name,
                 'slug': slugify(tag_name)
             } for tag_name in self._tags.split("\n")]
-        }
         return data
