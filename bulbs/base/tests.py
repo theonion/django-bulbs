@@ -28,10 +28,10 @@ class ESTestCase(DBTestCase):
         self.es.delete_index(settings.ES_INDEXES.get('default'))
 
 
-class SearchTestCase(ESTestCase):
+class ContentishTestCase(ESTestCase):
 
     def setUp(self):
-        super(SearchTestCase, self).setUp()
+        super(ContentishTestCase, self).setUp()
 
         for tags in itertools.combinations(["Tag 1", "Tag 2", "Tag 3", "Tag 4"], 2):
             one_hour_ago = timezone.now() - datetime.timedelta(hours=1)
@@ -75,6 +75,16 @@ class SearchTestCase(ESTestCase):
 
         results = Tagish.search()
         self.assertEqual(results.count(), 4)
+
+    def test_content_list_views(self):
+        client = Client()
+        response = client.get('/content_list_one.html')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context['object_list']), 6)
+
+        response = client.get('/content_list_one.html?tag=tag-1')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context['object_list']), 3)
 
 
 class TagSearchTestCase(ESTestCase):
