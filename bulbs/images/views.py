@@ -11,10 +11,10 @@ from bulbs.images.models import Image, ImageAspectRatio, ImageSelection
 
 MAX_WIDTH = 1200
 QUALITY_OPTIONS = [35, 90, 100]
-MIME_TYPES = {
-    'jpg': 'image/jpeg',
-    'png': 'image/png',
-    'gif': 'image/gif'
+IMAGE_TYPES = {
+    'jpg': {'mime_type': 'image/jpeg', 'format': 'JPEG'},
+    'png': {'mime_type': 'image/png', 'format': 'PNG'},
+    'gif': {'mime_type': 'image/gif', 'format': 'GIF'},
 }
 
 
@@ -54,8 +54,8 @@ def crop_ratios(request, image_id):
 
 
 def crop_for_ratio(request, image_id, width, ratio, extension, quality):
-    mime_type = MIME_TYPES.get(extension)
-    if mime_type is None:
+    image_type = IMAGE_TYPES.get(extension)
+    if image_type is None:
         return HttpResponseNotFound()
     width = int(width)
     if width > MAX_WIDTH:
@@ -77,7 +77,7 @@ def crop_for_ratio(request, image_id, width, ratio, extension, quality):
     try:
         f = file(image.crop_path(ratio, width, extension, quality, absolute=True), "rb+")
         response = HttpResponse(f.read())
-        response['Content-Type'] = mime_type
+        response['Content-Type'] = image_type['mime_type']
         response['Cache-Control'] = 'max-age=86400'
         return response
     except IOError:
@@ -118,11 +118,11 @@ def crop_for_ratio(request, image_id, width, ratio, extension, quality):
             pass
 
         f = file(save_path, "wb+")
-        im.save(f, quality=quality)
+        im.save(f, image_type['format'], quality=quality)
         f.seek(0)
         response = HttpResponse(f.read())
         f.close()
-        response['Content-Type'] = mime_type
+        response['Content-Type'] = image_type['mime_type']
         response['Cache-Control'] = 'max-age=86400'
         return response
     except (IOError, OSError):  # this can happen if we don't have write access for this file

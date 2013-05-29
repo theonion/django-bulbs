@@ -1,6 +1,6 @@
-from django.conf.urls.defaults import *
+from django.conf.urls.defaults import url, patterns
 
 urlpatterns = patterns('bulbs.images.views',
-    ('^crops/(?P<image_id>\d+)/(?P<ratio>[a-z0-9-]+)/(?P<width>\d{1,4})_(?P<quality>\d{1,2}).(?P<extension>jpg|png|gif)$', 'crop_for_ratio'),
-    ('^crop/(?P<image_id>\d+)/$', 'crop_ratios'),
+    url(r'^crops/(?P<image_id>\d+)/(?P<ratio>[a-z0-9-]+)/(?P<width>\d{1,4})_(?P<quality>\d{1,3}).(?P<extension>jpg|png|gif)$', 'crop_for_ratio', name="crop_for_ratio"),
+    url(r'^crop/(?P<image_id>\d+)/$', 'crop_ratios', name='crop_ratios'),
 )
