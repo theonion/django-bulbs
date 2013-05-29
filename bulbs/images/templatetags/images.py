@@ -1,41 +1,40 @@
 from django import template
 from django.conf import settings
+from django.template import TemplateSyntaxError
 
-from bulbs.images.models import ImageAspectRatio
+from bulbs.images.models import ImageAspectRatio, Image
+
 
 register = template.Library()
 
 
 @register.simple_tag
-def image_url(image, ratio_slug='16x9', width=360):
-    if image:
-        return image.crop_url(ratio_slug, width)
-    return ""
+def image_url(image, width, ratio='16x9', quality=75, format='jpg'):
+    if width is None or not isinstance(image, Image):
+        raise TemplateSyntaxError
+    return image.crop_url(ratio, width, format, quality)
 
 
-def _image_context(image, ratio_slug, width):
+def _image_context(image, ratio, width, format, quality):
     context = {'image': image, 'size': (0, 0), 'image_url': None}
     if image:
-        if ratio_slug == 'original':
+        if ratio == 'original':
             height = (image.height * width) / image.width
             context['size'] = (width, height)
         else:
-            ratio = ImageAspectRatio.objects.get_for_slug(ratio_slug)
-            context['size'] = ratio.get_size(width=width)
+            ratio_object = ImageAspectRatio.objects.get_for_slug(ratio)
+            context['size'] = ratio_object.get_size(width=width)
 
         if settings.DEBUG:
             context['image_url'] = 'http://placehold.it/%sx%s' % context['size']
         else:
-            context['image_url'] = image.crop_url(ratio_slug, width)
-    context['ratio_slug'] = ratio_slug
+            context['image_url'] = image.crop_url(ratio, width, format, quality)
+    context['ratio'] = ratio
     return context
 
 
-@register.inclusion_tag('images/image_feature.html', takes_context=True)
-def image_feature(context, image, ratio_slug, width):
-    return context.update(_image_context(image, ratio_slug, width))
-
-
 @register.inclusion_tag('images/image.html', takes_context=True)
-def image(context, image, ratio_slug, width):
-    return context.update(_image_context(image, ratio_slug, width))
+def image(context, image, width, ratio='16x9', quality=75, format="jpg"):
+    if width is None or not isinstance(image, Image):
+        raise TemplateSyntaxError
+    return context.update(_image_context(image, ratio, width, format, quality))

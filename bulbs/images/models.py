@@ -1,4 +1,5 @@
 import os
+from django.utils import timezone
 
 from django.db import models
 
@@ -13,7 +14,7 @@ def image_upload_to(instance, filename):
         str(int(instance.id) / 1000),
         str(instance.id),
         "original",
-        filename
+        "original.%s" % os.path.splitext(filename)[1]  # Keep the extension the same
     ]
     return os.path.join(*pieces)
 
@@ -22,8 +23,8 @@ class Image(models.Model):
     _width = models.IntegerField(blank=True, null=True, db_column='width')
     _height = models.IntegerField(blank=True, null=True, db_column='height')
 
-    created = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(default=timezone.now)
+    modified = models.DateTimeField(default=timezone.now)
     original = models.ImageField(max_length=255, upload_to=image_upload_to)
     caption = models.TextField(null=True, blank=True)
     alt = models.TextField(max_length=255, null=True, blank=True)
@@ -72,15 +73,17 @@ class Image(models.Model):
         # cache width and height of this image by calling the proxy methods
         width, height = self.width, self.height
 
-    def crop_path(self, ratio_slug, width, absolute=False):
-        path = "%s/%s/%s/%s.jpg" % (self.id / 1000, self.id, ratio_slug, width)
+    def crop_path(self, ratio, width, format, quality, absolute=False):
+        if format == 'png':  # Quality is not a thing when it comes to PNGs
+            quality = 100
+        path = "%s/%s/%s/%s_%s.%s" % (self.id / 1000, self.id, ratio, width, quality, format)
         if absolute:
             return "%s%s" % (settings.IMAGE_CROP_ROOT, path)
         else:
             return path
 
-    def crop_url(self, ratio_slug, width):
-        return "%s%s" % (settings.IMAGE_CROP_URL, self.crop_path(ratio_slug, width))
+    def crop_url(self, ratio, width, format, quality):
+        return "%s%s" % (settings.IMAGE_CROP_URL, self.crop_path(ratio, width, format, quality))
 
 
 class ImageAspectRatioManager(models.Manager):

@@ -1,4 +1,5 @@
 from django.template import Context, Template
+from django.template import TemplateSyntaxError
 
 import unittest
 
@@ -15,15 +16,23 @@ class ImageTagsTestCase(unittest.TestCase):
 
     def testImageUrlTag(self):
 
-        test_template = Template("""{% load images %}{% image_url image "16x9" 200 %}""")
+        test_template = Template("""{% load images %}{% image_url image 200 ratio="1x1" %}""")
         test_context = Context(self.context)
 
         rendered = test_template.render(test_context)
-        self.assertEqual(rendered, "/images/crops/0/2/16x9/200.jpg")
+        self.assertEqual(rendered, "/images/crops/0/2/1x1/200_75.jpg")
+
+        test_template = Template("""{% load images %}{% image_url image 200 ratio="1x1" format="png" %}""")
+        rendered = test_template.render(test_context)
+        self.assertEqual(rendered, "/images/crops/0/2/1x1/200_100.png")
+
+        test_template = Template("""{% load images %}{% image_url image 200 ratio="1x1" format="png" %}""")
+        rendered = test_template.render(test_context)
+        self.assertEqual(rendered, "/images/crops/0/2/1x1/200_100.png")
 
     def testImageTag(self):
-        test_template = Template("""{% load images %}{% image image "16x9" 200 %}""")
+        test_template = Template("""{% load images %}{% image image 100 ratio="3x4" %}""")
         test_context = Context(self.context)
 
         rendered = test_template.render(test_context)
-        self.assertEqual(rendered, '<img src="/images/crops/0/1/16x9/200.jpg" alt="test image" />')
+        self.assertEqual(rendered, '<img src="/images/crops/0/1/3x4/100_75.jpg" alt="test image" />')
