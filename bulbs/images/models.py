@@ -11,10 +11,9 @@ MAXIMUM_IMAGE_SIZE = (2000, 3000)
 def image_upload_to(instance, filename):
     pieces = [
         'images',
-        str(int(instance.id) / 1000),
         str(instance.id),
         "original",
-        "original.%s" % os.path.splitext(filename)[1]  # Keep the extension the same
+        "original%s" % os.path.splitext(filename)[1]  # Keep the extension the same
     ]
     return os.path.join(*pieces)
 
@@ -33,14 +32,14 @@ class Image(models.Model):
     def __repr__(self):
         cap = self.caption and (' %r' % self.caption) or ''
         return u'<Image %r%s>' % (
-            self.location and os.path.basename(self.location.path) or 'None',
+            self.original and os.path.basename(self.original.path) or 'None',
             cap)
 
     def get_width(self):
         """This method caches the width of the image on a field on the model"""
         if not self._width:
             try:
-                width = self.location.width
+                width = self.original.width
                 Image.objects.filter(pk=self.pk).update(_width=width)
                 return width
             except:
@@ -56,7 +55,7 @@ class Image(models.Model):
         """This method caches the height of the image on a field on the model"""
         if not self._height:
             try:
-                height = self.location.height
+                height = self.original.height
                 Image.objects.filter(pk=self.pk).update(_height=height)
                 return height
             except:
@@ -76,7 +75,7 @@ class Image(models.Model):
     def crop_path(self, ratio, width, format, quality, absolute=False):
         if format == 'png':  # Quality is not a thing when it comes to PNGs
             quality = 100
-        path = "%s/%s/%s/%s_%s.%s" % (self.id / 1000, self.id, ratio, width, quality, format)
+        path = "%s/%s/%s_%s.%s" % (self.id, ratio, width, quality, format)
         if absolute:
             return "%s%s" % (settings.IMAGE_CROP_ROOT, path)
         else:
@@ -206,4 +205,4 @@ class ImageSelection(models.Model):
         return (self.origin_x + (self.width / 2), self.origin_y + (height / 2))
 
     def __unicode__(self):
-        return "%s cropping for %s" % (self.ratio.slug, self.image.location)
+        return "%s cropping for %s" % (self.ratio.slug, self.image.original)

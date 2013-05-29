@@ -10,14 +10,14 @@ from PIL import Image as PImage
 from bulbs.images.models import Image, ImageAspectRatio, ImageSelection
 
 MAX_WIDTH = 1200
-QUALITY_OPTIONS = [35, 90]
+QUALITY_OPTIONS = [35, 90, 100]
 
 
 def crop_ratios(request, image_id):
     try:
         image = Image.objects.get(pk=image_id)
     except Image.DoesNotExist:
-        return not_found(request)
+        return HttpResponseNotFound()
     ratios = ImageAspectRatio.objects.all()
     selections = [ImageSelection.objects.get_or_create_for_image_and_ratio(image, ratio) for ratio in ratios]
 
@@ -51,23 +51,23 @@ def crop_ratios(request, image_id):
 def crop_for_ratio(request, image_id, width, ratio, format="jpg", quality='90'):
     width = int(width)
     if width > MAX_WIDTH:
-        return HttpResponseBadRequest()
+        return HttpResponseNotFound()
     try:
         quality = int(quality)
     except ValueError:
-        return HttpResponseBadRequest()
+        return HttpResponseNotFound()
     if quality not in QUALITY_OPTIONS:
-        return HttpResponseBadRequest("Please send a message to an admin if you know what you're doing.")
+        return HttpResponseNotFound()
 
     try:
         image = Image.objects.get(pk=image_id)
     except Image.DoesNotExist:
-        return not_found(request)
+        return HttpResponseNotFound()
 
     # theoretically this url should be proected by nginx if the file already exists
     # but as a fallback in case nginx isn't configured properly
     try:
-        f = file(image.crop_path(ratio, width, absolute=True), "rb+")
+        f = file(image.crop_path(ratio, width, format, quality, absolute=True), "rb+")
         response = HttpResponse(f.read())
         response['Content-Type'] = 'image/%s' % format
         response['Cache-Control'] = 'max-age=86400'
@@ -76,7 +76,7 @@ def crop_for_ratio(request, image_id, width, ratio, format="jpg", quality='90'):
         pass  # generate file below
 
     try:
-        im = PImage.open(image.location.open())
+        im = PImage.open(image.original.path)
     except IOError:
         # if we can't open the file, we should 404, but if this is development we'll just return a placeholder.
         if settings.DEBUG:
@@ -100,7 +100,7 @@ def crop_for_ratio(request, image_id, width, ratio, format="jpg", quality='90'):
         im = im.crop(selection.get_box())
 
     im = im.resize((int(width), int(height)), PImage.ANTIALIAS)
-    save_path = image.crop_path(ratio, width, absolute=True)
+    save_path = image.crop_path(ratio, width, format, quality, absolute=True)
 
     try:
         # Create the parent folder(s) for this crop.
@@ -119,9 +119,3 @@ def crop_for_ratio(request, image_id, width, ratio, format="jpg", quality='90'):
         return response
     except (IOError, OSError):  # this can happen if we don't have write access for this file
         return HttpResponseBadRequest("whoops")
-
-
-def not_found(request):
-    response = HttpResponseNotFound("404: Not Found")
-    response['Cache-Control'] = 'max-age=600'
-    return response

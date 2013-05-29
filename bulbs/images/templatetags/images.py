@@ -9,7 +9,7 @@ register = template.Library()
 
 
 @register.simple_tag
-def image_url(image, width, ratio='16x9', quality=75, format='jpg'):
+def image_url(image, width, ratio='16x9', quality=90, format='jpg'):
     if width is None or not isinstance(image, Image):
         raise TemplateSyntaxError
     return image.crop_url(ratio, width, format, quality)
@@ -34,7 +34,7 @@ def _image_context(image, ratio, width, format, quality):
 
 
 @register.inclusion_tag('images/image.html', takes_context=True)
-def image(context, image, width, ratio='16x9', quality=75, format="jpg"):
+def image(context, image, width, ratio='16x9', quality=90, format="jpg"):
     if width is None or not isinstance(image, Image):
         raise TemplateSyntaxError
     return context.update(_image_context(image, ratio, width, format, quality))
