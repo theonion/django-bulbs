@@ -1,16 +1,12 @@
-import datetime
-import time
-
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
 from django.template.defaultfilters import slugify
 from django.contrib.contenttypes.models import ContentType
 
-from elasticutils import get_es, S, F, MappingType
+from elasticutils import get_es, S, MappingType
 from pyelasticsearch.exceptions import ElasticHttpNotFoundError
 
-from bulbs.base.query import ElasticQuerySet
 from bulbs.images.models import Image
 from bulbs.base.base62 import base10to62, base62to10
 
