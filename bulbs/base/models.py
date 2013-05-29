@@ -118,7 +118,7 @@ class Contentish(models.Model):
 
     title = models.CharField(max_length=255)
     slug = models.SlugField()
-    description = models.CharField(max_length=510)
+    description = models.CharField(max_length=1024)
     image = models.ForeignKey(Image, null=True, blank=True)
 
     authors = models.ManyToManyField(settings.AUTH_USER_MODEL)
