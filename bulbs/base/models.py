@@ -83,7 +83,7 @@ class Tagish(models.Model):
     @classmethod
     def search(cls, query=None):
         index = settings.ES_INDEXES.get('default')
-        results = TagishS().indexes(index).doctypes('tag')
+        results = TagishS().es(urls=settings.ES_URLS).indexes(index).doctypes('tag')
         if query:
             results = results.query(name__wildcard="%s*" % query)
         return results
@@ -160,7 +160,7 @@ class Contentish(models.Model):
         """
         index = settings.ES_INDEXES.get('default')
 
-        results = ContentishS().indexes(index)
+        results = ContentishS().es(urls=settings.ES_URLS).indexes(index)
         if kwargs.get('published', True):
             now = timezone.now()
             results = results.query(published__lte=now, must=True)
