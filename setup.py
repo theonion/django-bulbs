@@ -19,7 +19,7 @@ requires = [
     "Markdown==2.2.1",
     "Pillow==1.7.8",
     "South==0.7.6",
-    "elasticutils==0.7.dev",
+    "elasticutils==dev",
     "mdx-smartypants==1.3",
     "namedentities==1.301",
     "pyelasticsearch==0.5",
