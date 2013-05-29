@@ -1,9 +1,7 @@
 import json
 
-from django.http import Http404, HttpResponse
-from django.core.paginator import Paginator, InvalidPage
+from django.http import HttpResponse
 from django.views.generic import ListView
-from django.shortcuts import render
 
 from bulbs.base.models import Contentish, Tagish
 
