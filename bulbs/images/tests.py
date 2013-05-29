@@ -61,7 +61,7 @@ class ImageTagsTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.get('Content-Type'), 'image/jpeg')
 
-        response = client.get('/images/crops/1/3x4/100_90.png')
+        response = client.get('/images/crops/1/3x4/100_100.png')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.get('Content-Type'), 'image/png')
 
