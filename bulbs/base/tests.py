@@ -91,6 +91,12 @@ class ContentishTestCase(ESTestCase):
         results = Contentish.search(types=[TestContentObj])
         self.assertEqual(len(results), 6)
 
+        with self.assertRaises(AttributeError):
+            results[0].tags = ['Some Tag', 'Some other tag']
+
+        with self.assertRaises(AttributeError):
+            results[0].feature_type = 'Some Feature Type'
+
         results = Tagish.search()
         self.assertEqual(results.count(), 4)
 

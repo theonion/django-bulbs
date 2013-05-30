@@ -24,15 +24,12 @@ class Command(NoArgsCommand):
         except IndexAlreadyExistsError:
             pass
 
-        for app in models.get_apps():
-            for model in models.get_models(app, include_auto_created=True):
-                if isinstance(model(), Contentish):
-                    # print("Syncing: %s" % model.get_mapping_type_name())
-                    es.put_mapping(
-                        index,
-                        model.get_mapping_type_name(),
-                        model.get_mapping()
-                    )
+        for mapping_name, model in Contentish.get_doctypes().items():
+            es.put_mapping(
+                index,
+                mapping_name,
+                model.get_mapping()
+            )
 
         tag_mapping = {
             "tag": {
