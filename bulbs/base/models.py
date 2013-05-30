@@ -4,39 +4,40 @@ from django.utils import timezone
 from django.template.defaultfilters import slugify
 from django.contrib.contenttypes.models import ContentType
 
-from elasticutils import get_es, S, MappingType
+from elasticutils import get_es, S, MappingType, SearchResults
 from pyelasticsearch.exceptions import ElasticHttpNotFoundError
 
 from bulbs.images.models import Image
 from bulbs.base.base62 import base10to62, base62to10
 
 
-class ContentMappingType(MappingType):
+class ContentishSearchResults(SearchResults):
+    def set_objects(self, results):
+        self.objects = []
+        for result in results:
+            cls = Contentish.get_doctypes().get(result['_type'])
+            if cls:
+                pk = result['_source'].get('object_id')
+                obj = cls(pk=pk)
+                obj.load_from_source(result['_source'])
+                self.objects.append(obj)
 
-    @classmethod
-    def get_index(cls):
-        index = settings.ES_INDEXES.get('default')
-        return index
-
-    @classmethod
-    def get_mapping_type_name(cls):
-        return 'content'
+    def __iter__(self):
+        return self.objects.__iter__()
 
 
 class ContentishS(S):
 
-    def _do_search(self):
-        results = super(ContentishS, self)._do_search()
-        objects = []
-        for result in results:
-            app_label, model = result._type.split("_")
-            content_type = ContentType.objects.get_by_natural_key(app_label, model)
-            cls = content_type.model_class()
-            pk = str(result._id).replace(str(content_type.id), '', 1)
-            obj = cls(pk=pk)
-            obj.load_from_source(result._source)
-            objects.append(obj)
-        return objects
+    def get_results_class(self):
+        """Returns the results class to use
+
+        The results class should be a subclass of SearchResults.
+
+        """
+        if self.as_list or self.as_dict:
+            return super(ContentishS, self).get_results_class()
+
+        return ContentishSearchResults
 
 
 class TagishS(S):
@@ -128,6 +129,9 @@ class Contentish(models.Model):
     _feature_type = models.CharField(max_length=255, null=True, blank=True)  # "New in Brief", "Newswire", etc.
     subhead = models.CharField(max_length=255, null=True, blank=True)
 
+    # This is a cache for the content doctypes
+    _cache = {}
+
     class Meta:
         abstract = True
 
@@ -146,7 +150,16 @@ class Contentish(models.Model):
         self.index()
 
     @classmethod
-    def search(self, **kwargs):
+    def get_doctypes(cls):
+        if len(cls._cache) == 0:
+            for app in models.get_apps():
+                for model in models.get_models(app, include_auto_created=True):
+                    if isinstance(model(), Contentish):
+                        cls._cache[model.get_mapping_type_name()] = model
+        return cls._cache
+
+    @classmethod
+    def search(cls, **kwargs):
         """
         If ElasticSearch is being used, we'll use that for the query, and otherwise
         fall back to Django's .filter().
@@ -171,6 +184,8 @@ class Contentish(models.Model):
 
         if kwargs.get('types'):
             results = results.doctypes(*[type_class.get_mapping_type_name() for type_class in kwargs['types']])
+        else:
+            results = results.doctypes(*cls.get_doctypes().keys())
 
         return results.order_by('-published')
 

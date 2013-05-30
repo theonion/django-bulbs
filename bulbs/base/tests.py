@@ -27,6 +27,19 @@ class ESTestCase(DBTestCase):
     def tearDown(self):
         self.es.delete_index(settings.ES_INDEXES.get('default'))
 
+
+class ContentCreationTestCases(ESTestCase):
+
+    def test_no_tags(self):
+        one_hour_ago = timezone.now() - datetime.timedelta(hours=1)
+        no_tags = TestContentObj.objects.create(
+            title="No Tags",
+            field1="No",
+            field2="Tags",
+            tags=[],
+            published=one_hour_ago)
+
+
 class ContentishTestCase(ESTestCase):
 
     def setUp(self):
@@ -51,14 +64,11 @@ class ContentishTestCase(ESTestCase):
 
         self.es.refresh()
 
-    def test_no_tags(self):
-        one_hour_ago = timezone.now() - datetime.timedelta(hours=1)
-        no_tags = TestContentObj.objects.create(
-            title="No Tags",
-            field1="No",
-            field2="Tags",
-            tags=[],
-            published=one_hour_ago)
+    def test_facets(self):
+        facet_counts = Contentish.search().facet('tags.slug').facet_counts()
+        self.assertEqual(len(facet_counts['tags.slug']), 4)
+        for facet in facet_counts['tags.slug']:
+            self.assertEqual(facet['count'], 6)
 
     def test_content_search(self):
         results = Contentish.search()
