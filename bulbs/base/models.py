@@ -3,6 +3,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.template.defaultfilters import slugify
 from django.contrib.contenttypes.models import ContentType
+from django.db.backends import util
 
 from elasticutils import get_es, S, MappingType, SearchResults
 from pyelasticsearch.exceptions import ElasticHttpNotFoundError
@@ -11,14 +12,44 @@ from bulbs.images.models import Image
 from bulbs.base.base62 import base10to62, base62to10
 
 
+# This function is needed because data descriptors must be defined on a class
+# object, not an instance, to have any effect.
+
+def readonly_class_factory(model):
+    """
+    Returns a class object that is a copy of "model" with the specified "attrs"
+    being replaced with DeferredAttribute objects. The "pk_value" ties the
+    deferred attributes to a particular instance of the model.
+    """
+    class Meta:
+        proxy = True
+        app_label = model._meta.app_label
+
+    # The app_cache wants a unique name for each model, otherwise the new class
+    # won't be created (we get an old one back). Therefore, we generate the
+    # name using the passed in attrs. It's OK to reuse an existing class
+    # object if the attrs are identical.
+    name = "%s_Deferred" % model.__name__
+    name = util.truncate_name(name, 80, 32)
+
+    overrides = {
+        "Meta": Meta,
+        "__module__": model.__module__,
+        "_readonly": True,
+    }
+    # TODO: Add additional deferred fields here, just as placeholders.
+    return type(str(name), (model,), overrides)
+
+
 class ContentishSearchResults(SearchResults):
     def set_objects(self, results):
         self.objects = []
         for result in results:
             cls = Contentish.get_doctypes().get(result['_type'])
             if cls:
+                readonly_cls = readonly_class_factory(cls)
                 pk = result['_source'].get('object_id')
-                obj = cls(pk=pk)
+                obj = readonly_cls(pk=pk)
                 obj.load_from_source(result['_source'])
                 self.objects.append(obj)
 
@@ -129,8 +160,8 @@ class Contentish(models.Model):
     _feature_type = models.CharField(max_length=255, null=True, blank=True)  # "New in Brief", "Newswire", etc.
     subhead = models.CharField(max_length=255, null=True, blank=True)
 
-    # This is a cache for the content doctypes
-    _cache = {}
+    _readonly = False  # Is this a read only model? (i.e. from elasticsearch)
+    _cache = {}  # This is a cache for the content doctypes
 
     class Meta:
         abstract = True
@@ -192,11 +223,13 @@ class Contentish(models.Model):
     @property
     def tags(self):
         if self._tags:
-            return Tagish.search().query(slug__terms=[tag for tag in self._tags.split("\n")])
+            return Tagish.search().query(slug__terms=[slugify(tag) for tag in self._tags.split("\n")])
         return []
 
     @tags.setter
     def tags(self, value):
+        if self._readonly:
+            raise AttributeError("This content object is read only.")
         # TODO: is this too terrible? Should a setter really have this behavior? Too implicit?
         if isinstance(value, basestring):
             self._tags = "\n".join([tag.strip() for tag in self._tags.split("\n")])
@@ -222,6 +255,8 @@ class Contentish(models.Model):
 
     @byline.setter
     def byline(self, value):
+        if self._readonly:
+            raise AttributeError("This content object is read only.")
         self._byline = value
 
     @property
@@ -237,6 +272,8 @@ class Contentish(models.Model):
 
     @feature_type.setter
     def feature_type(self, value):
+        if self._readonly:
+            raise AttributeError("This content object is read only.")
         self._feature_type = value
 
     # ElasticUtils stuff
@@ -261,8 +298,8 @@ class Contentish(models.Model):
         self.description = _source['description']
         self.subhead = _source['subhead']
         self.published = _source['published']
-        self.feature_type = _source['feature_type']
-        self.tags = [tag['slug'] for tag in _source['tags']]
+        self._feature_type = _source['feature_type']
+        self._tags = "\n".join([tag['name'] for tag in _source['tags']])
 
     @classmethod
     def get_mapping_type_name(cls):
