@@ -1,0 +1,6 @@
+[run]
+source=bulbs
+omit=**/__init__*,**/migrations/*,**/tests*
+
+[html]
+directory = coverage_html_report
