@@ -1,5 +1,5 @@
 from django.db import models
-from bulbs.base.models import Contentish
+from bulbs.content.models import Contentish
 
 
 class TestContentObj(Contentish):

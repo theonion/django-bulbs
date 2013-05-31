@@ -1,1 +1,1 @@
-from bulbs.base.views import ContentListView
+from bulbs.content.views import ContentListView

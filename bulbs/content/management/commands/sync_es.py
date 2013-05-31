@@ -7,7 +7,7 @@ from elasticutils import get_es
 from pyelasticsearch.exceptions import IndexAlreadyExistsError
 
 
-from bulbs.base.models import Contentish, Tagish
+from bulbs.content.models import Contentish, Tagish
 
 
 class Command(NoArgsCommand):

@@ -27,7 +27,7 @@ INSTALLED_APPS = (
     'testapp',
 
     'bulbs.articles',
-    'bulbs.base',
+    'bulbs.content',
     'bulbs.images',
     'bulbs.markdown',
 )

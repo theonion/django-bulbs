@@ -3,7 +3,7 @@ import json
 from django.http import HttpResponse
 from django.views.generic import ListView
 
-from bulbs.base.models import Contentish, Tagish
+from bulbs.content.models import Contentish, Tagish
 
 
 def render_json(page):

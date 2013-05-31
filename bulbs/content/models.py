@@ -5,17 +5,17 @@ from django.template.defaultfilters import slugify
 from django.contrib.contenttypes.models import ContentType
 from django.db.backends import util
 
-from elasticutils import get_es, S, MappingType, SearchResults
+from elasticutils import get_es, S, SearchResults
 from pyelasticsearch.exceptions import ElasticHttpNotFoundError
 
 from bulbs.images.models import Image
-from bulbs.base.base62 import base10to62, base62to10
+from bulbs.content.base62 import base10to62, base62to10
 
 
 # This function is needed because data descriptors must be defined on a class
 # object, not an instance, to have any effect.
 
-def readonly_class_factory(model):
+def readonly_content_factory(model):
     """
     Returns a class object that is a copy of "model" with the specified "attrs"
     being replaced with DeferredAttribute objects. The "pk_value" ties the
@@ -29,7 +29,7 @@ def readonly_class_factory(model):
     # won't be created (we get an old one back). Therefore, we generate the
     # name using the passed in attrs. It's OK to reuse an existing class
     # object if the attrs are identical.
-    name = "%s_Deferred" % model.__name__
+    name = "%s_Readonly" % model.__name__
     name = util.truncate_name(name, 80, 32)
 
     overrides = {
@@ -47,7 +47,7 @@ class ContentishSearchResults(SearchResults):
         for result in results:
             cls = Contentish.get_doctypes().get(result['_type'])
             if cls:
-                readonly_cls = readonly_class_factory(cls)
+                readonly_cls = readonly_content_factory(cls)
                 pk = result['_source'].get('object_id')
                 obj = readonly_cls(pk=pk)
                 obj.load_from_source(result['_source'])
@@ -71,15 +71,29 @@ class ContentishS(S):
         return ContentishSearchResults
 
 
+class TagishSearchResults(SearchResults):
+    def set_objects(self, results):
+        # TODO: Handle DB backed tags
+        self.objects = [
+            Tagish(slug=result['_source']['slug'], name=result['_source']['name'])
+            for result in results]
+
+    def __iter__(self):
+        return self.objects.__iter__()
+
+
 class TagishS(S):
 
-    def _do_search(self):
-        results = super(TagishS, self)._do_search()
-        objects = []
-        for result in results:
-            obj = Tagish(slug=result._source['slug'], name=result._source['name'])
-            objects.append(obj)
-        return objects
+    def get_results_class(self):
+        """Returns the results class to use
+
+        The results class should be a subclass of SearchResults.
+
+        """
+        if self.as_list or self.as_dict:
+            return super(TagishS, self).get_results_class()
+
+        return TagishSearchResults
 
 
 class Tagish(models.Model):
@@ -117,8 +131,11 @@ class Tagish(models.Model):
         index = settings.ES_INDEXES.get('default')
         results = TagishS().es(urls=settings.ES_URLS).indexes(index).doctypes('tag')
         if query:
-            results = results.query(name__wildcard="%s*" % query)
+            results = results.query(name__match={'query': query, 'fuzziness': 0.35})
         return results
+
+    def content(self):
+        return Contentish.search(tags=[self.slug])
 
 BASE_CONTENT_MAPPING = {
     "properties": {

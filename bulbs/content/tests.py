@@ -10,7 +10,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.test.client import Client
 
-from bulbs.base.models import Contentish, Tagish
+from bulbs.content.models import Contentish, Tagish
 try:
     from testapp.models import TestContentObj, TestContentObjTwo
 except:
@@ -63,6 +63,10 @@ class ContentishTestCase(ESTestCase):
                 published=one_hour_ago)
 
         self.es.refresh()
+
+    def test_tag_content(self):
+        tag = Tagish.from_name("Tag 1")
+        self.assertEqual(tag.content().count(), 6)
 
     def test_facets(self):
         facet_counts = Contentish.search().facet('tags.slug').facet_counts()
@@ -125,15 +129,15 @@ class TagSearchTestCase(ESTestCase):
         self.assertEqual(results.count(), 6)
 
         results = Tagish.search('foo')
-        self.assertEqual(results.count(), 4)
+        self.assertEqual(results.count(), 2)
 
-        results = Tagish.search('foob')
+        results = Tagish.search('fooba')
         self.assertEqual(results.count(), 2)
 
     def test_tag_search_view(self):
         client = Client()
-        response = client.get('/base/search/tags?q=foo')
+        response = client.get('/content/search/tags?q=foo')
         self.assertEqual(response.status_code, 200)
 
         response_data = json.loads(response.content)
-        self.assertEqual(len(response_data), 4)
+        self.assertEqual(len(response_data), 2)
