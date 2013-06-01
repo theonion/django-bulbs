@@ -1,7 +1,11 @@
 import os
-from django.utils import timezone
+import requests
+import StringIO
+import urlparse
 
+from django.utils import timezone
 from django.db import models
+from django.core.files import File
 
 from bulbs.images.conf import settings
 
@@ -18,6 +22,25 @@ def image_upload_to(instance, filename):
     return os.path.join(*pieces)
 
 
+class ImageManger(models.Manager):
+
+    def create_from_url(self, url, alt=None, caption=None):
+        r = requests.get(url)
+        if r.status_code != 200:
+            raise Exception("URL \"%s\" got a %s response code." % (url, r.status_code))
+        filename = os.path.basename(urlparse.urlparse(r.url).path)
+        image_file = StringIO.StringIO()
+        image_file.write(r.content)
+
+        image = self.create(alt=alt, caption=caption)
+        image.original.save(
+            filename,
+            File(image_file)
+        )
+        image.save()
+        return image
+
+
 class Image(models.Model):
     _width = models.IntegerField(blank=True, null=True, db_column='width')
     _height = models.IntegerField(blank=True, null=True, db_column='height')
@@ -28,6 +51,8 @@ class Image(models.Model):
     caption = models.TextField(null=True, blank=True)
     alt = models.TextField(max_length=255, null=True, blank=True)
     credit = models.TextField(max_length=255, null=True, blank=True)
+
+    objects = ImageManger()
 
     def __repr__(self):
         cap = self.caption and (' %r' % self.caption) or ''
