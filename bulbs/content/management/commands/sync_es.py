@@ -36,7 +36,7 @@ class Command(NoArgsCommand):
                 "properties": {
                     "name": {"type": "string"},
                     "slug": {"type": "string", "index": "not_analyzed"},
-                    "content_type": {"type": "string", "index": "not_analyzed"},
+                    "content_type": {"type": "integer"},
                     "object_id": {"type": "integer"}
                 }
             }

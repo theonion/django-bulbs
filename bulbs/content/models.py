@@ -6,7 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.backends import util
 
 from elasticutils import get_es, S, SearchResults
-from pyelasticsearch.exceptions import ElasticHttpNotFoundError
+from pyelasticsearch.exceptions import ElasticHttpNotFoundError, InvalidJsonResponseError
 
 from bulbs.images.models import Image
 from bulbs.content.base62 import base10to62, base62to10
@@ -107,6 +107,43 @@ class Tagish(models.Model):
     def __unicode__(self):
         return "Tag: %s" % self.name
 
+    def save(self, *args, **kwargs):
+        es = get_es(urls=settings.ES_URLS)
+        index = settings.ES_INDEXES.get('default')
+
+        # The default slug for a tagish object is "[slugified name]-[slugified classname]"
+        # If that's already taken, we start appending numbers
+        counter = 1
+        slug = slugify("%s %s" % (self.name, self.__class__.__name__))
+        while self.slug is None or self.slug == '':
+            try:
+                es_tag = es.get(index, 'tag', slug)
+            except ElasticHttpNotFoundError:
+                self.slug = slug
+                break
+
+            slug = slugify("%s %s %s" % (self.name, self.__class__.__name__, counter))
+            counter += 1
+
+        super(Tagish, self).save(*args, **kwargs)
+        self.index()
+
+
+    @classmethod
+    def get(cls, slug):
+        es = get_es(urls=settings.ES_URLS)
+        index = settings.ES_INDEXES.get('default')
+        try:
+            es_tag = es.get(index, 'tag', slug)
+        except ElasticHttpNotFoundError:
+            raise cls.ObjectDoesNotExist
+
+        obj = cls(
+            name=es_tag['_source']['name'],
+            slug=es_tag['_source']['slug']
+        )
+        return obj
+
     @classmethod
     def from_name(cls, name):
         obj = cls()
@@ -117,13 +154,16 @@ class Tagish(models.Model):
     def index(self):
         es = get_es(urls=settings.ES_URLS)
         index = settings.ES_INDEXES.get('default')
-        es.index(index, 'tag', self.extract_document(), self.slug)
+        try:
+            response = es.index(index, 'tag', self.extract_document(), self.slug)
+        except InvalidJsonResponseError as e:
+            print(e.response.content)
 
     def extract_document(self):
         data = {'name': self.name, 'slug': self.slug}
-        # if getattr(self, 'id', None):
-        #     data['content_type'] = self._meta.db_table
-        #     data['object_id'] = self.id
+        if getattr(self, 'id', None):
+            data['content_type'] = ContentType.objects.get_for_model(self).id
+            data['object_id'] = self.id
         return data
 
     @classmethod
@@ -144,7 +184,13 @@ BASE_CONTENT_MAPPING = {
         "slug": {"type": "string", "index": "not_analyzed"},
         "subhead": {"type": "string"},
         "description": {"type": "string"},
-        "feature_type": {"type": "string"},
+        "feature_type": {
+            "type": "multi_field",
+            "fields": {
+                "feature_type": {"type": "string", "index": "analyzed"},
+                "slug": {"type": "string", "index": "not_analyzed"}
+            }
+        },
         "image": {"type": "integer"},
         "byline": {"type": "string"},
         "published": {"type": "date"},
@@ -215,8 +261,9 @@ class Contentish(models.Model):
         Allowed params:
 
          * query
-         * tag(s)?
-         * content_type
+         * tag(s)
+         * type(s)
+         * feature_type(s)
          * published
         """
         index = settings.ES_INDEXES.get('default')
@@ -230,7 +277,11 @@ class Contentish(models.Model):
             tag_query_string = "tags.slug:%s" % tag
             results = results.query(__query_string=tag_query_string)
 
-        if kwargs.get('types'):
+        for feature_type in kwargs.get('feature_types', []):
+            feature_type_query_string = "feature_type.slug:%s" % feature_type
+            results = results.query(__query_string=feature_type_query_string)
+
+        if 'types' in kwargs:
             results = results.doctypes(*[type_class.get_mapping_type_name() for type_class in kwargs['types']])
         else:
             results = results.doctypes(*cls.get_doctypes().keys())
@@ -339,6 +390,7 @@ class Contentish(models.Model):
             'subhead': self.subhead,
             'published': self.published,
             'feature_type': self.feature_type,
+            'feature_type.slug': slugify(self.feature_type)
         }
         if self._tags:
             data['tags'] = [{

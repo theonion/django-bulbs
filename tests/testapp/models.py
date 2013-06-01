@@ -1,5 +1,5 @@
 from django.db import models
-from bulbs.content.models import Contentish
+from bulbs.content.models import Contentish, Tagish
 
 
 class TestContentObj(Contentish):
@@ -17,5 +17,13 @@ class TestContentObjTwo(Contentish):
     field2 = models.CharField(max_length=255)
     field3 = models.IntegerField()
 
+    def get_feature_type(self):
+        return "Overridden feature type"
+
     def get_absolute_url(self):
         return "/testobject2/%s" % self.pk
+
+
+class Section(Tagish):
+
+    description = models.TextField()

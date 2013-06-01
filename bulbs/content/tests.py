@@ -12,7 +12,7 @@ from django.test.client import Client
 
 from bulbs.content.models import Contentish, Tagish
 try:
-    from testapp.models import TestContentObj, TestContentObjTwo
+    from testapp.models import TestContentObj, TestContentObjTwo, Section
 except:
     raise ImportError("Something with your test app isn't configured correctly")
 
@@ -23,6 +23,7 @@ class ESTestCase(DBTestCase):
         # Create index, if necessary
         call_command('sync_es')
         self.es = get_es(urls=settings.ES_URLS)
+        self.es.refresh()
 
     def tearDown(self):
         self.es.delete_index(settings.ES_INDEXES.get('default'))
@@ -51,6 +52,7 @@ class ContentishTestCase(ESTestCase):
                 title="Tags: %s, %s" % (tags[0], tags[1]),
                 field1=tags[0],
                 field2=tags[1],
+                feature_type="Testing Type",
                 tags=tags,
                 published=one_hour_ago)
 
@@ -104,6 +106,12 @@ class ContentishTestCase(ESTestCase):
         results = Tagish.search()
         self.assertEqual(results.count(), 4)
 
+        results = Contentish.search(feature_types=["testing-type"])
+        self.assertEqual(results.count(), 6)
+
+        results = Contentish.search(feature_types=["overridden-feature-type"])
+        self.assertEqual(results.count(), 6)
+
     def test_content_list_views(self):
         client = Client()
         response = client.get('/content_list_one.html')
@@ -122,11 +130,21 @@ class TagSearchTestCase(ESTestCase):
             tag = Tagish.from_name(name)
             tag.index()
 
+        Section.objects.create(name="T.V.", description="The TV Section")
         self.es.refresh()
+
+    def test_tagish_objects(self):
+        tv_section = Tagish.get("tv-section")
+        self.assertTrue(tv_section is not None)
+
+        new_tv_section = Section.objects.create(name="TV", description="Another TV Section")
+        self.assertEqual(new_tv_section.slug, "tv-section-1")
+        self.es.refresh()
+        self.assertEqual(Tagish.search().count(), 8)
 
     def test_tag_search(self):
         results = Tagish.search()
-        self.assertEqual(results.count(), 6)
+        self.assertEqual(results.count(), 7)
 
         results = Tagish.search('foo')
         self.assertEqual(results.count(), 2)
