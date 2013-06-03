@@ -1,0 +1,324 @@
+/* ==========================================================================
+   
+    BART BASE THEME
+
+    Copyright 2013 Onion Tech
+    Contact: scook@theonion.com
+
+   ========================================================================== */
+
+@import url('../less/mixins.less');
+@import url('../less/theme.less');
+
+*{ 
+   -webkit-box-sizing: border-box; 
+   -moz-box-sizing: border-box; 
+   box-sizing: border-box;
+}
+
+
+/* ==========================================================================
+   Basix
+   ========================================================================== */
+
+html, button, input, select, textarea { color: @body-color; }
+
+html{ font-size: 100.01%; }
+
+body{
+    .sans-serif();
+    font-size: @baseline;
+    line-height: 1.5em;
+    text-shadow: 0 -1px 1px rgba(255, 255, 255, 0.01);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+
+/* ==========================================================================
+   Selections
+   ========================================================================== */
+
+::selection{
+    background: @select;
+    color: @select-color;
+}
+
+::-moz-selection{
+    background: @select;
+    color: @select-color;
+}
+
+img::selection, img::-moz-selection{ background: transparent; }
+
+body{ -webkit-tap-highlight-color: @select; }
+
+
+/* ==========================================================================
+   Linx
+   ========================================================================== */
+
+a{
+    color: @link;
+
+    &:hover, &:focus{
+        color: @link-hover;
+    }
+
+    // Optional transition
+    -webkit-transition:all .2s linear;
+    -moz-transition:all .2s linear;
+    -o-transition:all .2s linear;
+    transition:all .2s linear;
+}
+
+
+/* ==========================================================================
+   Figures
+   ========================================================================== */
+
+figure img, div.image img {
+    width: 100%;
+    height: auto;
+    display:block;
+}
+
+figcaption, .caption{
+    font-size: small;
+    font-style:italic;
+    color: @grey-dark;
+}
+
+
+/* ==========================================================================
+   Headings
+   ========================================================================== */
+
+h1,h2,h3,h4,h5,h6{
+    .serif;
+    margin-top:0;
+    color: @heading-color;
+}
+
+h1{
+    font-size: 3em;
+    line-height: 1;
+    padding-top: 0.53em;
+    margin-bottom: 0.5em;
+}
+h2{
+    font-size: 2em;
+    padding-top: 0.25em;
+    margin-bottom: 0.5em;
+}
+h3{
+    font-size: 1.5em;
+    line-height: 1;
+    padding-top: 0.35em;
+    margin-bottom: 0.65em;
+}
+h4{
+    font-size: 1.2em;
+    line-height: 1.25;
+    padding-top: 0.45em;
+    margin-bottom: 0.8em;
+}
+h5{
+    font-size: 1em;
+    font-weight: bold;
+    padding-top: 0.6em;
+    margin-bottom: 0.9em;
+}
+h6{
+    font-size: 1em;
+    font-weight: bold;
+    margin-bottom: 0;
+}
+
+
+/* ==========================================================================
+   Some element resets
+   ========================================================================== */
+
+hr {
+    display: block;
+    height: 1px;
+    border: 0;
+    border-top: 1px solid #ccc;
+    margin: 1em 0;
+    padding: 0;
+}
+
+img { vertical-align: middle }
+
+fieldset {
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+
+textarea { resize: vertical }
+
+
+/* ==========================================================================
+   Page Structure
+   ========================================================================== */
+
+.wrapper {
+    width: 100%;
+    margin: 0 auto;
+    position: relative;
+
+    @media @tablet-landscape { width: 980px }
+
+    @media @desktop { width: 1160px }
+}
+
+.header-container, 
+.main-container, 
+    .footer-container {
+    .clearfix();
+    display: block;
+}
+
+
+/* ==========================================================================
+   Header
+   ========================================================================== */
+
+header#primary .title { padding-top: 20px; }
+
+header#primary nav {
+
+    ul {
+        margin: 0;
+        padding: 0;
+    }
+
+    li { }
+
+    a {
+
+        &:hover, &:visited { }
+
+        &:hover { text-decoration: underline }
+    }
+}
+
+
+/* ==========================================================================
+   Page body
+   ========================================================================== */
+
+.main-container > .main { padding: 30px 0;
+
+    article h1 { }
+
+    aside { }
+}
+
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+@media only screen and (min-width: 480px) {
+
+    header#primary nav {
+        a {
+            float: left;
+            width: 27%;
+            margin: 0 1.7%;
+            padding: 25px 2%;
+            margin-bottom: 0;
+        }
+
+        li:first-child a { margin-left: 0; }
+
+        li:last-child a { margin-right: 0; }
+        
+        ul li { display: inline; } // IE Fix
+    }
+}
+
+@media only screen and (min-width: 768px) {
+
+    header#primary {
+
+        .title { float: left; }
+
+        nav {
+            float: right;
+            width: 38%;
+        }
+    }
+
+    .main {
+        article {
+            float: left;
+            width: 57%;
+        }
+
+        aside {
+            float: right;
+            width: 28%;
+        }
+    }
+}
+
+@media only screen and (min-width: 1140px) {
+
+    .wrapper {
+        width: 1026px; /* 1140px - 10% for margins */
+        margin: 0 auto;
+    }
+}
+
+
+/* ==========================================================================
+   Helpers
+   ========================================================================== */
+
+.ir {
+    background-color: transparent;
+    border: 0;
+    overflow: hidden;
+    *text-indent: -9999px;
+}
+
+.ir:before {
+    content: "";
+    display: block;
+    width: 0;
+    height: 150%;
+}
+
+.hidden {
+    display: none !important;
+    visibility: hidden;
+}
+
+.visuallyhidden {
+    border: 0;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+}
+
+.visuallyhidden.focusable:active,
+.visuallyhidden.focusable:focus {
+    clip: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    position: static;
+    width: auto;
+}
+
+.invisible {
+    visibility: hidden;
+}

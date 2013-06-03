@@ -1,0 +1,9 @@
+<article>
+	<header>
+		<h1><a href="{{ article.get_absolute_url }}" title="{{ article.title }}">{{ article.title|safe }}</a></h1>
+		{% include "elements/snippets/article-meta.html" %}
+	</header>
+	<div class="article-teaser">
+		<p>{{ article.teaser|safe }}</p>
+	</div>
+</article>

@@ -1,0 +1,86 @@
+/* ==========================================================================
+   
+	BART SITE-SPECIFIC THEME
+
+	Copyright 2013 Onion Tech
+	Contact: scook@theonion.com
+
+   ========================================================================== */
+
+/* ==========================================================================
+   Site Variables
+   ========================================================================== */
+
+@body-color: 	#333;
+@heading-color: #111;
+@link: 			#6bac60;
+@link-hover: 	#78aace;
+@select: 		#78aace;
+@select-color: 	#fff;
+
+@grey-light: 	#ddd;
+@grey-regular: 	#ccc;
+@grey-dark: 	#666;
+
+@baseline: 		100%;
+
+/* ==========================================================================
+   Typefaces
+   ========================================================================== */
+
+.sans-serif() { font-family: Helvetica, Arial, sans-serif; }
+
+.serif() {
+	font-family: Georgia, serif;
+
+	@media only screen and (min-width: 650px) {
+		font-family: /* CUSTOM FONT: 'MetaSerifWeb-Book', */ Georgia, serif; 
+	}
+
+}
+.serif-italic() {
+	font-family: Georgia, serif;
+	font-style: italic; 
+	font-weight: normal;
+
+	@media only screen and (min-width: 650px) {
+		font-family: /* CUSTOM FONT: 'MetaSerifWeb-BookItalic', */ Georgia, serif; 
+		font-style: normal;
+	}
+}
+
+.serif-bold() {
+	font-family: Georgia, serif;
+	font-weight: bold;
+
+	@media only screen and (min-width: 650px) {
+		font-family: /* CUSTOM FONT: 'MetaSerifWeb-Bold', */ Georgia, serif;
+		font-weight: normal; 
+	}
+}
+
+.serif-bold-italic() {
+	font-family: Georgia, serif;
+	font-weight: bold;
+	font-style: italic; 
+
+	@media only screen and (min-width: 650px) { 
+		font-family: /* CUSTOM FONT: 'MetaSerifWeb-BoldItalic', */ Georgia, serif;
+		font-weight: normal;
+		font-style: normal;
+	}
+}
+
+/* ==========================================================================
+   Breakpoints
+   ========================================================================== */
+
+@mobile:				~"only screen and (max-width: 649px)";
+	@mobile-portrait:   	~"only screen and (max-width: 479px)";
+	@mobile-landscape:  	~"only screen and (min-width: 480px) and (max-width: 649px)";
+
+@tablet:				~"only screen and (min-width: 650px) and (max-width: 1439px)";
+	@tablet-portrait:   	~"only screen and (min-width: 650px) and (max-width: 999px)";
+	@tablet-landscape:  	~"only screen and (min-width: 1000px) and (max-width: 1439px)";
+
+@desktop:           	~"only screen and (min-width: 1440px)";

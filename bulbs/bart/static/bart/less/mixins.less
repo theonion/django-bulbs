@@ -1,0 +1,46 @@
+/* ==========================================================================
+   
+	BART MIXINS
+
+	Copyright 2013 Onion Tech
+	Contact: scook@theonion.com
+
+   ========================================================================== */
+
+/* ==========================================================================
+   Clearfix
+   ========================================================================== */
+
+.clearfix(){
+	*zoom:1;
+	
+	&:before,
+	&:after{
+	    content:"";
+	    display:table;
+	}
+	&:after{
+	    clear:both;
+	}
+}
+
+.drop-shadow(@x-axis: 0, @y-axis: 1px, @blur: 2px, @alpha: 0.1) {
+	-webkit-box-shadow:		@x-axis @y-axis @blur rgba(0, 0, 0, @alpha);
+	-moz-box-shadow:		@x-axis @y-axis @blur rgba(0, 0, 0, @alpha);
+	box-shadow:				@x-axis @y-axis @blur rgba(0, 0, 0, @alpha);
+}
+
+.rounded(@radius: 2px) {
+	-webkit-border-radius:	@radius;
+	-moz-border-radius:		@radius;
+	border-radius:			@radius;
+}
+
+.gradient(@color: #F5F5F5, @start: #EEE, @stop: #FFF) {
+  background: @color;
+  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, @start), color-stop(1, @stop));
+  background: -ms-linear-gradient(bottom, @start, @stop);
+  background: -moz-linear-gradient(center bottom, @start 0%,  @stop 100%);
+  background: -o-linear-gradient(@stop, @start);
+  filter: e(%("progid:DXImageTransform.Microsoft.gradient(startColorstr='%d', endColorstr='%d', GradientType=0)",@stop,@start));
+}

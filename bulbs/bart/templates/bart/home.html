@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock title %}
+
+{% block content %}
+
+<section id="masthead">
+	{% with article_list|slice:":1" as articles %}
+	{% for article in articles %}
+	{% include "elements/snippets/article-summary.html" %}
+	{% endfor %}
+	{% endwith %}
+
+	<aside class="sidebar">
+		<section>
+			<h1>Sidebar Section Header</h1>
+			<div class="inner">
+				{% include "elements/snippets/image-container.html" %}
+				<div class="detail">
+					<p>Lorem ipsum dolor sit amet.</p>
+				</div>
+			</div>
+		</section>
+	</aside>
+</section>
+
+<section class="article-list">
+	{% with article_list|slice:"1:" as articles %}
+	{% for article in articles %}
+	{% include "elements/snippets/article-summary.html" %}
+	{% endfor %}
+	{% endwith %}
+</section>
+
+{% endblock content %}
