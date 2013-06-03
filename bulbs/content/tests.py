@@ -2,7 +2,7 @@ import itertools
 import datetime
 import json
 
-from elasticutils import get_es, S
+from elasticutils.contrib.django import get_es
 
 from django.test import TestCase as DBTestCase
 from django.core.management import call_command
@@ -22,7 +22,7 @@ class ESTestCase(DBTestCase):
     def setUp(self):
         # Create index, if necessary
         call_command('sync_es')
-        self.es = get_es(urls=settings.ES_URLS)
+        self.es = get_es()
         self.es.refresh()
 
     def tearDown(self):

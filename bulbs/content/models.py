@@ -8,7 +8,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.backends import util
 from django.db.models.query_utils import deferred_class_factory
 
-from elasticutils import get_es, S, SearchResults
+from elasticutils import SearchResults, S
+from elasticutils.contrib.django import get_es
 from pyelasticsearch.exceptions import ElasticHttpNotFoundError, InvalidJsonResponseError
 
 from bulbs.images.models import Image
@@ -97,8 +98,9 @@ class Tagish(models.Model):
             return "%s: %s" % (self.__class__.__name__, self.name)
 
     def save(self, *args, **kwargs):
-        es = get_es(urls=settings.ES_URLS)
-        index = settings.ES_INDEXES.get('default')
+        es = get_es()
+        indexes = settings.ES_INDEXES
+        index = indexes.get('tag') or indexes['default']
 
         # The default slug for a tagish object is "[slugified name]-[slugified classname]"
         # If that's already taken, we start appending numbers
@@ -119,8 +121,9 @@ class Tagish(models.Model):
 
     @classmethod
     def get(cls, slug):
-        es = get_es(urls=settings.ES_URLS)
-        index = settings.ES_INDEXES.get('default')
+        es = get_es()
+        indexes = settings.ES_INDEXES
+        index = indexes.get('tag') or indexes['default']
         try:
             es_tag = es.get(index, 'tag', slug)
         except ElasticHttpNotFoundError:
@@ -146,8 +149,9 @@ class Tagish(models.Model):
         return obj
 
     def index(self):
-        es = get_es(urls=settings.ES_URLS)
-        index = settings.ES_INDEXES.get('default')
+        es = get_es()
+        indexes = settings.ES_INDEXES
+        index = indexes.get('tag') or indexes['default']
         try:
             response = es.index(index, 'tag', self.extract_document(), self.slug)
         except InvalidJsonResponseError as e:
@@ -208,8 +212,9 @@ class TagishRelatedManage():
 
     def _save_tags(self, refresh=False):
         self.content.save(index=False, update_fields=["_tags"])
-        es = get_es(urls=settings.ES_URLS)
-        index = settings.ES_INDEXES.get('default')
+        es = get_es()
+        indexes = settings.ES_INDEXES
+        index = indexes.get('tag') or indexes['default']
         doc = {}
         doc['tags'] = [
             {
@@ -337,9 +342,9 @@ class Contentish(models.Model):
          * feature_type(s)
          * published
         """
-        index = settings.ES_INDEXES.get('default')
-
-        results = ContentishS().es(urls=settings.ES_URLS).indexes(index)
+        indexes = settings.ES_INDEXES
+        index = indexes['default']
+        results = ContentishS().es().indexes(index)
         if kwargs.get('published', True):
             now = timezone.now()
             results = results.query(published__lte=now, must=True)
