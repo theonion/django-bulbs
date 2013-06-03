@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "bart/base.html" %}
 
 {% block title %}Home{% endblock title %}
 
@@ -7,7 +7,7 @@
 <section id="masthead">
 	{% with article_list|slice:":1" as articles %}
 	{% for article in articles %}
-	{% include "elements/snippets/article-summary.html" %}
+	{% include "bart/elements/snippets/article-summary.html" %}
 	{% endfor %}
 	{% endwith %}
 
@@ -15,7 +15,7 @@
 		<section>
 			<h1>Sidebar Section Header</h1>
 			<div class="inner">
-				{% include "elements/snippets/image-container.html" %}
+				{% include "bart/elements/snippets/image-container.html" %}
 				<div class="detail">
 					<p>Lorem ipsum dolor sit amet.</p>
 				</div>
@@ -27,7 +27,7 @@
 <section class="article-list">
 	{% with article_list|slice:"1:" as articles %}
 	{% for article in articles %}
-	{% include "elements/snippets/article-summary.html" %}
+	{% include "bart/elements/snippets/article-summary.html" %}
 	{% endfor %}
 	{% endwith %}
 </section>

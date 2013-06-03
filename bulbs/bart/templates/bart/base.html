@@ -8,19 +8,19 @@
         <meta name="keywords" content="{% block metakeywords%}{% endblock %}">
         <meta name="viewport" content="width=device-width">
 
-        <link rel="stylesheet" href="{{ STATIC_URL }}css/vendor/normalize.min.css">
-        <link rel="stylesheet" href="{{ STATIC_URL }}css/base.css">
+        <link rel="stylesheet" href="{{ STATIC_URL }}bart/css/vendor/normalize.min.css">
+        <link rel="stylesheet" href="{{ STATIC_URL }}bart/css/base.css">
 
         {% block extra_head %}{% endblock extra_head %}
 
         <!--[if lt IE 9]>
-            <script src="js/vendor/html5-3.6-respond-1.1.0.min.js"></script>
+            <script src="{{ STATIC_URL }}bart/js/vendor/html5-3.6-respond-1.1.0.min.js"></script>
         <![endif]-->
     </head>
     <body>
 
         <div class="header-container">
-            {% include "elements/global/header/default.html" %}
+            {% include "bart/elements/global/header/default.html" %}
         </div>
 
         <div class="main-container">
@@ -30,13 +30,13 @@
         </div>
 
         <div class="footer-container">
-            {% include "elements/global/footer/default.html" %}
+            {% include "bart/elements/global/footer/default.html" %}
         </div>
 
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-        <script>window.jQuery || document.write('<script src="{{ STATIC_URL }}js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+        <script>window.jQuery || document.write('<script src="{{ STATIC_URL }}bart/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
 
-        <script src="{{ STATIC_URL }}js/main.js"></script>
+        <script src="{{ STATIC_URL }}bart/js/main.js"></script>
 
         {% block extra_js %}{% endblock extra_js %}
         
