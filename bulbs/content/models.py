@@ -227,13 +227,13 @@ class Contentish(models.Model):
     def get_absolute_url(self):
         return ""
 
-    def save(self, *args, **kwargs):
+    def save(self, refresh=False, *args, **kwargs):
         super(Contentish, self).save(*args, **kwargs)
         if self.elastic_id is None:
             elastic_id = "%d%d" % (ContentType.objects.get_for_model(self).id, self.id)
             self.elastic_id = base10to62(int(elastic_id))
             super(Contentish, self).save(update_fields=['elastic_id'])
-        self.index()
+        self.index(refresh=refresh)
 
     @classmethod
     def get_doctypes(cls):
@@ -292,7 +292,7 @@ class Contentish(models.Model):
             raise AttributeError("This content object is read only.")
         # TODO: is this too terrible? Should a setter really have this behavior? Too implicit?
         if isinstance(value, basestring):
-            self._tags = "\n".join([tag.strip() for tag in self._tags.split("\n")])
+            self._tags = "\n".join([tag.strip() for tag in value.split("\n")])
         else:
             self._tags = "\n".join([tag.strip() for tag in value])
 
@@ -337,10 +337,10 @@ class Contentish(models.Model):
         self._feature_type = value
 
     # ElasticUtils stuff
-    def index(self):
+    def index(self, refresh=False):
         es = get_es(urls=settings.ES_URLS)
         index = settings.ES_INDEXES.get('default')
-        es.index(index, self.get_mapping_type_name(), self.extract_document(), self.elastic_id)
+        es.index(index, self.get_mapping_type_name(), self.extract_document(), self.elastic_id, refresh=refresh)
 
         if not self._tags:
             return
@@ -348,7 +348,7 @@ class Contentish(models.Model):
         for tag_name in self._tags.split("\n"):
             tag = Tagish.from_name(tag_name)
             try:
-                tag = es.get(index, 'tag', tag.slug)
+                tag = es.get(index, 'tag', tag.slug, refresh=refresh)
             except ElasticHttpNotFoundError:
                 tag.index()
 

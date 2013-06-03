@@ -39,6 +39,11 @@ class ContentCreationTestCases(ESTestCase):
             field2="Tags",
             tags=[],
             published=one_hour_ago)
+        self.assertEqual(no_tags.tags, [])
+        no_tags.tags = "One tag\nTwo tags\nThree tags"
+        no_tags.save(refresh=True)
+        self.es.refresh()  # It takes a few seconds for the indexing to propogate, unless we refresh.
+        self.assertEqual(len(no_tags.tags), 3)
 
 
 class ContentishTestCase(ESTestCase):
