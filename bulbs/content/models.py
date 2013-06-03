@@ -1,3 +1,5 @@
+from collections import Iterable
+
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
@@ -196,6 +198,81 @@ BASE_CONTENT_MAPPING = {
 }
 
 
+class TagishRelatedManage():
+    """ This is pretty messy, but it does work. This is basically a related manager-ish
+        class that allows adding, removing and retriving the tags from a Contentish object.
+    """
+
+    def __init__(self, content):
+        self.content = content
+
+    def _save_tags(self, refresh=False):
+        self.content.save(index=False, update_fields=["_tags"])
+        es = get_es(urls=settings.ES_URLS)
+        index = settings.ES_INDEXES.get('default')
+        doc = {}
+        doc['tags'] = [
+            {
+                'name': tag_name,
+                'slug': slugify(tag_name)
+            } for tag_name in self.content._tags.split("\n")]
+        es.update(index, self.content.get_mapping_type_name(), self.content.elastic_id, doc=doc, refresh=refresh)
+        for tag_name in self.content._tags.split("\n"):
+            tag = Tagish.from_name(tag_name)
+            try:
+                tag = es.get(index, 'tag', tag.slug, refresh=refresh)
+            except ElasticHttpNotFoundError:
+                tag.index()
+
+    def all(self):
+        if self.content._tags:
+            return Tagish.search().query(slug__terms=[slugify(tag) for tag in self.content._tags.split("\n")])
+        return []
+
+    def remove(self, tags):
+        if not isinstance(tags, Iterable):
+            tags = [tags]
+        if self.content._tags is None:
+            tag_list = []
+        else:
+            tag_list = self.content._tags.split("\n")
+        for tag in tags:
+            if isinstance(tag, Tagish):
+                tag_name = tag.name
+            elif isinstance(tag, basestring):
+                tag_name = tag
+            else:
+                raise TypeError("Tags must br strings or Tagish objects")
+            if tag_name in tag_list:
+                tag_list.remove(tag_name)
+            else:
+                raise AttributeError("There is no attached tag with the name \"%s\"" % tag_name)
+        self.content._tags = "\n".join(tag_list)
+        self._save_tags()
+
+    def add(self, tags):
+        if not isinstance(tags, Iterable):
+            tags = [tags]
+        if self.content._tags is None:
+            tag_list = []
+        else:
+            tag_list = self.content._tags.split("\n")
+        for tag in tags:
+            if isinstance(tag, Tagish):
+                tag_name = tag.name
+            elif isinstance(tag, basestring):
+                tag_name = tag
+            else:
+                raise TypeError("Tags must be strings or Tagish objects")
+            if tag_name in tag_list:
+                raise AttributeError("There is already an attached tag with the name \"%s\"" % tag_name)
+            else:
+                tag_list
+                tag_list.append(tag_name)
+        self.content._tags = "\n".join(tag_list)
+        self._save_tags()
+
+
 class Contentish(models.Model):
     """
     Abstract base class for objects that'd like to be considered 'content.'
@@ -227,8 +304,10 @@ class Contentish(models.Model):
     def get_absolute_url(self):
         return ""
 
-    def save(self, refresh=False, *args, **kwargs):
+    def save(self, index=True, refresh=False, *args, **kwargs):
         super(Contentish, self).save(*args, **kwargs)
+        if index is False:
+            return
         if self.elastic_id is None:
             elastic_id = "%d%d" % (ContentType.objects.get_for_model(self).id, self.id)
             self.elastic_id = base10to62(int(elastic_id))
@@ -282,19 +361,9 @@ class Contentish(models.Model):
 
     @property
     def tags(self):
-        if self._tags:
-            return Tagish.search().query(slug__terms=[slugify(tag) for tag in self._tags.split("\n")])
-        return []
-
-    @tags.setter
-    def tags(self, value):
-        if self._readonly:
-            raise AttributeError("This content object is read only.")
-        # TODO: is this too terrible? Should a setter really have this behavior? Too implicit?
-        if isinstance(value, basestring):
-            self._tags = "\n".join([tag.strip() for tag in value.split("\n")])
-        else:
-            self._tags = "\n".join([tag.strip() for tag in value])
+        if not hasattr(self, "_tag_relation"):
+            self._tag_relation = TagishRelatedManage(self)
+        return self._tag_relation
 
     @property
     def byline(self):
@@ -362,7 +431,7 @@ class Contentish(models.Model):
             subhead=_source['subhead'],
             published=_source['published'],
             _feature_type=_source['feature_type'],
-            _tags="\n".join([tag['name'] for tag in _source['tags']])
+            _tags="\n".join([tag['name'] for tag in _source.get('tags', [])])
         )
 
     @classmethod

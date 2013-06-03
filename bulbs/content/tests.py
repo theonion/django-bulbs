@@ -37,13 +37,12 @@ class ContentCreationTestCases(ESTestCase):
             title="No Tags",
             field1="No",
             field2="Tags",
-            tags=[],
             published=one_hour_ago)
-        self.assertEqual(no_tags.tags, [])
-        no_tags.tags = "One tag\nTwo tags\nThree tags"
-        no_tags.save(refresh=True)
-        self.es.refresh()  # It takes a few seconds for the indexing to propogate, unless we refresh.
-        self.assertEqual(len(no_tags.tags), 3)
+        self.es.refresh()
+        self.assertEqual(no_tags.tags.all(), [])
+        no_tags.tags.add(["One tag", "Two tags", "Three tags"])
+        self.es.refresh()
+        self.assertEqual(len(no_tags.tags.all()), 3)
 
 
 class ContentishTestCase(ESTestCase):
@@ -58,16 +57,18 @@ class ContentishTestCase(ESTestCase):
                 field1=tags[0],
                 field2=tags[1],
                 feature_type="Testing Type",
-                tags=tags,
                 published=one_hour_ago)
+            self.es.refresh()
+            obj.tags.add(tags)
 
             obj2 = TestContentObjTwo.objects.create(
                 title="Tags: %s, %s" % (tags[0], tags[1]),
                 field1=tags[0],
                 field2=tags[1],
                 field3=3,
-                tags=tags,
                 published=one_hour_ago)
+            self.es.refresh()
+            obj2.tags.add(tags)
 
         self.es.refresh()
 
@@ -91,19 +92,17 @@ class ContentishTestCase(ESTestCase):
         results = Contentish.search(tags=["tag-1", "tag-2"])
         self.assertEqual(len(results), 2)
         for result in results:
-            self.assertTrue(any(tag.slug == 'tag-1' for tag in result.tags))
-            self.assertTrue(any(tag.slug == 'tag-2' for tag in result.tags))
-            self.assertFalse(any(tag.slug == 'tag-3' for tag in result.tags))
-            self.assertFalse(any(tag.slug == 'tag-4' for tag in result.tags))
+            tags = result.tags.all()
+            self.assertTrue(any(tag.slug == 'tag-1' for tag in tags))
+            self.assertTrue(any(tag.slug == 'tag-2' for tag in tags))
+            self.assertFalse(any(tag.slug == 'tag-3' for tag in tags))
+            self.assertFalse(any(tag.slug == 'tag-4' for tag in tags))
 
         results = Contentish.search(types=[TestContentObjTwo])
         self.assertEqual(results.count(), 6)
 
         results = Contentish.search(types=[TestContentObj])
         self.assertEqual(len(results), 6)
-
-        with self.assertRaises(AttributeError):
-            results[0].tags = ['Some Tag', 'Some other tag']
 
         with self.assertRaises(AttributeError):
             results[0].feature_type = 'Some Feature Type'
