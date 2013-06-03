@@ -4,31 +4,20 @@ from django.utils import timezone
 from django.template.defaultfilters import slugify
 from django.contrib.contenttypes.models import ContentType
 from django.db.backends import util
+from django.db.models.query_utils import deferred_class_factory
 
 from elasticutils import get_es, S, SearchResults
 from pyelasticsearch.exceptions import ElasticHttpNotFoundError, InvalidJsonResponseError
 
 from bulbs.images.models import Image
-from bulbs.content.base62 import base10to62, base62to10
+from bulbs.content.base62 import base10to62
 
-
-# This function is needed because data descriptors must be defined on a class
-# object, not an instance, to have any effect.
 
 def readonly_content_factory(model):
-    """
-    Returns a class object that is a copy of "model" with the specified "attrs"
-    being replaced with DeferredAttribute objects. The "pk_value" ties the
-    deferred attributes to a particular instance of the model.
-    """
     class Meta:
         proxy = True
         app_label = model._meta.app_label
 
-    # The app_cache wants a unique name for each model, otherwise the new class
-    # won't be created (we get an old one back). Therefore, we generate the
-    # name using the passed in attrs. It's OK to reuse an existing class
-    # object if the attrs are identical.
     name = "%s_Readonly" % model.__name__
     name = util.truncate_name(name, 80, 32)
 
@@ -48,9 +37,7 @@ class ContentishSearchResults(SearchResults):
             cls = Contentish.get_doctypes().get(result['_type'])
             if cls:
                 readonly_cls = readonly_content_factory(cls)
-                pk = result['_source'].get('object_id')
-                obj = readonly_cls(pk=pk)
-                obj.load_from_source(result['_source'])
+                obj = readonly_cls.from_source(result['_source'])
                 self.objects.append(obj)
 
     def __iter__(self):
@@ -73,10 +60,7 @@ class ContentishS(S):
 
 class TagishSearchResults(SearchResults):
     def set_objects(self, results):
-        # TODO: Handle DB backed tags
-        self.objects = [
-            Tagish(slug=result['_source']['slug'], name=result['_source']['name'])
-            for result in results]
+        self.objects = [Tagish.from_source(result['_source']) for result in results]
 
     def __iter__(self):
         return self.objects.__iter__()
@@ -105,7 +89,10 @@ class Tagish(models.Model):
         abstract = True
 
     def __unicode__(self):
-        return "Tag: %s" % self.name
+        if self.__class__ == Tagish:
+            return "Tag: %s" % self.name
+        else:
+            return "%s: %s" % (self.__class__.__name__, self.name)
 
     def save(self, *args, **kwargs):
         es = get_es(urls=settings.ES_URLS)
@@ -128,7 +115,6 @@ class Tagish(models.Model):
         super(Tagish, self).save(*args, **kwargs)
         self.index()
 
-
     @classmethod
     def get(cls, slug):
         es = get_es(urls=settings.ES_URLS)
@@ -138,11 +124,17 @@ class Tagish(models.Model):
         except ElasticHttpNotFoundError:
             raise cls.ObjectDoesNotExist
 
-        obj = cls(
-            name=es_tag['_source']['name'],
-            slug=es_tag['_source']['slug']
-        )
-        return obj
+        return cls.from_source(es_tag['_source'])
+
+    @classmethod
+    def from_source(cls, _source):
+        if _source.get('object_id'):
+            model = ContentType.objects.get_for_id(_source['content_type']).model_class()
+            # Get the attributes to be deferred.
+            attrs = [fn for fn in model._meta.get_all_field_names() if fn not in ['pk', 'slug', 'name']]
+            model = deferred_class_factory(model, attrs)
+            return model(id=_source['object_id'], name=_source['name'], slug=_source['slug'])
+        return Tagish(name=_source['name'], slug=_source['slug'])
 
     @classmethod
     def from_name(cls, name):
@@ -360,14 +352,18 @@ class Contentish(models.Model):
             except ElasticHttpNotFoundError:
                 tag.index()
 
-    def load_from_source(self, _source):
-        self.slug = _source['slug']
-        self.title = _source['title']
-        self.description = _source['description']
-        self.subhead = _source['subhead']
-        self.published = _source['published']
-        self._feature_type = _source['feature_type']
-        self._tags = "\n".join([tag['name'] for tag in _source['tags']])
+    @classmethod
+    def from_source(cls, _source):
+        return cls(
+            id=_source['object_id'],
+            slug=_source['slug'],
+            title=_source['title'],
+            description=_source['description'],
+            subhead=_source['subhead'],
+            published=_source['published'],
+            _feature_type=_source['feature_type'],
+            _tags="\n".join([tag['name'] for tag in _source['tags']])
+        )
 
     @classmethod
     def get_mapping_type_name(cls):

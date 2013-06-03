@@ -130,16 +130,17 @@ class TagSearchTestCase(ESTestCase):
             tag = Tagish.from_name(name)
             tag.index()
 
-        Section.objects.create(name="T.V.", description="The TV Section")
-        self.es.refresh()
+        self.tv_section = Section.objects.create(name="T.V.", description="The TV Section")
+        self.es.refresh()  # It takes a few seconds for the indexing to propogate, unless we refresh.
 
     def test_tagish_objects(self):
         tv_section = Tagish.get("tv-section")
-        self.assertTrue(tv_section is not None)
+        self.assertEqual(tv_section.description, "The TV Section")
+        self.assertEqual(tv_section.id, self.tv_section.id)
 
         new_tv_section = Section.objects.create(name="TV", description="Another TV Section")
         self.assertEqual(new_tv_section.slug, "tv-section-1")
-        self.es.refresh()
+        self.es.refresh()  # It takes a few seconds for the indexing to propogate, unless we refresh.
         self.assertEqual(Tagish.search().count(), 8)
 
     def test_tag_search(self):
