@@ -1,9 +1,19 @@
-<article>
+<article{% if article.id %} id="{{ article.id }}"{% endif %}>
+
+	{% if article.images %}
+	{% include "bart/elements/snippets/image-container.html" with image=article.images.0 %}
+	{% endif %}
+
 	<header>
 		<h1><a href="{{ article.get_absolute_url }}" title="{{ article.title }}">{{ article.title|safe }}</a></h1>
+		{% if article.subtitle %}<h2>{{ article.subtitle|safe }}</h2>{% endif %}
 		{% include "bart/elements/snippets/article-meta.html" %}
 	</header>
+
+	{% if article.teaser %}
 	<div class="article-teaser">
 		<p>{{ article.teaser|safe }}</p>
 	</div>
+	{% endif %}
+
 </article>

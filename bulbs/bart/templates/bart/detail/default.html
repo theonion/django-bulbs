@@ -1,4 +1,7 @@
 {% extends "bart/detail/base.html" %}
+
+{% block title %}{{ article.title|safe }} | {{ block.super }}{% endblock title %}
+
 {% block content %}
 <article>
 	
