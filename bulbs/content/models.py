@@ -346,7 +346,7 @@ class Contentish(models.Model):
         index = indexes['default']
         results = ContentishS().es(urls=settings.ES_URLS).indexes(index)
         if kwargs.get('query'):
-            results = results.query(__text=kwargs.get('query'))
+            results = results.query(_all__text_phrase=kwargs.get('query'))
 
         if kwargs.get('published', True):
             now = timezone.now()

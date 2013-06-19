@@ -86,11 +86,14 @@ class ContentishTestCase(ESTestCase):
         results = Contentish.search()
         self.assertEqual(results.count(), 12)
 
+        results = Contentish.search(query="Tag 1")
+        self.assertEqual(results.count(), 6)
+
         results = Contentish.search(tags=["tag-1"])
-        self.assertEqual(len(results), 6)
+        self.assertEqual(results.count(), 6)
 
         results = Contentish.search(tags=["tag-1", "tag-2"])
-        self.assertEqual(len(results), 2)
+        self.assertEqual(results.count(), 2)
         for result in results:
             tags = result.tags.all()
             self.assertTrue(any(tag.slug == 'tag-1' for tag in tags))
