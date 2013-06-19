@@ -1,0 +1,27 @@
+<html>
+    <head>
+        <title>Content</title>
+        <style type="text/css">
+            body {
+                padding: 0;
+                margin: 0;
+            }
+            #filter {
+                height: 60px;
+                background-color: gray;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="filter">
+            <input type="text" name="q" />
+        </div>
+        <div id="content">
+            <ul>
+                {% for content in object_list %}
+                <li>{{ content.title }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </body>
+</html>

@@ -225,7 +225,7 @@ class TagishRelatedManage():
         for tag_name in self.content._tags.split("\n"):
             tag = Tagish.from_name(tag_name)
             try:
-                tag = es.get(index, 'tag', tag.slug, refresh=refresh)
+                tag = es.get(index, 'tag', tag.slug)
             except ElasticHttpNotFoundError:
                 tag.index()
 
@@ -344,7 +344,10 @@ class Contentish(models.Model):
         """
         indexes = settings.ES_INDEXES
         index = indexes['default']
-        results = ContentishS().es().indexes(index)
+        results = ContentishS().es(urls=settings.ES_URLS).indexes(index)
+        if kwargs.get('query'):
+            results = results.query(__text=kwargs.get('query'))
+
         if kwargs.get('published', True):
             now = timezone.now()
             results = results.query(published__lte=now, must=True)
