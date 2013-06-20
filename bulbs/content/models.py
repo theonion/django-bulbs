@@ -342,8 +342,7 @@ class Contentish(models.Model):
          * feature_type(s)
          * published
         """
-        indexes = settings.ES_INDEXES
-        index = indexes['default']
+        index = settings.ES_INDEXES.get('default')
         results = ContentishS().es(urls=settings.ES_URLS).indexes(index)
         if kwargs.get('query'):
             results = results.query(_all__text_phrase=kwargs.get('query'))

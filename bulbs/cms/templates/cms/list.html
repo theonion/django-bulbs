@@ -14,7 +14,10 @@
     </head>
     <body>
         <div id="filter">
-            <input type="text" name="q" />
+            <form>
+                <input type="text" name="query" />
+                <input type="submit" />
+            </form>
         </div>
         <div id="content">
             <ul>
@@ -23,5 +26,6 @@
                 {% endfor %}
             </ul>
         </div>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
     </body>
 </html>
