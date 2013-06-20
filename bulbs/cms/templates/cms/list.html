@@ -1,6 +1,6 @@
-<html>
-    <head>
-        <title>Content</title>
+{% extends "base/base.html" %}
+{% block title %}Content{% endblock title %}
+{% block content %}
         <style type="text/css">
             body {
                 padding: 0;
@@ -26,6 +26,4 @@
                 {% endfor %}
             </ul>
         </div>
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
-    </body>
-</html>
+{% endblock content %}
