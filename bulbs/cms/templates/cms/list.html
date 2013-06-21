@@ -16,6 +16,11 @@
         <div id="filter">
             <form>
                 <input type="text" name="query" />
+                <select name="type">
+                    {% for slug,name in doctypes.items %}
+                    <option value="{{ slug }}">{{ name }}</option>
+                    {% endfor %}
+                </select>
                 <input type="submit" />
             </form>
         </div>

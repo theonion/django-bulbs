@@ -9,14 +9,9 @@ from elasticutils import S
 from bulbs.content.models import Contentish, Tagish
 
 
-def render_json(page):
-    data = {'object_list': [obj.to_dict() for obj in page.object_list]}
-    return HttpResponse(json.dumps(data), content_type="application/json")
-
-
 def search_tags(request):
     tags = Tagish.search(request.GET.get('q'))
-    tag_data = [tag.name for tag in tags]
+    tag_data = [{'name': tag.name, 'slug': tag.slug} for tag in tags]
     return HttpResponse(json.dumps(tag_data), content_type='application/json')
 
 
@@ -49,18 +44,41 @@ class ContentListView(ListView):
     context_object_name = 'content'
     template_name = None
 
-    renderers = {
-        "text/html": "html",
-        "application/json": render_json
-    }
-
-    def get_renderer(self, request):
-        for mime_type in self.renderers:
-            pass
-
     def get_queryset(self):
         tags = self.tags or self.kwargs.get('tags') or self.request.GET.getlist('tag', [])
         types = self.types or self.kwargs.get('types') or self.request.GET.getlist('type', [])
         feature_types = self.types or self.kwargs.get('feature_types') or self.request.GET.getlist('feature_type', [])
         published = self.published or self.kwargs.get('published') or self.request.GET.get('published', [])
         return Contentish.search(tags=tags, feature_types=feature_types, types=types, published=published)
+
+    def render_to_response(self, context, **response_kwargs):
+        http_accept = self.request.META.get('HTTP_ACCEPT')
+        if http_accept == "application/json":
+            data = {
+                "count": context['paginator'].count,
+                "num_pages": context['paginator'].num_pages,
+                "page": {
+                    # Page methods
+                    "has_next": context['page_obj'].has_next(),
+                    "has_previous": context['page_obj'].has_previous(),
+                    "has_other_pages": context['page_obj'].has_other_pages(),
+                    "start_index": context['page_obj'].start_index(),
+                    "end_index": context['page_obj'].end_index(),
+                    # Page attributes
+                    "number": context['page_obj'].number
+                },
+            }
+            data['results'] = [{
+                'id': result.id,
+                'slug': result.slug,
+                'title': result.title,
+                'description': result.description,
+                'image': result.image_id,
+                'byline': result.byline,
+                'subhead': result.subhead,
+                'published': result.published,
+                'feature_type': result.feature_type} for result in context['object_list']]
+
+            return HttpResponse(json.dumps(data), content_type="application/json")
+
+        return super(ContentListView, self).render_to_response(context, **response_kwargs)
