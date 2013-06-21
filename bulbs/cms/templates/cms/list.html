@@ -12,10 +12,10 @@
             
             <tr>
                 <th>Title</th>
-                <th>Tags</th>
-                <th>Published</th>
-                <th>Description</th>
                 <th>Author(s)</th>
+                <th>Published</th>
+                <th>Tags</th>
+                <th>Tools</th>
             </tr>
 
             {% for content in object_list %}
@@ -25,6 +25,20 @@
                     <a title="{{ content.slug }}" href="#">{{ content.title|safe }}</a>
                 </td>
                 
+                <td class="authors">
+                    {% if content.authors.all %}
+                    {% for author in content.authors.all %}{{ author }}{% endfor %}
+                    {% else %}<em>N/A</em>
+                    {% endif %}
+                </td>
+
+                <td class="published">
+                    {% if content.published %}
+                    <span>{{ content.published }} <a href="#"><i class="icon icon-share"></i></a>
+                    {% else %}<em>Not published</em>
+                    {% endif %}
+                </td>
+                
                 <td class="tags">
                     {% if content.tags %}
                     {% for tag in content.tags.all %}{{ tag.name }}{% endfor %}
@@ -32,25 +46,11 @@
                     {% endif %}
                 </td>
 
-                <td class="pubdate">
-                    {% if content.published %}
-                    <span>{{ content.published }} <a href="#"><i class="icon icon-share"></i></a>
-                    {% else %}<em>Not published</em>
-                    {% endif %}
-                </td>
-                
-                <td class="description">
-                    {% if content.description %}
-                    {{ content.description|safe }}
-                    {% else %}<em>N/A</em>
-                    {% endif %}
-                </td>
-                
-                <td class="authors">
-                    {% if content.authors.all %}
-                    {% for author in content.authors.all %}{{ author }}{% endfor %}
-                    {% else %}<em>N/A</em>
-                    {% endif %}
+                <td class="tools">
+                    <div class="btn-group">
+                        <a class="btn btn-primary btn-small" href="#"><i class="icon-cog icon-white"></i></a>
+                        <a class="btn btn-small btn-danger" href="#"><i class="icon-trash icon-white"></i></a>
+                    </div>
                 </td>
                    
             </tr>
