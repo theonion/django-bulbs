@@ -12,6 +12,7 @@
             
             <tr>
                 <th>Title</th>
+                <th>Feature Type</th>
                 <th>Author(s)</th>
                 <th>Published</th>
                 <th>Tags</th>
@@ -23,6 +24,10 @@
                 
                 <td class="title">
                     <a title="{{ content.slug }}" href="#">{{ content.title|safe }}</a>
+                </td>
+
+                <td class="feature-type">
+                    {{ content.feature_type }}
                 </td>
                 
                 <td class="authors">
@@ -48,8 +53,8 @@
 
                 <td class="tools">
                     <div class="btn-group">
-                        <a class="btn btn-primary btn-small" href="#"><i class="icon-cog icon-white"></i></a>
-                        <a class="btn btn-small btn-danger" href="#"><i class="icon-trash icon-white"></i></a>
+                        <a class="btn btn-primary btn-mini" href="#"><i class="icon-cog icon-white"></i></a>
+                        <a class="btn btn-mini btn-danger" href="#"><i class="icon-trash icon-white"></i></a>
                     </div>
                 </td>
                    
