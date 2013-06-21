@@ -1,1 +1,2 @@
-body { border: 2px solid red; } /*test*/
+#header h1 { font-size: inherit; }
+#footer { text-align: center; }

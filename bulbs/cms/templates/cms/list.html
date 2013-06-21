@@ -2,37 +2,60 @@
 {% block title %}Content{% endblock title %}
 {% block content %}
     <div id="filter">
-        <form>
-            <input type="text" name="query" />
-            <input type="submit" />
+        <form class="form-search">
+            <input type="text"  class="input-medium search-query" name="query" />
+            <input type="submit" class="btn" value="Filter" />
         </form>
     </div>
     <div id="results">
-        <ul>
-            {% for content in object_list %}
-            <li id="{{ content.id }}">
-                <article>
-                    <header>
-                        <h1><a class="title" title="{{ content.slug }}" href="#">{{ content.title|safe }}</a></h1>
-                        {% if content.subhead %}<h2>{{ content.subhead|safe }}</h2>{% endif %}
-                    </header>
-                    <ul class="meta">
-                        {% if content.tags %}
-                        <li class="tags">{{ content.tags }}</li>{% endif %}
+        <table class="table table-bordered table-striped">
+            
+            <tr>
+                <th>Title</th>
+                <th>Tags</th>
+                <th>Published</th>
+                <th>Description</th>
+                <th>Author(s)</th>
+            </tr>
 
-                        {% if content.published %}
-                        <li class="pubdate"><span>{{ content.published }}</li>{% endif %}
-                        <li class="permalink"><a href="#">View live</a></li>
-                        
-                        {% if content.description %}
-                        <li class="description">{{ content.description|safe }}</li>{% endif %}
-                        
-                        {% if content.authors %}
-                        <li class="authors">{{ content.authors }}</li>{% endif %}
-                    </ul>
-                </article>
-            </li>
+            {% for content in object_list %}
+            <tr id="{{ content.id }}">
+                
+                <td class="title">
+                    <a title="{{ content.slug }}" href="#">{{ content.title|safe }}</a>
+                </td>
+                
+                <td class="tags">
+                    {% if content.tags %}
+                    {% for tag in content.tags.all %}{{ tag.name }}{% endfor %}
+                    {% else %}No tags.
+                    {% endif %}
+                </td>
+
+                <td class="pubdate">
+                    {% if content.published %}
+                    <span>{{ content.published }} <a href="#">View live</a>
+                    {% else %}<em>Not published</em>
+                    {% endif %}
+                </td>
+                
+                <td class="description">
+                    {% if content.description %}
+                    {{ content.description|safe }}
+                    {% else %}<em>N/A</em>
+                    {% endif %}
+                </td>
+                
+                <td class="authors">
+                    {% if content.authors.all %}
+                    {% for author in content.authors.all %}{{ author }}{% endfor %}
+                    {% else %}<em>N/A</em>
+                    {% endif %}
+                </td>
+                   
+            </tr>
             {% endfor %}
-        </ul>
+
+        </table>
     </div>
 {% endblock content %}
