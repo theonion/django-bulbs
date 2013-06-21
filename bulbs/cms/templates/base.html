@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <link rel="stylesheet" href="{{ STATIC_URL }}bart/css/vendor/normalize.min.css">
-    <link rel="stylesheet" href="{{ STATIC_URL }}bart/css/base.css">
+    <link rel="stylesheet" href="{{ STATIC_URL }}vendor/bootstrap/css/bootstrap.min.css" media="screen">
 	<link rel="stylesheet" href="{{ STATIC_URL }}cms/css/style.css" />
 	{% block extra_head %}{% endblock extra_head %}
 </head>
@@ -31,6 +31,8 @@
     <script>
 	    window.jQuery || document.write('<script src="{{ STATIC_URL }}bart/js/vendor/jquery-1.9.1.min.js"><\/script>')
     </script>
+    <script src="{{ STATIC_URL }}vendor/bootstrap/js/bootstrap.min.js"></script>
+
 	<!--[if IE]>
 		<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
 	<![endif]-->

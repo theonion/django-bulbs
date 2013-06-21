@@ -1,29 +1,38 @@
-{% extends "base/base.html" %}
+{% extends "base.html" %}
 {% block title %}Content{% endblock title %}
 {% block content %}
-        <style type="text/css">
-            body {
-                padding: 0;
-                margin: 0;
-            }
-            #filter {
-                height: 60px;
-                background-color: gray;
-            }
-        </style>
-    </head>
-    <body>
-        <div id="filter">
-            <form>
-                <input type="text" name="query" />
-                <input type="submit" />
-            </form>
-        </div>
-        <div id="content">
-            <ul>
-                {% for content in object_list %}
-                <li>{{ content.title }}</li>
-                {% endfor %}
-            </ul>
-        </div>
+    <div id="filter">
+        <form>
+            <input type="text" name="query" />
+            <input type="submit" />
+        </form>
+    </div>
+    <div id="results">
+        <ul>
+            {% for content in object_list %}
+            <li id="{{ content.id }}">
+                <article>
+                    <header>
+                        <h1><a class="title" title="{{ content.slug }}" href="#">{{ content.title|safe }}</a></h1>
+                        {% if content.subhead %}<h2>{{ content.subhead|safe }}</h2>{% endif %}
+                    </header>
+                    <ul class="meta">
+                        {% if content.tags %}
+                        <li class="tags">{{ content.tags }}</li>{% endif %}
+
+                        {% if content.published %}
+                        <li class="pubdate"><span>{{ content.published }}</li>{% endif %}
+                        <li class="permalink"><a href="#">View live</a></li>
+                        
+                        {% if content.description %}
+                        <li class="description">{{ content.description|safe }}</li>{% endif %}
+                        
+                        {% if content.authors %}
+                        <li class="authors">{{ content.authors }}</li>{% endif %}
+                    </ul>
+                </article>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
 {% endblock content %}
