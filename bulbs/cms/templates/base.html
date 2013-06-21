@@ -6,9 +6,10 @@
 	<title>{% block title %}Home{% endblock title %} | A.V. Club Management Console</title>
     <meta name="description" content="{% block metadescription%}You can manage content here.{% endblock %}">
     <meta name="keywords" content="{% block metakeywords%}{% endblock %}">
-    <meta name="viewport" content="width=device-width">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <link rel="stylesheet" href="{{ STATIC_URL }}cms/vendor/bootstrap/assets/css/bootstrap.css" media="screen">
+    <link rel="stylesheet" href="{{ STATIC_URL }}cms/vendor/bootstrap/assets/css/bootstrap-responsive.css">
 	<link rel="stylesheet" href="{{ STATIC_URL }}cms/css/style.css" />
 	{% block extra_head %}{% endblock extra_head %}
 </head>
