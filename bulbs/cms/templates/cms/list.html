@@ -1,66 +1,68 @@
 {% extends "base.html" %}
 {% block title %}Content{% endblock title %}
 {% block content %}
-    <div id="filter">
-        <form class="input-append">
-            <input type="text"  class="span2" name="query" />
-            <button class="btn" type="submit" type="button">Go!</button>
-        </form>
-    </div>
+    <header class="results-filter row">
+        <h1 class="span7">All Content</h1>
+        <div id="filter" class="span5">
+            <form class="form-inline">
+                <input class="input-medium" type="text" placeholder="Filter by keyword…" name="query">
+
+                <label class="checkbox">
+                <input type="checkbox"> Only show items authored by me
+                </label>
+
+                <button type="submit" class="btn">Filter</button>
+            </form>
+        </div>
+    </header>
     <div id="results">
-        <table class="table table-bordered table-striped">
-            
-            <tr>
-                <th>Title</th>
-                <th>Feature Type</th>
-                <th>Author(s)</th>
-                <th>Published</th>
-                <th>Tags</th>
-                <th>Tools</th>
-            </tr>
+        <table class="table table-bordered table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Type</th>
+                    <th>Tagged with</th>
+                    <th>Status</th>
+                    <th>Tools</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for content in object_list %}
+                <tr id="{{ content.id }}">
+                    
+                    <td class="title">
+                        <a title="{{ content.slug }}" href="#">{{ content.title|safe }}</a>
+                    </td>
 
-            {% for content in object_list %}
-            <tr id="{{ content.id }}">
-                
-                <td class="title">
-                    <a title="{{ content.slug }}" href="#">{{ content.title|safe }}</a>
-                </td>
+                    <td class="type">
+                        {{ content.feature_type }}
+                    </td>
+                    
+                    <td class="tags">
+                        {% if content.tags %}
+                        {% for tag in content.tags.all %}<span class="label">{{ tag.name }}</span>{% endfor %}
+                        {% else %}No tags.
+                        {% endif %}
+                    </td>
+                    
+                    <td class="authors">
+                        {% if content.published %}
+                        <span class="label label-success" title="Published {{ content.published }}">Published</span> <a href="#"><i class="icon icon-share"></i></a>
+                        {% else %}
+                        <span class="label label-info">Draft</span>
+                        {% endif %}
+                    </td>
 
-                <td class="feature-type">
-                    {{ content.feature_type }}
-                </td>
-                
-                <td class="authors">
-                    {% if content.authors.all %}
-                    {% for author in content.authors.all %}{{ author }}{% endfor %}
-                    {% else %}<em>N/A</em>
-                    {% endif %}
-                </td>
-
-                <td class="published">
-                    {% if content.published %}
-                    <span>{{ content.published }} <a href="#"><i class="icon icon-share"></i></a>
-                    {% else %}<em>Not published</em>
-                    {% endif %}
-                </td>
-                
-                <td class="tags">
-                    {% if content.tags %}
-                    {% for tag in content.tags.all %}{{ tag.name }}{% endfor %}
-                    {% else %}No tags.
-                    {% endif %}
-                </td>
-
-                <td class="tools">
-                    <div class="btn-group">
-                        <a class="btn btn-primary btn-mini" href="#"><i class="icon-cog icon-white"></i></a>
-                        <a class="btn btn-mini btn-danger" href="#"><i class="icon-trash icon-white"></i></a>
-                    </div>
-                </td>
-                   
-            </tr>
-            {% endfor %}
-
+                    <td class="tools">
+                        <div class="btn-group">
+                            <a class="btn btn-primary btn-mini" href="#"><i class="icon-cog icon-white"></i></a>
+                            <a class="btn btn-mini btn-danger" href="#"><i class="icon-trash icon-white"></i></a>
+                        </div>
+                    </td>
+                       
+                </tr>
+                {% endfor %}
+            </tbody>
         </table>
     </div>
 {% endblock content %}
