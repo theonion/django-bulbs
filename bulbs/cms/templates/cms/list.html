@@ -3,15 +3,17 @@
 {% block content %}
     <header class="results-filter row">
         <h1 class="span7">All Content</h1>
-        <div id="filter" class="span5">
-            <form class="form-inline">
-                <input class="input-medium" type="text" placeholder="Filter by keyword…" name="query">
-
-                <label class="checkbox">
-                <input type="checkbox"> Only show items authored by me
-                </label>
-
-                <button type="submit" class="btn">Filter</button>
+        <div id="filter" class="span5 text-right">
+            <form>
+                <div class="control-group input-append">
+                    <input class="input-medium" type="text" placeholder="Filter by keyword…" name="query">
+                    <button type="submit" class="btn">Filter</button>
+                </div>
+                <div class="control-group form-inline">
+                    <label class="checkbox">
+                    <input type="checkbox"> Only show items authored by me
+                    </label>
+                </div>
             </form>
         </div>
     </header>
@@ -19,7 +21,7 @@
         <table class="table table-bordered table-striped table-hover">
             <thead>
                 <tr>
-                    <th>Title</th>
+                    <th>Title <i class="icon-chevron-down"></i></th>
                     <th>Type</th>
                     <th>Tagged with</th>
                     <th>Status</th>
