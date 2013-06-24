@@ -18,6 +18,9 @@
         </div>
     </header>
     <div id="results">
+        <div id="pagination">
+            {% include "snippets/paginator.html" %}
+        </div>
         <table class="table table-bordered table-striped table-hover">
             <thead>
                 <tr>
@@ -66,5 +69,8 @@
                 {% endfor %}
             </tbody>
         </table>
+        <div id="pagination">
+            {% include "snippets/paginator.html" %}
+        </div>
     </div>
 {% endblock content %}
