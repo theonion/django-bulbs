@@ -1,11 +1,13 @@
 {% extends "bart/detail/base.html" %}
 
+{% block bodyclass %}article-detail{% endblock bodyclass %}
+
 {% block title %}{{ article.title|safe }} | {{ block.super }}{% endblock title %}
 
 {% block content %}
 <article>
 	
-	{% block articleheader %}
+	{% block article_header %}
 	<header>
 
 	    {% block headline %}
@@ -20,24 +22,24 @@
 	    <p>Did Daft Punk "Get Lucky" or are they "Doin' It Right"? Who cares, they're No. 1.</p>
 	    {% endblock teaser %}
 
-		{% block typebadge %}
+		{% block type_badge %}
 	    <div class="typebadge">
 	    	<a class="article-type" href="#">Newswire</a>
 	    </div>
-	    {% endblock typebadge %}
+	    {% endblock type_badge %}
 
 	</header>
-	{% endblock articleheader %}
+	{% endblock article_header %}
 
-	{% block imagefeature %}
+	{% block image_feature %}
 	{# include "bart/elements/snippets/image-container.html" #}
 	<figure class="image" id="8227">
 		<img src="http://media.avclub.com/images/431/431279/16x9/1200.jpg?8227" alt="Daft Punk, 2013" />
 		<figcaption>Daft Punk</figcaption>
 	</figure>
-	{% endblock imagefeature %}
+	{% endblock image_feature %}
 
-	{% block articlemeta %}
+	{% block article_meta %}
 	<div class="meta">
 		<div class="author">By <a class="author" href="#">Kevin McFarland</a></div>
 		<div class="pub">May 29th, 2013</div>
@@ -50,36 +52,36 @@
 				<a href="#"><i class="icon icon-twitter"></i> Twitter</a></li>
 		</ul>
 	</div>
-	{% endblock articlemeta %}
+	{% endblock article_meta %}
 
-	{% block articlemain %}
+	{% block article_main %}
 	<section>
 
-		{% block articlead %}
+		{% block article_ad %}
 		<div class="advertisement right-outdent"><a href="#"><img src="http://placehold.it/300x250"></a></div>
-		{% endblock articlead %}
+		{% endblock article_ad %}
 
-		{% block articlebody %}
+		{% block article_body %}
 		<p>Proof that all it takes to increase sales is to go on an eight-year hiatus, play a legendary festival tour of mythic proportions, beget an entire subgenre of electronic music, then eschew that legacy entirely on an album that points to disco, Giorgio Moroder, and Andrew Lloyd Webber, this week <a href="/artists/daft-punk,31139/" target="_blank">Daft Punk</a> scored its first-ever No. 1 spot on the <a href="http://www.billboard.com/articles/news/1565033/daft-punk-leads-debut-filled-top-four-on-billboard-200"><i>Billboard </i>charts</a>. <i><a href="http://www.avclub.com/articles/daft-punk-random-access-memories,97969/" target="_blank">Random Access Memories</a></i> sold 339,000 copies according to SoundScan (about two-thirds of which were digital downloads), giving the duo the second-highest debut of the year after Justin Timberlake moved 968,000 copies of <i>The 20/20 Experience</i> in March. What&rsquo;s even more intriguing is that the new record has already tripled the sales of Daft Punk&rsquo;s last album, 2005&rsquo;s <i>Human After All</i>, which has sold a mere 125,000 copies to date. Daft Punk highest-selling album in total, 2001&rsquo;s <i>Discovery</i>, has sold just under 800,000 copies.</p>
 		
-		{% block vidembed %}
+		{% block vid_embed %}
 		<div class="video-embed pull-left left-outdent">
 			<h2>Daft Punk "Get Lucky"</h2>
 			<iframe width="320" height="180" src="//www.youtube.com/embed/5NV6Rdv1a3I" frameborder="0" allowfullscreen></iframe>
 		</div>
-		{% endblock vidembed %}
+		{% endblock vid_embed %}
 		
 		<p>Continuing an entirely different kind of comeback, former Hootie And The Blowfish frontman Darius Rucker&rsquo;s fourth solo album,&nbsp;<i>True Believers</i>, sold 83,000 copies to land at No. 2 (though that's less than his last second-place finisher, which debuted with over 100,000). The National equaled its highest chart position and highest sales week with 75,000 copies of sixth album <i><a href="http://www.avclub.com/articles/the-national-trouble-will-find-me,97968/" target="_blank">Trouble Will Find Me</a>&mdash;</i>an improvement in sales numbers, but a tie with <i>High Violet</i> in chart position. Rapper French Montana&rsquo;s debut album <i><a href="http://www.avclub.com/articles/french-montana-excuse-my-french,97966/" target="_blank">Excuse My French</a></i> sold 56,000 to come in at No. 4, while Jared Leto&rsquo;s band 30 Seconds To Mars landed its first Top 10 spot, selling 53,000 copies of <i>Love Lust Faith And Dreams</i>. (Just ignore the fact it actually sold <em>more</em> copies when it landed at No. 19 with its last album in 2009.)</p>
 		<p>Over on the digital singles chart, the top spot stays with Macklemore And Ryan Lewis, with &ldquo;Can&rsquo;t Hold Us&rdquo; netting another 212,000 downloads. But the most notable entry comes from the late Zach Sobiech, the Minnesota teen who passed away on May 20th from cancer, and whose &ldquo;Clouds&rdquo; was downloaded 156,000 times to land at No. 7. With the continued outpouring of sentiment, it now has a pretty good shot at <a href="http://www.billboard.com/articles/news/1563578/zach-sobiechs-clouds-headed-for-hot-100-debut">cracking&nbsp;the Hot 100</a>.</p>
-		{% endblock articlebody %}
+		{% endblock article_body %}
 
 	</section>
-	{% endblock articlemain %}
+	{% endblock article_main %}
 
-	{% block articlefooter %}
+	{% block article_footer %}
 	<footer>
 
-		{% block articlemoretype %}
+		{% block article_moretype %}
 		<section class="more-type">
 			<h2>More Newswire</h2>
 			<nav>
@@ -93,9 +95,9 @@
 			    </ul>
 			</nav>
 		</section>
-		{% endblock articlemoretype %}
+		{% endblock article_moretype %}
 
-		{% block articlerecirc %}
+		{% block article_recirc %}
 		<section class="recirc">
 
 	        {% block outbrain %}
@@ -116,10 +118,10 @@
 		    {% endblock outbrain %}
 
 		</section>
-		{% endblock articlerecirc %}
+		{% endblock article_recirc %}
 
 	</footer>
-	{% endblock articlefooter %}
+	{% endblock article_footer %}
 
 </article>
 

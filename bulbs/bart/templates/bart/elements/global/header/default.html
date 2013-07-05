@@ -1,5 +1,6 @@
 <header id="primary" class="wrapper clearfix">
-    <h1 class="title"><a href="/">Page Title</a></h1>
+    {% block site_title %}<h1 class="title"><a href="/">The A.V. Club</a></h1>{% endblock site_title %}
+    {% block main_navigation %}
     <nav>
         <ul>
             <li><a href="/detail">Detail</a></li>
@@ -7,4 +8,5 @@
             <li><a href="/listing">Listing</a></li>
         </ul>
     </nav>
+    {% endblock main_navigation %}
 </header>

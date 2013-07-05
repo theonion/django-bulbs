@@ -1,17 +1,22 @@
 <!DOCTYPE html>
 <html>
     <head>
+        {% block meta_tags %}
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <title>{% block title %}Bart{% endblock %} - Bart</title>
         <meta name="description" content="{% block metadescription%}{% endblock %}">
         <meta name="keywords" content="{% block metakeywords%}{% endblock %}">
         <meta name="viewport" content="width=device-width">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-
+        {% endblock %}
+        
+        <title>{% block title %}{% endblock %} - The A.V. Club</title>
+        
+        {% block stylesheets %}
         <link rel="stylesheet" href="{{ STATIC_URL }}bart/css/vendor/normalize.min.css">
         <link rel="stylesheet" href="{{ STATIC_URL }}bart/css/base.css">
         <link rel="stylesheet" type="text/css" href="//cdn.moot.it/1/moot.css">
+        {% block extra_css %}{% endblock extra_css %}
+        {% endblock stylesheets %}
 
         {% block extra_head %}{% endblock extra_head %}
 
@@ -19,10 +24,12 @@
             <script src="{{ STATIC_URL }}bart/js/vendor/html5-3.6-respond-1.1.0.min.js"></script>
         <![endif]-->
     </head>
-    <body>
+    <body class="{% block bodyclass %}{% endblock bodyclass %}">
 
         <div class="header-container">
+            {% block page_header %}
             {% include "bart/elements/global/header/default.html" %}
+            {% endblock page_header %}
         </div>
 
         <div class="main-container">
@@ -32,18 +39,17 @@
         </div>
 
         <div class="footer-container">
+            {% block page_footer %}
             {% include "bart/elements/global/footer/default.html" %}
+            {% endblock page_footer %}
         </div>
 
+        {% block javascript %}
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="{{ STATIC_URL }}bart/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
-
         <script src="//cdn.moot.it/1/moot.min.js"></script>
-
         <script src="{{ STATIC_URL }}bart/js/main.js"></script>
 
-        {% block extra_js %}{% endblock extra_js %}
-        
         {% comment %}
         <!-- Add your Google Analytics code here. -->
         <script>
@@ -53,6 +59,9 @@
             s.parentNode.insertBefore(g,s)}(document,'script'));
         </script>
         {% endcomment %}
+
+        {% block extra_js %}{% endblock extra_js %}
+        {% endblock javascript %}
     
     </body>
 </html>
