@@ -9,14 +9,14 @@
         <meta name="viewport" content="width=device-width">
         {% endblock %}
         
-        <title>{% block title %}{% endblock %} - The A.V. Club</title>
-        
-        {% block stylesheets %}
+        <title>{% block site_title %} - The A.V. Club{% endblock site_title %}</title>
+
+        {% block site_stylesheets %}
         <link rel="stylesheet" href="{{ STATIC_URL }}bart/css/vendor/normalize.min.css">
         <link rel="stylesheet" href="{{ STATIC_URL }}bart/css/base.css">
         <link rel="stylesheet" type="text/css" href="//cdn.moot.it/1/moot.css">
         {% block extra_css %}{% endblock extra_css %}
-        {% endblock stylesheets %}
+        {% endblock site_stylesheets %}
 
         {% block extra_head %}{% endblock extra_head %}
 
@@ -44,7 +44,7 @@
             {% endblock page_footer %}
         </div>
 
-        {% block javascript %}
+        {% block site_javascript %}
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="{{ STATIC_URL }}bart/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
         <script src="//cdn.moot.it/1/moot.min.js"></script>
@@ -61,7 +61,7 @@
         {% endcomment %}
 
         {% block extra_js %}{% endblock extra_js %}
-        {% endblock javascript %}
+        {% endblock site_javascript %}
     
     </body>
 </html>
