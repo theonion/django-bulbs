@@ -9,14 +9,14 @@
 
 	{% block image_feature %}
 	{# include "bart/elements/snippets/image-container.html" #}
-	<figure class="image" id="8227">
+	<figure class="image article-image" id="8227">
 		<img src="http://media.avclub.com/images/431/431279/16x9/1200.jpg?8227" alt="Daft Punk, 2013" />
 		<figcaption>Daft Punk</figcaption>
 	</figure>
 	{% endblock image_feature %}
 	
 	{% block article_header %}
-	<header>
+	<header class="article-header">
 
 		{% block type_badge %}
 	    <div class="typebadge">
@@ -25,36 +25,45 @@
 	    {% endblock type_badge %}
 
 	    {% block headline %}
-	    <h1>People Still Buy Music: Daft Punk lands its first No. 1 record</h1>
+	    <h1 class="headline">People Still Buy Music: Daft Punk lands its first No. 1 record</h1>
 	    {% endblock headline %}
 
 	    {% block subheadline %}
-	    <h2>If there's a subheadline, it goes here.</h2>
+	    <h2 class="subheadline">If there's a subheadline, it goes here.</h2>
 	    {% endblock subheadline %}
 	    
 	    {% block teaser %}
-	    <p>Did Daft Punk "Get Lucky" or are they "Doin' It Right"? Who cares, they're No. 1.</p>
+	    <p class="teaser visuallyhidden">Did Daft Punk "Get Lucky" or are they "Doin' It Right"? Who cares, they're No. 1.</p>
 	    {% endblock teaser %}
 
 	</header>
 	{% endblock article_header %}
 
 	{% block article_meta %}
-	<div class="meta">
+	<div class="meta article-meta">
+
+		{% block author %}
 		<div class="author">By <a class="author" href="#">Kevin McFarland</a></div>
+		{% endblock author %}
+
+		{% block pubdate %}
 		<div class="pub">May 29th, 2013</div>
+		{% endblock pubdate %}
+
+		{% block community %}
 		<ul class="community">
-			<li class="comments">
-				<a href="#comments"><i class="icon icon-speech"></i> Comments</a></li>
-			<li class="share-article">
-				<a href="#"><i class="icon icon-facebook"></i> Share Article</a></li>
+			<li class="comments"><a href="#comments"><i class="icon icon-speech"></i> Comments</a></li>
+			<li class="share-article"><a href="#"><i class="icon icon-share"></i> Share Article</a></li>
 		</ul>
+		{% endblock community %}
+
 	</div>
 	{% endblock article_meta %}
 
 	{% block article_main %}
-	<section>
+	<section class="article-text">
 
+		{% block article_tags %}
 		<div class="aside pull-left" id="article-tags">
 			<ul>
 				<li class="hidden"><a href="#">Music</a></li>
@@ -63,6 +72,7 @@
 				<li><a href="#">Electronic</a></li>
 			</ul>
 		</div>
+		{% endblock article_tags %}
 
 		{% block article_body %}
 			
@@ -83,12 +93,11 @@
 			<p>Over on the digital singles chart, the top spot stays with Macklemore And Ryan Lewis, with &ldquo;Can&rsquo;t Hold Us&rdquo; netting another 212,000 downloads. But the most notable entry comes from the late Zach Sobiech, the Minnesota teen who passed away on May 20th from cancer, and whose &ldquo;Clouds&rdquo; was downloaded 156,000 times to land at No. 7. With the continued outpouring of sentiment, it now has a pretty good shot at <a href="http://www.billboard.com/articles/news/1563578/zach-sobiechs-clouds-headed-for-hot-100-debut">cracking&nbsp;the Hot 100</a>.</p>
 
 		{% endblock article_body %}
-
 	</section>
 	{% endblock article_main %}
 
 	{% block article_footer %}
-	<footer>
+	<footer class="article-footer">
 
 		{% block article_moretype %}
 		<section class="more-type">
@@ -125,17 +134,16 @@
 		        </script>
 		    </div>
 		    {% endblock outbrain %}
-
 		</section>
 		{% endblock article_recirc %}
+
+		{% block comments %}
+		<section id="comments"></section>
+		{% endblock comments %}
 
 	</footer>
 	{% endblock article_footer %}
 
 </article>
-
-{% block comments %}
-<section id="comments"></section>
-{% endblock comments %}
 
 {% endblock content %}
