@@ -1,5 +1,9 @@
 {% extends "bart/__base.html" %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{{ STATIC_URL }}bart/css/article.css">
+{% endblock extra_css %}
+
 {% block extra_js %}
 <script type="text/javascript">
 $(function() {
