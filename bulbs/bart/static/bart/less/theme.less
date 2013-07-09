@@ -22,52 +22,58 @@
 @grey-regular: 	#ccc;
 @grey-dark: 	#666;
 
-@baseline: 		100%;
+@baseline: 		0.875em;
+@baselineht: 	1.857em;
+@twelvepx: 		0.857em;
 
 /* ==========================================================================
    Typefaces
    ========================================================================== */
 
-.sans-serif() { font-family: Helvetica, Arial, sans-serif; }
+// Remove this guy when we decide on a font:
+@import url(http://fonts.googleapis.com/css?family=Open+Sans:400,700,700italic,400italic|Droid+Serif:400,700italic,700,400italic);
 
-.serif() {
-	font-family: Georgia, serif;
+.serif() { font-family: 'Droid Serif', Georgia, serif }
+
+.sans-serif() {
+	font-family: Helvetica, Arial, sans-serif;
+	font-weight: normal;
 
 	@media only screen and (min-width: 650px) {
-		font-family: /* CUSTOM FONT: 'MetaSerifWeb-Book', */ Georgia, serif; 
+		font-family: 'Open Sans', Helvetica, Arial, sans-serif;
 	}
 
 }
-.serif-italic() {
-	font-family: Georgia, serif;
+.sans-serif-italic() {
+	font-family: Helvetica, Arial, sans-serif;
 	font-style: italic; 
 	font-weight: normal;
 
 	@media only screen and (min-width: 650px) {
-		font-family: /* CUSTOM FONT: 'MetaSerifWeb-BookItalic', */ Georgia, serif; 
-		font-style: normal;
+		font-family: 'Open Sans', Helvetica, Arial, sans-serif;
+		font-style: italic; // normal;
 	}
 }
 
-.serif-bold() {
-	font-family: Georgia, serif;
+.sans-serif-bold() {
+	font-family: Helvetica, Arial, sans-serif;
 	font-weight: bold;
 
 	@media only screen and (min-width: 650px) {
-		font-family: /* CUSTOM FONT: 'MetaSerifWeb-Bold', */ Georgia, serif;
-		font-weight: normal; 
+		font-family: 'Open Sans', Helvetica, Arial, sans-serif;
+		font-weight: bold; // normal; 
 	}
 }
 
-.serif-bold-italic() {
-	font-family: Georgia, serif;
+.sans-serif-bold-italic() {
+	font-family: Helvetica, Arial, sans-serif;
 	font-weight: bold;
 	font-style: italic; 
 
 	@media only screen and (min-width: 650px) { 
-		font-family: /* CUSTOM FONT: 'MetaSerifWeb-BoldItalic', */ Georgia, serif;
-		font-weight: normal;
-		font-style: normal;
+		font-family: 'Open Sans', Helvetica, Arial, sans-serif;
+		font-weight: bold; // normal;
+		font-style: italic; // normal;
 	}
 }
 

@@ -11,12 +11,12 @@
 	{# include "bart/elements/snippets/image-container.html" #}
 	<figure class="image article-image" id="8227">
 		<img src="http://media.avclub.com/images/431/431279/16x9/1200.jpg?8227" alt="Daft Punk, 2013" />
-		<figcaption>Daft Punk</figcaption>
+		<figcaption class="visuallyhidden">Daft Punk</figcaption>
 	</figure>
 	{% endblock image_feature %}
 	
 	{% block article_header %}
-	<header class="article-header">
+	<header class="article-header article-width">
 
 		{% block type_badge %}
 	    <div class="typebadge">
@@ -40,20 +40,24 @@
 	{% endblock article_header %}
 
 	{% block article_meta %}
-	<div class="article-meta meta">
+	<div class="article-meta meta article-width">
 
 		{% block author %}
-		<div class="author">By <a class="author" href="#">Kevin McFarland</a></div>
+		<div class="authors">By <a class="author" href="#">Kevin McFarland</a></div>
 		{% endblock author %}
 
 		{% block pubdate %}
-		<div class="pub">May 29th, 2013</div>
+		<div class="pub"><a href="#">May 29th, 2013</a></div>
 		{% endblock pubdate %}
 
 		{% block community %}
-		<ul class="community">
-			<li class="comments"><a href="#comments"><i class="icon icon-speech"></i> Comments</a></li>
-			<li class="share-article"><a href="#"><i class="icon icon-share"></i> Share Article</a></li>
+		<ul class="community unstyled">
+			<li class="comments">
+				<i class="icon icon-comments"></i>
+				<a href="#comments"><span class="count">145</span> Comments</a></li>
+			<li class="share-article">
+				<i class="icon icon-edit"></i>
+				<a href="#"><span class="count">1,548</span> Share Article</a></li>
 		</ul>
 		{% endblock community %}
 
@@ -61,15 +65,15 @@
 	{% endblock article_meta %}
 
 	{% block article_main %}
-	<section class="article-text">
+	<section class="article-text article-width">
 
 		{% block article_tags %}
 		<div class="aside pull-left" id="article-tags">
-			<ul>
+			<ul class="unstyled">
 				<li class="hidden"><a href="#">Music</a></li>
-				<li><a href="#">Daft Punk</a></li>
-				<li><a href="#">Billboard Charts</a></li>
-				<li><a href="#">Electronic</a></li>
+				<li><a title="Daft Punk" href="#">Daft Punk</a></li>
+				<li><a title="Billboard Charts" href="#">Billboard Charts</a></li>
+				<li><a title="Electronic" href="#">Electronic</a></li>
 			</ul>
 		</div>
 		{% endblock article_tags %}
