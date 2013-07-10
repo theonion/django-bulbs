@@ -19,7 +19,7 @@
 @select-color: 	#fff;
 
 @grey-light: 	#ddd;
-@grey-regular: 	#ccc;
+@grey-regular: 	#bcbcbc;
 @grey-dark: 	#666;
 
 @slate-blue: 	#849EBC;
@@ -40,56 +40,6 @@
 @sans-serif-default:	Helvetica, Arial, sans-serif;
 @sans-serif-custom:		'Open Sans';
 
-.serif() { 
-	font-family: @serif-default;
-
-	@media @tablet, @desktop { font-family: @serif-custom, @serif-default; } }
-
-.serif-bold() { 
-	font-family: @serif-default;
-	font-weight: bold;
-
-	@media @tablet, @desktop {
-		font-family: @serif-custom, @serif-default;
-		font-weight: bold; // normal; 
-	} }
-
-.sans-serif() {
-	font-family: @sans-serif-default;
-	font-weight: normal;
-
-	@media @tablet, @desktop { font-family: @sans-serif-custom, @sans-serif-default; } }
-
-.sans-serif-italic() {
-	font-family: @sans-serif-default;
-	font-style: italic; 
-	font-weight: normal;
-
-	@media @tablet, @desktop {
-		font-family: @sans-serif-custom, @sans-serif-default;
-		font-style: italic; // normal;
-	} }
-
-.sans-serif-bold() {
-	font-family: @sans-serif-default;
-	font-weight: bold;
-
-	@media @tablet, @desktop {
-		font-family: @sans-serif-custom, @sans-serif-default;
-		font-weight: bold; // normal; 
-	} }
-
-.sans-serif-bold-italic() {
-	font-family: @sans-serif-default;
-	font-weight: bold;
-	font-style: italic; 
-
-	@media @tablet, @desktop { 
-		font-family: @sans-serif-custom, @sans-serif-default;
-		font-weight: bold; // normal;
-		font-style: italic; // normal;
-	} }
-
 /* ==========================================================================
    Breakpoints
    ========================================================================== */
@@ -100,6 +50,6 @@
 
 @tablet:				~"only screen and (min-width: 650px) and (max-width: 1439px)";
 	@tablet-portrait:   	~"only screen and (min-width: 650px) and (max-width: 999px)";
-	@tablet-landscape:  	~"only screen and (min-width: 1000px) and (max-width: 1439px)";
+	@tablet-landscape:  	~"only screen and (min-width: 1000px) and (max-width: 1139px)";
 
-@desktop:           	~"only screen and (min-width: 1440px)";
+@desktop:           	~"only screen and (min-width: 1140px)";

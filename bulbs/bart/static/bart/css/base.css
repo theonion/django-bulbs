@@ -19,6 +19,9 @@
    Clearfix
    ========================================================================== */
 /* ==========================================================================
+   Responsive fonts
+   ========================================================================== */
+/* ==========================================================================
    
 	BART SITE-SPECIFIC THEME
 
@@ -61,7 +64,7 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
-@media only screen and (min-width: 650px) and (max-width: 1439px), only screen and (min-width: 1440px) {
+@media only screen and (min-width: 650px) and (max-width: 1439px), only screen and (min-width: 1140px) {
   body {
     font-family: 'Droid Serif', Georgia, serif;
   }
@@ -132,7 +135,7 @@ h6 {
   margin-top: 0;
   color: #111111;
 }
-@media only screen and (min-width: 650px) and (max-width: 1439px), only screen and (min-width: 1440px) {
+@media only screen and (min-width: 650px) and (max-width: 1439px), only screen and (min-width: 1140px) {
   h1,
   h2,
   h3,
@@ -237,12 +240,12 @@ ol.inline li {
   margin: 0 auto;
   position: relative;
 }
-@media only screen and (min-width: 1000px) and (max-width: 1439px) {
+@media only screen and (min-width: 1000px) and (max-width: 1139px) {
   .wrapper {
     width: 980px;
   }
 }
-@media only screen and (min-width: 1440px) {
+@media only screen and (min-width: 1140px) {
   .wrapper {
     width: 1160px;
   }

@@ -105,20 +105,23 @@
 
 		.article-header h1 { margin-left: -10px; margin-right: -10px; } } }
 
-@media only screen and (min-width: 1140px) {
+@media @desktop {
+
 	#article-tags {
 		width: 130px; 
 		margin-left: -150px; 
 		position: absolute; }
 
-	.article-text .right-outdent {
-		float: right; 
-		margin-right: -180px;
-		padding-left: 20px;
-		padding-bottom: 10px; }
+	.article-text {
 
-	.article-text .left-outdent {
-		float: left; 
-		margin-left: -180px;
-		padding-right: 20px;
-		padding-bottom: 10px; } }
+		.right-outdent {
+			float: right; 
+			margin-right: -180px;
+			padding-left: 20px;
+			padding-bottom: 10px; }
+
+		.left-outdent {
+			float: left; 
+			margin-left: -180px;
+			padding-right: 20px;
+			padding-bottom: 10px; } } }
