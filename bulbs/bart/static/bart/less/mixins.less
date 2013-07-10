@@ -24,6 +24,10 @@
 	}
 }
 
+/* ==========================================================================
+   Reusables
+   ========================================================================== */
+
 .drop-shadow(@x-axis: 0, @y-axis: 1px, @blur: 2px, @alpha: 0.1) {
 	-webkit-box-shadow:		@x-axis @y-axis @blur rgba(0, 0, 0, @alpha);
 	-moz-box-shadow:		@x-axis @y-axis @blur rgba(0, 0, 0, @alpha);
@@ -44,3 +48,57 @@
   background: -o-linear-gradient(@stop, @start);
   filter: e(%("progid:DXImageTransform.Microsoft.gradient(startColorstr='%d', endColorstr='%d', GradientType=0)",@stop,@start));
 }
+
+/* ==========================================================================
+   Responsive fonts
+   ========================================================================== */
+
+.serif() { 
+	font-family: @serif-default;
+
+	@media @tablet, @desktop { font-family: @serif-custom, @serif-default; } }
+
+.serif-bold() { 
+	font-family: @serif-default;
+	font-weight: bold;
+
+	@media @tablet, @desktop {
+		font-family: @serif-custom, @serif-default;
+		font-weight: bold; // normal; 
+	} }
+
+.sans-serif() {
+	font-family: @sans-serif-default;
+	font-weight: normal;
+
+	@media @tablet, @desktop { font-family: @sans-serif-custom, @sans-serif-default; } }
+
+.sans-serif-italic() {
+	font-family: @sans-serif-default;
+	font-style: italic; 
+	font-weight: normal;
+
+	@media @tablet, @desktop {
+		font-family: @sans-serif-custom, @sans-serif-default;
+		font-style: italic; // normal;
+	} }
+
+.sans-serif-bold() {
+	font-family: @sans-serif-default;
+	font-weight: bold;
+
+	@media @tablet, @desktop {
+		font-family: @sans-serif-custom, @sans-serif-default;
+		font-weight: bold; // normal; 
+	} }
+
+.sans-serif-bold-italic() {
+	font-family: @sans-serif-default;
+	font-weight: bold;
+	font-style: italic; 
+
+	@media @tablet, @desktop { 
+		font-family: @sans-serif-custom, @sans-serif-default;
+		font-weight: bold; // normal;
+		font-style: italic; // normal;
+	} }

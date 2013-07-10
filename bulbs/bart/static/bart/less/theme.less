@@ -13,63 +13,32 @@
 
 @body-color: 	#333;
 @heading-color: #111;
-@link: 			#6bac60;
-@link-hover: 	#78aace;
+@link: 			#EA4B2B;
+@link-hover: 	#FF4E31;
 @select: 		#78aace;
 @select-color: 	#fff;
 
 @grey-light: 	#ddd;
-@grey-regular: 	#ccc;
+@grey-regular: 	#bcbcbc;
 @grey-dark: 	#666;
 
-@baseline: 		100%;
+@slate-blue: 	#849EBC;
+
+@baseline: 		0.875em;
+@baselineht: 	1.857em;
+@twelvepx: 		0.857em;
 
 /* ==========================================================================
    Typefaces
    ========================================================================== */
 
-.sans-serif() { font-family: Helvetica, Arial, sans-serif; }
+// Remove this guy when we decide on a font:
+@import url(http://fonts.googleapis.com/css?family=Open+Sans:400,700,700italic,400italic|Droid+Serif:400,700italic,700,400italic);
 
-.serif() {
-	font-family: Georgia, serif;
-
-	@media only screen and (min-width: 650px) {
-		font-family: /* CUSTOM FONT: 'MetaSerifWeb-Book', */ Georgia, serif; 
-	}
-
-}
-.serif-italic() {
-	font-family: Georgia, serif;
-	font-style: italic; 
-	font-weight: normal;
-
-	@media only screen and (min-width: 650px) {
-		font-family: /* CUSTOM FONT: 'MetaSerifWeb-BookItalic', */ Georgia, serif; 
-		font-style: normal;
-	}
-}
-
-.serif-bold() {
-	font-family: Georgia, serif;
-	font-weight: bold;
-
-	@media only screen and (min-width: 650px) {
-		font-family: /* CUSTOM FONT: 'MetaSerifWeb-Bold', */ Georgia, serif;
-		font-weight: normal; 
-	}
-}
-
-.serif-bold-italic() {
-	font-family: Georgia, serif;
-	font-weight: bold;
-	font-style: italic; 
-
-	@media only screen and (min-width: 650px) { 
-		font-family: /* CUSTOM FONT: 'MetaSerifWeb-BoldItalic', */ Georgia, serif;
-		font-weight: normal;
-		font-style: normal;
-	}
-}
+@serif-default:			Georgia, serif;
+@serif-custom:			'Droid Serif';
+@sans-serif-default:	Helvetica, Arial, sans-serif;
+@sans-serif-custom:		'Open Sans';
 
 /* ==========================================================================
    Breakpoints
@@ -81,6 +50,6 @@
 
 @tablet:				~"only screen and (min-width: 650px) and (max-width: 1439px)";
 	@tablet-portrait:   	~"only screen and (min-width: 650px) and (max-width: 999px)";
-	@tablet-landscape:  	~"only screen and (min-width: 1000px) and (max-width: 1439px)";
+	@tablet-landscape:  	~"only screen and (min-width: 1000px) and (max-width: 1139px)";
 
-@desktop:           	~"only screen and (min-width: 1440px)";
+@desktop:           	~"only screen and (min-width: 1140px)";

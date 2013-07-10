@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html>
     <head>
         {% block meta_tags %}
@@ -14,7 +14,9 @@
         {% block site_stylesheets %}
         <link rel="stylesheet" href="{{ STATIC_URL }}bart/css/vendor/normalize.min.css">
         <link rel="stylesheet" href="{{ STATIC_URL }}bart/css/base.css">
+        <link rel="stylesheet" href="{{ STATIC_URL }}bart/css/main.css">
         <link rel="stylesheet" type="text/css" href="//cdn.moot.it/1/moot.css">
+        <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
         {% block extra_css %}{% endblock extra_css %}
         {% endblock site_stylesheets %}
 

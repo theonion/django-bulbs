@@ -1,30 +1,127 @@
 /* ==========================================================================
    
-    ARTICLE THEME
+	ARTICLE THEME
 
-    Copyright 2013 Onion Tech
-    Contact: scook@theonion.com
+	Copyright 2013 Onion Tech
+	Contact: scook@theonion.com
 
    ========================================================================== */
+
+@import url('../less/mixins.less');
+@import url('../less/theme.less');
 
 /* ==========================================================================
    Responsive
    ========================================================================== */
 
-@media only screen and (min-width: 480px) {
+.headline { 
+	font-size: 40px;
+	line-height: 48px; }
 
-    
-}
+.article-meta { 
+	.sans-serif-bold();
+	text-align: center; 
+
+	a { .sans-serif(); }
+
+	.authors, .pub { 
+		font-size: @twelvepx;
+		display: inline-block; } 
+
+	.pub:before { 
+		content: "•";
+		padding: 0 10px 0 5px; }
+
+	.community { 
+		font-size: @twelvepx;
+		text-transform: uppercase; 
+		clear: both;
+		border-top: 1px solid @grey-light; 
+		border-bottom: 1px solid @grey-light; 
+
+		a { .sans-serif-bold(); }
+
+		i, a { color: @heading-color; }
+
+		.count { color: @link; }
+
+		li { 
+			display: inline-block; 
+			margin-left: 40px; 
+
+			&:first-child { margin-left: 0; } } } }
+
+.article-width { 
+	margin-right: auto;
+	margin-left: auto; }
+
+.article-header { text-align: center; }
+
+#article-tags { 
+	
+	a { 
+		.sans-serif-bold();
+		color: @heading-color;
+		display: block;
+		border: 1px solid @grey-light; 
+		padding: 5px 7px;
+		text-align: center;
+		width: 100%;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap; }
+
+	li { 
+		margin-bottom: 10px; 
+		
+		&:last-child { margin-bottom: 0; } } }
+
+.type-badge {
+	.sans-serif-bold();
+	position: relative;
+	height: 0;
+	margin-bottom: 10px;
+
+	.article-type { 
+		background: @slate-blue;
+		color: #fff;
+		position: relative;
+		top: -10px;
+		padding: 5px 15px; } }
+
+.article-text {
+	a { .serif-bold(); }
+
+	.right-outdent { margin: 0 auto; } }
+
+@media only screen and (min-width: 480px) {}
 
 @media only screen and (min-width: 768px) {
 
-    .main {
-        article {
-            width: 100%;
-        }
-    }
-}
+	.main article {
+		width: 100%;
 
-@media only screen and (min-width: 1140px) {
+		.article-width { width: 620px; }
 
-}
+		.article-header h1 { margin-left: -10px; margin-right: -10px; } } }
+
+@media @desktop {
+
+	#article-tags {
+		width: 130px; 
+		margin-left: -150px; 
+		position: absolute; }
+
+	.article-text {
+
+		.right-outdent {
+			float: right; 
+			margin-right: -180px;
+			padding-left: 20px;
+			padding-bottom: 10px; }
+
+		.left-outdent {
+			float: left; 
+			margin-left: -180px;
+			padding-right: 20px;
+			padding-bottom: 10px; } } }

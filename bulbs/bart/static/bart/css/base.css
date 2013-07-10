@@ -1,1 +1,378 @@
-*{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}html,button,input,select,textarea{color:#333}html{font-size:100.01%}body{font-family:Helvetica,Arial,sans-serif;font-size:100%;line-height:1.5em;text-shadow:0 -1px 1px rgba(255,255,255,0.01);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}::selection{background:#78aace;color:#fff}::-moz-selection{background:#78aace;color:#fff}img::selection,img::-moz-selection{background:transparent}body{-webkit-tap-highlight-color:#78aace}a{color:#6bac60;-webkit-transition:all .2s linear;-moz-transition:all .2s linear;-o-transition:all .2s linear;transition:all .2s linear}a:hover,a:focus{color:#78aace}figure img,div.image img{width:100%;height:auto;display:block}figcaption,.caption{font-size:small;font-style:italic;color:#666}h1,h2,h3,h4,h5,h6{font-family:Georgia,serif;margin-top:0;color:#111}@media only screen and (min-width:650px){h1,h2,h3,h4,h5,h6{font-family:Georgia,serif}}h1{font-size:3em;line-height:1;padding-top:.53em;margin-bottom:.5em}h2{font-size:2em;padding-top:.25em;margin-bottom:.5em}h3{font-size:1.5em;line-height:1;padding-top:.35em;margin-bottom:.65em}h4{font-size:1.2em;line-height:1.25;padding-top:.45em;margin-bottom:.8em}h5{font-size:1em;font-weight:bold;padding-top:.6em;margin-bottom:.9em}h6{font-size:1em;font-weight:bold;margin-bottom:0}hr{display:block;height:1px;border:0;border-top:1px solid #ccc;margin:1em 0;padding:0}img{vertical-align:middle}fieldset{border:0;margin:0;padding:0}textarea{resize:vertical}.wrapper{width:100%;margin:0 auto;position:relative}@media only screen and (min-width:1000px) and (max-width:1439px){.wrapper{width:980px}}@media only screen and (min-width:1440px){.wrapper{width:1160px}}.header-container,.main-container,.footer-container{*zoom:1;display:block}.header-container:before,.main-container:before,.footer-container:before,.header-container:after,.main-container:after,.footer-container:after{content:"";display:table}.header-container:after,.main-container:after,.footer-container:after{clear:both}header#primary .title{padding-top:20px}header#primary nav ul{margin:0;padding:0}header#primary nav a:hover{text-decoration:underline}.main-container>.main{padding:30px 0}@media only screen and (min-width:480px){header#primary nav a{float:left;width:27%;margin:0 1.7%;padding:25px 2%;margin-bottom:0}header#primary nav li:first-child a{margin-left:0}header#primary nav li:last-child a{margin-right:0}header#primary nav ul li{display:inline}}@media only screen and (min-width:768px){header#primary .title{float:left}header#primary nav{float:right;width:38%}.main article{float:left;width:57%}.main aside{float:right;width:28%}}@media only screen and (min-width:1140px){.wrapper{width:1026px;margin:0 auto}}.ir{background-color:transparent;border:0;overflow:hidden;*text-indent:-9999px}.ir:before{content:"";display:block;width:0;height:150%}.hidden{display:none!important;visibility:hidden}.visuallyhidden{border:0;clip:rect(0 0 0 0);height:1px;margin:-1px;overflow:hidden;padding:0;position:absolute;width:1px}.visuallyhidden.focusable:active,.visuallyhidden.focusable:focus{clip:auto;height:auto;margin:0;overflow:visible;position:static;width:auto}.invisible{visibility:hidden}
+@import url(http://fonts.googleapis.com/css?family=Open+Sans:400,700,700italic,400italic|Droid+Serif:400,700italic,700,400italic);
+/* ==========================================================================
+   
+    BART BASE THEME
+
+    Copyright 2013 Onion Tech
+    Contact: scook@theonion.com
+
+   ========================================================================== */
+/* ==========================================================================
+   
+	BART MIXINS
+
+	Copyright 2013 Onion Tech
+	Contact: scook@theonion.com
+
+   ========================================================================== */
+/* ==========================================================================
+   Clearfix
+   ========================================================================== */
+/* ==========================================================================
+   Responsive fonts
+   ========================================================================== */
+/* ==========================================================================
+   
+	BART SITE-SPECIFIC THEME
+
+	Copyright 2013 Onion Tech
+	Contact: scook@theonion.com
+
+   ========================================================================== */
+/* ==========================================================================
+   Site Variables
+   ========================================================================== */
+/* ==========================================================================
+   Typefaces
+   ========================================================================== */
+/* ==========================================================================
+   Breakpoints
+   ========================================================================== */
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+/* ==========================================================================
+   Basix
+   ========================================================================== */
+html,
+button,
+input,
+select,
+textarea {
+  color: #333333;
+}
+html {
+  font-size: 100.01%;
+}
+body {
+  font-family: Georgia, serif;
+  font-size: 0.875em;
+  line-height: 1.857em;
+  text-shadow: 0 -1px 1px rgba(255, 255, 255, 0.01);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+@media only screen and (min-width: 650px) and (max-width: 1439px), only screen and (min-width: 1140px) {
+  body {
+    font-family: 'Droid Serif', Georgia, serif;
+  }
+}
+/* =====================================================r=====================
+   Selections
+   ========================================================================== */
+::selection {
+  background: #78aace;
+  color: #ffffff;
+}
+::-moz-selection {
+  background: #78aace;
+  color: #ffffff;
+}
+img::selection,
+img::-moz-selection {
+  background: transparent;
+}
+body {
+  -webkit-tap-highlight-color: #78aace;
+}
+/* ==========================================================================
+   Linx
+   ========================================================================== */
+a {
+  color: #ea4b2b;
+  text-decoration: none;
+  /*
+    -webkit-transition:all .2s linear;
+    -moz-transition:all .2s linear;
+    -o-transition:all .2s linear;
+    transition:all .2s linear;
+    */
+
+}
+a:hover,
+a:focus {
+  text-decoration: underline;
+  color: #ff4e31;
+}
+/* ==========================================================================
+   Figures
+   ========================================================================== */
+figure img,
+div.image img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+figcaption,
+.caption {
+  font-size: small;
+  font-style: italic;
+  color: #666666;
+}
+/* ==========================================================================
+   Headings
+   ========================================================================== */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: Helvetica, Arial, sans-serif;
+  font-weight: bold;
+  margin-top: 0;
+  color: #111111;
+}
+@media only screen and (min-width: 650px) and (max-width: 1439px), only screen and (min-width: 1140px) {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Open Sans', Helvetica, Arial, sans-serif;
+    font-weight: bold;
+  }
+}
+h1 {
+  font-size: 3em;
+  line-height: 1;
+  padding-top: 0.53em;
+  margin-bottom: 0.5em;
+}
+h2 {
+  font-size: 2em;
+  padding-top: 0.25em;
+  margin-bottom: 0.5em;
+}
+h3 {
+  font-size: 1.5em;
+  line-height: 1;
+  padding-top: 0.35em;
+  margin-bottom: 0.65em;
+}
+h4 {
+  font-size: 1.2em;
+  line-height: 1.25;
+  padding-top: 0.45em;
+  margin-bottom: 0.8em;
+}
+h5 {
+  font-size: 1em;
+  padding-top: 0.6em;
+  margin-bottom: 0.9em;
+}
+h6 {
+  font-size: 1em;
+  margin-bottom: 0;
+}
+/* ==========================================================================
+   Some element resets
+   ========================================================================== */
+hr {
+  display: block;
+  height: 1px;
+  border: 0;
+  border-top: 1px solid #ccc;
+  margin: 1em 0;
+  padding: 0;
+}
+img {
+  vertical-align: middle;
+}
+fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+textarea {
+  resize: vertical;
+}
+ul,
+ol {
+  margin: 0 0 10px 25px;
+  padding: 0;
+}
+ul ol,
+ol ol,
+ul ul,
+ol ul {
+  margin-bottom: 0;
+}
+li {
+  line-height: 20px;
+}
+ul.unstyled,
+ol.unstyled {
+  list-style: none;
+  margin-left: 0;
+}
+ul.inline,
+ol.inline {
+  list-style: none;
+  margin-left: 0;
+}
+ul.inline li,
+ol.inline li {
+  *display: inline;
+  *zoom: 1;
+  display: inline-block;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+/* ==========================================================================
+   Page Structure
+   ========================================================================== */
+.wrapper {
+  width: 100%;
+  margin: 0 auto;
+  position: relative;
+}
+@media only screen and (min-width: 1000px) and (max-width: 1139px) {
+  .wrapper {
+    width: 980px;
+  }
+}
+@media only screen and (min-width: 1140px) {
+  .wrapper {
+    width: 1160px;
+  }
+}
+.header-container,
+.main-container,
+.footer-container {
+  *zoom: 1;
+  display: block;
+}
+.header-container:before,
+.main-container:before,
+.footer-container:before,
+.header-container:after,
+.main-container:after,
+.footer-container:after {
+  content: "";
+  display: table;
+}
+.header-container:after,
+.main-container:after,
+.footer-container:after {
+  clear: both;
+}
+/* ==========================================================================
+   Header
+   ========================================================================== */
+header#primary .title {
+  padding-top: 20px;
+}
+header#primary nav ul {
+  margin: 0;
+  padding: 0;
+}
+header#primary nav a:hover {
+  text-decoration: underline;
+}
+/* ==========================================================================
+   Page body
+   ========================================================================== */
+.main-container > .main {
+  padding: 30px 0;
+}
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+@media only screen and (min-width: 480px) {
+  header#primary nav a {
+    float: left;
+    width: 27%;
+    margin: 0 1.7%;
+    padding: 25px 2%;
+    margin-bottom: 0;
+  }
+  header#primary nav li:first-child a {
+    margin-left: 0;
+  }
+  header#primary nav li:last-child a {
+    margin-right: 0;
+  }
+  header#primary nav ul li {
+    display: inline;
+  }
+}
+@media only screen and (min-width: 768px) {
+  header#primary .title {
+    float: left;
+  }
+  header#primary nav {
+    float: right;
+    width: 38%;
+  }
+  .main article {
+    float: left;
+    width: 57%;
+  }
+  .main aside {
+    float: right;
+    width: 28%;
+  }
+}
+@media only screen and (min-width: 1140px) {
+  .wrapper {
+    width: 1026px;
+    /* 1140px - 10% for margins */
+  
+    margin: 0 auto;
+  }
+}
+/* ==========================================================================
+   Helpers
+   ========================================================================== */
+.ir {
+  background-color: transparent;
+  border: 0;
+  overflow: hidden;
+  *text-indent: -9999px;
+}
+.ir:before {
+  content: "";
+  display: block;
+  width: 0;
+  height: 150%;
+}
+.hidden {
+  display: none !important;
+  visibility: hidden;
+}
+.visuallyhidden {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}
+.visuallyhidden.focusable:active,
+.visuallyhidden.focusable:focus {
+  clip: auto;
+  height: auto;
+  margin: 0;
+  overflow: visible;
+  position: static;
+  width: auto;
+}
+.invisible {
+  visibility: hidden;
+}
