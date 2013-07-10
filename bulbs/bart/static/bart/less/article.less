@@ -16,8 +16,7 @@
 
 .headline { 
 	font-size: 40px;
-	line-height: 48px;
-}
+	line-height: 48px; }
 
 .article-meta { 
 	.sans-serif-bold();
@@ -59,10 +58,7 @@
 .article-header { text-align: center; }
 
 #article-tags { 
-	width: 130px; 
-	margin-left: -150px; 
-	position: absolute; 
-
+	
 	a { 
 		.sans-serif-bold();
 		color: @heading-color;
@@ -91,17 +87,14 @@
 		color: #fff;
 		position: relative;
 		top: -10px;
-		padding: 5px 15px; }
-}
+		padding: 5px 15px; } }
 
 .article-text {
 	a { .serif-bold(); }
-}
 
-@media only screen and (min-width: 480px) {
+	.right-outdent { margin: 0 auto; } }
 
-	
-}
+@media only screen and (min-width: 480px) {}
 
 @media only screen and (min-width: 768px) {
 
@@ -110,9 +103,22 @@
 
 		.article-width { width: 620px; }
 
-		.article-header h1 { margin-left: -10px; margin-right: -10px; } }
-}
+		.article-header h1 { margin-left: -10px; margin-right: -10px; } } }
 
 @media only screen and (min-width: 1140px) {
+	#article-tags {
+		width: 130px; 
+		margin-left: -150px; 
+		position: absolute; }
 
-}
+	.article-text .right-outdent {
+		float: right; 
+		margin-right: -180px;
+		padding-left: 20px;
+		padding-bottom: 10px; }
+
+	.article-text .left-outdent {
+		float: left; 
+		margin-left: -180px;
+		padding-right: 20px;
+		padding-bottom: 10px; } }
