@@ -35,45 +35,66 @@
 // Remove this guy when we decide on a font:
 @import url(http://fonts.googleapis.com/css?family=Open+Sans:400,700,700italic,400italic|Droid+Serif:400,700italic,700,400italic);
 
-.serif() { font-family: 'Droid Serif', Georgia, serif }
+@serif-default:			Georgia, serif;
+@serif-custom:			'Droid Serif';
+@sans-serif-default: 	Helvetica, Arial, sans-serif;
+@sans-serif-custom:		'Open Sans';
+
+.serif() { 
+	font-family: @serif-default;
+
+	@media only screen and (min-width: 650px) {
+		font-family: @serif-custom, @serif-default;
+	}
+}
+
+.serif-bold() { 
+	font-family: @serif-default;
+	font-weight: bold;
+
+	@media only screen and (min-width: 650px) {
+		font-family: @serif-custom, @serif-default;
+		font-weight: bold; // normal;
+	}
+}
 
 .sans-serif() {
-	font-family: Helvetica, Arial, sans-serif;
+	font-family: @sans-serif-default;
 	font-weight: normal;
 
 	@media only screen and (min-width: 650px) {
-		font-family: 'Open Sans', Helvetica, Arial, sans-serif;
+		font-family: @sans-serif-custom, @sans-serif-default;
 	}
 
 }
 .sans-serif-italic() {
-	font-family: Helvetica, Arial, sans-serif;
+	font-family: @sans-serif-default;
 	font-style: italic; 
 	font-weight: normal;
 
 	@media only screen and (min-width: 650px) {
-		font-family: 'Open Sans', Helvetica, Arial, sans-serif;
+		font-family: @sans-serif-custom, @sans-serif-default;
 		font-style: italic; // normal;
 	}
 }
 
 .sans-serif-bold() {
-	font-family: Helvetica, Arial, sans-serif;
+	font-family: @sans-serif-default;
 	font-weight: bold;
 
 	@media only screen and (min-width: 650px) {
-		font-family: 'Open Sans', Helvetica, Arial, sans-serif;
+		font-family: @sans-serif-custom, @sans-serif-default;
 		font-weight: bold; // normal; 
 	}
 }
 
 .sans-serif-bold-italic() {
-	font-family: Helvetica, Arial, sans-serif;
+	font-family: @sans-serif-default;
 	font-weight: bold;
 	font-style: italic; 
 
 	@media only screen and (min-width: 650px) { 
-		font-family: 'Open Sans', Helvetica, Arial, sans-serif;
+		font-family: @sans-serif-custom, @sans-serif-default;
 		font-weight: bold; // normal;
 		font-style: italic; // normal;
 	}

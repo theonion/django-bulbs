@@ -54,12 +54,17 @@ html {
   font-size: 100.01%;
 }
 body {
-  font-family: 'Droid Serif', Georgia, serif;
+  font-family: Georgia, serif;
   font-size: 0.875em;
   line-height: 1.857em;
   text-shadow: 0 -1px 1px rgba(255, 255, 255, 0.01);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+}
+@media only screen and (min-width: 650px) {
+  body {
+    font-family: 'Droid Serif', Georgia, serif;
+  }
 }
 /* =====================================================r=====================
    Selections
