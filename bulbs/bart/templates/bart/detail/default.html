@@ -68,7 +68,7 @@
 	<section class="article-text article-width">
 
 		{% block article_tags %}
-		<div class="aside pull-left" id="article-tags">
+		<div class="aside pull-left article-tags" id="article-tags">
 			<ul class="unstyled">
 				<li class="hidden"><a href="#">Music</a></li>
 				<li><a title="Daft Punk" href="#">Daft Punk</a></li>
@@ -88,7 +88,7 @@
 
 			{% block vid_embed %}
 			<div class="video-embed pull-left left-outdent">
-				<h2>Daft Punk "Get Lucky"</h2>
+				<h2 class="section-title">Daft Punk "Get Lucky"</h2>
 				<iframe width="320" height="180" src="//www.youtube.com/embed/5NV6Rdv1a3I" frameborder="0" allowfullscreen></iframe>
 			</div>
 			{% endblock vid_embed %}
@@ -101,18 +101,18 @@
 	{% endblock article_main %}
 
 	{% block article_footer %}
-	<footer class="article-footer">
+	<footer class="article-footer article-width">
 
 		{% block article_moretype %}
-		<section class="more-type">
-			<h2>More Newswire</h2>
+		<section class="more-type article-pagination">
+			<h2 class="section-title visuallyhidden">More Newswire</h2>
 			<nav>
-				<ul class="pagination">
+				<ul class="pagination unstyled">
 			        <li class="previous">
-			            <a href="/articles/arnold-schwarzenegger-also-has-a-cable-drama-about,98365/" title="Arnold Schwarzenegger also has a cable drama about bodybuilding in the works"><i class="icon icon-chevron-left"></i> Arnold Schwarzenegger also has a cable drama about bodybuilding in the works</a>
+			            <a href="/articles/arnold-schwarzenegger-also-has-a-cable-drama-about,98365/" title="Arnold Schwarzenegger also has a cable drama about bodybuilding in the works"><i class="icon icon-angle-left"></i> Arnold Schwarzenegger also has a cable drama about bodybuilding in the works</a>
 					</li>
 			        <li class="next">
-			            <a href="/articles/two-and-a-half-men-replaces-halfman-with-notman,98366/" title="&lt;em&gt;Two And A Half Men&lt;/em&gt;&nbsp;replaces half-man with not-man"><em>Two And A Half Men</em>&nbsp;replaces half-man with not-man <i class="icon icon-chevron-right"></i></a>
+			            <a href="/articles/two-and-a-half-men-replaces-halfman-with-notman,98366/" title="&lt;em&gt;Two And A Half Men&lt;/em&gt;&nbsp;replaces half-man with not-man"><em>Two And A Half Men</em>&nbsp;replaces half-man with not-man <i class="icon icon-angle-right"></i></a>
 			        </li>
 			    </ul>
 			</nav>

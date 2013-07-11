@@ -10,11 +10,15 @@
 @import url('../less/mixins.less');
 @import url('../less/theme.less');
 
+.section-title { 
+	display: table;
+    float: none;
+    margin: 0 auto 10px;
+    width: auto;
+	font-size: @twelvepx;
+	text-transform: uppercase; }
+
 .video-embed {
 	h2 { 
-		display: table;
-	    float: none;
-	    margin: 0 auto 10px;
-	    width: auto;
-		border-bottom: 1px solid @grey-regular;
-		font-size: @twelvepx; } }
+		text-transform: capitalize;
+		border-bottom: 1px solid @grey-regular; } }
