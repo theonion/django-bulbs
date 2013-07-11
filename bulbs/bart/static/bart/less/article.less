@@ -23,7 +23,7 @@
 	.clearfix();
 	text-align: center; }
 
-.headline a { color: @heading-color; }
+.headline a { .heading-link(); }
 
 .article-meta { 
 	margin: 0 auto 1em;
@@ -82,12 +82,14 @@
 		&:last-child { margin-bottom: 0; } } }
 
 .type-badge {
+
 	.sans-serif-bold();
 	position: relative;
 	height: 0;
 	margin-bottom: 10px;
 
 	.article-type { 
+	
 		background: @slate-blue;
 		color: #fff;
 		position: relative;
@@ -95,6 +97,7 @@
 		padding: 5px 15px; } }
 
 .article-text {
+
 	margin-bottom: 2em; 
 
 	a { .serif-bold(); }
@@ -104,6 +107,7 @@
 .article-footer > section { margin: .5em 0 1em; .clearfix(); }
 
 .article-pagination {
+
 	nav ul { .clearfix(); }
 
 	li { 
@@ -112,7 +116,7 @@
 		float: left; }
 	
 	a { 
-		.serif-bold();
+		.sans-serif-bold();
 		color: @heading-color; 
 		position: relative; }
 
@@ -125,14 +129,44 @@
 		top: 50%;
 		text-decoration: none; }
 
+	.next { 
+		text-align: right; 
+		margin-left: 2%; }
+
 	.previous i { left: -40px; }
-	.next i { right: -40px; }
 
-	.next { text-align: right; margin-left: 2%; } }
+	.next i { right: -40px; } }
 
-.article-footer .supplemental {
-	.headline { margin-bottom: 0; }
-	.article-meta { text-align: left; } }
+.article-footer {
+
+	.share-tools {
+
+		text-align: center; 
+
+		ul { display: table; width: 100%;}
+
+		li { display: table-cell; }
+		
+		a { 
+			.heading-link();
+			border-radius: 50%;
+			border: 5px solid @heading-color;
+		    display: block;
+			font-size: @lg-headline;
+		    height: 70px;
+		    line-height: 1.25em;
+		    margin: 0 auto;
+		    padding: 5px;
+		    text-decoration: none;
+		    width: 70px; } }
+
+	.supplemental {
+
+		.headline { margin-bottom: 0; }
+
+		.article-meta { text-align: left; } } }
+
+#comments { width: 100%; }
 
 /* ==========================================================================
    Responsive
@@ -147,14 +181,21 @@
 
 		.article-width { width: 620px; }
 
-		.article-header h1 { margin-left: -10px; margin-right: -10px; } } }
+		.article-header h1 { 
+			margin-left: -10px; 
+			margin-right: -10px; } } }
 
 @media @desktop {
 
 	#article-tags {
 		width: 130px; 
 		margin-left: -150px; 
-		position: absolute; }
+		position: absolute;
+
+		a { 
+			.sans-serif-bold(); 
+			text-transform: uppercase; 
+			font-size: @smalltext; } }
 
 	.article-text {
 

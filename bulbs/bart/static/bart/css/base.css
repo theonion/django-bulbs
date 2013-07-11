@@ -61,6 +61,7 @@ html {
 }
 body {
   font-family: Georgia, serif;
+  font-weight: normal;
   font-size: 0.875em;
   line-height: 1.857625em;
   text-shadow: 0 -1px 1px rgba(255, 255, 255, 0.01);
@@ -100,7 +101,7 @@ a {
 a:hover,
 a:focus {
   text-decoration: underline;
-  color: #ff4e31;
+  color: #f39a88;
 }
 /* ==========================================================================
    Figures
@@ -294,6 +295,16 @@ header#primary nav a:hover {
    ========================================================================== */
 .main-container > .main {
   padding: 30px 0;
+}
+/* ==========================================================================
+   Basic footer (to be moved/updated when footer design finished)
+   ========================================================================== */
+.footer-container {
+  color: #bcbcbc;
+  margin: 2em 0;
+}
+.footer-container .colophon {
+  text-align: center;
 }
 /* ==========================================================================
    Responsive

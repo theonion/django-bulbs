@@ -42,6 +42,13 @@
 	background: -o-linear-gradient(@stop, @start);
 	filter: e(%("progid:DXImageTransform.Microsoft.gradient(startColorstr='%d', endColorstr='%d', GradientType=0)",@stop,@start)); }
 
+.heading-link() { 
+    color: @heading-color; 
+
+    &:hover { 
+    	color: @heading-hover; 
+    	border-color: @heading-hover; } }
+
 /* ==========================================================================
    Responsive fonts
    ========================================================================== */
@@ -56,6 +63,7 @@
 
 .serif() { 
 	font-family: @serif-default;
+	font-weight: normal;
 	@media @tablet, @desktop { font-family: @serif-custom, @serif-default; } }
 
 .serif-bold() { 
@@ -76,6 +84,7 @@
 
 .sans-serif() {
 	font-family: @sans-serif-default;
+	font-weight: normal;
 	@media @tablet, @desktop { font-family: @sans-serif-custom, @sans-serif-default; } }
 
 .sans-serif-italic() {
