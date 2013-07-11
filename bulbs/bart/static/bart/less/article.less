@@ -19,32 +19,36 @@
 	margin-right: auto;
 	margin-left: auto; }
 
-.article-header { text-align: center; }
+.article-header { 
+	.clearfix();
+	text-align: center; }
 
-.headline { 
-	font-size: 40px;
-	line-height: 48px; }
+.headline a { color: @heading-color; }
 
 .article-meta { 
+	margin: 0 auto 1em;
 	.sans-serif-bold();
 	text-align: center; 
 
 	a { .sans-serif(); }
 
 	.authors, .pub { 
-		font-size: @twelvepx;
-		display: inline-block; } 
+		font-size: @smalltext;
+		display: inline-block; 
+
+		a { color: @grey-dark; }} 
 
 	.pub:before { 
 		content: "•";
 		padding: 0 10px 0 5px; }
 
 	.community { 
-		font-size: @twelvepx;
+		font-size: @smalltext;
 		text-transform: uppercase; 
 		clear: both;
 		border-top: 1px solid @grey-light; 
 		border-bottom: 1px solid @grey-light; 
+		margin: 1em 0 2em;
 
 		a { .sans-serif-bold(); }
 
@@ -124,8 +128,11 @@
 	.previous i { left: -40px; }
 	.next i { right: -40px; }
 
-	.next { text-align: right; margin-left: 2%; }
-}
+	.next { text-align: right; margin-left: 2%; } }
+
+.article-footer .supplemental {
+	.headline { margin-bottom: 0; }
+	.article-meta { text-align: left; } }
 
 /* ==========================================================================
    Responsive

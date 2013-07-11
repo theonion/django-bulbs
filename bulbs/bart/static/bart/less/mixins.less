@@ -14,15 +14,11 @@
 .clearfix(){
 	*zoom:1;
 	
-	&:before,
-	&:after{
+	&:before, &:after{
 	    content:"";
-	    display:table;
-	}
-	&:after{
-	    clear:both;
-	}
-}
+	    display:table; }
+
+	&:after{ clear:both; } }
 
 /* ==========================================================================
    Reusables
@@ -31,74 +27,69 @@
 .drop-shadow(@x-axis: 0, @y-axis: 1px, @blur: 2px, @alpha: 0.1) {
 	-webkit-box-shadow:		@x-axis @y-axis @blur rgba(0, 0, 0, @alpha);
 	-moz-box-shadow:		@x-axis @y-axis @blur rgba(0, 0, 0, @alpha);
-	box-shadow:				@x-axis @y-axis @blur rgba(0, 0, 0, @alpha);
-}
+	box-shadow:				@x-axis @y-axis @blur rgba(0, 0, 0, @alpha); }
 
 .rounded(@radius: 2px) {
 	-webkit-border-radius:	@radius;
 	-moz-border-radius:		@radius;
-	border-radius:			@radius;
-}
+	border-radius:			@radius; }
 
 .gradient(@color: #F5F5F5, @start: #EEE, @stop: #FFF) {
-  background: @color;
-  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, @start), color-stop(1, @stop));
-  background: -ms-linear-gradient(bottom, @start, @stop);
-  background: -moz-linear-gradient(center bottom, @start 0%,  @stop 100%);
-  background: -o-linear-gradient(@stop, @start);
-  filter: e(%("progid:DXImageTransform.Microsoft.gradient(startColorstr='%d', endColorstr='%d', GradientType=0)",@stop,@start));
-}
+	background: @color;
+	background: -webkit-gradient(linear, left bottom, left top, color-stop(0, @start), color-stop(1, @stop));
+	background: -ms-linear-gradient(bottom, @start, @stop);
+	background: -moz-linear-gradient(center bottom, @start 0%,  @stop 100%);
+	background: -o-linear-gradient(@stop, @start);
+	filter: e(%("progid:DXImageTransform.Microsoft.gradient(startColorstr='%d', endColorstr='%d', GradientType=0)",@stop,@start)); }
 
 /* ==========================================================================
    Responsive fonts
    ========================================================================== */
 
+.responsive-bold() {
+	font-weight: bold;
+	@media @tablet, @desktop { font-weight: bold; /* normal */ } }
+
+.responsive-italic() {
+	font-style: italic;
+	@media @tablet, @desktop { font-style: italic; /* normal */ } }
+
 .serif() { 
 	font-family: @serif-default;
-
 	@media @tablet, @desktop { font-family: @serif-custom, @serif-default; } }
 
 .serif-bold() { 
+	.responsive-bold();
 	font-family: @serif-default;
-	font-weight: bold;
+	@media @tablet, @desktop { font-family: @serif-custom, @serif-default; } }
 
-	@media @tablet, @desktop {
-		font-family: @serif-custom, @serif-default;
-		font-weight: bold; // normal; 
-	} }
+.serif-italic() { 
+	.responsive-italic();
+	font-family: @serif-default;
+	@media @tablet, @desktop { font-family: @serif-custom, @serif-default; } }
+
+.serif-bold-italic() { 
+	.responsive-bold();
+	.responsive-italic();
+	font-family: @serif-default;
+	@media @tablet, @desktop { font-family: @serif-custom, @serif-default; } }
 
 .sans-serif() {
 	font-family: @sans-serif-default;
-	font-weight: normal;
-
 	@media @tablet, @desktop { font-family: @sans-serif-custom, @sans-serif-default; } }
 
 .sans-serif-italic() {
+	.responsive-italic();
 	font-family: @sans-serif-default;
-	font-style: italic; 
-	font-weight: normal;
-
-	@media @tablet, @desktop {
-		font-family: @sans-serif-custom, @sans-serif-default;
-		font-style: italic; // normal;
-	} }
+	@media @tablet, @desktop { font-family: @sans-serif-custom, @sans-serif-default; } }
 
 .sans-serif-bold() {
+	.responsive-bold();
 	font-family: @sans-serif-default;
-	font-weight: bold;
-
-	@media @tablet, @desktop {
-		font-family: @sans-serif-custom, @sans-serif-default;
-		font-weight: bold; // normal; 
-	} }
+	@media @tablet, @desktop { font-family: @sans-serif-custom, @sans-serif-default; } }
 
 .sans-serif-bold-italic() {
+	.responsive-bold();
+	.responsive-italic();
 	font-family: @sans-serif-default;
-	font-weight: bold;
-	font-style: italic; 
-
-	@media @tablet, @desktop { 
-		font-family: @sans-serif-custom, @sans-serif-default;
-		font-weight: bold; // normal;
-		font-style: italic; // normal;
-	} }
+	@media @tablet, @desktop { font-family: @sans-serif-custom, @sans-serif-default; } }

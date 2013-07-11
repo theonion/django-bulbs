@@ -25,7 +25,7 @@
 	    {% endblock type_badge %}
 
 	    {% block headline %}
-	    <h1 class="headline">People Still Buy Music: Daft Punk lands its first No. 1 record</h1>
+	    <h1 class="headline lg-headline">People Still Buy Music: Daft Punk lands its first No. 1 record</h1>
 	    {% endblock headline %}
 
 	    {% block subheadline %}
@@ -104,7 +104,7 @@
 	<footer class="article-footer article-width">
 
 		{% block article_moretype %}
-		<section class="more-type article-pagination">
+		<section class="supplemental more-type article-pagination">
 			<h2 class="section-title visuallyhidden">More Newswire</h2>
 			<nav>
 				<ul class="pagination unstyled">
@@ -119,8 +119,47 @@
 		</section>
 		{% endblock article_moretype %}
 
+		{% block article_share %}
+		<section class="supplemental share-tools">
+			<h2 class="section-title">Spread the Word</h2>
+			<ul class="unstyled">
+				<li><a href="#">Facebook</a></li>
+				<li><a href="#">Twitter</a></li>
+				<li><a href="#">Google+</a></li>
+				<li><a href="#">Email</a></li>
+				<li><a href="#">Share</a></li>
+			</ul>
+		</section>
+		{% endblock article_share %}
+
+		{% block read_next %}
+		<section class="supplemental read-this-next">
+			<h2 class="section-title">Read this next</h2>
+			{# include "elements/snippets/article-summary.html" #}
+
+			<article id="4498724">
+				<header>
+					<h1 class="headline md-headline">
+						<a href="{{ article.get_absolute_url }}" title="{{ article.title }}">
+							Listen to Daft Punk's <em>Random Access Memories</em> online in its entirety now
+						</a>
+					</h1>					
+					<div class="article-meta">
+						<span class="authors">
+							By <a href="#">Marah Eakin</a>
+						</span>	
+					</div>
+				</header>
+				<div class="article-teaser">
+					<p>Stop working and grab those headphones: Daft Punk’s new record, Random Access Memories, is now streaming in its entirety on iTunes. The record won’t be out until next Tuesday, May 21, but all 13 tracks, including the ones featuring Nile Rodgers... <a class="read-more" href="#">Read More</a></p>
+				</div>
+			</article>
+
+		</section>
+		{% endblock read_next %}
+
 		{% block article_recirc %}
-		<section class="recirc">
+		<section class="supplemental recirc">
 
 	        {% block outbrain %}
 		    <div id="outbrain">

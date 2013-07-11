@@ -13,8 +13,7 @@
 *{ 
    -webkit-box-sizing: border-box; 
    -moz-box-sizing: border-box; 
-   box-sizing: border-box;
-}
+   box-sizing: border-box; }
 
 
 /* ==========================================================================
@@ -23,16 +22,15 @@
 
 html, button, input, select, textarea { color: @body-color; }
 
-html{ font-size: 100.01%; }
+html { font-size: 100.01%; }
 
-body{
+body {
     .serif();
-    font-size: @baseline;
-    line-height: @baselineht;
+    font-size: @baseline; // 14px
+    line-height: (@baseline * 2.123); // 26px
     text-shadow: 0 -1px 1px rgba(255, 255, 255, 0.01);
     -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
-}
+    text-rendering: optimizeLegibility; }
 
 
 /* =====================================================r=====================
@@ -41,13 +39,11 @@ body{
 
 ::selection{
     background: @select;
-    color: @select-color;
-}
+    color: @select-color; }
 
 ::-moz-selection{
     background: @select;
-    color: @select-color;
-}
+    color: @select-color; }
 
 img::selection, img::-moz-selection{ background: transparent; }
 
@@ -58,23 +54,14 @@ body{ -webkit-tap-highlight-color: @select; }
    Linx
    ========================================================================== */
 
-a{
+a {
     color: @link;
     text-decoration:none;
 
     &:hover, &:focus{
         text-decoration:underline;
         color: @link-hover;
-    }
-
-    // Optional transition
-    /*
-    -webkit-transition:all .2s linear;
-    -moz-transition:all .2s linear;
-    -o-transition:all .2s linear;
-    transition:all .2s linear;
-    */
-}
+    } }
 
 
 /* ==========================================================================
@@ -84,58 +71,54 @@ a{
 figure img, div.image img {
     width: 100%;
     height: auto;
-    display:block;
-}
+    display:block; }
 
 figcaption, .caption{
     font-size: small;
     font-style:italic;
-    color: @grey-dark;
-}
+    color: @grey-dark; }
 
 
 /* ==========================================================================
    Headings
    ========================================================================== */
 
-h1,h2,h3,h4,h5,h6{
+h1,h2,h3,h4,h5,h6 {
     .sans-serif-bold();
     margin-top:0;
-    color: @heading-color;
-}
+    color: @heading-color; }
 
-h1{
+h1 {
     font-size: 3em;
     line-height: 1;
     padding-top: 0.53em;
-    margin-bottom: 0.5em;
-}
-h2{
+    margin-bottom: 0.5em; }
+
+h2 {
     font-size: 2em;
     padding-top: 0.25em;
-    margin-bottom: 0.5em;
-}
-h3{
+    margin-bottom: 0.5em; }
+
+h3 {
     font-size: 1.5em;
     line-height: 1;
     padding-top: 0.35em;
-    margin-bottom: 0.65em;
-}
-h4{
+    margin-bottom: 0.65em; }
+
+h4 {
     font-size: 1.2em;
     line-height: 1.25;
     padding-top: 0.45em;
-    margin-bottom: 0.8em;
-}
-h5{
+    margin-bottom: 0.8em; }
+
+h5 {
     font-size: 1em;
     padding-top: 0.6em;
-    margin-bottom: 0.9em;
-}
-h6{
+    margin-bottom: 0.9em; }
+
+h6 {
     font-size: 1em;
-    margin-bottom: 0;
-}
+    margin-bottom: 0; }
 
 
 /* ==========================================================================
@@ -148,16 +131,14 @@ hr {
     border: 0;
     border-top: 1px solid #ccc;
     margin: 1em 0;
-    padding: 0;
-}
+    padding: 0; }
 
 img { vertical-align: middle }
 
 fieldset {
     border: 0;
     margin: 0;
-    padding: 0;
-}
+    padding: 0; }
 
 textarea { resize: vertical }
 
@@ -165,8 +146,7 @@ ul, ol {
     margin: 0 0 10px 25px;
     padding: 0; 
     
-    ol, ul { margin-bottom: 0 }
- }
+    ol, ul { margin-bottom: 0 } }
 
 li { line-height: 20px }
 
@@ -183,8 +163,7 @@ ul.inline, ol.inline {
         *zoom: 1;
         display: inline-block;
         padding-left: 5px;
-        padding-right: 5px; }
-     }
+        padding-right: 5px; } }
 
 
 
@@ -199,15 +178,13 @@ ul.inline, ol.inline {
 
     @media @tablet-landscape { width: 980px }
 
-    @media @desktop { width: 1160px }
-}
+    @media @desktop { width: 1160px } }
 
 .header-container, 
 .main-container, 
     .footer-container {
     .clearfix();
-    display: block;
-}
+    display: block; }
 
 
 /* ==========================================================================
@@ -220,18 +197,13 @@ header#primary nav {
 
     ul {
         margin: 0;
-        padding: 0;
-    }
-
-    li { }
+        padding: 0; }
 
     a {
 
         &:hover, &:visited { }
 
-        &:hover { text-decoration: underline }
-    }
-}
+        &:hover { text-decoration: underline } } }
 
 
 /* ==========================================================================
@@ -242,8 +214,7 @@ header#primary nav {
 
     article h1 { }
 
-    aside { }
-}
+    aside { } }
 
 
 /* ==========================================================================
@@ -258,16 +229,13 @@ header#primary nav {
             width: 27%;
             margin: 0 1.7%;
             padding: 25px 2%;
-            margin-bottom: 0;
-        }
+            margin-bottom: 0; }
 
         li:first-child a { margin-left: 0; }
 
         li:last-child a { margin-right: 0; }
         
-        ul li { display: inline; } // IE Fix
-    }
-}
+        ul li { display: inline; } } } // An IE fix
 
 @media only screen and (min-width: 768px) {
 
@@ -277,30 +245,22 @@ header#primary nav {
 
         nav {
             float: right;
-            width: 38%;
-        }
-    }
+            width: 38%; } }
 
     .main {
         article {
             float: left;
-            width: 57%;
-        }
+            width: 57%; }
 
         aside {
             float: right;
-            width: 28%;
-        }
-    }
-}
+            width: 28%; } } }
 
 @media @desktop {
 
     .wrapper {
         width: 1026px; /* 1140px - 10% for margins */
-        margin: 0 auto;
-    }
-}
+        margin: 0 auto; } }
 
 
 /* ==========================================================================
@@ -311,20 +271,17 @@ header#primary nav {
     background-color: transparent;
     border: 0;
     overflow: hidden;
-    *text-indent: -9999px;
-}
+    *text-indent: -9999px; }
 
 .ir:before {
     content: "";
     display: block;
     width: 0;
-    height: 150%;
-}
+    height: 150%; }
 
 .hidden {
     display: none !important;
-    visibility: hidden;
-}
+    visibility: hidden; }
 
 .visuallyhidden {
     border: 0;
@@ -334,8 +291,7 @@ header#primary nav {
     overflow: hidden;
     padding: 0;
     position: absolute;
-    width: 1px;
-}
+    width: 1px; }
 
 .visuallyhidden.focusable:active,
 .visuallyhidden.focusable:focus {
@@ -344,9 +300,6 @@ header#primary nav {
     margin: 0;
     overflow: visible;
     position: static;
-    width: auto;
-}
+    width: auto; }
 
-.invisible {
-    visibility: hidden;
-}
+.invisible { visibility: hidden; }

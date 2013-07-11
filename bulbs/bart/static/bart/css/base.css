@@ -19,6 +19,9 @@
    Clearfix
    ========================================================================== */
 /* ==========================================================================
+   Reusables
+   ========================================================================== */
+/* ==========================================================================
    Responsive fonts
    ========================================================================== */
 /* ==========================================================================
@@ -59,7 +62,7 @@ html {
 body {
   font-family: Georgia, serif;
   font-size: 0.875em;
-  line-height: 1.857em;
+  line-height: 1.857625em;
   text-shadow: 0 -1px 1px rgba(255, 255, 255, 0.01);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -93,13 +96,6 @@ body {
 a {
   color: #ea4b2b;
   text-decoration: none;
-  /*
-    -webkit-transition:all .2s linear;
-    -moz-transition:all .2s linear;
-    -o-transition:all .2s linear;
-    transition:all .2s linear;
-    */
-
 }
 a:hover,
 a:focus {
@@ -130,8 +126,8 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: Helvetica, Arial, sans-serif;
   font-weight: bold;
+  font-family: Helvetica, Arial, sans-serif;
   margin-top: 0;
   color: #111111;
 }
@@ -142,8 +138,18 @@ h6 {
   h4,
   h5,
   h6 {
-    font-family: 'Open Sans', Helvetica, Arial, sans-serif;
     font-weight: bold;
+    /* normal */
+  }
+}
+@media only screen and (min-width: 650px) and (max-width: 1439px), only screen and (min-width: 1140px) {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Open Sans', Helvetica, Arial, sans-serif;
   }
 }
 h1 {
