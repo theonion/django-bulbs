@@ -57,11 +57,13 @@ body{ -webkit-tap-highlight-color: @select; }
 a {
     color: @link;
     text-decoration:none;
+    transition: color .2s;
     -webkit-transition: color .2s;
 
     &:hover, &:focus{
         text-decoration:underline;
         color: @link-hover;
+        transition: color .2s;;
         -webkit-transition: color .2s; } }
 
 

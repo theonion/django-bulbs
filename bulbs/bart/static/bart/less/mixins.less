@@ -43,11 +43,18 @@
 	filter: e(%("progid:DXImageTransform.Microsoft.gradient(startColorstr='%d', endColorstr='%d', GradientType=0)",@stop,@start)); }
 
 .heading-link() { 
-    color: @heading-color; 
+    color: 					@heading-color; 
 
     &:hover { 
-    	color: @heading-hover; 
-    	border-color: @heading-hover; } }
+    	color: 				@heading-hover; 
+    	border-color: 		@heading-hover; } }
+
+.transition(@transition) {
+	-webkit-transition: 	@transition;  
+	-moz-transition:    	@transition;
+	-ms-transition:     	@transition; 
+	-o-transition:      	@transition;  
+}
 
 /* ==========================================================================
    Responsive fonts

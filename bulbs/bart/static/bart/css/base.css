@@ -97,12 +97,14 @@ body {
 a {
   color: #ea4b2b;
   text-decoration: none;
+  transition: color .2s;
   -webkit-transition: color .2s;
 }
 a:hover,
 a:focus {
   text-decoration: underline;
   color: #f39a88;
+  transition: color .2s;
   -webkit-transition: color .2s;
 }
 /* ==========================================================================
