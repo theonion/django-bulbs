@@ -1,5 +1,5 @@
 from bulbs.content.views import ContentListView
-from testapp.models import TestContentObj, TestContentObjTwo
+from testapp.models import TestContentObj
 
 from django.conf.urls import patterns, url, include
 

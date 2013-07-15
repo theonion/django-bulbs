@@ -35,6 +35,7 @@ def search_feature_types(request):
 
 class ContentListView(ListView):
 
+    feature_types = []
     tags = []
     types = []
     published = None
@@ -47,7 +48,7 @@ class ContentListView(ListView):
     def get_queryset(self):
         tags = self.tags or self.kwargs.get('tags') or self.request.GET.getlist('tag', [])
         types = self.types or self.kwargs.get('types') or self.request.GET.getlist('type', [])
-        feature_types = self.types or self.kwargs.get('feature_types') or self.request.GET.getlist('feature_type', [])
+        feature_types = self.feature_types or self.kwargs.get('feature_types') or self.request.GET.getlist('feature_type', [])
         published = self.published or self.kwargs.get('published') or self.request.GET.get('published', [])
         return Contentish.search(tags=tags, feature_types=feature_types, types=types, published=published)
 
