@@ -1,29 +1,23 @@
 from django.db import models
-from bulbs.content.models import Contentish, Tagish
+from bulbs.polycontent.models import Content
 
 
-class TestContentObj(Contentish):
+class TestContentObj(Content):
 
     field1 = models.CharField(max_length=255)
-    field2 = models.CharField(max_length=255)
 
     def get_absolute_url(self):
-        return "/testobject/%s" % self.pk
+        return "/detail/%s/" % self.pk
 
 
-class TestContentObjTwo(Contentish):
+class TestContentObjTwo(Content):
 
     field1 = models.CharField(max_length=255)
-    field2 = models.CharField(max_length=255)
-    field3 = models.IntegerField()
+    field2 = models.IntegerField()
 
     def get_feature_type(self):
         return "Overridden feature type"
 
     def get_absolute_url(self):
-        return "/testobject2/%s" % self.pk
+        return "/detail/%s/" % self.pk
 
-
-class Section(Tagish):
-
-    description = models.TextField()

@@ -22,12 +22,12 @@ ROOT_URLCONF = 'urls'
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'polymorphic',
 
     # A test app to help with mixin stuff
     'testapp',
 
-    'bulbs.articles',
-    'bulbs.content',
+    'bulbs.polycontent',
     'bulbs.images',
     'bulbs.markdown',
 )
