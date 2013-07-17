@@ -62,9 +62,10 @@ class PolyContentTestCase(TestCase):
 		serializer = ContentSerializer(queryset, many=True)
 		self.assertEqual(len(serializer.data), len(self.combos) * 2)
 
-	def test_polymorphic_serializers(self):
+	def test_polymorphic_serializer(self):
 		queryset = Content.objects.all()
 		serializer = TestPolyContentSerializer(queryset, many=True)
+		# count the number of times different model fields show up in the results
 		foo_count = 0
 		bar_count = 0
 		for result in serializer.data:
@@ -76,5 +77,4 @@ class PolyContentTestCase(TestCase):
 		self.assertEqual(foo_count, len(self.combos) * 2)
 		# only one of the content types has a bar field
 		self.assertEqual(bar_count, len(self.combos))
-
 

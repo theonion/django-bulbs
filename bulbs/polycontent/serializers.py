@@ -27,7 +27,7 @@ class PolymorphicSerializer(object):
 			if not serializer_class:
 				raise ValueError(
 					'Model "%s" has no serializer configured.' % instance.__class__.__name__)
-			# Brute force over a clever subclass:
+			# Brute force instead of a clever subclass:
 			serializer = serializer_class(instance)
 			results.append(serializer.data)
 
@@ -43,9 +43,4 @@ class ContentSerializer(serializers.ModelSerializer):
 	"""Base serializer of Content."""
 	class Meta:
 		model = Content
-
-
-class PolyContentSerializer(PolymorphicSerializer):
-	"""Serializes polymorphic content models."""
-	parent_model = Content
 

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from bulbs.polycontent.serializers import ContentSerializer, PolyContentSerializer
+from bulbs.polycontent.serializers import ContentSerializer, PolymorphicSerializer
 from .models import Content, TestContentObj, TestContentObjTwo
 
 
@@ -15,7 +15,7 @@ class TestContentObjTwoSerializer(ContentSerializer):
 		model = TestContentObjTwo
 
 
-class TestPolyContentSerializer(PolyContentSerializer):
+class TestPolyContentSerializer(PolymorphicSerializer):
 	"""Serializes polymorphic test content."""
 	child_serializers = (
 		(TestContentObj, TestContentObjSerializer),
