@@ -16,6 +16,7 @@ class PolyContentTestCase(TestCase):
 		# generate some data
 		one_hour_ago = timezone.now() - datetime.timedelta(hours=1)
 		words = ['spam', 'driver', 'dump truck', 'restaurant']
+		self.num_subclasses = 2
 		self.combos = list(itertools.combinations(words, 2))
 		for i, combo in enumerate(self.combos):
 			obj = TestContentObj.objects.create(
@@ -34,7 +35,7 @@ class PolyContentTestCase(TestCase):
 
 	def test_content_subclasses(self):
 		# We created one of each subclass per combination so the following should be true:
-		self.assertEqual(Content.objects.count(), len(self.combos) * 2)
+		self.assertEqual(Content.objects.count(), len(self.combos) * self.num_subclasses)
 		self.assertEqual(TestContentObj.objects.count(), len(self.combos))
 		self.assertEqual(TestContentObjTwo.objects.count(), len(self.combos))
 
@@ -42,7 +43,8 @@ class PolyContentTestCase(TestCase):
 		client = Client()
 		response = client.get('/content_list_one.html')
 		self.assertEqual(response.status_code, 200)
-		self.assertEqual(len(response.context['object_list']), len(self.combos) * 2)
+		self.assertEqual(
+			len(response.context['object_list']), len(self.combos) * self.num_subclasses)
 
 	def test_polycontent_detail_view(self):
 		client = Client()
@@ -60,7 +62,8 @@ class PolyContentTestCase(TestCase):
 		
 		queryset = Content.objects.all()
 		serializer = ContentSerializer(queryset, many=True)
-		self.assertEqual(len(serializer.data), len(self.combos) * 2)
+		self.assertEqual(
+			len(serializer.data), len(self.combos) * self.num_subclasses)
 
 	def test_polymorphic_serializer(self):
 		queryset = Content.objects.all()
@@ -74,7 +77,7 @@ class PolyContentTestCase(TestCase):
 			if 'bar' in result:
 				bar_count += 1
 		# every subclass has a foo field		
-		self.assertEqual(foo_count, len(self.combos) * 2)
+		self.assertEqual(foo_count, len(self.combos) * self.num_subclasses)
 		# only one of the content types has a bar field
 		self.assertEqual(bar_count, len(self.combos))
 
