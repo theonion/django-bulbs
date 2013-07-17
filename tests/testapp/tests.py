@@ -53,7 +53,7 @@ class PolyContentTestCase(TestCase):
 			self.assertEqual(response.status_code, 200)
 			self.assertEqual(response.context['object'].pk, content.pk)
 			# make sure we get the subclass, not the super
-			self.assertIn(content.__class__, [TestContentObj, TestContentObjTwo])
+			self.assertIsInstance(content, (TestContentObj, TestContentObjTwo))
 
 	def test_content_serializers(self):
 		# make sure submodel queries only fetch the submodel subtree
