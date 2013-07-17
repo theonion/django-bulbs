@@ -3,11 +3,11 @@ from .models import Content
 
 
 class ContentDetailView(DetailView):
-	model = Content
+    model = Content
 
 
 class ContentListView(ListView):
-	model = Content
+    model = Content
 
 
 content_detail = ContentDetailView.as_view()
