@@ -6,6 +6,9 @@ from django.test.client import Client
 from django.utils import timezone
 
 from .models import Content, TestContentObj, TestContentObjTwo
+from .serializers import (
+	ContentSerializer, TestContentObjSerializer, TestPolyContentSerializer
+)
 
 
 class PolyContentTestCase(TestCase):
@@ -18,14 +21,14 @@ class PolyContentTestCase(TestCase):
 			obj = TestContentObj.objects.create(
 				title=' '.join(combo),
 				description=' '.join(reversed(combo)),
-				field1=combo[0],
+				foo=combo[0],
 				time_published=one_hour_ago
 			)
 			obj2 = TestContentObjTwo.objects.create(
 				title=' '.join(reversed(combo)),
 				description=' '.join(combo),
-				field1=combo[0],
-				field2=i,
+				foo=combo[0],
+				bar=i,
 				time_published=one_hour_ago
 			)
 
@@ -49,4 +52,29 @@ class PolyContentTestCase(TestCase):
 			self.assertEqual(response.context['object'].pk, content.pk)
 			# make sure we get the subclass, not the super
 			self.assertIn(content.__class__, [TestContentObj, TestContentObjTwo])
+
+	def test_content_serializers(self):
+		queryset = TestContentObj.objects.all()
+		serializer = TestContentObjSerializer(queryset, many=True)
+		self.assertEqual(len(serializer.data), len(self.combos))
+		
+		queryset = Content.objects.all()
+		serializer = ContentSerializer(queryset, many=True)
+		self.assertEqual(len(serializer.data), len(self.combos) * 2)
+
+	def test_polymorphic_serializers(self):
+		queryset = Content.objects.all()
+		serializer = TestPolyContentSerializer(queryset, many=True)
+		foo_count = 0
+		bar_count = 0
+		for result in serializer.data:
+			if 'foo' in result:
+				foo_count += 1
+			if 'bar' in result:
+				bar_count += 1
+		# every subclass has a foo field		
+		self.assertEqual(foo_count, len(self.combos) * 2)
+		# only one of the content types has a bar field
+		self.assertEqual(bar_count, len(self.combos))
+
 

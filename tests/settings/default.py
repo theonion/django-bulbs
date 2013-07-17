@@ -22,6 +22,7 @@ ROOT_URLCONF = 'urls'
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'rest_framework',
     'polymorphic',
 
     # A test app to help with mixin stuff
