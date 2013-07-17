@@ -46,6 +46,11 @@ class PolyContentTestCase(TestCase):
 		self.assertEqual(
 			len(response.context['object_list']), len(self.combos) * self.num_subclasses)
 
+	def test_num_polymorphic_queries(self):
+		with self.assertNumQueries(1 + self.num_subclasses):
+			for content in Content.objects.all():
+				self.assertIsInstance(content, (TestContentObj, TestContentObjTwo))
+
 	def test_polycontent_detail_view(self):
 		client = Client()
 		for content in Content.objects.all():
