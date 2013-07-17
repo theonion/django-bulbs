@@ -13,8 +13,8 @@ class PolymorphicSerializer(object):
 		self._serializer_map = {
 			model: serializer for model, serializer in self.child_serializers
 		}
-		if not self._serializer_map:
-			raise ValueError('Hey Alan Turing, you need to configure some child serializers.')
+		assert self._serializer_map, \
+			'Hey Alan Turing, you need to configure some child serializers.'
 
 	@property
 	def data(self):
@@ -24,9 +24,8 @@ class PolymorphicSerializer(object):
 		for instance in self._data:
 			serializer_class = self._serializer_map.get(instance.__class__, None)
 			# fail early, fail often.
-			if not serializer_class:
-				raise ValueError(
-					'Model "%s" has no serializer configured.' % instance.__class__.__name__)
+			assert serializer_class, \
+				'Model "%s" has no serializer configured.' % instance.__class__.__name__
 			# Brute force instead of a clever subclass:
 			serializer = serializer_class(instance)
 			results.append(serializer.data)

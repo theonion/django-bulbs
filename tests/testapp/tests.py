@@ -56,6 +56,7 @@ class PolyContentTestCase(TestCase):
 			self.assertIn(content.__class__, [TestContentObj, TestContentObjTwo])
 
 	def test_content_serializers(self):
+		# make sure submodel queries only fetch the submodel subtree
 		queryset = TestContentObj.objects.all()
 		serializer = TestContentObjSerializer(queryset, many=True)
 		self.assertEqual(len(serializer.data), len(self.combos))
