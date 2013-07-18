@@ -23,14 +23,14 @@ class PolyContentTestCase(TestCase):
                 title=' '.join(combo),
                 description=' '.join(reversed(combo)),
                 foo=combo[0],
-                time_published=one_hour_ago
+                publish=one_hour_ago
             )
             obj2 = TestContentObjTwo.objects.create(
                 title=' '.join(reversed(combo)),
                 description=' '.join(combo),
                 foo=combo[0],
                 bar=i,
-                time_published=one_hour_ago
+                publish=one_hour_ago
             )
 
     def test_content_subclasses(self):
