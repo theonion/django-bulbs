@@ -1,8 +1,7 @@
 {% extends "bart/detail/__base.html" %}
-
 {% block bodyclass %}article-detail{% endblock bodyclass %}
-
-{% block site_title %}{# article.title|safe #}People Still Buy Music: Daft Punk lands its first No. 1 record {{ block.super }}{% endblock site_title %}
+{% block meta_description%}{{ article.description|striptags }}{% endblock meta_description %}
+{% block site_title %}{{ article.title|striptags }} {{ block.super }}{% endblock site_title %}
 
 {% block content %}
 <article>
@@ -21,9 +20,11 @@
 		<header class="article-header article-width">
 
 			{% block type_badge %}
+			{% if article.feature_type %}
 		    <div class="type-badge">
-		    	<a class="article-type" href="#">Newswire</a>
+		    	<a class="article-type" href="#">{{ article.feature_type|safe }}</a>
 		    </div>
+		    {% endif %}
 		    {% endblock type_badge %}
 
 		    {% block headline %}
@@ -31,12 +32,17 @@
 		    {% endblock headline %}
 
 		    {% block subheadline %}
-		    <h2 class="subheadline">If there's a subheadline, it goes here.</h2>
+		    {% if article.subhead %}
+		    <h2 class="subheadline">{{ article.subhead|safe }}</h2>
+		    {% endif %}
 		    {% endblock subheadline %}
 		    
 		    {% block teaser %}
-		    <p class="teaser visuallyhidden">Did Daft Punk "Get Lucky" or are they "Doin' It Right"? Who cares, they're No. 1.</p>
+		    {% if article.teaser %}
+		    <p class="teaser visuallyhidden">{{ article.teaser|safe|removetags:"p" }}</p>
+		    {% endif %}
 		    {% endblock teaser %}
+
 		</header>
 		{% endblock article_header %}
 
@@ -44,11 +50,19 @@
 		<section class="article-meta meta article-width">
 
 			{% block author %}
-			<div class="authors">By <a class="author" href="#">Kevin McFarland</a></div>
+			{% if article.authors.all %}
+			<div class="authors">By 
+			{% for author in article.authors.all %}
+				{% if forloop.last and not forloop.first %}, and{% endif %}
+				<a class="author" href="#">{{ author.first_name }} {{ author.last_name }}</a>
+				{% if not forloop.last and not forloop.first %}, {% endif %}
+			{% endfor %}
+			</div>
+			{% endif %}
 			{% endblock author %}
 
 			{% block pubdate %}
-			<div class="pub"><a href="#">May 29th, 2013</a></div>
+			<div class="pub"><a href="#">{{ article.published }}</a></div>
 			{% endblock pubdate %}
 
 			{% block community %}
@@ -61,6 +75,7 @@
 					<a href="#"><span class="count">1,548</span> Share Article</a></li>
 			</ul>
 			{% endblock community %}
+
 		</section>
 		{% endblock article_meta %}
 
@@ -68,14 +83,16 @@
 		<section class="article-text article-width">
 
 			{% block article_tags %}
+			{% if article.tags.count > 1 %}
 			<div class="aside pull-left article-tags" id="article-tags">
 				<ul class="unstyled">
-					<li class="hidden"><a href="#">Music</a></li>
-					<li><a title="Daft Punk" href="#">Daft Punk</a></li>
-					<li><a title="Billboard Charts" href="#">Billboard Charts</a></li>
-					<li><a title="Electronic" href="#">Electronic</a></li>
-				</ul>
-			</div>
+                    {% for tag in article.tags.all %}
+                    <li {% if forloop.first %} class="hidden"{% endif %}>
+                    	<a title="{{ tag.name }}" href="#">{{ tag.name }}</a></li> {# Hiding the first tag. #}
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
 			{% endblock article_tags %}
 
 			{% block article_body %}
@@ -84,19 +101,16 @@
 				<div class="advertisement right-outdent"><a href="#"><img src="http://placehold.it/300x250"></a></div>
 				{% endblock article_ad %}
 
-				{{ article.body | safe }}
-
-<!-- 				<p>Proof that all it takes to increase sales is to go on an eight-year hiatus, play a legendary festival tour of mythic proportions, beget an entire subgenre of electronic music, then eschew that legacy entirely on an album that points to disco, Giorgio Moroder, and Andrew Lloyd Webber, this week <a href="/artists/daft-punk,31139/" target="_blank">Daft Punk</a> scored its first-ever No. 1 spot on the <a href="http://www.billboard.com/articles/news/1565033/daft-punk-leads-debut-filled-top-four-on-billboard-200"><i>Billboard </i>charts</a>. <i><a href="http://www.avclub.com/articles/daft-punk-random-access-memories,97969/" target="_blank">Random Access Memories</a></i> sold 339,000 copies according to SoundScan (about two-thirds of which were digital downloads), giving the duo the second-highest debut of the year after Justin Timberlake moved 968,000 copies of <i>The 20/20 Experience</i> in March. What&rsquo;s even more intriguing is that the new record has already tripled the sales of Daft Punk&rsquo;s last album, 2005&rsquo;s <i>Human After All</i>, which has sold a mere 125,000 copies to date. Daft Punk highest-selling album in total, 2001&rsquo;s <i>Discovery</i>, has sold just under 800,000 copies.</p>
-
 				{% block vid_embed %}
+				{% comment %}
 				<div class="video-embed pull-left left-outdent">
 					<h2 class="section-title">Daft Punk "Get Lucky"</h2>
 					<iframe width="320" height="180" src="//www.youtube.com/embed/5NV6Rdv1a3I" frameborder="0" allowfullscreen></iframe>
 				</div>
+				{% endcomment %}
 				{% endblock vid_embed %}
-				
-				<p>Continuing an entirely different kind of comeback, former Hootie And The Blowfish frontman Darius Rucker&rsquo;s fourth solo album,&nbsp;<i>True Believers</i>, sold 83,000 copies to land at No. 2 (though that's less than his last second-place finisher, which debuted with over 100,000). The National equaled its highest chart position and highest sales week with 75,000 copies of sixth album <i><a href="http://www.avclub.com/articles/the-national-trouble-will-find-me,97968/" target="_blank">Trouble Will Find Me</a>&mdash;</i>an improvement in sales numbers, but a tie with <i>High Violet</i> in chart position. Rapper French Montana&rsquo;s debut album <i><a href="http://www.avclub.com/articles/french-montana-excuse-my-french,97966/" target="_blank">Excuse My French</a></i> sold 56,000 to come in at No. 4, while Jared Leto&rsquo;s band 30 Seconds To Mars landed its first Top 10 spot, selling 53,000 copies of <i>Love Lust Faith And Dreams</i>. (Just ignore the fact it actually sold <em>more</em> copies when it landed at No. 19 with its last album in 2009.)</p>
-				<p>Over on the digital singles chart, the top spot stays with Macklemore And Ryan Lewis, with &ldquo;Can&rsquo;t Hold Us&rdquo; netting another 212,000 downloads. But the most notable entry comes from the late Zach Sobiech, the Minnesota teen who passed away on May 20th from cancer, and whose &ldquo;Clouds&rdquo; was downloaded 156,000 times to land at No. 7. With the continued outpouring of sentiment, it now has a pretty good shot at <a href="http://www.billboard.com/articles/news/1563578/zach-sobiechs-clouds-headed-for-hot-100-debut">cracking&nbsp;the Hot 100</a>.</p> -->
+
+				{{ article.body | safe }}
 
 			{% endblock article_body %}
 		</section>
