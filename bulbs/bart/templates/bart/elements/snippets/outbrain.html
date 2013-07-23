@@ -1,0 +1,14 @@
+<div id="outbrain">
+    <script type="text/JavaScript">
+        var OB_permalink= 'http://www.avclub.com{{ article.get_absolute_url }}';
+        var OB_Template="avclub";
+        var OB_widgetId= 'AR_1';
+        var OB_langJS ='http://widgets.outbrain.com/lang_en.js';
+        if ( typeof(OB_Script)!='undefined' )
+        	OutbrainStart();
+        else
+        {	var OB_Script = true;
+            var str = "<script src='http://widgets.outbrain.com/outbrainWidget.js'; type='text/javascript'></"+"script>";
+            document.write(str); }
+    </script>
+</div>
