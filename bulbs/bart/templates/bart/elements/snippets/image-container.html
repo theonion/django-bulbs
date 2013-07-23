@@ -1,5 +1,5 @@
 {% load images %}
-<figure class="image" id="{{ image.id }}">
-	<img src="{{ image.src }}" alt="{{ image.title }}" />
-	{% if image.has_caption %}<figcaption>{{ image.caption }}</figcaption>{% endif %}
+<figure class="image article-image" id="{{ image.id }}">
+	<img src="{{ image.src }}" alt="{{ image.title|safe }}" />
+	{% if image.has_caption %}<figcaption>{{ image.caption|safe }}</figcaption>{% endif %}
 </figure>
