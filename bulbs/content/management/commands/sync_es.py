@@ -11,7 +11,7 @@ from bulbs.content.models import Content, Tagish
 
 class Command(NoArgsCommand):
     args = ''
-    help = "Create the Elastic Search indexes and mappings tables for all apps in INSTALLED_APPS."
+    help = 'Create the Elastic Search indexes and mappings tables for all apps in INSTALLED_APPS.'
 
     def handle(self, **options):
         self.style = no_style()
@@ -31,13 +31,13 @@ class Command(NoArgsCommand):
             )
 
         tag_mapping = {
-            "tag": {
-                "properties": {
-                    "name": {"type": "string"},
-                    "slug": {"type": "string", "index": "not_analyzed"},
-                    "content_type": {"type": "integer"},
-                    "object_id": {"type": "integer"}
+            'tag': {
+                'properties': {
+                    'name': {'type': 'string'},
+                    'slug': {'type': 'string', 'index': 'not_analyzed'},
+                    'content_type': {'type': 'integer'},
+                    'object_id': {'type': 'integer'}
                 }
             }
         }
-        es.put_mapping(index, "tag", tag_mapping)
+        es.put_mapping(index, 'tag', tag_mapping)

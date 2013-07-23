@@ -14,7 +14,7 @@ from bulbs.content.models import Content, Tagish
 try:
     from testapp.models import TestContentObj, TestContentObjTwo, Section
 except:
-    raise ImportError("Something with your test app isn't configured correctly")
+    raise ImportError('Something with your test app isn't configured correctly')
 
 
 class ESTestCase(DBTestCase):
@@ -34,13 +34,13 @@ class ContentCreationTestCases(ESTestCase):
     def test_no_tags(self):
         one_hour_ago = timezone.now() - datetime.timedelta(hours=1)
         no_tags = TestContentObj.objects.create(
-            title="No Tags",
-            field1="No",
-            field2="Tags",
+            title='No Tags',
+            field1='No',
+            field2='Tags',
             published=one_hour_ago)
         self.es.refresh()
         self.assertEqual(no_tags.tags.all(), [])
-        no_tags.tags.add(["One tag", "Two tags", "Three tags"])
+        no_tags.tags.add(['One tag', 'Two tags', 'Three tags'])
         self.es.refresh()
         self.assertEqual(len(no_tags.tags.all()), 3)
 
@@ -50,19 +50,19 @@ class ContentTestCase(ESTestCase):
     def setUp(self):
         super(ContentTestCase, self).setUp()
 
-        for tags in itertools.combinations(["Tag 1", "Tag 2", "Tag 3", "Tag 4"], 2):
+        for tags in itertools.combinations(['Tag 1', 'Tag 2', 'Tag 3', 'Tag 4'], 2):
             one_hour_ago = timezone.now() - datetime.timedelta(hours=1)
             obj = TestContentObj.objects.create(
-                title="Tags: %s, %s" % (tags[0], tags[1]),
+                title='Tags: %s, %s' % (tags[0], tags[1]),
                 field1=tags[0],
                 field2=tags[1],
-                feature_type="Testing Type",
+                feature_type='Testing Type',
                 published=one_hour_ago)
             self.es.refresh()
             obj.tags.add(tags)
 
             obj2 = TestContentObjTwo.objects.create(
-                title="Tags: %s, %s" % (tags[0], tags[1]),
+                title='Tags: %s, %s' % (tags[0], tags[1]),
                 field1=tags[0],
                 field2=tags[1],
                 field3=3,
@@ -73,7 +73,7 @@ class ContentTestCase(ESTestCase):
         self.es.refresh()
 
     def test_tag_content(self):
-        tag = Tagish.from_name("Tag 1")
+        tag = Tagish.from_name('Tag 1')
         self.assertEqual(tag.content().count(), 6)
 
     def test_facets(self):
@@ -86,13 +86,13 @@ class ContentTestCase(ESTestCase):
         results = Content.search()
         self.assertEqual(results.count(), 12)
 
-        results = Content.search(query="Tag 1")
+        results = Content.search(query='Tag 1')
         self.assertEqual(results.count(), 6)
 
-        results = Content.search(tags=["tag-1"])
+        results = Content.search(tags=['tag-1'])
         self.assertEqual(results.count(), 6)
 
-        results = Content.search(tags=["tag-1", "tag-2"])
+        results = Content.search(tags=['tag-1', 'tag-2'])
         self.assertEqual(results.count(), 2)
         for result in results:
             tags = result.tags.all()
@@ -113,10 +113,10 @@ class ContentTestCase(ESTestCase):
         results = Tagish.search()
         self.assertEqual(results.count(), 4)
 
-        results = Content.search(feature_types=["testing-type"])
+        results = Content.search(feature_types=['testing-type'])
         self.assertEqual(results.count(), 6)
 
-        results = Content.search(feature_types=["overridden-feature-type"])
+        results = Content.search(feature_types=['overridden-feature-type'])
         self.assertEqual(results.count(), 6)
 
     def test_content_list_views(self):
@@ -133,20 +133,20 @@ class ContentTestCase(ESTestCase):
 class TagSearchTestCase(ESTestCase):
     def setUp(self):
         super(TagSearchTestCase, self).setUp()
-        for name in ["Foo", "Bar", "Baz", "FooBar", "FooBaz", "A.V. Foo"]:
+        for name in ['Foo', 'Bar', 'Baz', 'FooBar', 'FooBaz', 'A.V. Foo']:
             tag = Tagish.from_name(name)
             tag.index()
 
-        self.tv_section = Section.objects.create(name="T.V.", description="The TV Section")
+        self.tv_section = Section.objects.create(name='T.V.', description='The TV Section')
         self.es.refresh()  # It takes a few seconds for the indexing to propogate, unless we refresh.
 
     def test_tagish_objects(self):
-        tv_section = Tagish.get("tv-section")
-        self.assertEqual(tv_section.description, "The TV Section")
+        tv_section = Tagish.get('tv-section')
+        self.assertEqual(tv_section.description, 'The TV Section')
         self.assertEqual(tv_section.id, self.tv_section.id)
 
-        new_tv_section = Section.objects.create(name="TV", description="Another TV Section")
-        self.assertEqual(new_tv_section.slug, "tv-section-1")
+        new_tv_section = Section.objects.create(name='TV', description='Another TV Section')
+        self.assertEqual(new_tv_section.slug, 'tv-section-1')
         self.es.refresh()  # It takes a few seconds for the indexing to propogate, unless we refresh.
         self.assertEqual(Tagish.search().count(), 8)
 

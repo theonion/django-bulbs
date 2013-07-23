@@ -196,7 +196,7 @@ class TagishRelatedManage():
                 'slug': slugify(tag_name)
             } for tag_name in self.content._tags.split('\n')]
         es.update(index, self.content.get_mapping_type_name(), self.content.elastic_id, doc=doc, refresh=refresh)
-        for tag_name in self.content._tags.split("\n"):
+        for tag_name in self.content._tags.split('\n'):
             tag = Tagish.from_name(tag_name)
             try:
                 tag = es.get(index, 'tag', tag.slug)
@@ -205,7 +205,7 @@ class TagishRelatedManage():
 
     def all(self):
         if self.content._tags:
-            return Tagish.search().query(slug__terms=[slugify(tag) for tag in self.content._tags.split("\n")])
+            return Tagish.search().query(slug__terms=[slugify(tag) for tag in self.content._tags.split('\n')])
         return []
 
     def remove(self, tags):
@@ -248,7 +248,7 @@ class TagishRelatedManage():
             else:
                 tag_list
                 tag_list.append(tag_name)
-        self.content._tags = "\n".join(tag_list)
+        self.content._tags = '\n'.join(tag_list)
         self._save_tags()
 
 

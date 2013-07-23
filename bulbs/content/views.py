@@ -54,19 +54,19 @@ class ContentListView(ListView):
 
     def render_to_response(self, context, **response_kwargs):
         http_accept = self.request.META.get('HTTP_ACCEPT')
-        if http_accept == "application/json":
+        if http_accept == 'application/json':
             data = {
-                "count": context['paginator'].count,
-                "num_pages": context['paginator'].num_pages,
-                "page": {
+                'count': context['paginator'].count,
+                'num_pages': context['paginator'].num_pages,
+                'page': {
                     # Page methods
-                    "has_next": context['page_obj'].has_next(),
-                    "has_previous": context['page_obj'].has_previous(),
-                    "has_other_pages": context['page_obj'].has_other_pages(),
-                    "start_index": context['page_obj'].start_index(),
-                    "end_index": context['page_obj'].end_index(),
+                    'has_next': context['page_obj'].has_next(),
+                    'has_previous': context['page_obj'].has_previous(),
+                    'has_other_pages': context['page_obj'].has_other_pages(),
+                    'start_index': context['page_obj'].start_index(),
+                    'end_index': context['page_obj'].end_index(),
                     # Page attributes
-                    "number": context['page_obj'].number
+                    'number': context['page_obj'].number
                 },
             }
             data['results'] = [{
@@ -80,7 +80,7 @@ class ContentListView(ListView):
                 'published': result.published,
                 'feature_type': result.feature_type} for result in context['object_list']]
 
-            return HttpResponse(json.dumps(data), content_type="application/json")
+            return HttpResponse(json.dumps(data), content_type='application/json')
 
         return super(ContentListView, self).render_to_response(context, **response_kwargs)
 

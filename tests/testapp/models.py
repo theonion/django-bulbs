@@ -7,7 +7,7 @@ class TestContentObj(Content):
     foo = models.CharField(max_length=255)
 
     def get_absolute_url(self):
-        return "/detail/%s/" % self.pk
+        return '/detail/%s/' % self.pk
 
 
 class TestContentObjTwo(Content):
@@ -16,5 +16,5 @@ class TestContentObjTwo(Content):
     bar = models.IntegerField()
 
     def get_absolute_url(self):
-        return "/detail/%s/" % self.pk
+        return '/detail/%s/' % self.pk
 
