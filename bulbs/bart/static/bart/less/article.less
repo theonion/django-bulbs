@@ -36,11 +36,11 @@
 		font-size: @smalltext;
 		display: inline-block; 
 
-		a { color: @grey-dark; }} 
+		a { color: @grey-dark; } } 
 
-	.authors:after { 
+	.authors + .pub:before { 
 		content: "•";
-		padding: 0 10px; }
+		padding: 0 10px 0 5px; }
 
 	.community { 
 		font-size: @smalltext;
@@ -78,15 +78,15 @@
 
 	li { 
 		margin-bottom: 10px; 
-		
+
 		&:last-child { margin-bottom: 0; } } }
 
 .type-badge {
-
 	.sans-serif-bold();
-	position: relative;
 	height: 0;
 	margin-bottom: 10px;
+	position: relative;
+	text-shadow: 0px -1px 0px darken(@slate-blue, 10%);
 
 	.article-type { 
 

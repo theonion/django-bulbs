@@ -59,17 +59,7 @@
 		<section class="article-meta meta article-width">
 
 			{% block author %}
-			{% if article.authors.all %}
-			<div class="authors">By
-
-				{% for author in article.authors.all %}
-					{% if forloop.last and not forloop.first %}, &amp;{% endif %}
-					<a class="author" href="#">{{ author.first_name }} {{ author.last_name }}</a>
-					{% if not forloop.last and not forloop.first %}, {% endif %}
-				{% endfor %}
-
-			</div>
-			{% endif %}
+			{% include "bart/elements/snippets/article-authors.html" %}
 			{% endblock author %}
 
 
@@ -104,7 +94,8 @@
 				<ul class="unstyled">
                     {% for tag in article.tags.all %}
                     <li {% if forloop.first %} class="hidden"{% endif %}>
-                    	<a title="{{ tag.name }}" href="#">{{ tag.name }}</a></li> {# Hiding the first tag. #}
+                    	<a title="{{ tag.name }}" href="#">{{ tag.name }}</a></li> 
+                    	{# Hiding the first tag. #}
                     {% endfor %}
                 </ul>
             </div>
@@ -115,7 +106,9 @@
 			{% block article_body %}
 				
 				{% block article_ad %}
-				<div class="advertisement right-outdent"><a href="#"><img src="http://placehold.it/300x250"></a></div>
+				<div class="advertisement right-outdent">
+					<a href="#"><img src="http://placehold.it/300x250"></a>
+				</div>
 				{% endblock article_ad %}
 
 
@@ -148,6 +141,8 @@
 				<h2 class="section-title visuallyhidden">More {{ article.feature_type }}</h2>
 				<ul class="pagination unstyled">
 			        <li class="previous">
+				        
+
 				        {% if article.prev_article %}
 			        	{% with article.previous_article as prev %}
 			            	<a href="{{ prev.get_absolute_url }}" title="{{ prev.title|safe }}">
@@ -155,8 +150,12 @@
 		            		</a>
 			            {% endwith %}
 			            {% endif %}
+
+
 					</li>
 			        <li class="next">
+
+
 				        {% if article.next_article %}
 				        {% with article.next_article as next %}
 			            	<a href="{{ next.get_absolute_url }}" title="{{ next.title|safe }}">
@@ -164,6 +163,8 @@
 		            		</a>
 			            {% endwith %}
 			            {% endif %}
+
+
 			        </li>
 			    </ul>
 			</nav>
@@ -187,25 +188,22 @@
 			{% block read_next %}
 			<section class="supplemental read-this-next">
 				<h2 class="section-title">Read this next</h2>
-				{# include "elements/snippets/article-summary.html" #}
 
+
+				{% with read_next as article %}
 				<article id="4498724">
 					<header>
 						<h1 class="headline md-headline">
-							<a href="{{ article.get_absolute_url }}" title="{{ article.title }}">
-								Listen to Daft Punk's <em>Random Access Memories</em> online in its entirety now
-							</a>
+							{% include "bart/elements/snippets/article-title.html" %}
 						</h1>					
 						<div class="article-meta">
-							<span class="authors">
-								By <a href="#">Marah Eakin</a>
-							</span>	
+							{% include "bart/elements/snippets/article-authors.html" %}
 						</div>
 					</header>
-					<div class="article-teaser">
-						<p>Stop working and grab those headphones: Daft Punk’s new record, Random Access Memories, is now streaming in its entirety on iTunes. The record won’t be out until next Tuesday, May 21, but all 13 tracks, including the ones featuring Nile Rodgers... <a class="read-more" href="#">Read More</a></p>
-					</div>
+					{% include "bart/elements/snippets/article-teaser.html" %}
 				</article>
+				{% endwith %}
+
 
 			</section>
 			{% endblock read_next %}
