@@ -6,8 +6,7 @@ from django.db import models
 from elasticutils import get_es
 from pyelasticsearch.exceptions import IndexAlreadyExistsError
 
-
-from bulbs.content.models import Contentish, Tagish
+from bulbs.content.models import Content, Tagish
 
 
 class Command(NoArgsCommand):
@@ -24,7 +23,7 @@ class Command(NoArgsCommand):
         except IndexAlreadyExistsError:
             pass
 
-        for mapping_name, model in Contentish.get_doctypes().items():
+        for mapping_name, model in Content.get_doctypes().items():
             es.put_mapping(
                 index,
                 mapping_name,

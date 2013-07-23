@@ -16,7 +16,7 @@ def sync_es(sender, **kwargs):
     except IndexAlreadyExistsError:
         pass
 
-    for mapping_name, model in bulbs.content.models.Contentish.get_doctypes().items():
+    for mapping_name, model in bulbs.content.models.Content.get_doctypes().items():
         es.put_mapping(
             index,
             mapping_name,

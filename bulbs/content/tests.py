@@ -10,7 +10,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.test.client import Client
 
-from bulbs.content.models import Contentish, Tagish
+from bulbs.content.models import Content, Tagish
 try:
     from testapp.models import TestContentObj, TestContentObjTwo, Section
 except:
@@ -45,10 +45,10 @@ class ContentCreationTestCases(ESTestCase):
         self.assertEqual(len(no_tags.tags.all()), 3)
 
 
-class ContentishTestCase(ESTestCase):
+class ContentTestCase(ESTestCase):
 
     def setUp(self):
-        super(ContentishTestCase, self).setUp()
+        super(ContentTestCase, self).setUp()
 
         for tags in itertools.combinations(["Tag 1", "Tag 2", "Tag 3", "Tag 4"], 2):
             one_hour_ago = timezone.now() - datetime.timedelta(hours=1)
@@ -77,22 +77,22 @@ class ContentishTestCase(ESTestCase):
         self.assertEqual(tag.content().count(), 6)
 
     def test_facets(self):
-        facet_counts = Contentish.search().facet('tags.slug').facet_counts()
+        facet_counts = Content.search().facet('tags.slug').facet_counts()
         self.assertEqual(len(facet_counts['tags.slug']), 4)
         for facet in facet_counts['tags.slug']:
             self.assertEqual(facet['count'], 6)
 
     def test_content_search(self):
-        results = Contentish.search()
+        results = Content.search()
         self.assertEqual(results.count(), 12)
 
-        results = Contentish.search(query="Tag 1")
+        results = Content.search(query="Tag 1")
         self.assertEqual(results.count(), 6)
 
-        results = Contentish.search(tags=["tag-1"])
+        results = Content.search(tags=["tag-1"])
         self.assertEqual(results.count(), 6)
 
-        results = Contentish.search(tags=["tag-1", "tag-2"])
+        results = Content.search(tags=["tag-1", "tag-2"])
         self.assertEqual(results.count(), 2)
         for result in results:
             tags = result.tags.all()
@@ -101,10 +101,10 @@ class ContentishTestCase(ESTestCase):
             self.assertFalse(any(tag.slug == 'tag-3' for tag in tags))
             self.assertFalse(any(tag.slug == 'tag-4' for tag in tags))
 
-        results = Contentish.search(types=[TestContentObjTwo])
+        results = Content.search(types=[TestContentObjTwo])
         self.assertEqual(results.count(), 6)
 
-        results = Contentish.search(types=[TestContentObj])
+        results = Content.search(types=[TestContentObj])
         self.assertEqual(len(results), 6)
 
         with self.assertRaises(AttributeError):
@@ -113,10 +113,10 @@ class ContentishTestCase(ESTestCase):
         results = Tagish.search()
         self.assertEqual(results.count(), 4)
 
-        results = Contentish.search(feature_types=["testing-type"])
+        results = Content.search(feature_types=["testing-type"])
         self.assertEqual(results.count(), 6)
 
-        results = Contentish.search(feature_types=["overridden-feature-type"])
+        results = Content.search(feature_types=["overridden-feature-type"])
         self.assertEqual(results.count(), 6)
 
     def test_content_list_views(self):

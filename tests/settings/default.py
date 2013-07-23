@@ -28,7 +28,7 @@ INSTALLED_APPS = (
     # A test app to help with mixin stuff
     'testapp',
 
-    'bulbs.polycontent',
+    'bulbs.content',
     'bulbs.images',
     'bulbs.markdown',
 )

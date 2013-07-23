@@ -7,6 +7,6 @@ from django.conf.urls import patterns, url, include
 urlpatterns = patterns('',
     url(r'^content/', include('bulbs.content.urls')),
     url(r'^images/', include('bulbs.images.urls')),
-    url(r'^content_list_one\.html', 'bulbs.polycontent.views.content_list'),
-    url(r'^detail/(?P<pk>\d+)/$', 'bulbs.polycontent.views.content_detail'),
+    url(r'^content_list_one\.html', 'testapp.views.content_list'),
+    #url(r'^detail/(?P<pk>\d+)/$', 'bulbs.content.views.content_detail'),
 )

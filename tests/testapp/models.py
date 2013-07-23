@@ -1,5 +1,5 @@
 from django.db import models
-from bulbs.polycontent.models import Content
+from bulbs.content.models import Content
 
 
 class TestContentObj(Content):
