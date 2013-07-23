@@ -59,9 +59,9 @@
 			{% endblock author %}
 
 
-			{% block pubdate %}
-			<div class="pub"><a href="#">{{ article.published }}</a></div>
-			{% endblock pubdate %}
+			{% block published %}
+			{% include "bart/elements/snippets/article-published.html" %}
+			{% endblock published %}
 
 
 			{% block community %}
