@@ -1,16 +1,7 @@
 $( setup );
 
 function setup(){
-	imageSizer()
 	addComments()
-}
-
-var imageSizeJS = STATIC_URL + 'images/js/image.js'
-
-function imageSizer(){
-	$.getScript(imageSizeJS, function(){
-		console.log('test')
-	})
 }
 
 function addComments(){
