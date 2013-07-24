@@ -273,7 +273,7 @@ class Content(PolymorphicModel):
         return '%s: %s' % (self.__class__.__name__, self.title)
 
     def get_absolute_url(self):
-        return reverse('gcms.views.content_detail', kwargs=dict(pk=self.pk))
+        return '/content/%d/' % self.id
 
     def save(self, *args, **kwargs):
         result = super(Content, self).save(*args, **kwargs)
