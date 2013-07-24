@@ -1,5 +1,20 @@
 {% load images %}
-<figure class="image article-image" id="{{ image.id }}">
-	<img src="{{ image.src }}" alt="{{ image.title|safe }}" />
-	{% if image.has_caption %}<figcaption>{{ image.caption|safe }}</figcaption>{% endif %}
+
+<figure>
+	<div data-picture class="image article-image" id="{{ image.id }}" data-image-id="1" >
+	    <div>
+	        <noscript>
+	            <img src="http://placehold.it/600x300" alt="{{ image.title|safe }}">
+	        </noscript>
+	    </div>
+	</div>
+
+	{% if image.has_caption %}
+	<figcaption class="visuallyhidden">{{ image.caption|safe }}</figcaption>
+	{% endif %}
+
 </figure>
+
+{% block extra_js %}
+<script>var IMAGE_URL = "http://placehold.it/600x300"</script>
+{% endblock %}

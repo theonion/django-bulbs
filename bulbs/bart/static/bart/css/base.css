@@ -1,10 +1,10 @@
 @import url(http://fonts.googleapis.com/css?family=Open+Sans:400,700,700italic,400italic|Droid+Serif:400,700italic,700,400italic);
 /* ==========================================================================
    
-    BART BASE THEME
+	BART BASE THEME
 
-    Copyright 2013 Onion Tech
-    Contact: scook@theonion.com
+	Copyright 2013 Onion Tech
+	Contact: scook@theonion.com
 
    ========================================================================== */
 /* ==========================================================================
@@ -396,4 +396,42 @@ header#primary nav a:hover {
 }
 .invisible {
   visibility: hidden;
+}
+/* ==========================================================================
+   Image ratios
+   ========================================================================== */
+div[data-picture] {
+  overflow: hidden;
+  width: auto;
+  max-width: 100%;
+}
+div[data-picture] img {
+  display: block;
+  width: 100%;
+}
+div[data-picture] > div {
+  position: relative;
+  padding-bottom: 56.25%;
+  /* default is 16x9 */
+
+  height: 0;
+  overflow: hidden;
+}
+div[data-picture] img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+}
+div[data-picture].one-by-one > div {
+  padding-bottom: 100%;
+}
+div[data-picture].four-by-three > div {
+  padding-bottom: 75%;
+}
+div[data-picture].sixteen-by-nine > div {
+  padding-bottom: 56.25%;
+}
+div[data-picture].three-by-four > div {
+  padding-bottom: 133.33%;
 }

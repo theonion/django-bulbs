@@ -1,9 +1,9 @@
 /* ==========================================================================
    
-    BART BASE THEME
+	BART BASE THEME
 
-    Copyright 2013 Onion Tech
-    Contact: scook@theonion.com
+	Copyright 2013 Onion Tech
+	Contact: scook@theonion.com
 
    ========================================================================== */
 
@@ -25,12 +25,12 @@ html, button, input, select, textarea { color: @body-color; }
 html { font-size: 100.01%; }
 
 body {
-    .serif();
-    font-size: @baseline; // 14px
-    line-height: (@baseline * 2.123); // 26px
-    text-shadow: 0 -1px 1px rgba(255, 255, 255, 0.01);
-    -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility; }
+	.serif();
+	font-size: @baseline; // 14px
+	line-height: (@baseline * 2.123); // 26px
+	text-shadow: 0 -1px 1px rgba(255, 255, 255, 0.01);
+	-webkit-font-smoothing: antialiased;
+	text-rendering: optimizeLegibility; }
 
 
 /* =====================================================r=====================
@@ -38,12 +38,12 @@ body {
    ========================================================================== */
 
 ::selection{
-    background: @select;
-    color: @select-color; }
+	background: @select;
+	color: @select-color; }
 
 ::-moz-selection{
-    background: @select;
-    color: @select-color; }
+	background: @select;
+	color: @select-color; }
 
 img::selection, img::-moz-selection{ background: transparent; }
 
@@ -55,16 +55,16 @@ body{ -webkit-tap-highlight-color: @select; }
    ========================================================================== */
 
 a {
-    color: @link;
-    text-decoration:none;
-    transition: color .2s;
-    -webkit-transition: color .2s;
+	color: @link;
+	text-decoration:none;
+	transition: color .2s;
+	-webkit-transition: color .2s;
 
-    &:hover, &:focus{
-        text-decoration:underline;
-        color: @link-hover;
-        transition: color .2s;;
-        -webkit-transition: color .2s; } }
+	&:hover, &:focus{
+		text-decoration:underline;
+		color: @link-hover;
+		transition: color .2s;;
+		-webkit-transition: color .2s; } }
 
 
 /* ==========================================================================
@@ -72,14 +72,14 @@ a {
    ========================================================================== */
 
 figure img, div.image img {
-    width: 100%;
-    height: auto;
-    display:block; }
+	width: 100%;
+	height: auto;
+	display:block; }
 
 figcaption, .caption{
-    font-size: small;
-    font-style:italic;
-    color: @grey-dark; }
+	font-size: small;
+	font-style:italic;
+	color: @grey-dark; }
 
 
 /* ==========================================================================
@@ -87,41 +87,41 @@ figcaption, .caption{
    ========================================================================== */
 
 h1,h2,h3,h4,h5,h6 {
-    .sans-serif-bold();
-    margin-top:0;
-    color: @heading-color; }
+	.sans-serif-bold();
+	margin-top:0;
+	color: @heading-color; }
 
 h1 {
-    font-size: 3em;
-    line-height: 1;
-    padding-top: 0.53em;
-    margin-bottom: 0.5em; }
+	font-size: 3em;
+	line-height: 1;
+	padding-top: 0.53em;
+	margin-bottom: 0.5em; }
 
 h2 {
-    font-size: 2em;
-    padding-top: 0.25em;
-    margin-bottom: 0.5em; }
+	font-size: 2em;
+	padding-top: 0.25em;
+	margin-bottom: 0.5em; }
 
 h3 {
-    font-size: 1.5em;
-    line-height: 1;
-    padding-top: 0.35em;
-    margin-bottom: 0.65em; }
+	font-size: 1.5em;
+	line-height: 1;
+	padding-top: 0.35em;
+	margin-bottom: 0.65em; }
 
 h4 {
-    font-size: 1.2em;
-    line-height: 1.25;
-    padding-top: 0.45em;
-    margin-bottom: 0.8em; }
+	font-size: 1.2em;
+	line-height: 1.25;
+	padding-top: 0.45em;
+	margin-bottom: 0.8em; }
 
 h5 {
-    font-size: 1em;
-    padding-top: 0.6em;
-    margin-bottom: 0.9em; }
+	font-size: 1em;
+	padding-top: 0.6em;
+	margin-bottom: 0.9em; }
 
 h6 {
-    font-size: 1em;
-    margin-bottom: 0; }
+	font-size: 1em;
+	margin-bottom: 0; }
 
 
 /* ==========================================================================
@@ -129,44 +129,44 @@ h6 {
    ========================================================================== */
 
 hr {
-    display: block;
-    height: 1px;
-    border: 0;
-    border-top: 1px solid #ccc;
-    margin: 1em 0;
-    padding: 0; }
+	display: block;
+	height: 1px;
+	border: 0;
+	border-top: 1px solid #ccc;
+	margin: 1em 0;
+	padding: 0; }
 
 img { vertical-align: middle }
 
 fieldset {
-    border: 0;
-    margin: 0;
-    padding: 0; }
+	border: 0;
+	margin: 0;
+	padding: 0; }
 
 textarea { resize: vertical }
 
 ul, ol { 
-    margin: 0 0 10px 25px;
-    padding: 0; 
-    
-    ol, ul { margin-bottom: 0 } }
+	margin: 0 0 10px 25px;
+	padding: 0; 
+	
+	ol, ul { margin-bottom: 0 } }
 
 li { line-height: 20px }
 
 ul.unstyled, ol.unstyled { 
-    list-style: none;
-    margin-left: 0; }
+	list-style: none;
+	margin-left: 0; }
 
 ul.inline, ol.inline { 
-    list-style: none;
-    margin-left: 0; 
+	list-style: none;
+	margin-left: 0; 
 
-    li { 
-        *display: inline;
-        *zoom: 1;
-        display: inline-block;
-        padding-left: 5px;
-        padding-right: 5px; } }
+	li { 
+		*display: inline;
+		*zoom: 1;
+		display: inline-block;
+		padding-left: 5px;
+		padding-right: 5px; } }
 
 
 
@@ -175,19 +175,19 @@ ul.inline, ol.inline {
    ========================================================================== */
 
 .wrapper {
-    width: 100%;
-    margin: 0 auto;
-    position: relative;
+	width: 100%;
+	margin: 0 auto;
+	position: relative;
 
-    @media @tablet-landscape { width: 980px }
+	@media @tablet-landscape { width: 980px }
 
-    @media @desktop { width: 1160px } }
+	@media @desktop { width: 1160px } }
 
 .header-container, 
 .main-container, 
-    .footer-container {
-    .clearfix();
-    display: block; }
+	.footer-container {
+	.clearfix();
+	display: block; }
 
 
 /* ==========================================================================
@@ -198,15 +198,15 @@ header#primary .title { padding-top: 20px; }
 
 header#primary nav {
 
-    ul {
-        margin: 0;
-        padding: 0; }
+	ul {
+		margin: 0;
+		padding: 0; }
 
-    a {
+	a {
 
-        &:hover, &:visited { }
+		&:hover, &:visited { }
 
-        &:hover { text-decoration: underline } } }
+		&:hover { text-decoration: underline } } }
 
 
 /* ==========================================================================
@@ -215,9 +215,9 @@ header#primary nav {
 
 .main-container > .main { padding: 30px 0;
 
-    article h1 { }
+	article h1 { }
 
-    aside { } }
+	aside { } }
 
 
 /* ==========================================================================
@@ -225,9 +225,9 @@ header#primary nav {
    ========================================================================== */
 
 .footer-container {
-    color: @grey-regular;
-    margin: 2em 0; 
-    .colophon { text-align: center; } }
+	color: @grey-regular;
+	margin: 2em 0; 
+	.colophon { text-align: center; } }
 
 /* ==========================================================================
    Responsive
@@ -235,44 +235,44 @@ header#primary nav {
 
 @media only screen and (min-width: 480px) {
 
-    header#primary nav {
-        a {
-            float: left;
-            width: 27%;
-            margin: 0 1.7%;
-            padding: 25px 2%;
-            margin-bottom: 0; }
+	header#primary nav {
+		a {
+			float: left;
+			width: 27%;
+			margin: 0 1.7%;
+			padding: 25px 2%;
+			margin-bottom: 0; }
 
-        li:first-child a { margin-left: 0; }
+		li:first-child a { margin-left: 0; }
 
-        li:last-child a { margin-right: 0; }
-        
-        ul li { display: inline; } } } // An IE fix
+		li:last-child a { margin-right: 0; }
+		
+		ul li { display: inline; } } } // An IE fix
 
 @media only screen and (min-width: 768px) {
 
-    header#primary {
+	header#primary {
 
-        .title { float: left; }
+		.title { float: left; }
 
-        nav {
-            float: right;
-            width: 38%; } }
+		nav {
+			float: right;
+			width: 38%; } }
 
-    .main {
-        article {
-            float: left;
-            width: 57%; }
+	.main {
+		article {
+			float: left;
+			width: 57%; }
 
-        aside {
-            float: right;
-            width: 28%; } } }
+		aside {
+			float: right;
+			width: 28%; } } }
 
 @media @desktop {
 
-    .wrapper {
-        width: 1026px; /* 1140px - 10% for margins */
-        margin: 0 auto; } }
+	.wrapper {
+		width: 1026px; /* 1140px - 10% for margins */
+		margin: 0 auto; } }
 
 
 /* ==========================================================================
@@ -280,38 +280,68 @@ header#primary nav {
    ========================================================================== */
 
 .ir {
-    background-color: transparent;
-    border: 0;
-    overflow: hidden;
-    *text-indent: -9999px; }
+	background-color: transparent;
+	border: 0;
+	overflow: hidden;
+	*text-indent: -9999px; }
 
 .ir:before {
-    content: "";
-    display: block;
-    width: 0;
-    height: 150%; }
+	content: "";
+	display: block;
+	width: 0;
+	height: 150%; }
 
 .hidden {
-    display: none !important;
-    visibility: hidden; }
+	display: none !important;
+	visibility: hidden; }
 
 .visuallyhidden {
-    border: 0;
-    clip: rect(0 0 0 0);
-    height: 1px;
-    margin: -1px;
-    overflow: hidden;
-    padding: 0;
-    position: absolute;
-    width: 1px; }
+	border: 0;
+	clip: rect(0 0 0 0);
+	height: 1px;
+	margin: -1px;
+	overflow: hidden;
+	padding: 0;
+	position: absolute;
+	width: 1px; }
 
 .visuallyhidden.focusable:active,
 .visuallyhidden.focusable:focus {
-    clip: auto;
-    height: auto;
-    margin: 0;
-    overflow: visible;
-    position: static;
-    width: auto; }
+	clip: auto;
+	height: auto;
+	margin: 0;
+	overflow: visible;
+	position: static;
+	width: auto; }
 
 .invisible { visibility: hidden; }
+
+/* ==========================================================================
+   Image ratios
+   ========================================================================== */
+
+div[data-picture] {
+	overflow: hidden;
+	width: auto;
+	max-width: 100%;
+
+	img {
+		display:block;
+		width: 100%; } 
+
+	&>div {
+		position: relative;
+		padding-bottom: 56.25%; /* default is 16x9 */
+		height: 0;
+		overflow: hidden; } 
+	
+	img {
+		position: absolute;
+		top: 0;
+		left: 0;
+		height: 100%; } 
+
+	&.one-by-one > div { padding-bottom: 100%; } 
+	&.four-by-three > div { padding-bottom: 75%; }
+	&.sixteen-by-nine > div { padding-bottom: 56.25%; }
+	&.three-by-four > div { padding-bottom: 133.33%; } }
