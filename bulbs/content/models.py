@@ -392,27 +392,31 @@ class Content(PolymorphicModel):
     def get_mapping(cls):
         return {
             cls.get_mapping_type_name(): {
+                'properties': cls.get_mapping_properties()
+            }
+        }
+
+    @classmethod
+    def get_mapping_properties(cls):
+        return {            
+            'id': {'type': 'integer'},
+            'published': {'type': 'date'},
+            'title': {'type': 'string'},
+            'slug': {'type': 'string'},
+            'description': {'type': 'string'},
+            'image': {'type': 'integer'},
+            'byline': {'type': 'string'},
+            'feature_type': {
+                'type': 'multi_field',
+                'fields': {
+                    'feature_type': {'type': 'string', 'index': 'not_analyzed'},
+                    'slug': {'type': 'string', 'index': 'not_analyzed'}
+                }
+            },
+            'tags': {
                 'properties': {
-                    'id': {'type': 'integer'},
-                    'published': {'type': 'date'},
-                    'title': {'type': 'string'},
-                    'slug': {'type': 'string'},
-                    'description': {'type': 'string'},
-                    'image': {'type': 'integer'},
-                    'byline': {'type': 'string'},
-                    'feature_type': {
-                        'type': 'multi_field',
-                        'fields': {
-                            'feature_type': {'type': 'string', 'index': 'not_analyzed'},
-                            'slug': {'type': 'string', 'index': 'not_analyzed'}
-                        }
-                    },
-                    'tags': {
-                        'properties': {
-                            'name': {'type': 'string', 'index': 'not_analyzed'},
-                            'slug': {'type': 'string', 'index': 'not_analyzed'}
-                        }
-                    }
+                    'name': {'type': 'string', 'index': 'not_analyzed'},
+                    'slug': {'type': 'string', 'index': 'not_analyzed'}
                 }
             }
         }
