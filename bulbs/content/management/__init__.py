@@ -24,16 +24,16 @@ def sync_es(sender, **kwargs):
         )
 
     tag_mapping = {
-        "tag": {
-            "properties": {
-                "name": {"type": "string"},
-                "slug": {"type": "string", "index": "not_analyzed"},
-                "content_type": {"type": "integer"},
-                "object_id": {"type": "integer"}
+        'tag': {
+            'properties': {
+                'name': {'type': 'string'},
+                'slug': {'type': 'string', 'index': 'not_analyzed'},
+                'content_type': {'type': 'integer'},
+                'object_id': {'type': 'integer'}
             }
         }
     }
-    es.put_mapping(index, "tag", tag_mapping)
+    es.put_mapping(index, 'tag', tag_mapping)
 
 
 post_syncdb.connect(sync_es, sender=bulbs.content.models)

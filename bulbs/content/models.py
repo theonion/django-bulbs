@@ -133,12 +133,12 @@ class Tagish(models.Model):
 
     @classmethod
     def from_source(cls, _source):
-        if _source.get('object_id'):
+        if _source.get('id'):
             model = ContentType.objects.get_for_id(_source['content_type']).model_class()
             # Get the attributes to be deferred.
             attrs = [fn for fn in model._meta.get_all_field_names() if fn not in ['pk', 'slug', 'name']]
             model = deferred_class_factory(model, attrs)
-            return model(id=_source['object_id'], name=_source['name'], slug=_source['slug'])
+            return model(id=_source['id'], name=_source['name'], slug=_source['slug'])
         return Tagish(name=_source['name'], slug=_source['slug'])
 
     @classmethod
@@ -161,7 +161,7 @@ class Tagish(models.Model):
         data = {'name': self.name, 'slug': self.slug}
         if getattr(self, 'id', None):
             data['content_type'] = ContentType.objects.get_for_model(self).id
-            data['object_id'] = self.id
+            data['id'] = self.id
         return data
 
     @classmethod
@@ -195,7 +195,7 @@ class TagishRelatedManage():
                 'name': tag_name,
                 'slug': slugify(tag_name)
             } for tag_name in self.content._tags.split('\n')]
-        es.update(index, self.content.get_mapping_type_name(), self.content.elastic_id, doc=doc, refresh=refresh)
+        es.update(index, self.content.get_mapping_type_name(), self.content.id, doc=doc, refresh=refresh)
         for tag_name in self.content._tags.split('\n'):
             tag = Tagish.from_name(tag_name)
             try:
@@ -275,9 +275,10 @@ class Content(PolymorphicModel):
     def get_absolute_url(self):
         return '/content/%d/' % self.id
 
-    def save(self, *args, **kwargs):
+    def save(self, index=True, refresh=False, *args, **kwargs):
         result = super(Content, self).save(*args, **kwargs)
-        self.index()
+        if index:
+            self.index(refresh=refresh)
         return result
 
     @property
@@ -311,12 +312,11 @@ class Content(PolymorphicModel):
             'feature_type.slug': slugify(self.feature_type)
         }
         if self._tags:
-            data['tags'] = [{
+            doc['tags'] = [{
                 'name': tag_name,
                 'slug': slugify(tag_name)
             } for tag_name in self._tags.split('\n')]
         return doc
-
 
     @property
     def feature_type(self):
@@ -362,9 +362,22 @@ class Content(PolymorphicModel):
         if not hasattr(self, '_tag_relation'):
             self._tag_relation = TagishRelatedManage(self)
         return self._tag_relation
-        return []
 
     # class methods ##############################
+
+    @classmethod
+    def from_source(cls, _source):
+        return cls(
+            id=_source['id'],
+            content_ptr_id=_source['id'],
+            published=_source['published'],
+            title=_source['title'],
+            slug=_source['slug'],
+            description=_source['description'],
+            subhead=_source['subhead'],
+            _feature_type=_source['feature_type'],
+            _tags='\n'.join([tag['name'] for tag in _source.get('tags', [])])
+        )
 
     @classmethod
     def get_doctypes(cls):
@@ -376,41 +389,29 @@ class Content(PolymorphicModel):
         return cls._cache
 
     @classmethod
-    def from_source(cls, _source):
-        return cls(
-            id=_source['object_id'],
-            published=_source['published'],
-            title=_source['title'],
-            slug=_source['slug'],
-            description=_source['description'],
-            subhead=_source['subhead'],
-            _feature_type=_source['feature_type'],
-            _tags='\n'.join([tag['name'] for tag in _source.get('tags', [])])
-        )
-
-    @classmethod
     def get_mapping(cls):
         return {
-            'properties': {
-                'id': {'type': 'integer'},
-                'published': {'type': 'date'},
-                'title': {'type': 'string'},
-                'slug': {'type': 'string'},
-                'description': {'type': 'string'},
-                'image': {'type': 'integer'},
-                'byline': {'type': 'string'},
-                'feature_type': {
-                    'type': 'multi_field',
-                    'fields': {
-                        'feature_type': {'type': 'string', 'index': 'analyzed'},
-                        'slug': {'type': 'string', 'index': 'not_analyzed'}
-                    }
-                },
-                'tags': {
-                    'type': 'multi_field',
-                    'properties': {
-                        'name': {'type': 'string'},
-                        'slug': {'type': 'string', 'index': 'not_analyzed'}
+            cls.get_mapping_type_name(): {
+                'properties': {
+                    'id': {'type': 'integer'},
+                    'published': {'type': 'date'},
+                    'title': {'type': 'string'},
+                    'slug': {'type': 'string'},
+                    'description': {'type': 'string'},
+                    'image': {'type': 'integer'},
+                    'byline': {'type': 'string'},
+                    'feature_type': {
+                        'type': 'multi_field',
+                        'fields': {
+                            'feature_type': {'type': 'string', 'index': 'not_analyzed'},
+                            'slug': {'type': 'string', 'index': 'not_analyzed'}
+                        }
+                    },
+                    'tags': {
+                        'properties': {
+                            'name': {'type': 'string', 'index': 'not_analyzed'},
+                            'slug': {'type': 'string', 'index': 'not_analyzed'}
+                        }
                     }
                 }
             }
@@ -435,7 +436,7 @@ class Content(PolymorphicModel):
          * published
         """
         index = settings.ES_INDEXES.get('default')
-        results = S().es(urls=settings.ES_URLS).indexes(index)
+        results = ContentS().es(urls=settings.ES_URLS).indexes(index)
         if kwargs.get('query'):
             results = results.query(_all__text_phrase=kwargs.get('query'))
 
