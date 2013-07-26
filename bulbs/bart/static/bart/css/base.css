@@ -249,7 +249,7 @@ ol.inline li {
 .wrapper {
   width: 100%;
   margin: 0 auto;
-  position: relative;
+  position: inherit;
 }
 @media only screen and (min-width: 1000px) and (max-width: 1139px) {
   .wrapper {

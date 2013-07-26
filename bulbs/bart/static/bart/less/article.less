@@ -114,6 +114,7 @@
 		width: 49%; 
 		display: inline-block; 
 		float: left; 
+		font-size: @smalltext;
 
 		i { 
 			height: 50px;
@@ -125,9 +126,15 @@
 			text-decoration: none; }
 
 		a { 
-			.sans-serif-bold();
+			display: block;
+			.sans-serif-italic();
 			color: @heading-color; 
 			position: relative; }
+
+		span { 
+			text-transform: uppercase;
+			font-style: normal;
+			.sans-serif-bold(); }
 
 		&.previous { 
 
@@ -149,8 +156,7 @@
 
 			a:hover i { 
 				right: -50px;
-				.transition(right .2s); } } } }
-				
+				.transition(right .2s); } } } }				
 
 .article-footer {
 

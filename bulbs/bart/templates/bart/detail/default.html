@@ -145,6 +145,11 @@
 			            		<i class="icon icon-angle-left"></i> {{ prev.title|safe }}
 		            		</a>
 			            {% endwith %}
+			            {% else %} <!-- Delete when these are live -->
+			            	<a href="#">
+			            		<i class="icon icon-angle-left"></i> 
+			            		<span>Older</span><br />
+			            		Sample Article Title Goes Here</a>
 			            {% endif %}
 
 
@@ -158,6 +163,11 @@
 			            		{{ next.title|safe }} <i class="icon icon-angle-right"></i>
 		            		</a>
 			            {% endwith %}
+			            {% else %} <!-- Delete when these are live -->
+				            <a href="#">
+					            <span>Newer</span><br />
+			            		Sample Article Title Goes Here 
+			            		<i class="icon icon-angle-right"></i></a>
 			            {% endif %}
 
 
