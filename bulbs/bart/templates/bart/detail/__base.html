@@ -1,18 +1,6 @@
 {% extends "bart/__base.html" %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{{ STATIC_URL }}bart/css/special.css">
 <link rel="stylesheet" href="{{ STATIC_URL }}bart/css/article.css">
 {% endblock extra_css %}
-
-{% block extra_js %}
-<script type="text/javascript">
-$(function() {
-	if ($("#comments").length){
-		$("#comments").moot({
-		   url: "https://moot.it/avclub/prototype-detail",
-		   title: "Prototype detail page"
-		});
-	}
-});
-</script>
-{% endblock extra_js %}

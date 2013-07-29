@@ -20,6 +20,7 @@
         {% block extra_css %}{% endblock extra_css %}
         {% endblock site_stylesheets %}
 
+        <script src="{{ STATIC_URL }}images/js/image.js"></script>
         {% block extra_head %}{% endblock extra_head %}
     </head>
     <body class="{% block bodyclass %}{% endblock bodyclass %}">
@@ -53,6 +54,7 @@
         window.jQuery || document.write('<script src="{{ STATIC_URL }}bart/js/vendor/jquery-1.9.1.min.js"><\/script>')
         </script>
         <script src="//cdn.moot.it/1/moot.min.js"></script>
+        <script>var STATIC_URL = "{{ STATIC_URL }}";</script>
         <script src="{{ STATIC_URL }}bart/js/main.js"></script>
 
         {% comment %}
