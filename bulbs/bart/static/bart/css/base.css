@@ -62,6 +62,12 @@ html {
 body {
   font-family: Georgia, serif;
   font-weight: normal;
+  background: #f7f7f7;
+  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #f9f9f9), color-stop(1, #f7f7f7));
+  background: -ms-linear-gradient(bottom, #f9f9f9, #f7f7f7);
+  background: -moz-linear-gradient(center bottom, #f9f9f9 0%, #f7f7f7 100%);
+  background: -o-linear-gradient(#f7f7f7, #f9f9f9);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f7f7f7', endColorstr='#f9f9f9', GradientType=0);
   font-size: 0.875em;
   line-height: 1.857625em;
   text-shadow: 0 -1px 1px rgba(255, 255, 255, 0.01);
@@ -285,7 +291,8 @@ ol.inline li {
    Header
    ========================================================================== */
 header#primary .title {
-  padding-top: 20px;
+  padding-top: 0;
+  margin-top: -20px;
 }
 header#primary nav ul {
   margin: 0;
@@ -294,9 +301,84 @@ header#primary nav ul {
 header#primary nav a:hover {
   text-decoration: underline;
 }
+.header-container {
+  -webkit-box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  -moz-box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  background: #FFF;
+  height: 60px;
+  position: fixed;
+  width: 100%;
+  z-index: 100;
+}
+.header-container header#primary {
+  height: 60px;
+  right: 0;
+  left: 0;
+}
+.header-container header#primary .cell {
+  float: left;
+  display: inline-block;
+  height: 100%;
+  line-height: 60px;
+}
+header#primary {
+  font-family: Helvetica, Arial, sans-serif;
+  font-weight: normal;
+}
+@media only screen and (min-width: 650px) and (max-width: 1439px), only screen and (min-width: 1140px) {
+  header#primary {
+    font-family: 'Open Sans', Helvetica, Arial, sans-serif;
+  }
+}
+header#primary a,
+header#primary i {
+  color: #111111;
+}
+header#primary .site-nav > a {
+  display: block;
+  padding: 0 5px;
+  text-decoration: none;
+}
+header#primary .site-nav a,
+header#primary .search i {
+  font-size: 28px;
+  line-height: 60px;
+}
+header#primary .count {
+  color: #ea4b2b;
+}
+header#primary .discussions {
+  font-style: italic;
+  font-family: Helvetica, Arial, sans-serif;
+}
+@media only screen and (min-width: 650px) and (max-width: 1439px), only screen and (min-width: 1140px) {
+  header#primary .discussions {
+    font-style: italic;
+    /* normal */
+  }
+}
+@media only screen and (min-width: 650px) and (max-width: 1439px), only screen and (min-width: 1140px) {
+  header#primary .discussions {
+    font-family: 'Open Sans', Helvetica, Arial, sans-serif;
+  }
+}
+header#primary .discussions a {
+  margin-left: 5px;
+}
+header#primary .cell {
+  padding: 0 15px;
+  border-right: 1px solid #dedede;
+}
+header#primary .user a {
+  text-transform: uppercase;
+}
 /* ==========================================================================
    Page body
    ========================================================================== */
+.main-container {
+  padding-top: 60px;
+}
 .main-container > .main {
   padding: 30px 0;
 }
