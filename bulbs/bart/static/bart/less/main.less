@@ -38,14 +38,14 @@
 
 	a { 
 		border: 0;
-		color: #fff; 
+		color: #fff !important; 
 		.transition(background-color .1s);
 
 		&:hover { .transition(background-color .1s); } }
 
 	&.tv-club a { background-color: @tv-club;
-		&:hover { background-color: lighten(@tv-club, 10%); } }
+		&:hover { background-color: lighten(@tv-club, 5%); } }
 
 	&.books a { background-color: @books;
-		&:hover { background-color: lighten(@books, 10%); } }
+		&:hover { background-color: lighten(@books, 5%); } }
 }
