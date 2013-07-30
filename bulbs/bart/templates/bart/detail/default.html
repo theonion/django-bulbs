@@ -21,7 +21,7 @@
 
 			{% block type_badge %}
 			{% if article.feature_type %}
-		    <div class="type-badge">
+		    <div class="type-badge tag tv-club {{ article.feature_type|slugify }}">
 		    	<a class="article-type" href="#">{{ article.feature_type|safe }}</a>
 		    </div>
 		    {% endif %}
@@ -83,7 +83,7 @@
 
 
 			{% block article_tags %}
-			
+
 			{% comment %}
 			{% if article.tags or article.related_topics %}
 			<div class="aside pull-left article-tags" id="article-tags">
