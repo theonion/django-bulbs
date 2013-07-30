@@ -83,6 +83,7 @@
 
 
 			{% block article_tags %}
+			
 			{% comment %}
 			{% if article.tags or article.related_topics %}
 			<div class="aside pull-left article-tags" id="article-tags">
@@ -112,6 +113,7 @@
             {% endif %}
             {% endcomment %}
 
+            <!-- Junk markup to be removed with addition of live data -->
             <div class="aside pull-left article-tags" id="article-tags">
             	<ul class="unstyled tags">
             		<li class="tv-club"><a title="Tagname" href="#">TV Club</a></li>
@@ -125,6 +127,8 @@
             		<li><a title="Tagname" href="#">HBO</a></li>
         		</ul>        		
     		</div>
+    		<!-- end junk -->
+
 			{% endblock article_tags %}
 
 
