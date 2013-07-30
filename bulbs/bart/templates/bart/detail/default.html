@@ -67,11 +67,9 @@
 			{% block community %}
 			<ul class="community unstyled">
 				<li class="comments">
-					<i class="icon icon-comments"></i>
-					<a href="#comments"><span class="count">145</span> Comments</a></li>
+					<a href="#comments"><i class="icon icon-comments"></i> 1.5k</a></li>
 				<li class="share-article">
-					<i class="icon icon-edit"></i>
-					<a href="#"><span class="count">1,548</span> Share Article</a></li>
+					<a href="#"><i class="icon icon-mail-forward"></i> 5.8k</a></li>
 			</ul>
 			{% endblock community %}
 
@@ -85,6 +83,7 @@
 
 
 			{% block article_tags %}
+			{% comment %}
 			{% if article.tags.count > 1 %}
 			<div class="aside pull-left article-tags" id="article-tags">
 				<ul class="unstyled">
@@ -96,6 +95,21 @@
                 </ul>
             </div>
             {% endif %}
+            {% endcomment %}
+
+            <div class="aside pull-left article-tags" id="article-tags">
+            	<ul class="unstyled tags">
+            		<li class="tv-club"><a title="Tagname" href="#">TV Club</a></li>
+            		<li class="books"><a title="Tagname" href="#">Books</a></li>
+        		</ul>
+
+        		<h3>Related Topics</h3>
+				<ul class="unstyled">
+            		<li><a title="Tagname" href="#">Game of Thrones</a></li>
+            		<li><a title="Tagname" href="#">George R.R. Martin</a></li>
+            		<li><a title="Tagname" href="#">HBO</a></li>
+        		</ul>        		
+    		</div>
 			{% endblock article_tags %}
 
 
@@ -103,7 +117,7 @@
 				
 				{% block article_ad %}
 				<div class="advertisement right-outdent">
-					<a href="#"><img src="http://placehold.it/300x250"></a>
+					<a href="#"><img src="http://placekitten.com/300/600"></a>
 				</div>
 				{% endblock article_ad %}
 

@@ -31,5 +31,13 @@
 	font-size: @md-headline;
 	line-height: 1.25em; }
 
-.read-more { 
-	.serif-bold-italic(); }
+.read-more { .serif-bold-italic(); }
+
+.tags > li, .tag {
+	.rounded(3px);
+	a { 
+		border: 0;
+		color: #fff; }
+	&.tv-club { background: @tv-club; }
+	&.books { background: @books; }
+}

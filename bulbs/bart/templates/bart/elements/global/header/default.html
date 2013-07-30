@@ -1,8 +1,15 @@
 <header id="primary" class="wrapper clearfix">
-    {% block site_title %}<h1 class="title"><a href="/">
-        <img src="{{ STATIC_URL }}bart/img/avclub-logo.png" title="A.V. Club" />
-    </a></h1>{% endblock site_title %}
+    
+    {% block site_title %}
+    <h1 class="title">
+        <a href="/">
+            <img src="{{ STATIC_URL }}bart/img/avclub-logo.png" title="A.V. Club" />
+        </a>
+    </h1>
+    {% endblock site_title %}
+
     {% block main_navigation %}
+    
     <div class="site-nav cell">
         <a href="#"><i data-target="#main-nav" class="icon-reorder"></i></a>
         <nav class="hidden" id="main-nav">
@@ -15,7 +22,7 @@
     </div>
     
     <div class="discussions cell">
-        <i class="icon-comments"></i>
+        <i class="icon-comments"></i>&nbsp;
         <strong class="count">3,714</strong> Reasonable Discussions are Occuring 
         <a href="#"><i class="icon-chevron-down"></i></a>
     </div>
@@ -34,6 +41,5 @@
         <div class="hidden">Search input!</div>
     </div>
 
-    
     {% endblock main_navigation %}
 </header>

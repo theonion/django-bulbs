@@ -25,15 +25,16 @@
 
 .headline a { .heading-link(); }
 
+.article-body { position: relative; }
+
 .article-meta { 
 	margin: 0 auto 1em;
-	.sans-serif-bold();
 	text-align: center; 
+	.sans-serif-bold();
 
 	a { .sans-serif(); }
 
 	.authors, .pub { 
-		font-size: @smalltext;
 		display: inline-block; 
 
 		a { color: @grey-dark; } } 
@@ -42,29 +43,53 @@
 		content: "•";
 		padding: 0 10px 0 5px; }
 
-	.community { 
+	.community {
+		position: absolute;
 		font-size: @smalltext;
+		text-align: left;
 		text-transform: uppercase; 
 		clear: both;
-		border-top: 1px solid @grey-light; 
-		border-bottom: 1px solid @grey-light; 
-		margin: 1em 0 2em;
+		margin: 1em 0 2em 20px;
+		top: 30px;
+		left: 0;
+		width: 70px;
 
-		a { .sans-serif-bold(); }
+		a { 
+			.sans-serif-bold-italic();  
+
+			.rounded(3px);
+			text-align: center;
+			border: 1px solid @grey-light;
+			padding: 5px 10px;
+			display: block;
+			width: 100%; }
 
 		i, a { color: @heading-color; }
 
-		.count { color: @link; }
-
 		li { 
-			display: inline-block; 
-			margin-left: 40px; 
+			margin-bottom: 10px;
+			display: block; 
+			width: 100%;
 
-			&:first-child { margin-left: 0; } } } }
+			&:first-child { margin-left: 0; } 
+
+			&:last-child { margin-bottom: 0; } } } }
 
 .article-tags { 
 	
+	h3 {
+		color: @slate-blue-lt;
+		border-color: @slate-blue-lt;
+		border-width: 1px 0;
+		border-style: solid;
+		font-size: inherit;
+		padding: 15px 0;
+		text-transform: uppercase;
+		text-align: center;
+	}
+
 	a { 
+		.rounded(3px);
 		.sans-serif-bold();
 		color: @heading-color;
 		display: block;
@@ -231,14 +256,15 @@
 		.article-width { width: 620px; }
 
 		.article-header h1 { 
-			margin-left: -10px; 
-			margin-right: -10px; } } }
+			margin-left: -40px; 
+			margin-right: -40px; } } }
 
 @media @desktop {
 
 	#article-tags {
 		width: 130px; 
-		margin-left: -150px; 
+		left: 0;
+		margin-left: 20px;
 		position: absolute;
 
 		a { 
