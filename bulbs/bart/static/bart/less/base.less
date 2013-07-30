@@ -56,13 +56,13 @@ body{ -webkit-tap-highlight-color: @select; }
    ========================================================================== */
 
 a {
-	color: @link;
+	color: @accent;
 	text-decoration:none;
 	.transition(color .1s);
 
 	&:hover, &:focus{
 		text-decoration:underline;
-		color: @link-hover;
+		color: lighten(@accent, 20%);
 		.transition(color .1s); } }
 
 

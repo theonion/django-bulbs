@@ -101,7 +101,7 @@ body {
    Linx
    ========================================================================== */
 a {
-  color: #111111;
+  color: #ea4b2b;
   text-decoration: none;
   -webkit-transition: color 0.1s;
   -moz-transition: color 0.1s;
@@ -111,7 +111,7 @@ a {
 a:hover,
 a:focus {
   text-decoration: underline;
-  color: #444444;
+  color: #f39a88;
   -webkit-transition: color 0.1s;
   -moz-transition: color 0.1s;
   -ms-transition: color 0.1s;

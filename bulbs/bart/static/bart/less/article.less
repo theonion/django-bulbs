@@ -125,7 +125,11 @@
 	line-height: (@baseline * 2.449em); // 30px
 	margin-bottom: 2em; 
 
-	a { .serif-bold(); }
+	a { 
+		.serif-bold();
+		color: @link;
+
+		&:hover { color: lighten(@link, 20%); } }
 
 	.right-outdent { margin: 0 auto; } }
 
