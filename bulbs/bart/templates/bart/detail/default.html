@@ -84,15 +84,30 @@
 
 			{% block article_tags %}
 			{% comment %}
-			{% if article.tags.count > 1 %}
+			{% if article.tags or article.related_topics %}
 			<div class="aside pull-left article-tags" id="article-tags">
-				<ul class="unstyled">
+
+				{% if article.tags %}
+				<ul class="unstyled tags">
                     {% for tag in article.tags.all %}
-                    <li {% if forloop.first %} class="hidden"{% endif %}>
-                    	<a title="{{ tag.name }}" href="#">{{ tag.name }}</a></li> 
-                    	{# Hiding the first tag. #}
+                    <li class="{{ tag.name|slugify }}">
+                    	<a 	title="{{ tag.name|safe }}" 
+                    		href="{{ tag.get_absolute_url }}">
+                    		{{ tag.name|safe }}</a></li> 
                     {% endfor %}
                 </ul>
+	            {% endif %}
+                
+                {% if article.related_topics %}
+                <h3>Related Topics</h3>
+				<ul class="unstyled">
+					{% for topic in article.related_topics %}
+						<li><a title="{{ topic.title|safe }}" href="{{ topic.get_absolute_url }}">
+						{{ topic.title|safe }}</a></li>
+					{% endfor %}
+				</ul>
+				{% endif %}
+
             </div>
             {% endif %}
             {% endcomment %}
