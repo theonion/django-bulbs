@@ -4,7 +4,7 @@ from django.core.management.color import no_style
 from django.db import models
 
 from elasticutils import get_es
-from pyelasticsearch.exceptions import IndexAlreadyExistsError
+from pyelasticsearch.exceptions import IndexAlreadyExistsError, ElasticHttpError
 
 
 from bulbs.content.models import Contentish, Tagish
@@ -41,4 +41,7 @@ class Command(NoArgsCommand):
                 }
             }
         }
-        es.put_mapping(index, "tag", tag_mapping)
+        try:
+            es.put_mapping(index, "tag", tag_mapping)
+        except ElasticHttpError as e:
+            print("Elastic HTTP Error: %s" % e)

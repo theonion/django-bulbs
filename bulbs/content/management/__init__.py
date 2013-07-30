@@ -2,7 +2,7 @@ from django.db.models.signals import post_syncdb
 from django.conf import settings
 
 from elasticutils import get_es
-from pyelasticsearch.exceptions import IndexAlreadyExistsError
+from pyelasticsearch.exceptions import IndexAlreadyExistsError, ElasticHttpError
 
 import bulbs.content.models
 
@@ -17,11 +17,14 @@ def sync_es(sender, **kwargs):
         pass
 
     for mapping_name, model in bulbs.content.models.Contentish.get_doctypes().items():
-        es.put_mapping(
-            index,
-            mapping_name,
-            model.get_mapping()
-        )
+        try:
+            es.put_mapping(
+                index,
+                mapping_name,
+                model.get_mapping()
+            )
+        except ElasticHttpError as e:
+            print("Elastic HTTP Error: %s" % e)
 
     tag_mapping = {
         "tag": {
@@ -33,7 +36,10 @@ def sync_es(sender, **kwargs):
             }
         }
     }
-    es.put_mapping(index, "tag", tag_mapping)
 
+    try:
+        es.put_mapping(index, "tag", tag_mapping)
+    except ElasticHttpError as e:
+        print("Elastic HTTP Error: %s" % e)
 
 post_syncdb.connect(sync_es, sender=bulbs.content.models)
