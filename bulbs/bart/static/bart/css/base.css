@@ -103,15 +103,19 @@ body {
 a {
   color: #111111;
   text-decoration: none;
-  transition: color .2s;
-  -webkit-transition: color .2s;
+  -webkit-transition: color 0.1s;
+  -moz-transition: color 0.1s;
+  -ms-transition: color 0.1s;
+  -o-transition: color 0.1s;
 }
 a:hover,
 a:focus {
   text-decoration: underline;
   color: #444444;
-  transition: color .2s;
-  -webkit-transition: color .2s;
+  -webkit-transition: color 0.1s;
+  -moz-transition: color 0.1s;
+  -ms-transition: color 0.1s;
+  -o-transition: color 0.1s;
 }
 /* ==========================================================================
    Figures
