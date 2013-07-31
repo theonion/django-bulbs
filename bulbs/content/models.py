@@ -16,6 +16,32 @@ from pyelasticsearch.exceptions import ElasticHttpNotFoundError, InvalidJsonResp
 from bulbs.images.models import Image
 
 
+class ReadonlyRelatedManager(object):
+    """Replaces Django's RelatedMangers in read-only scenarios."""
+    def __init__(self, data=None):
+        if data:
+            if not isinstance(data, collecitons.Iterable):
+                data = [data]
+        else:
+            data = []
+        self.data = data
+
+    def add(self, *args):
+        self._on_bad_access()
+
+    def all(self):
+        return self.data
+
+    def clear(self):
+        self._on_bad_access()
+
+    def remove(self, *args):
+        self._on_bad_access()
+
+    def _on_bad_access(self):
+        raise TypeError('%s is read-only' % self.__class__.__name__)
+
+
 def readonly_content_factory(model):
     class Meta:
         proxy = True
@@ -252,7 +278,68 @@ class TagishRelatedManage():
         self._save_tags()
 
 
-class Content(PolymorphicModel):
+class PolymorphicIndexable(object):
+    """Base mixin for polymorphic indexin'"""
+    def extract_document(self):
+        return {
+            'id': self.id,
+            'polymorphic_ctype_id': self.polymorphic_ctype_id
+        }
+
+    @classmethod
+    def get_mapping(cls):
+        return {
+            cls.get_mapping_type_name(): {
+                'properties': cls.get_mapping_properties()
+            }
+        }
+
+    @classmethod
+    def get_mapping_properties(cls):
+        return {
+            'id': {'type': 'integer'},
+            'polymorphic_ctype_id': {'type': 'integer'}
+        }
+
+    @classmethod
+    def get_mapping_type_name(cls):
+        return '%s_%s' % (cls._meta.app_label, cls.__name__.lower())
+
+
+class Tag(PolymorphicModel, PolymorphicIndexable):
+    """Model for tagging up Content."""
+    name = models.CharField(max_length=255)
+    slug = models.SlugField()
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        return super(Tag, self).save(*args, **kwargs)
+
+    def extract_document(self):
+        doc = super(Tag, self).extract_document()
+        doc.update({
+            'name': self.name,
+            'slug': self.slug
+        })
+        return doc
+
+    @classmethod
+    def get_mapping_properties(cls):
+        props = super(Tag, cls).get_mapping_properties()
+        props.update({
+            'name': {'type': 'string', 'index': 'not_analyzed'},
+            'slug': {'type': 'string', 'index': 'not_analyzed'},
+        })
+        return props
+
+
+class Section(Tag):
+    """Tag subclass which represents major sections of the site."""
+    class Meta(Tag.Meta):
+        proxy = True
+
+
+class Content(PolymorphicModel, PolymorphicIndexable):
     """The base content model from which all other content derives."""
     published = models.DateTimeField(blank=True, null=True)
     title = models.CharField(max_length=512)
@@ -265,6 +352,8 @@ class Content(PolymorphicModel):
     _tags = models.TextField(null=True, blank=True)  # A return-separated list of tag names, exposed as a list of strings
     _feature_type = models.CharField(max_length=255, null=True, blank=True)  # "New in Brief", "Newswire", etc.
     subhead = models.CharField(max_length=255, null=True, blank=True)
+
+    tags = models.ManyToManyField(Tag, blank=True)
 
     _readonly = False  # Is this a read only model? (i.e. from elasticsearch)
     _cache = {}  # This is a cache for the content doctypes
@@ -299,8 +388,8 @@ class Content(PolymorphicModel):
         return None
 
     def extract_document(self):
-        doc = {
-            'id': self.id,
+        doc = super(Content, self).extract_document()
+        doc.update({
             'published': self.published,
             'title': self.title,
             'slug': self.slug,
@@ -310,12 +399,9 @@ class Content(PolymorphicModel):
             'subhead': self.subhead,
             'feature_type': self.feature_type,
             'feature_type.slug': slugify(self.feature_type)
-        }
-        if self._tags:
-            doc['tags'] = [{
-                'name': tag_name,
-                'slug': slugify(tag_name)
-            } for tag_name in self._tags.split('\n')]
+        })
+        if self.tags:
+            doc['tags'] = [tag.extract_document() for tag in self.tags.all()]
         return doc
 
     @property
@@ -347,28 +433,13 @@ class Content(PolymorphicModel):
             refresh=refresh
         )
 
-        if not self._tags:
-            return
-
-        for tag_name in self._tags.split('\n'):
-            tag = Tagish.from_name(tag_name)
-            try:
-                tag = es.get(index, 'tag', tag.slug, refresh=refresh)
-            except ElasticHttpNotFoundError:
-                tag.index()
-
-    @property
-    def tags(self):
-        if not hasattr(self, '_tag_relation'):
-            self._tag_relation = TagishRelatedManage(self)
-        return self._tag_relation
-
     # class methods ##############################
 
     @classmethod
     def from_source(cls, _source):
         return cls(
             id=_source['id'],
+            # HACKISH: content_ptr_id is from django-polymorphic Content subclasses
             content_ptr_id=_source['id'],
             published=_source['published'],
             title=_source['title'],
@@ -389,14 +460,6 @@ class Content(PolymorphicModel):
         return cls._cache
 
     @classmethod
-    def get_mapping(cls):
-        return {
-            cls.get_mapping_type_name(): {
-                'properties': cls.get_mapping_properties()
-            }
-        }
-
-    @classmethod
     def get_mapping_properties(cls):
         return {            
             'id': {'type': 'integer'},
@@ -414,16 +477,9 @@ class Content(PolymorphicModel):
                 }
             },
             'tags': {
-                'properties': {
-                    'name': {'type': 'string', 'index': 'not_analyzed'},
-                    'slug': {'type': 'string', 'index': 'not_analyzed'}
-                }
+                'properties': Tag.get_mapping_properties()
             }
         }
-
-    @classmethod
-    def get_mapping_type_name(cls):
-        return '%s_%s' % (cls._meta.app_label, cls.__name__.lower())
 
     @classmethod
     def search(cls, **kwargs):
@@ -457,9 +513,30 @@ class Content(PolymorphicModel):
             results = results.query(__query_string=feature_type_query_string)
 
         if 'types' in kwargs:
-            results = results.doctypes(*[type_class.get_mapping_type_name() for type_class in kwargs['types']])
+            # only use valid subtypes
+            results = results.doctypes(*[
+                type_classname for type_classname in kwargs['types'] \
+                if type_classname in cls.get_doctypes()
+            ])
         else:
             results = results.doctypes(*cls.get_doctypes().keys())
 
         return results.order_by('-published')
+
+
+def content_tags_changed(sender, instance=None, action='', **kwargs):
+    """Reindex content tags when they change."""
+    es = get_es()
+    indexes = settings.ES_INDEXES
+    index = indexes['default']
+    doc = {}
+    doc['tags'] = [tag.extract_document() for tag in instance.tags.all()]
+    es.update(index, instance.get_mapping_type_name(), instance.id, doc=doc, refresh=True)
+
+
+models.signals.m2m_changed.connect(
+    content_tags_changed,
+    sender=Content.tags.through,
+    dispatch_uid='content_tags_changed_signal'
+)
 

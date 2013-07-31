@@ -6,7 +6,7 @@ from django.db import models
 from elasticutils import get_es
 from pyelasticsearch.exceptions import IndexAlreadyExistsError
 
-from bulbs.content.models import Content, Tagish
+from bulbs.content.models import Content, Tag
 
 
 class Command(NoArgsCommand):
@@ -30,14 +30,5 @@ class Command(NoArgsCommand):
                 model.get_mapping()
             )
 
-        tag_mapping = {
-            'tag': {
-                'properties': {
-                    'name': {'type': 'string'},
-                    'slug': {'type': 'string', 'index': 'not_analyzed'},
-                    'content_type': {'type': 'integer'},
-                    'object_id': {'type': 'integer'}
-                }
-            }
-        }
+        tag_mapping = Tag.get_mapping()
         es.put_mapping(index, 'tag', tag_mapping)

@@ -6,7 +6,7 @@ from django.views.generic import ListView
 
 from elasticutils import S
 
-from bulbs.content.models import Content, Tagish
+from bulbs.content.models import Content
 
 
 def search_tags(request):

@@ -23,16 +23,7 @@ def sync_es(sender, **kwargs):
             model.get_mapping()
         )
 
-    tag_mapping = {
-        'tag': {
-            'properties': {
-                'name': {'type': 'string'},
-                'slug': {'type': 'string', 'index': 'not_analyzed'},
-                'content_type': {'type': 'integer'},
-                'object_id': {'type': 'integer'}
-            }
-        }
-    }
+    tag_mapping = bulbs.content.models.Tag.get_mapping()
     es.put_mapping(index, 'tag', tag_mapping)
 
 
