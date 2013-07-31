@@ -31,5 +31,21 @@
 	font-size: @md-headline;
 	line-height: 1.25em; }
 
-.read-more { 
-	.serif-bold-italic(); }
+.read-more { .serif-bold-italic(); }
+
+.tags > li, .tag {
+	.rounded(3px);
+
+	a { 
+		border: 0;
+		color: #fff !important; 
+		.transition(background-color .1s);
+
+		&:hover { .transition(background-color .1s); } }
+
+	&.tv-club a { background-color: @tv-club;
+		&:hover { background-color: lighten(@tv-club, 5%); } }
+
+	&.books a { background-color: @books;
+		&:hover { background-color: lighten(@books, 5%); } }
+}

@@ -56,16 +56,14 @@ body{ -webkit-tap-highlight-color: @select; }
    ========================================================================== */
 
 a {
-	color: @link;
+	color: @accent;
 	text-decoration:none;
-	transition: color .2s;
-	-webkit-transition: color .2s;
+	.transition(color .1s);
 
 	&:hover, &:focus{
 		text-decoration:underline;
-		color: @link-hover;
-		transition: color .2s;;
-		-webkit-transition: color .2s; } }
+		color: lighten(@accent, 20%);
+		.transition(color .1s); } }
 
 
 /* ==========================================================================
@@ -195,8 +193,6 @@ ul.inline, ol.inline {
    Header
    ========================================================================== */
 
-header#primary .title { padding-top: 0; margin-top: -20px; }
-
 header#primary nav {
 
 	ul {
@@ -210,26 +206,38 @@ header#primary nav {
 		&:hover { text-decoration: underline } } }
 
 .header-container { 
+
 	.drop-shadow(0, 0, 10px, .1); 
 	background: #FFF; 
-	height: @toolbar-ht; 
 	position: fixed; 
 	width: 100%; 
 	z-index: 100;
 
+	/** Begin transition block **/	
+	&, header#primary { 
+		height: @toolbar-sm; 
+		.transition(height .1s); }
+
+	header#primary .cell,.site-nav a, .search i { 
+		line-height: @toolbar-sm; 
+		.transition(line-height .1s); }
+
+	.site-nav a, .search i { 
+		font-size: 16px; 
+		.transition(font-size .1s); }
+	/** End transition block **/
+
 	header#primary {
-		height: @toolbar-ht;
+		.sans-serif();
 		right: 0;
 		left: 0; 
 
 		.cell { 
 			float: left;
 			display: inline-block; 
-			height: 100%; 
-			line-height: @toolbar-ht; } } }
+			height: 100%; } } }
 
 header#primary {
-	.sans-serif();
 
 	a, i { color: @heading-color; }
 	
@@ -237,12 +245,8 @@ header#primary {
 		display: block;
 		padding: 0 5px;
 		text-decoration: none }
-
-	.site-nav a, .search i { 
-		font-size: 28px;
-		line-height: 60px; }
 	
-	.count { color: @link; }
+	.count { color: @accent; }
 
 	.discussions { 
 		.sans-serif-italic();
@@ -252,15 +256,52 @@ header#primary {
 		padding: 0 15px; 
 		border-right: 1px solid @grey-light; } 
 
-	.user a { text-transform: uppercase; } }
+	.user a { text-transform: uppercase; } 
 
+	h1.title {
+		height: 30px;
+		margin: 0; 
+		padding: 0;
+
+		a {
+			margin-top: 5px;
+			background: url(../img/avclub-logo-sm.png) no-repeat;
+			width: 100px;
+			height: 100%;
+			display: block;
+			img { display: none; }
+	} } }
+
+.header-container.scrolled-up { // State of header when scrolled to top of window.
+	
+	/** Begin transition block **/	
+	&, header#primary { 
+		height: @toolbar-lg; 
+		.transition(height .1s); }
+
+	header#primary .cell, .site-nav a, .search i { 
+		line-height: @toolbar-lg; 
+		.transition(line-height .1s); }
+
+	.site-nav a, .search i { 
+		font-size: 28px; 
+		.transition(font-size .1s); }
+	/** End transition block **/
+
+	header#primary { 
+		h1.title {
+			padding-top: 0; 
+			margin-top: -20px;
+			a {
+				background: none; 
+					img { display: block; } } } } }
 
 /* ==========================================================================
    Page body
    ========================================================================== */
 
 .main-container {
-	padding-top: @toolbar-ht; 
+	padding-top: @toolbar-lg; 
 
 	> .main { padding: 30px 0; } }
 
@@ -316,7 +357,7 @@ header#primary {
 @media @desktop {
 
 	.wrapper {
-		width: 1026px; /* 1140px - 10% for margins */
+		width: 960px; /* 1026px; /* 1140px - 10% for margins */
 		margin: 0 auto; } }
 
 

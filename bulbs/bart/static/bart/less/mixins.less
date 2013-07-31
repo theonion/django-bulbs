@@ -46,8 +46,8 @@
     color: 					@heading-color; 
 
     &:hover { 
-    	color: 				@heading-hover; 
-    	border-color: 		@heading-hover; } }
+    	color: 				lighten(@heading-color, 20%); 
+    	border-color: 		lighten(@heading-color, 20%); } }
 
 .transition(@transition) {
 	-webkit-transition: 	@transition;  

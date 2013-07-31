@@ -103,15 +103,19 @@ body {
 a {
   color: #ea4b2b;
   text-decoration: none;
-  transition: color .2s;
-  -webkit-transition: color .2s;
+  -webkit-transition: color 0.1s;
+  -moz-transition: color 0.1s;
+  -ms-transition: color 0.1s;
+  -o-transition: color 0.1s;
 }
 a:hover,
 a:focus {
   text-decoration: underline;
   color: #f39a88;
-  transition: color .2s;
-  -webkit-transition: color .2s;
+  -webkit-transition: color 0.1s;
+  -moz-transition: color 0.1s;
+  -ms-transition: color 0.1s;
+  -o-transition: color 0.1s;
 }
 /* ==========================================================================
    Figures
@@ -290,10 +294,6 @@ ol.inline li {
 /* ==========================================================================
    Header
    ========================================================================== */
-header#primary .title {
-  padding-top: 0;
-  margin-top: -20px;
-}
 header#primary nav ul {
   margin: 0;
   padding: 0;
@@ -306,30 +306,53 @@ header#primary nav a:hover {
   -moz-box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   background: #FFF;
-  height: 60px;
   position: fixed;
   width: 100%;
   z-index: 100;
+  /** Begin transition block **/
+  /** End transition block **/
+
+}
+.header-container,
+.header-container header#primary {
+  height: 30px;
+  -webkit-transition: height 0.1s;
+  -moz-transition: height 0.1s;
+  -ms-transition: height 0.1s;
+  -o-transition: height 0.1s;
+}
+.header-container header#primary .cell,
+.header-container .site-nav a,
+.header-container .search i {
+  line-height: 30px;
+  -webkit-transition: line-height 0.1s;
+  -moz-transition: line-height 0.1s;
+  -ms-transition: line-height 0.1s;
+  -o-transition: line-height 0.1s;
+}
+.header-container .site-nav a,
+.header-container .search i {
+  font-size: 16px;
+  -webkit-transition: font-size 0.1s;
+  -moz-transition: font-size 0.1s;
+  -ms-transition: font-size 0.1s;
+  -o-transition: font-size 0.1s;
 }
 .header-container header#primary {
-  height: 60px;
+  font-family: Helvetica, Arial, sans-serif;
+  font-weight: normal;
   right: 0;
   left: 0;
+}
+@media only screen and (min-width: 650px) and (max-width: 1439px), only screen and (min-width: 1140px) {
+  .header-container header#primary {
+    font-family: 'Open Sans', Helvetica, Arial, sans-serif;
+  }
 }
 .header-container header#primary .cell {
   float: left;
   display: inline-block;
   height: 100%;
-  line-height: 60px;
-}
-header#primary {
-  font-family: Helvetica, Arial, sans-serif;
-  font-weight: normal;
-}
-@media only screen and (min-width: 650px) and (max-width: 1439px), only screen and (min-width: 1140px) {
-  header#primary {
-    font-family: 'Open Sans', Helvetica, Arial, sans-serif;
-  }
 }
 header#primary a,
 header#primary i {
@@ -339,11 +362,6 @@ header#primary .site-nav > a {
   display: block;
   padding: 0 5px;
   text-decoration: none;
-}
-header#primary .site-nav a,
-header#primary .search i {
-  font-size: 28px;
-  line-height: 60px;
 }
 header#primary .count {
   color: #ea4b2b;
@@ -372,6 +390,61 @@ header#primary .cell {
 }
 header#primary .user a {
   text-transform: uppercase;
+}
+header#primary h1.title {
+  height: 30px;
+  margin: 0;
+  padding: 0;
+}
+header#primary h1.title a {
+  margin-top: 5px;
+  background: url(../img/avclub-logo-sm.png) no-repeat;
+  width: 100px;
+  height: 100%;
+  display: block;
+}
+header#primary h1.title a img {
+  display: none;
+}
+.header-container.scrolled-up {
+  /** Begin transition block **/
+  /** End transition block **/
+
+}
+.header-container.scrolled-up,
+.header-container.scrolled-up header#primary {
+  height: 60px;
+  -webkit-transition: height 0.1s;
+  -moz-transition: height 0.1s;
+  -ms-transition: height 0.1s;
+  -o-transition: height 0.1s;
+}
+.header-container.scrolled-up header#primary .cell,
+.header-container.scrolled-up .site-nav a,
+.header-container.scrolled-up .search i {
+  line-height: 60px;
+  -webkit-transition: line-height 0.1s;
+  -moz-transition: line-height 0.1s;
+  -ms-transition: line-height 0.1s;
+  -o-transition: line-height 0.1s;
+}
+.header-container.scrolled-up .site-nav a,
+.header-container.scrolled-up .search i {
+  font-size: 28px;
+  -webkit-transition: font-size 0.1s;
+  -moz-transition: font-size 0.1s;
+  -ms-transition: font-size 0.1s;
+  -o-transition: font-size 0.1s;
+}
+.header-container.scrolled-up header#primary h1.title {
+  padding-top: 0;
+  margin-top: -20px;
+}
+.header-container.scrolled-up header#primary h1.title a {
+  background: none;
+}
+.header-container.scrolled-up header#primary h1.title a img {
+  display: block;
 }
 /* ==========================================================================
    Page body
@@ -432,8 +505,8 @@ header#primary .user a {
 }
 @media only screen and (min-width: 1140px) {
   .wrapper {
-    width: 1026px;
-    /* 1140px - 10% for margins */
+    width: 960px;
+    /* 1026px; /* 1140px - 10% for margins */
   
     margin: 0 auto;
   }
