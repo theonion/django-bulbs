@@ -19,6 +19,7 @@ requires = [
     "Markdown==2.2.1",
     "Pillow==1.7.8",
     "South==0.8.1",
+    "django_polymorphic==0.5.1",
     "elasticutils==dev",
     "mdx-smartypants==1.3",
     "namedentities==1.301",
