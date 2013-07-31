@@ -1,7 +1,7 @@
 Django==1.5
 Markdown==2.2.1
 Pillow==1.7.8
-South==0.7.6
+South==0.8.1
 django_polymorphic==0.5.1
 elasticutils==0.7
 mdx-smartypants==1.3
