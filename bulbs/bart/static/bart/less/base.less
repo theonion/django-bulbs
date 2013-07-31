@@ -209,7 +209,13 @@ header#primary nav {
 
 .header-container { 
 
-	/** Height transition block **/	
+	.drop-shadow(0, 0, 10px, .1); 
+	background: #FFF; 
+	position: fixed; 
+	width: 100%; 
+	z-index: 100;
+
+	/** Begin transition block **/	
 	&, header#primary { 
 		height: @toolbar-sm; 
 		.transition(height .1s); }
@@ -221,15 +227,10 @@ header#primary nav {
 	.site-nav a, .search i { 
 		font-size: 16px; 
 		.transition(font-size .1s); }
-	/** End icon font size transition block **/
-
-	.drop-shadow(0, 0, 10px, .1); 
-	background: #FFF; 
-	position: fixed; 
-	width: 100%; 
-	z-index: 100;
+	/** End transition block **/
 
 	header#primary {
+		.sans-serif();
 		right: 0;
 		left: 0; 
 
@@ -239,7 +240,6 @@ header#primary nav {
 			height: 100%; } } }
 
 header#primary {
-	.sans-serif();
 
 	a, i { color: @heading-color; }
 	
@@ -262,7 +262,7 @@ header#primary {
 
 .header-container.scrolled-up {
 	
-	/** Height transition block **/
+	/** Begin transition block **/	
 	&, header#primary { 
 		height: @toolbar-lg; 
 		.transition(height .1s); }
@@ -270,10 +270,11 @@ header#primary {
 	header#primary .cell, .site-nav a, .search i { 
 		line-height: @toolbar-lg; 
 		.transition(line-height .1s); }
+		
 	.site-nav a, .search i { 
 		font-size: 28px; 
 		.transition(font-size .1s); }
-	/** End icon font size transition block **/
+	/** End transition block **/	
 }
 
 /* ==========================================================================

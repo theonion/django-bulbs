@@ -306,9 +306,6 @@ header#primary nav a:hover {
   text-decoration: underline;
 }
 .header-container {
-  /** Height transition block **/
-  /** End icon font size transition block **/
-
   -webkit-box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   -moz-box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -316,6 +313,9 @@ header#primary nav a:hover {
   position: fixed;
   width: 100%;
   z-index: 100;
+  /** Begin transition block **/
+  /** End transition block **/
+
 }
 .header-container,
 .header-container header#primary {
@@ -343,22 +343,20 @@ header#primary nav a:hover {
   -o-transition: font-size 0.1s;
 }
 .header-container header#primary {
+  font-family: Helvetica, Arial, sans-serif;
+  font-weight: normal;
   right: 0;
   left: 0;
+}
+@media only screen and (min-width: 650px) and (max-width: 1439px), only screen and (min-width: 1140px) {
+  .header-container header#primary {
+    font-family: 'Open Sans', Helvetica, Arial, sans-serif;
+  }
 }
 .header-container header#primary .cell {
   float: left;
   display: inline-block;
   height: 100%;
-}
-header#primary {
-  font-family: Helvetica, Arial, sans-serif;
-  font-weight: normal;
-}
-@media only screen and (min-width: 650px) and (max-width: 1439px), only screen and (min-width: 1140px) {
-  header#primary {
-    font-family: 'Open Sans', Helvetica, Arial, sans-serif;
-  }
 }
 header#primary a,
 header#primary i {
@@ -398,10 +396,8 @@ header#primary .user a {
   text-transform: uppercase;
 }
 .header-container.scrolled-up {
-  /** Height transition block **/
-
-  /** End icon font size transition block **/
-
+  /** Begin transition block **/
+  /** End transition block **/
 }
 .header-container.scrolled-up,
 .header-container.scrolled-up header#primary {
