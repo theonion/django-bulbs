@@ -6,7 +6,7 @@ from django.views.generic import ListView
 
 from elasticutils import S
 
-from bulbs.content.models import Content
+from bulbs.content.models import Content, Tagish
 
 
 def search_tags(request):
@@ -46,11 +46,15 @@ class ContentListView(ListView):
     template_name = None
 
     def get_queryset(self):
+        pk = self.kwargs.get('pk') or self.request.GET.get('pk', None)
         tags = self.tags or self.kwargs.get('tags') or self.request.GET.getlist('tags', [])
         types = self.types or self.kwargs.get('types') or self.request.GET.getlist('types', [])
         feature_types = self.feature_types or self.kwargs.get('feature_types') or self.request.GET.getlist('feature_types', [])
         published = self.published or self.kwargs.get('published') or self.request.GET.get('published', [])
-        return Content.search(tags=tags, feature_types=feature_types, types=types, published=published)
+        return Content.search(
+            pk=pk, tags=tags, feature_types=feature_types,
+            types=types, published=published
+        )
 
     def render_to_response(self, context, **response_kwargs):
         http_accept = self.request.META.get('HTTP_ACCEPT')

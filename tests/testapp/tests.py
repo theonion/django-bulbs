@@ -5,7 +5,9 @@ from django.test import TestCase
 from django.test.client import Client
 from django.utils import timezone
 
-from .models import Content, TestContentObj, TestContentObjTwo
+from .models import (
+    Content, ReadonlyRelatedManager, ROBud, Tag, TestContentObj, TestContentObjTwo
+)
 
 
 class PolyContentTestCase(TestCase):
@@ -16,12 +18,18 @@ class PolyContentTestCase(TestCase):
         self.num_subclasses = 2
         self.combos = list(itertools.combinations(words, 2))
         for i, combo in enumerate(self.combos):
+            tags = []
+            for atom in combo:
+                tag = Tag(name=atom)
+                tag.save()
+                tags.append(tag)
             obj = TestContentObj.objects.create(
                 title=' '.join(combo),
                 description=' '.join(reversed(combo)),
                 foo=combo[0],
                 published=one_hour_ago
             )
+            obj.tags.add(*tags)
             obj2 = TestContentObjTwo.objects.create(
                 title=' '.join(reversed(combo)),
                 description=' '.join(combo),
@@ -29,6 +37,7 @@ class PolyContentTestCase(TestCase):
                 bar=i,
                 published=one_hour_ago
             )
+            obj2.tags.add(*tags)
 
     def test_content_subclasses(self):
         # We created one of each subclass per combination so the following should be true:
@@ -48,6 +57,40 @@ class PolyContentTestCase(TestCase):
             for content in Content.objects.all():
                 self.assertIsInstance(content, (TestContentObj, TestContentObjTwo))
 
+    def test_readonly_related_manager(self):
+        r = ROBud()
+        r.foo = ['bar', 'schlub']
+        self.assertEqual(2, len(r.foo.all()))
+        with self.assertRaises(TypeError):
+            r.foo.add('tagz')
+        with self.assertRaises(TypeError):
+            r.foo.clear()
+        with self.assertRaises(TypeError):
+            r.foo.remove('bar')
+
+    def test_readonly_tags(self):
+        readonly_content= Content.search()[0]
+        real_content = Content.objects.get(id=readonly_content.id)
+        self.assertIsInstance(readonly_content.tags, ReadonlyRelatedManager)
+        self.assertEqual(
+            len(readonly_content.tags.all()),
+            len(real_content.tags.all())
+        )
+
+    def test_add_remove_tags(self):
+        real_content = Content.objects.all()[0]
+        original_tag_count = len(real_content.tags.all())
+        new_tag = Tag(name='crankdat')
+        new_tag.save()
+        real_content.tags.add(new_tag)
+        self.assertEqual(len(real_content.tags.all()), original_tag_count + 1)
+        readonly_content = Content.search(pk=real_content.id)
+        self.assertEqual(
+            len(readonly_content.tags.all()),
+            len(real_content.tags.all())
+        )
+
+        
     # def test_content_detail_view(self):
     #     client = Client()
     #     for content in Content.objects.all():

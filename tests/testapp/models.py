@@ -1,5 +1,5 @@
 from django.db import models
-from bulbs.content.models import Content
+from bulbs.content.models import Content, ReadonlyRelatedManager, Tag
 
 
 class TestContentObj(Content):
@@ -17,4 +17,8 @@ class TestContentObjTwo(Content):
 
     def get_absolute_url(self):
         return '/detail/%s/' % self.pk
+
+
+class ROBud(object):
+    foo = ReadonlyRelatedManager()
 

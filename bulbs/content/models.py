@@ -18,7 +18,10 @@ from bulbs.images.models import Image
 
 class ReadonlyRelatedManager(object):
     """Replaces Django's RelatedMangers in read-only scenarios."""
-    def __init__(self, data=None):
+    def __init__(self):
+        self.data = []
+
+    def __set__(self, obj, data):
         if data:
             if not isinstance(data, list):
                 data = [data]
@@ -54,6 +57,7 @@ def readonly_content_factory(model):
         'Meta': Meta,
         '__module__': model.__module__,
         '_readonly': True,
+        'tags': ReadonlyRelatedManager()
     }
     # TODO: Add additional deferred fields here, just as placeholders.
     return type(str(name), (model,), overrides)
@@ -272,7 +276,6 @@ class TagishRelatedManage():
             if tag_name in tag_list:
                 raise AttributeError('There is already an attached tag with the name \"%s\"' % tag_name)
             else:
-                tag_list
                 tag_list.append(tag_name)
         self.content._tags = '\n'.join(tag_list)
         self._save_tags()
@@ -437,7 +440,7 @@ class Content(PolymorphicModel, PolymorphicIndexable):
 
     @classmethod
     def from_source(cls, _source):
-        return cls(
+        obj = cls(
             id=_source['id'],
             # HACKISH: content_ptr_id is from django-polymorphic Content subclasses
             content_ptr_id=_source['id'],
@@ -447,8 +450,9 @@ class Content(PolymorphicModel, PolymorphicIndexable):
             description=_source['description'],
             subhead=_source['subhead'],
             _feature_type=_source['feature_type'],
-            _tags='\n'.join([tag['name'] for tag in _source.get('tags', [])])
         )
+        obj.tags=_source.get('tags', [])
+        return obj
 
     @classmethod
     def get_doctypes(cls):
@@ -497,6 +501,14 @@ class Content(PolymorphicModel, PolymorphicIndexable):
         """
         index = settings.ES_INDEXES.get('default')
         results = ContentS().es(urls=settings.ES_URLS).indexes(index)
+        if kwargs.get('pk'):
+            try:
+                pk = int(kwargs['pk'])
+            except ValueError:
+                pass
+            else:
+                results = results.query(id=kwargs['pk'])
+
         if kwargs.get('query'):
             results = results.query(_all__text_phrase=kwargs.get('query'))
 
