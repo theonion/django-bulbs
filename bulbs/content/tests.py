@@ -14,7 +14,7 @@ from bulbs.content.models import Content, Tagish
 try:
     from testapp.models import TestContentObj, TestContentObjTwo, Section
 except:
-    raise ImportError('Something with your test app isn't configured correctly')
+    raise ImportError('Something with your test app isn\'t configured correctly')
 
 
 class ESTestCase(DBTestCase):
