@@ -208,23 +208,35 @@ header#primary nav {
 		&:hover { text-decoration: underline } } }
 
 .header-container { 
+
+	/** Height transition block **/	
+	&, header#primary { 
+		height: @toolbar-sm; 
+		.transition(height .1s); }
+
+	header#primary .cell,.site-nav a, .search i { 
+		line-height: @toolbar-sm; 
+		.transition(line-height .1s); }
+
+	.site-nav a, .search i { 
+		font-size: 16px; 
+		.transition(font-size .1s); }
+	/** End icon font size transition block **/
+
 	.drop-shadow(0, 0, 10px, .1); 
 	background: #FFF; 
-	height: @toolbar-ht; 
 	position: fixed; 
 	width: 100%; 
 	z-index: 100;
 
 	header#primary {
-		height: @toolbar-ht;
 		right: 0;
 		left: 0; 
 
 		.cell { 
 			float: left;
 			display: inline-block; 
-			height: 100%; 
-			line-height: @toolbar-ht; } } }
+			height: 100%; } } }
 
 header#primary {
 	.sans-serif();
@@ -235,10 +247,6 @@ header#primary {
 		display: block;
 		padding: 0 5px;
 		text-decoration: none }
-
-	.site-nav a, .search i { 
-		font-size: 28px;
-		line-height: 60px; }
 	
 	.count { color: @accent; }
 
@@ -252,13 +260,28 @@ header#primary {
 
 	.user a { text-transform: uppercase; } }
 
+.header-container.scrolled-up {
+	
+	/** Height transition block **/
+	&, header#primary { 
+		height: @toolbar-lg; 
+		.transition(height .1s); }
+
+	header#primary .cell, .site-nav a, .search i { 
+		line-height: @toolbar-lg; 
+		.transition(line-height .1s); }
+	.site-nav a, .search i { 
+		font-size: 28px; 
+		.transition(font-size .1s); }
+	/** End icon font size transition block **/
+}
 
 /* ==========================================================================
    Page body
    ========================================================================== */
 
 .main-container {
-	padding-top: @toolbar-ht; 
+	padding-top: @toolbar-lg; 
 
 	> .main { padding: 30px 0; } }
 
