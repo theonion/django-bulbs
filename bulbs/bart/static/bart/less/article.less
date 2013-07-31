@@ -189,6 +189,34 @@
 
 #comments { width: 100%; }
 
+.supplemental {
+
+	.headline { font-size: 18px; }
+
+	.article-meta { margin-bottom: 10px; }
+
+	&.suggested-read .featured {
+
+		.headline { font-size: 25px; }
+
+		figure { 
+			float: left;
+			width: 25%;
+
+			+ header .headline { padding-top: 0; }
+
+			~ div, ~ header { margin-left: (25% + 5px); } } 
+		
+		~ article {
+			width: 50%; 
+			float: left; }  
+
+		+ article { 
+			padding-right: 13px;
+			border-right: 1px solid @grey-light !important; 
+
+			+ article { padding-left: 13px; } } } }
+
 /* ==========================================================================
    Responsive
    ========================================================================== */

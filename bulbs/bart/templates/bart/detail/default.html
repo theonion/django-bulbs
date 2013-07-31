@@ -142,7 +142,9 @@
 				        {% if article.prev_article %}
 			        	{% with article.previous_article as prev %}
 			            	<a href="{{ prev.get_absolute_url }}" title="{{ prev.title|safe }}">
-			            		<i class="icon icon-angle-left"></i> {{ prev.title|safe }}
+			            		<i class="icon icon-angle-left"></i> 
+			            		<span>Older</span><br />
+			            		{{ prev.title|safe }}
 		            		</a>
 			            {% endwith %}
 			            {% else %} <!-- Delete when these are live -->
@@ -160,7 +162,9 @@
 				        {% if article.next_article %}
 				        {% with article.next_article as next %}
 			            	<a href="{{ next.get_absolute_url }}" title="{{ next.title|safe }}">
-			            		{{ next.title|safe }} <i class="icon icon-angle-right"></i>
+				            	<span>Newer</span><br />
+			            		{{ next.title|safe }} 
+			            		<i class="icon icon-angle-right"></i>
 		            		</a>
 			            {% endwith %}
 			            {% else %} <!-- Delete when these are live -->
@@ -179,7 +183,7 @@
 
 			{% block article_share %}
 			<section class="supplemental share-tools">
-				<h2 class="section-title">Spread the Word</h2>
+				<h2 class="section-title">Enjoy this article? Share!</h2>
 				<ul class="unstyled">
 					<li><a href="#"><i class="icon-facebook"></i></a></li>
 					<li><a href="#"><i class="icon-twitter"></i></a></li>
@@ -192,12 +196,17 @@
 
 
 			{% block read_next %}
-			<section class="supplemental read-this-next">
-				<h2 class="section-title">Read this next</h2>
+			<section class="supplemental suggested-read">
+				<h2 class="section-title">Suggested Read</h2>
 
+				{% comment %}
+				{% for article in suggested_reads %}
+				<article id="{{ article.id }}"{% if forloop.first %} class="featured"{% endif %}>
+					
+					{% if forloop.first %}
+						{% include "bart/elements/snippets/image-container.html" %}
+					{% endif %}
 
-				{% with read_next as article %}
-				<article id="4498724">
 					<header>
 						<h1 class="headline md-headline">
 							{% include "bart/elements/snippets/article-title.html" %}
@@ -206,10 +215,74 @@
 							{% include "bart/elements/snippets/article-authors.html" %}
 						</div>
 					</header>
-					{% include "bart/elements/snippets/article-teaser.html" %}
-				</article>
-				{% endwith %}
 
+					{% include "bart/elements/snippets/article-teaser.html" %}
+
+				</article>
+				{% endfor %}
+				{% endcomment %}
+
+				<!-- MOCKUP DATA! This can be removed when we hook up live data. -->
+				<article id="xxx" class="featured">
+					<figure>
+						<div 	data-picture 
+								class="image article-image one-by-one" 
+								id="xxx" 
+								data-image-id="2" >
+						    <div>
+						        <noscript>
+						            <img src="http://placekitten.com/300/300" alt="Image Title">
+						        </noscript>
+						    </div>
+						</div>
+					</figure>
+					<header>
+						<h1 class="headline md-headline">
+							<a href="#">Listen to Daft Punk's <em>Random Access Memories</em> online
+							in its entirety now</a>
+						</h1>					
+						<div class="article-meta">
+							<div class="authors">
+								By <a class="author" href="#">Marah Eakin</a>
+							</div>
+						</div>
+					</header>
+					<div class="article-teaser">
+						Stop working and grab those headphones: Daft Punk’s new record, Random Access Memories, is now streaming in its entirety on iTunes ... <a class="read-more" href="#">Read More</a></p>
+					</div>
+				</article>
+
+				<article id="xxx2">
+					<header>
+						<h1 class="headline md-headline">
+							<a href="#">Lorem ipsum dolor sit amet consectetur adipiscing elit</a>
+						</h1>					
+						<div class="article-meta">
+							<div class="authors">
+								By <a class="author" href="#">Marah Eakin</a>
+							</div>
+						</div>
+					</header>
+					<div class="article-teaser">
+						Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ... <a class="read-more" href="#">Read More</a></p>
+					</div>
+				</article>
+
+				<article id="xxx2">
+					<header>
+						<h1 class="headline md-headline">
+							<a href="#">Lorem ipsum dolor sit amet consectetur adipiscing elit</a>
+						</h1>					
+						<div class="article-meta">
+							<div class="authors">
+								By <a class="author" href="#">Marah Eakin</a>
+							</div>
+						</div>
+					</header>
+					<div class="article-teaser">
+						Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ... <a class="read-more" href="#">Read More</a></p>
+					</div>
+				</article>
 
 			</section>
 			{% endblock read_next %}

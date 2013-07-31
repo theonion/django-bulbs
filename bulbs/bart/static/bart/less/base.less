@@ -26,6 +26,7 @@ html { font-size: 100.01%; }
 
 body {
 	.serif();
+	.gradient(@body-bg, #F9F9F9, @body-bg);
 	font-size: @baseline; // 14px
 	line-height: (@baseline * 2.123); // 26px
 	text-shadow: 0 -1px 1px rgba(255, 255, 255, 0.01);
@@ -194,7 +195,7 @@ ul.inline, ol.inline {
    Header
    ========================================================================== */
 
-header#primary .title { padding-top: 20px; }
+header#primary .title { padding-top: 0; margin-top: -20px; }
 
 header#primary nav {
 
@@ -208,16 +209,60 @@ header#primary nav {
 
 		&:hover { text-decoration: underline } } }
 
+.header-container { 
+	.drop-shadow(0, 0, 10px, .1); 
+	background: #FFF; 
+	height: @toolbar-ht; 
+	position: fixed; 
+	width: 100%; 
+	z-index: 100;
+
+	header#primary {
+		height: @toolbar-ht;
+		right: 0;
+		left: 0; 
+
+		.cell { 
+			float: left;
+			display: inline-block; 
+			height: 100%; 
+			line-height: @toolbar-ht; } } }
+
+header#primary {
+	.sans-serif();
+
+	a, i { color: @heading-color; }
+	
+	.site-nav > a { 
+		display: block;
+		padding: 0 5px;
+		text-decoration: none }
+
+	.site-nav a, .search i { 
+		font-size: 28px;
+		line-height: 60px; }
+	
+	.count { color: @link; }
+
+	.discussions { 
+		.sans-serif-italic();
+		a { margin-left: 5px; } }
+
+	.cell { 
+		padding: 0 15px; 
+		border-right: 1px solid @grey-light; } 
+
+	.user a { text-transform: uppercase; } }
+
 
 /* ==========================================================================
    Page body
    ========================================================================== */
 
-.main-container > .main { padding: 30px 0;
+.main-container {
+	padding-top: @toolbar-ht; 
 
-	article h1 { }
-
-	aside { } }
+	> .main { padding: 30px 0; } }
 
 
 /* ==========================================================================
