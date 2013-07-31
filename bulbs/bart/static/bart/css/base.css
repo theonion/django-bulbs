@@ -294,10 +294,6 @@ ol.inline li {
 /* ==========================================================================
    Header
    ========================================================================== */
-header#primary .title {
-  padding-top: 0;
-  margin-top: -20px;
-}
 header#primary nav ul {
   margin: 0;
   padding: 0;
@@ -395,9 +391,25 @@ header#primary .cell {
 header#primary .user a {
   text-transform: uppercase;
 }
+header#primary h1.title {
+  height: 30px;
+  margin: 0;
+  padding: 0;
+}
+header#primary h1.title a {
+  margin-top: 5px;
+  background: url(../img/avclub-logo-sm.png) no-repeat;
+  width: 100px;
+  height: 100%;
+  display: block;
+}
+header#primary h1.title a img {
+  display: none;
+}
 .header-container.scrolled-up {
   /** Begin transition block **/
   /** End transition block **/
+
 }
 .header-container.scrolled-up,
 .header-container.scrolled-up header#primary {
@@ -423,6 +435,16 @@ header#primary .user a {
   -moz-transition: font-size 0.1s;
   -ms-transition: font-size 0.1s;
   -o-transition: font-size 0.1s;
+}
+.header-container.scrolled-up header#primary h1.title {
+  padding-top: 0;
+  margin-top: -20px;
+}
+.header-container.scrolled-up header#primary h1.title a {
+  background: none;
+}
+.header-container.scrolled-up header#primary h1.title a img {
+  display: block;
 }
 /* ==========================================================================
    Page body

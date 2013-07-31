@@ -193,8 +193,6 @@ ul.inline, ol.inline {
    Header
    ========================================================================== */
 
-header#primary .title { padding-top: 0; margin-top: -20px; }
-
 header#primary nav {
 
 	ul {
@@ -258,9 +256,23 @@ header#primary {
 		padding: 0 15px; 
 		border-right: 1px solid @grey-light; } 
 
-	.user a { text-transform: uppercase; } }
+	.user a { text-transform: uppercase; } 
 
-.header-container.scrolled-up {
+	h1.title {
+		height: 30px;
+		margin: 0; 
+		padding: 0;
+
+		a {
+			margin-top: 5px;
+			background: url(../img/avclub-logo-sm.png) no-repeat;
+			width: 100px;
+			height: 100%;
+			display: block;
+			img { display: none; }
+	} } }
+
+.header-container.scrolled-up { // State of header when scrolled to top of window.
 	
 	/** Begin transition block **/	
 	&, header#primary { 
@@ -270,12 +282,19 @@ header#primary {
 	header#primary .cell, .site-nav a, .search i { 
 		line-height: @toolbar-lg; 
 		.transition(line-height .1s); }
-		
+
 	.site-nav a, .search i { 
 		font-size: 28px; 
 		.transition(font-size .1s); }
-	/** End transition block **/	
-}
+	/** End transition block **/
+
+	header#primary { 
+		h1.title {
+			padding-top: 0; 
+			margin-top: -20px;
+			a {
+				background: none; 
+					img { display: block; } } } } }
 
 /* ==========================================================================
    Page body
