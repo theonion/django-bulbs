@@ -6,9 +6,12 @@ function setup(){
 
 function headerScroll(){
 	var header = 	$('header#primary').parent(),
+		postBody =	$('.article-text').offset().top - 80,
 		top = 		$(window).scrollTop(),
 		topClass = 	'scrolled-up',
-		scrollPt =	15
+		scrollPt =	postBody
+
+	console.log(postBody);
 
 	$(window).load(function(){
 		if (top <= scrollPt){ header.addClass(topClass) } 
