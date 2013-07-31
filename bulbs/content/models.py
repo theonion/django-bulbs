@@ -20,7 +20,7 @@ class ReadonlyRelatedManager(object):
     """Replaces Django's RelatedMangers in read-only scenarios."""
     def __init__(self, data=None):
         if data:
-            if not isinstance(data, collecitons.Iterable):
+            if not isinstance(data, list):
                 data = [data]
         else:
             data = []
