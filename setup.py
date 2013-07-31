@@ -18,7 +18,7 @@ requires = [
     "Django==1.5",
     "Markdown==2.2.1",
     "Pillow==1.7.8",
-    "South==0.7.6",
+    "South==0.8.1",
     "elasticutils==dev",
     "mdx-smartypants==1.3",
     "namedentities==1.301",
