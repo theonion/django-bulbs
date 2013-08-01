@@ -10,7 +10,7 @@ class Command(NoArgsCommand):
         content_count = Content.objects.all().count()
         chunk_size = 10
         while num_processed < content_count:
-            for content in Content.objects.all()[num_processed:num_processed + chunk_size]:
+            for content in Content.objects.all().order_by('id')[num_processed:num_processed + chunk_size]:
                 content.index()
                 num_processed += 1
                 if not num_processed % 100:
