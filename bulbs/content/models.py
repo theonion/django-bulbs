@@ -63,6 +63,15 @@ def readonly_content_factory(model):
     return type(str(name), (model,), overrides)
 
 
+def deserialize_polymorphic_model(data):
+    """Deserializes simple polymorphic models."""
+    content_type = ContentType.objects.get_for_id(data['polymorphic_ctype_id'])
+    if content_type:
+        klass = content_type.model_class()
+        instance = klass.from_source(data)
+        return instance
+
+
 class ContentSearchResults(SearchResults):
     def set_objects(self, results):
         self.objects = []
@@ -463,7 +472,8 @@ class Content(PolymorphicModel, PolymorphicIndexable):
             subhead=_source['subhead'],
             _feature_type=_source['feature_type'],
         )
-        obj.tags=_source.get('tags', [])
+        tags = [deserialize_polymorphic_model(tag_source) for tag_source in _source.get('tags', [])]
+        obj.tags = tags
         return obj
 
     @classmethod
