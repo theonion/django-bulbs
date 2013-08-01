@@ -20,7 +20,7 @@ requires = [
     "Pillow==1.7.8",
     "South==0.8.1",
     "django_polymorphic==0.5.1",
-    "elasticutils==dev",
+    "elasticutils==0.7",
     "mdx-smartypants==1.3",
     "namedentities==1.301",
     "pyelasticsearch==0.5",
@@ -32,6 +32,7 @@ requires = [
     "thrift==0.8.0",
     "wsgiref==0.1.2",
 ]
+
 
 def get_version(package):
     """
