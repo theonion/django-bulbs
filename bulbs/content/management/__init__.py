@@ -16,7 +16,7 @@ def sync_es(sender, **kwargs):
     except IndexAlreadyExistsError:
         pass
 
-    for mapping_name, model in bulbs.content.models.Contentish.get_doctypes().items():
+    for mapping_name, model in bulbs.content.models.Content.get_doctypes().items():
         try:
             es.put_mapping(
                 index,
@@ -24,22 +24,13 @@ def sync_es(sender, **kwargs):
                 model.get_mapping()
             )
         except ElasticHttpError as e:
-            print("Elastic HTTP Error: %s" % e)
+            print("ES Error: %s" % e.error)
 
-    tag_mapping = {
-        "tag": {
-            "properties": {
-                "name": {"type": "string"},
-                "slug": {"type": "string", "index": "not_analyzed"},
-                "content_type": {"type": "integer"},
-                "object_id": {"type": "integer"}
-            }
-        }
-    }
-
+    tag_mapping = bulbs.content.models.Tag.get_mapping()
     try:
-        es.put_mapping(index, "tag", tag_mapping)
+        es.put_mapping(index, 'tag', tag_mapping)
     except ElasticHttpError as e:
-        print("Elastic HTTP Error: %s" % e)
+        print("ES Error: %s" % e.error)
+
 
 post_syncdb.connect(sync_es, sender=bulbs.content.models)

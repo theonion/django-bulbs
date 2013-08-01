@@ -4,15 +4,14 @@ from django.core.management.color import no_style
 from django.db import models
 
 from elasticutils import get_es
-from pyelasticsearch.exceptions import IndexAlreadyExistsError, ElasticHttpError
+from pyelasticsearch.exceptions import IndexAlreadyExistsError
 
-
-from bulbs.content.models import Contentish, Tagish
+from bulbs.content.models import Content, Tag
 
 
 class Command(NoArgsCommand):
     args = ''
-    help = "Create the Elastic Search indexes and mappings tables for all apps in INSTALLED_APPS."
+    help = 'Create the Elastic Search indexes and mappings tables for all apps in INSTALLED_APPS.'
 
     def handle(self, **options):
         self.style = no_style()
@@ -24,24 +23,12 @@ class Command(NoArgsCommand):
         except IndexAlreadyExistsError:
             pass
 
-        for mapping_name, model in Contentish.get_doctypes().items():
+        for mapping_name, model in Content.get_doctypes().items():
             es.put_mapping(
                 index,
                 mapping_name,
                 model.get_mapping()
             )
 
-        tag_mapping = {
-            "tag": {
-                "properties": {
-                    "name": {"type": "string"},
-                    "slug": {"type": "string", "index": "not_analyzed"},
-                    "content_type": {"type": "integer"},
-                    "object_id": {"type": "integer"}
-                }
-            }
-        }
-        try:
-            es.put_mapping(index, "tag", tag_mapping)
-        except ElasticHttpError as e:
-            print("Elastic HTTP Error: %s" % e)
+        tag_mapping = Tag.get_mapping()
+        es.put_mapping(index, 'tag', tag_mapping)

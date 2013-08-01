@@ -22,21 +22,22 @@ ROOT_URLCONF = 'urls'
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'rest_framework',
+    'polymorphic',
 
     # A test app to help with mixin stuff
     'testapp',
 
-    'bulbs.articles',
     'bulbs.content',
     'bulbs.images',
     'bulbs.markdown',
 )
 TEMPLATE_CONTEXT_PROCESSORS = (
-    "django.core.context_processors.request",
+    'django.core.context_processors.request',
 )
 SECRET_KEY = '9uab*ok!i=cnpkzcbuoa3y9d#&g589pq**4(n9t-jhsp-^yh7='
 USE_TZ = True
-ES_URLS = ["http://localhost:9200"]
+ES_URLS = ['http://localhost:9200']
 ES_INDEXES = {
     'default': 'testing'
 }

@@ -4,7 +4,7 @@ import sys
 from os.path import abspath, dirname, join as pjoin
 from django.conf import settings
 
-TESTABLE_APPS = ['images', 'markdown', 'content']
+TESTABLE_APPS = ['images', 'markdown', 'testapp']
 
 
 def runtests(verbosity=1, interactive=True, failfast=True, settings_module='settings.default'):
@@ -13,7 +13,7 @@ def runtests(verbosity=1, interactive=True, failfast=True, settings_module='sett
     sys.path.extend([here, root])
     os.environ['DJANGO_SETTINGS_MODULE'] = settings_module
     from django.test.utils import get_runner
-    print "Running tests for '%s'" % settings_module
+    print 'Running tests for "%s"' % settings_module
     TestRunner = get_runner(settings)
     test_runner = TestRunner(
         verbosity=verbosity, interactive=interactive, failfast=failfast

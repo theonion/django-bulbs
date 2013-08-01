@@ -10,10 +10,39 @@ from django.db.models.query_utils import deferred_class_factory
 
 from elasticutils import SearchResults, S
 from elasticutils.contrib.django import get_es
+from polymorphic import PolymorphicModel
 from pyelasticsearch.exceptions import ElasticHttpNotFoundError, InvalidJsonResponseError
 
 from bulbs.images.models import Image
-from bulbs.content.base62 import base10to62
+
+
+class ReadonlyRelatedManager(object):
+    """Replaces Django's RelatedMangers in read-only scenarios."""
+    def __init__(self):
+        self.data = []
+
+    def __set__(self, obj, data):
+        if data:
+            if not isinstance(data, list):
+                data = [data]
+        else:
+            data = []
+        self.data = data
+
+    def add(self, *args):
+        self._on_bad_access()
+
+    def all(self):
+        return self.data
+
+    def clear(self):
+        self._on_bad_access()
+
+    def remove(self, *args):
+        self._on_bad_access()
+
+    def _on_bad_access(self):
+        raise TypeError('%s is read-only' % self.__class__.__name__)
 
 
 def readonly_content_factory(model):
@@ -21,23 +50,24 @@ def readonly_content_factory(model):
         proxy = True
         app_label = model._meta.app_label
 
-    name = "%s_Readonly" % model.__name__
+    name = '%s_Readonly' % model.__name__
     name = util.truncate_name(name, 80, 32)
 
     overrides = {
-        "Meta": Meta,
-        "__module__": model.__module__,
-        "_readonly": True,
+        'Meta': Meta,
+        '__module__': model.__module__,
+        '_readonly': True,
+        'tags': ReadonlyRelatedManager()
     }
     # TODO: Add additional deferred fields here, just as placeholders.
     return type(str(name), (model,), overrides)
 
 
-class ContentishSearchResults(SearchResults):
+class ContentSearchResults(SearchResults):
     def set_objects(self, results):
         self.objects = []
         for result in results:
-            cls = Contentish.get_doctypes().get(result['_type'])
+            cls = Content.get_doctypes().get(result['_type'])
             if cls:
                 readonly_cls = readonly_content_factory(cls)
                 obj = readonly_cls.from_source(result['_source'])
@@ -47,7 +77,7 @@ class ContentishSearchResults(SearchResults):
         return self.objects.__iter__()
 
 
-class ContentishS(S):
+class ContentS(S):
 
     def get_results_class(self):
         """Returns the results class to use
@@ -56,9 +86,9 @@ class ContentishS(S):
 
         """
         if self.as_list or self.as_dict:
-            return super(ContentishS, self).get_results_class()
+            return super(ContentS, self).get_results_class()
 
-        return ContentishSearchResults
+        return ContentSearchResults
 
 
 class TagishSearchResults(SearchResults):
@@ -93,9 +123,9 @@ class Tagish(models.Model):
 
     def __unicode__(self):
         if self.__class__ == Tagish:
-            return "Tag: %s" % self.name
+            return 'Tag: %s' % self.name
         else:
-            return "%s: %s" % (self.__class__.__name__, self.name)
+            return '%s: %s' % (self.__class__.__name__, self.name)
 
     def save(self, *args, **kwargs):
         es = get_es()
@@ -105,7 +135,7 @@ class Tagish(models.Model):
         # The default slug for a tagish object is "[slugified name]-[slugified classname]"
         # If that's already taken, we start appending numbers
         counter = 1
-        slug = slugify("%s %s" % (self.name, self.__class__.__name__))
+        slug = slugify('%s %s' % (self.name, self.__class__.__name__))
         while self.slug is None or self.slug == '':
             try:
                 es_tag = es.get(index, 'tag', slug)
@@ -113,7 +143,7 @@ class Tagish(models.Model):
                 self.slug = slug
                 break
 
-            slug = slugify("%s %s %s" % (self.name, self.__class__.__name__, counter))
+            slug = slugify('%s %s %s' % (self.name, self.__class__.__name__, counter))
             counter += 1
 
         super(Tagish, self).save(*args, **kwargs)
@@ -133,12 +163,12 @@ class Tagish(models.Model):
 
     @classmethod
     def from_source(cls, _source):
-        if _source.get('object_id'):
+        if _source.get('id'):
             model = ContentType.objects.get_for_id(_source['content_type']).model_class()
             # Get the attributes to be deferred.
             attrs = [fn for fn in model._meta.get_all_field_names() if fn not in ['pk', 'slug', 'name']]
             model = deferred_class_factory(model, attrs)
-            return model(id=_source['object_id'], name=_source['name'], slug=_source['slug'])
+            return model(id=_source['id'], name=_source['name'], slug=_source['slug'])
         return Tagish(name=_source['name'], slug=_source['slug'])
 
     @classmethod
@@ -161,7 +191,7 @@ class Tagish(models.Model):
         data = {'name': self.name, 'slug': self.slug}
         if getattr(self, 'id', None):
             data['content_type'] = ContentType.objects.get_for_model(self).id
-            data['object_id'] = self.id
+            data['id'] = self.id
         return data
 
     @classmethod
@@ -173,45 +203,19 @@ class Tagish(models.Model):
         return results
 
     def content(self):
-        return Contentish.search(tags=[self.slug])
-
-BASE_CONTENT_MAPPING = {
-    "properties": {
-        "object_id": {"type": "integer"},
-        "title": {"type": "string"},
-        "slug": {"type": "string", "index": "not_analyzed"},
-        "subhead": {"type": "string"},
-        "description": {"type": "string"},
-        "feature_type": {
-            "type": "multi_field",
-            "fields": {
-                "feature_type": {"type": "string", "index": "analyzed"},
-                "slug": {"type": "string", "index": "not_analyzed"}
-            }
-        },
-        "image": {"type": "integer"},
-        "byline": {"type": "string"},
-        "published": {"type": "date"},
-        "tags": {
-            "properties": {
-                "name": {"type": "string"},
-                "slug": {"type": "string", "index": "not_analyzed"}
-            }
-        }
-    }
-}
+        return Content.search(tags=[self.slug])
 
 
 class TagishRelatedManage():
     """ This is pretty messy, but it does work. This is basically a related manager-ish
-        class that allows adding, removing and retriving the tags from a Contentish object.
+        class that allows adding, removing and retriving the tags from a Content object.
     """
 
     def __init__(self, content):
         self.content = content
 
     def _save_tags(self, refresh=False):
-        self.content.save(index=False, update_fields=["_tags"])
+        self.content.save(index=False, update_fields=['_tags'])
         es = get_es()
         indexes = settings.ES_INDEXES
         index = indexes.get('tag') or indexes['default']
@@ -220,9 +224,9 @@ class TagishRelatedManage():
             {
                 'name': tag_name,
                 'slug': slugify(tag_name)
-            } for tag_name in self.content._tags.split("\n")]
-        es.update(index, self.content.get_mapping_type_name(), self.content.elastic_id, doc=doc, refresh=refresh)
-        for tag_name in self.content._tags.split("\n"):
+            } for tag_name in self.content._tags.split('\n')]
+        es.update(index, self.content.get_mapping_type_name(), self.content.id, doc=doc, refresh=refresh)
+        for tag_name in self.content._tags.split('\n'):
             tag = Tagish.from_name(tag_name)
             try:
                 tag = es.get(index, 'tag', tag.slug)
@@ -231,7 +235,7 @@ class TagishRelatedManage():
 
     def all(self):
         if self.content._tags:
-            return Tagish.search().query(slug__terms=[slugify(tag) for tag in self.content._tags.split("\n")])
+            return Tagish.search().query(slug__terms=[slugify(tag) for tag in self.content._tags.split('\n')])
         return []
 
     def remove(self, tags):
@@ -240,19 +244,19 @@ class TagishRelatedManage():
         if self.content._tags is None:
             tag_list = []
         else:
-            tag_list = self.content._tags.split("\n")
+            tag_list = self.content._tags.split('\n')
         for tag in tags:
             if isinstance(tag, Tagish):
                 tag_name = tag.name
             elif isinstance(tag, basestring):
                 tag_name = tag
             else:
-                raise TypeError("Tags must br strings or Tagish objects")
+                raise TypeError('Tags must be strings or Tagish objects')
             if tag_name in tag_list:
                 tag_list.remove(tag_name)
             else:
-                raise AttributeError("There is no attached tag with the name \"%s\"" % tag_name)
-        self.content._tags = "\n".join(tag_list)
+                raise AttributeError('There is no attached tag with the name \"%s\"' % tag_name)
+        self.content._tags = '\n'.join(tag_list)
         self._save_tags()
 
     def add(self, tags):
@@ -261,72 +265,225 @@ class TagishRelatedManage():
         if self.content._tags is None:
             tag_list = []
         else:
-            tag_list = self.content._tags.split("\n")
+            tag_list = self.content._tags.split('\n')
         for tag in tags:
             if isinstance(tag, Tagish):
                 tag_name = tag.name
             elif isinstance(tag, basestring):
                 tag_name = tag
             else:
-                raise TypeError("Tags must be strings or Tagish objects")
+                raise TypeError('Tags must be strings or Tagish objects')
             if tag_name in tag_list:
-                raise AttributeError("There is already an attached tag with the name \"%s\"" % tag_name)
+                raise AttributeError('There is already an attached tag with the name \"%s\"' % tag_name)
             else:
-                tag_list
                 tag_list.append(tag_name)
-        self.content._tags = "\n".join(tag_list)
+        self.content._tags = '\n'.join(tag_list)
         self._save_tags()
 
 
-class Contentish(models.Model):
-    """
-    Abstract base class for objects that'd like to be considered 'content.'
-    """
+class PolymorphicIndexable(object):
+    """Base mixin for polymorphic indexin'"""
+    def extract_document(self):
+        return {
+            'id': self.id,
+            'polymorphic_ctype_id': self.polymorphic_ctype_id
+        }
 
-    elastic_id = models.SlugField(null=True, blank=True)
-    published = models.DateTimeField(null=True, blank=True)
+    @classmethod
+    def get_mapping(cls):
+        return {
+            cls.get_mapping_type_name(): {
+                'properties': cls.get_mapping_properties()
+            }
+        }
 
-    title = models.CharField(max_length=255)
+    @classmethod
+    def get_mapping_properties(cls):
+        return {
+            'id': {'type': 'integer'},
+            'polymorphic_ctype_id': {'type': 'integer'}
+        }
+
+    @classmethod
+    def get_mapping_type_name(cls):
+        return '%s_%s' % (cls._meta.app_label, cls.__name__.lower())
+
+
+class Tag(PolymorphicModel, PolymorphicIndexable):
+    """Model for tagging up Content."""
+    name = models.CharField(max_length=255)
     slug = models.SlugField()
-    description = models.CharField(max_length=1024)
-    image = models.ForeignKey(Image, null=True, blank=True)
 
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        return super(Tag, self).save(*args, **kwargs)
+
+    def extract_document(self):
+        doc = super(Tag, self).extract_document()
+        doc.update({
+            'name': self.name,
+            'slug': self.slug
+        })
+        return doc
+
+    @classmethod
+    def get_mapping_properties(cls):
+        props = super(Tag, cls).get_mapping_properties()
+        props.update({
+            'name': {'type': 'string', 'index': 'not_analyzed'},
+            'slug': {'type': 'string', 'index': 'not_analyzed'},
+        })
+        return props
+
+
+class Section(Tag):
+    """Tag subclass which represents major sections of the site."""
+    class Meta(Tag.Meta):
+        proxy = True
+
+
+class Content(PolymorphicModel, PolymorphicIndexable):
+    """The base content model from which all other content derives."""
+    published = models.DateTimeField(blank=True, null=True)
+    title = models.CharField(max_length=512)
+    slug = models.SlugField()
+    description = models.TextField(max_length=1024)
+    image = models.ForeignKey(Image, null=True, blank=True)
+    
     authors = models.ManyToManyField(settings.AUTH_USER_MODEL)
     _byline = models.CharField(max_length=255, null=True, blank=True)  # This is an overridable field that is by default the author names
     _tags = models.TextField(null=True, blank=True)  # A return-separated list of tag names, exposed as a list of strings
     _feature_type = models.CharField(max_length=255, null=True, blank=True)  # "New in Brief", "Newswire", etc.
     subhead = models.CharField(max_length=255, null=True, blank=True)
 
+    tags = models.ManyToManyField(Tag, blank=True)
+
     _readonly = False  # Is this a read only model? (i.e. from elasticsearch)
     _cache = {}  # This is a cache for the content doctypes
 
-    class Meta:
-        abstract = True
-
     def __unicode__(self):
-        return "<%s: %s>" % (self.__class__.__name__, self.title)
+        return '%s: %s' % (self.__class__.__name__, self.title)
 
     def get_absolute_url(self):
-        return ""
+        return '/content/%d/' % self.id
 
     def save(self, index=True, refresh=False, *args, **kwargs):
-        super(Contentish, self).save(*args, **kwargs)
-        if index is False:
-            return
-        if self.elastic_id is None:
-            elastic_id = "%d%d" % (ContentType.objects.get_for_model(self).id, self.id)
-            self.elastic_id = base10to62(int(elastic_id))
-            super(Contentish, self).save(update_fields=['elastic_id'])
-        self.index(refresh=refresh)
+        result = super(Content, self).save(*args, **kwargs)
+        if index:
+            self.index(refresh=refresh)
+        return result
+
+    @property
+    def byline(self):
+        # If the subclass has customized the byline accessing, use that.
+        if hasattr(self, 'get_byline'):
+            return self.get_byline()
+
+        # If we have an override byline, we'll use that first.
+        if self._byline:
+            return self._byline
+
+        # If we have authors, just put them in a list
+        if self.authors.exists():
+            return ', '.join([user.get_full_name() for user in self.authors.all()])
+
+        # Well, shit. I guess there's no byline.
+        return None
+
+    def extract_document(self):
+        doc = super(Content, self).extract_document()
+        doc.update({
+            'published': self.published,
+            'title': self.title,
+            'slug': self.slug,
+            'description': self.description,
+            'image': self.image_id,
+            'byline': self.byline,
+            'subhead': self.subhead,
+            'feature_type': self.feature_type,
+            'feature_type.slug': slugify(self.feature_type)
+        })
+        if self.tags:
+            doc['tags'] = [tag.extract_document() for tag in self.tags.all()]
+        return doc
+
+    @property
+    def feature_type(self):
+        # If the subclass has customized the feature_type accessing, use that.
+        if hasattr(self, 'get_feature_type'):
+            return self.get_feature_type()
+
+        if self._feature_type:
+            return self._feature_type
+
+        return None
+
+    @feature_type.setter
+    def feature_type(self, value):
+        if self._readonly:
+            raise AttributeError('This content object is read only.')
+        self._feature_type = value
+
+    # ElasticUtils stuff
+    def index(self, refresh=False):
+        es = get_es(urls=settings.ES_URLS)
+        index = settings.ES_INDEXES.get('default')
+        es.index(
+            index,
+            self.get_mapping_type_name(),
+            self.extract_document(),
+            self.id,
+            refresh=refresh
+        )
+
+    # class methods ##############################
+
+    @classmethod
+    def from_source(cls, _source):
+        obj = cls(
+            id=_source['id'],
+            # HACKISH: content_ptr_id is from django-polymorphic Content subclasses
+            content_ptr_id=_source['id'],
+            published=_source['published'],
+            title=_source['title'],
+            slug=_source['slug'],
+            description=_source['description'],
+            subhead=_source['subhead'],
+            _feature_type=_source['feature_type'],
+        )
+        obj.tags=_source.get('tags', [])
+        return obj
 
     @classmethod
     def get_doctypes(cls):
         if len(cls._cache) == 0:
             for app in models.get_apps():
                 for model in models.get_models(app, include_auto_created=True):
-                    if isinstance(model(), Contentish):
+                    if isinstance(model(), Content):
                         cls._cache[model.get_mapping_type_name()] = model
         return cls._cache
+
+    @classmethod
+    def get_mapping_properties(cls):
+        return {            
+            'id': {'type': 'integer'},
+            'published': {'type': 'date'},
+            'title': {'type': 'string'},
+            'slug': {'type': 'string'},
+            'description': {'type': 'string'},
+            'image': {'type': 'integer'},
+            'byline': {'type': 'string'},
+            'feature_type': {
+                'type': 'multi_field',
+                'fields': {
+                    'feature_type': {'type': 'string', 'index': 'not_analyzed'},
+                    'slug': {'type': 'string', 'index': 'not_analyzed'}
+                }
+            },
+            'tags': {
+                'properties': Tag.get_mapping_properties()
+            }
+        }
 
     @classmethod
     def search(cls, **kwargs):
@@ -343,7 +500,15 @@ class Contentish(models.Model):
          * published
         """
         index = settings.ES_INDEXES.get('default')
-        results = ContentishS().es(urls=settings.ES_URLS).indexes(index)
+        results = ContentS().es(urls=settings.ES_URLS).indexes(index)
+        if kwargs.get('pk'):
+            try:
+                pk = int(kwargs['pk'])
+            except ValueError:
+                pass
+            else:
+                results = results.query(id=kwargs['pk'])
+
         if kwargs.get('query'):
             results = results.query(_all__text_phrase=kwargs.get('query'))
 
@@ -352,121 +517,38 @@ class Contentish(models.Model):
             results = results.query(published__lte=now, must=True)
 
         for tag in kwargs.get('tags', []):
-            tag_query_string = "tags.slug:%s" % tag
+            tag_query_string = 'tags.slug:%s' % tag
             results = results.query(__query_string=tag_query_string)
 
         for feature_type in kwargs.get('feature_types', []):
-            feature_type_query_string = "feature_type.slug:%s" % feature_type
+            feature_type_query_string = 'feature_type.slug:%s' % feature_type
             results = results.query(__query_string=feature_type_query_string)
 
         if 'types' in kwargs:
-            results = results.doctypes(*[type_class.get_mapping_type_name() for type_class in kwargs['types']])
+            # only use valid subtypes
+            results = results.doctypes(*[
+                type_classname for type_classname in kwargs['types'] \
+                if type_classname in cls.get_doctypes()
+            ])
         else:
             results = results.doctypes(*cls.get_doctypes().keys())
 
         return results.order_by('-published')
 
-    @property
-    def tags(self):
-        if not hasattr(self, "_tag_relation"):
-            self._tag_relation = TagishRelatedManage(self)
-        return self._tag_relation
 
-    @property
-    def byline(self):
-        # If the subclass has customized the byline accessing, use that.
-        if hasattr(self, 'get_byline'):
-            return self.get_byline()
+def content_tags_changed(sender, instance=None, action='', **kwargs):
+    """Reindex content tags when they change."""
+    es = get_es()
+    indexes = settings.ES_INDEXES
+    index = indexes['default']
+    doc = {}
+    doc['tags'] = [tag.extract_document() for tag in instance.tags.all()]
+    es.update(index, instance.get_mapping_type_name(), instance.id, doc=doc, refresh=True)
 
-        # If we have an override byline, we'll use that first.
-        if self._byline:
-            return self._byline
 
-        # If we have authors, just put them in a list
-        if self.authors.exists():
-            return ", ".join([user.get_full_name() for user in self.authors.all()])
+models.signals.m2m_changed.connect(
+    content_tags_changed,
+    sender=Content.tags.through,
+    dispatch_uid='content_tags_changed_signal'
+)
 
-        # Well, shit. I guess there's no byline.
-        return None
-
-    @byline.setter
-    def byline(self, value):
-        if self._readonly:
-            raise AttributeError("This content object is read only.")
-        self._byline = value
-
-    @property
-    def feature_type(self):
-        # If the subclass has customized the feature_type accessing, use that.
-        if hasattr(self, 'get_feature_type'):
-            return self.get_feature_type()
-
-        if self._feature_type:
-            return self._feature_type
-
-        return None
-
-    @feature_type.setter
-    def feature_type(self, value):
-        if self._readonly:
-            raise AttributeError("This content object is read only.")
-        self._feature_type = value
-
-    # ElasticUtils stuff
-    def index(self, refresh=False):
-        es = get_es(urls=settings.ES_URLS)
-        index = settings.ES_INDEXES.get('default')
-        es.index(index, self.get_mapping_type_name(), self.extract_document(), self.elastic_id, refresh=refresh)
-
-        if not self._tags:
-            return
-
-        for tag_name in self._tags.split("\n"):
-            tag = Tagish.from_name(tag_name)
-            try:
-                tag = es.get(index, 'tag', tag.slug, refresh=refresh)
-            except ElasticHttpNotFoundError:
-                tag.index()
-
-    @classmethod
-    def from_source(cls, _source):
-        return cls(
-            id=_source['object_id'],
-            slug=_source['slug'],
-            title=_source['title'],
-            description=_source['description'],
-            subhead=_source['subhead'],
-            published=_source['published'],
-            _feature_type=_source['feature_type'],
-            _tags="\n".join([tag['name'] for tag in _source.get('tags', [])])
-        )
-
-    @classmethod
-    def get_mapping_type_name(cls):
-        return "%s_%s" % (cls._meta.app_label, cls.__name__.lower())
-
-    @classmethod
-    def get_mapping(cls):
-        return {
-            cls.get_mapping_type_name(): BASE_CONTENT_MAPPING
-        }
-
-    def extract_document(self):
-        data = {
-            'object_id': self.id,
-            'slug': self.slug,
-            'title': self.title,
-            'description': self.description,
-            'image': self.image_id,
-            'byline': self.byline,
-            'subhead': self.subhead,
-            'published': self.published,
-            'feature_type': self.feature_type,
-            'feature_type.slug': slugify(self.feature_type)
-        }
-        if self._tags:
-            data['tags'] = [{
-                'name': tag_name,
-                'slug': slugify(tag_name)
-            } for tag_name in self._tags.split("\n")]
-        return data
