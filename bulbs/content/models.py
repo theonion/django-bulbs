@@ -1,12 +1,12 @@
 from collections import Iterable
 
-from django.db import models
 from django.conf import settings
-from django.utils import timezone
-from django.template.defaultfilters import slugify
 from django.contrib.contenttypes.models import ContentType
+from django.db import models
 from django.db.backends import util
 from django.db.models.query_utils import deferred_class_factory
+from django.template.defaultfilters import slugify
+from django.utils import timezone
 
 from elasticutils import SearchResults, S
 from elasticutils.contrib.django import get_es
@@ -67,9 +67,9 @@ class ContentSearchResults(SearchResults):
     def set_objects(self, results):
         self.objects = []
         for result in results:
-            cls = Content.get_doctypes().get(result['_type'])
-            if cls:
-                readonly_cls = readonly_content_factory(cls)
+            content_type = ContentType.objects.get_for_id(result['_source']['polymorphic_ctype_id'])
+            if content_type:
+                readonly_cls = readonly_content_factory(content_type.model_class())
                 obj = readonly_cls.from_source(result['_source'])
                 self.objects.append(obj)
 
@@ -314,6 +314,9 @@ class Tag(PolymorphicModel, PolymorphicIndexable):
     name = models.CharField(max_length=255)
     slug = models.SlugField()
 
+    def __unicode__(self):
+        return '%s: %s' % (self.__class__.__name__, self.name)
+
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
         return super(Tag, self).save(*args, **kwargs)
@@ -325,6 +328,15 @@ class Tag(PolymorphicModel, PolymorphicIndexable):
             'slug': self.slug
         })
         return doc
+
+    @classmethod
+    def from_source(cls, _source):
+        return cls(
+            id=_source['id'],
+            polymorphic_ctype_id=_source['polymorphic_ctype_id'],
+            name=_source['name'],
+            slug=_source['slug']
+        )
 
     @classmethod
     def get_mapping_properties(cls):
@@ -465,8 +477,8 @@ class Content(PolymorphicModel, PolymorphicIndexable):
 
     @classmethod
     def get_mapping_properties(cls):
-        return {            
-            'id': {'type': 'integer'},
+        properties = super(Content, cls).get_mapping_properties()
+        properties.update({
             'published': {'type': 'date'},
             'title': {'type': 'string'},
             'slug': {'type': 'string'},
@@ -483,7 +495,8 @@ class Content(PolymorphicModel, PolymorphicIndexable):
             'tags': {
                 'properties': Tag.get_mapping_properties()
             }
-        }
+        })
+        return properties
 
     @classmethod
     def search(cls, **kwargs):
