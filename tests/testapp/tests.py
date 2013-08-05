@@ -84,7 +84,7 @@ class PolyContentTestCase(TestCase):
         new_tag.save()
         real_content.tags.add(new_tag)
         self.assertEqual(len(real_content.tags.all()), original_tag_count + 1)
-        readonly_content = Content.search(pk=real_content.id)
+        readonly_content = Content.search(pk=real_content.id)[0]
         self.assertEqual(
             len(readonly_content.tags.all()),
             len(real_content.tags.all())
