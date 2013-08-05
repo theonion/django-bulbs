@@ -1,7 +1,7 @@
 {% extends "bart/detail/__base.html" %}
 {% block bodyclass %}article-detail{% endblock bodyclass %}
-{% block meta_description%}{{ article.description|striptags }}{% endblock meta_description %}
-{% block site_title %}{{ article.title|striptags }} {{ block.super }}{% endblock site_title %}
+{% block meta_description%}{{ content.description|striptags }}{% endblock meta_description %}
+{% block site_title %}{{ content.title|striptags }} {{ block.super }}{% endblock site_title %}
 
 {% block content %}
 <article>
@@ -20,29 +20,29 @@
 
 
 			{% block type_badge %}
-			{% if article.feature_type %}
-		    <div class="type-badge tag tv-club {{ article.feature_type|slugify }}">
-		    	<a class="article-type" href="#">{{ article.feature_type|safe }}</a>
+			{% if content.feature_type %}
+		    <div class="type-badge tag tv-club {{ content.feature_type|slugify }}">
+		    	<a class="article-type" href="#">{{ content.feature_type|safe }}</a>
 		    </div>
 		    {% endif %}
 		    {% endblock type_badge %}
 
 
 		    {% block headline %}
-		    <h1 class="headline lg-headline">{{ article.title|safe }}</h1>
+		    <h1 class="headline lg-headline">{{ content.title|safe }}</h1>
 		    {% endblock headline %}
 
 
 		    {% block subheadline %}
-		    {% if article.subhead %}
-		    <h2 class="subheadline">{{ article.subhead|safe }}</h2>
+		    {% if content.subhead %}
+		    <h2 class="subheadline">{{ content.subhead|safe }}</h2>
 		    {% endif %}
 		    {% endblock subheadline %}
 		    
 
 		    {% block teaser %}
-		    {% if article.teaser %}
-		    <p class="teaser visuallyhidden">{{ article.teaser|safe|removetags:"p" }}</p>
+		    {% if content.teaser %}
+		    <p class="teaser visuallyhidden">{{ content.teaser|safe|removetags:"p" }}</p>
 		    {% endif %}
 		    {% endblock teaser %}
 
@@ -85,12 +85,12 @@
 			{% block article_tags %}
 
 			{% comment %}
-			{% if article.tags or article.related_topics %}
+			{% if content.tags or content.related_topics %}
 			<div class="aside pull-left article-tags" id="article-tags">
 
-				{% if article.tags %}
+				{% if content.tags %}
 				<ul class="unstyled tags">
-                    {% for tag in article.tags.all %}
+                    {% for tag in content.tags.all %}
                     <li class="{{ tag.name|slugify }}">
                     	<a 	title="{{ tag.name|safe }}" 
                     		href="{{ tag.get_absolute_url }}">
@@ -99,10 +99,10 @@
                 </ul>
 	            {% endif %}
                 
-                {% if article.related_topics %}
+                {% if content.related_topics %}
                 <h3>Related Topics</h3>
 				<ul class="unstyled">
-					{% for topic in article.related_topics %}
+					{% for topic in content.related_topics %}
 						<li><a title="{{ topic.title|safe }}" href="{{ topic.get_absolute_url }}">
 						{{ topic.title|safe }}</a></li>
 					{% endfor %}
@@ -151,7 +151,7 @@
 				{% endblock vid_embed %}
 
 
-				{{ article.body | safe }}
+				{{ content.body | safe }}
 
 
 			{% endblock article_body %}
@@ -167,13 +167,13 @@
 
 			{% block article_moretype %}
 			<nav class="supplemental more-type article-pagination">
-				<h2 class="section-title visuallyhidden">More {{ article.feature_type }}</h2>
+				<h2 class="section-title visuallyhidden">More {{ content.feature_type }}</h2>
 				<ul class="pagination unstyled">
 			        <li class="previous">
 				        
 
-				        {% if article.prev_article %}
-			        	{% with article.previous_article as prev %}
+				        {% if content.prev_article %}
+			        	{% with content.previous_article as prev %}
 			            	<a href="{{ prev.get_absolute_url }}" title="{{ prev.title|safe }}">
 			            		<i class="icon icon-angle-left"></i> 
 			            		<span>Older</span><br />
@@ -192,8 +192,8 @@
 			        <li class="next">
 
 
-				        {% if article.next_article %}
-				        {% with article.next_article as next %}
+				        {% if content.next_article %}
+				        {% with content.next_article as next %}
 			            	<a href="{{ next.get_absolute_url }}" title="{{ next.title|safe }}">
 				            	<span>Newer</span><br />
 			            		{{ next.title|safe }} 
@@ -234,7 +234,7 @@
 
 				{% comment %}
 				{% for article in suggested_reads %}
-				<article id="{{ article.id }}"{% if forloop.first %} class="featured"{% endif %}>
+				<article id="{{ content.id }}"{% if forloop.first %} class="featured"{% endif %}>
 					
 					{% if forloop.first %}
 						{% include "bart/elements/snippets/image-container.html" %}
