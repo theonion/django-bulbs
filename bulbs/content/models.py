@@ -298,6 +298,17 @@ class PolymorphicIndexable(object):
             'polymorphic_ctype_id': self.polymorphic_ctype_id
         }
 
+    def index(self, refresh=False):
+        es = get_es(urls=settings.ES_URLS)
+        index = settings.ES_INDEXES.get('default')
+        es.index(
+            index,
+            self.get_mapping_type_name(),
+            self.extract_document(),
+            self.id,
+            refresh=refresh
+        )
+
     @classmethod
     def get_mapping(cls):
         return {
@@ -444,18 +455,6 @@ class Content(PolymorphicModel, PolymorphicIndexable):
         if self._readonly:
             raise AttributeError('This content object is read only.')
         self._feature_type = value
-
-    # ElasticUtils stuff
-    def index(self, refresh=False):
-        es = get_es(urls=settings.ES_URLS)
-        index = settings.ES_INDEXES.get('default')
-        es.index(
-            index,
-            self.get_mapping_type_name(),
-            self.extract_document(),
-            self.id,
-            refresh=refresh
-        )
 
     # class methods ##############################
 
