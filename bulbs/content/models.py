@@ -335,7 +335,7 @@ class PolymorphicIndexable(object):
         return '%s_%s' % (cls._meta.app_label, cls.__name__.lower())
 
 
-class Tag(PolymorphicModel, PolymorphicIndexable):
+class Tag(PolymorphicIndexable, PolymorphicModel):
     """Model for tagging up Content."""
     name = models.CharField(max_length=255)
     slug = models.SlugField()
@@ -380,7 +380,7 @@ class Section(Tag):
         proxy = True
 
 
-class Content(PolymorphicModel, PolymorphicIndexable):
+class Content(PolymorphicIndexable, PolymorphicModel):
     """The base content model from which all other content derives."""
     published = models.DateTimeField(blank=True, null=True)
     title = models.CharField(max_length=512)
