@@ -309,6 +309,12 @@ class PolymorphicIndexable(object):
             refresh=refresh
         )
 
+    def save(self, index=True, refresh=False, *args, **kwargs):
+        result = super(PolymorphicIndexable, self).save(*args, **kwargs)
+        if index:
+            self.index(refresh=refresh)
+        return result
+
     @classmethod
     def get_mapping(cls):
         return {
@@ -398,12 +404,6 @@ class Content(PolymorphicModel, PolymorphicIndexable):
 
     def get_absolute_url(self):
         return '/content/%d/' % self.id
-
-    def save(self, index=True, refresh=False, *args, **kwargs):
-        result = super(Content, self).save(*args, **kwargs)
-        if index:
-            self.index(refresh=refresh)
-        return result
 
     @property
     def byline(self):
