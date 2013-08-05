@@ -393,7 +393,11 @@ class Tag(PolymorphicIndexable, PolymorphicModel):
         results = TagS().es(urls=settings.ES_URLS).indexes(index)
         name = kwargs.pop('name', '')
         if name:
-            results = results.query(name=name)
+            results = results.query(name__prefix=name, boost=4, should=True).query(name__fuzzy={
+                'value': name,
+                'prefix_length': 1,
+                'min_similarity': 0.35
+            }, should=True)
 
         types = kwargs.pop('types', [])
         if types:

@@ -6,11 +6,11 @@ from django.views.generic import ListView
 
 from elasticutils import S
 
-from bulbs.content.models import Content, Tagish
+from bulbs.content.models import Content, Tag
 
 
 def search_tags(request):
-    tags = Tagish.search(request.GET.get('q'))
+    tags = Tag.search(name=request.GET.get('q'))
     tag_data = [{'name': tag.name, 'slug': tag.slug} for tag in tags]
     return HttpResponse(json.dumps(tag_data), content_type='application/json')
 
