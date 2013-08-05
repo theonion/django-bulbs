@@ -546,7 +546,8 @@ class Content(PolymorphicIndexable, PolymorphicModel):
             feature_type_query_string = 'feature_type.slug:%s' % feature_type
             results = results.query(__query_string=feature_type_query_string)
 
-        if 'types' in kwargs:
+        types = kwargs.pop('types', [])
+        if types:
             # only use valid subtypes
             results = results.doctypes(*[
                 type_classname for type_classname in kwargs['types'] \
