@@ -26,11 +26,15 @@ def sync_es(sender, **kwargs):
         except ElasticHttpError as e:
             print("ES Error: %s" % e.error)
 
-    tag_mapping = bulbs.content.models.Tag.get_mapping()
-    try:
-        es.put_mapping(index, 'tag', tag_mapping)
-    except ElasticHttpError as e:
-        print("ES Error: %s" % e.error)
+    for mapping_name, model in bulbs.content.models.Tag.get_doctypes().items():
+        try:
+            es.put_mapping(
+                index,
+                mapping_name,
+                model.get_mapping()
+            )
+        except ElasticHttpError as e:
+            print("ES Error: %s" % e.error)
 
 
 post_syncdb.connect(sync_es, sender=bulbs.content.models)
