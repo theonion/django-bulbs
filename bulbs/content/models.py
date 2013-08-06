@@ -100,15 +100,17 @@ class ContentS(S):
         return ContentSearchResults
 
 
-class TagishSearchResults(SearchResults):
+class TagSearchResults(SearchResults):
     def set_objects(self, results):
-        self.objects = [Tagish.from_source(result['_source']) for result in results]
-
+        self.objects = [
+            deserialize_polymorphic_model(result['_source']) for result in results
+        ]
+        
     def __iter__(self):
         return self.objects.__iter__()
 
 
-class TagishS(S):
+class TagS(S):
 
     def get_results_class(self):
         """Returns the results class to use
@@ -117,9 +119,9 @@ class TagishS(S):
 
         """
         if self.as_list or self.as_dict:
-            return super(TagishS, self).get_results_class()
+            return super(TagS, self).get_results_class()
 
-        return TagishSearchResults
+        return TagSearchResults
 
 
 class Tagish(models.Model):
@@ -340,6 +342,8 @@ class Tag(PolymorphicIndexable, PolymorphicModel):
     name = models.CharField(max_length=255)
     slug = models.SlugField()
 
+    _doctype_cache = {}
+
     def __unicode__(self):
         return '%s: %s' % (self.__class__.__name__, self.name)
 
@@ -365,6 +369,15 @@ class Tag(PolymorphicIndexable, PolymorphicModel):
         )
 
     @classmethod
+    def get_doctypes(cls):
+        if len(cls._doctype_cache) == 0:
+            for app in models.get_apps():
+                for model in models.get_models(app, include_auto_created=True):
+                    if isinstance(model(), Tag):
+                        cls._doctype_cache[model.get_mapping_type_name()] = model
+        return cls._doctype_cache
+
+    @classmethod
     def get_mapping_properties(cls):
         props = super(Tag, cls).get_mapping_properties()
         props.update({
@@ -372,6 +385,30 @@ class Tag(PolymorphicIndexable, PolymorphicModel):
             'slug': {'type': 'string', 'index': 'not_analyzed'},
         })
         return props
+
+    @classmethod
+    def search(cls, **kwargs):
+        """Search tags...profit."""
+        index = settings.ES_INDEXES.get('default')
+        results = TagS().es(urls=settings.ES_URLS).indexes(index)
+        name = kwargs.pop('name', '')
+        if name:
+            results = results.query(name__prefix=name, boost=4, should=True).query(name__fuzzy={
+                'value': name,
+                'prefix_length': 1,
+                'min_similarity': 0.35
+            }, should=True)
+
+        types = kwargs.pop('types', [])
+        if types:
+            # only use valid subtypes
+            results = results.doctypes(*[
+                type_classname for type_classname in kwargs['types'] \
+                if type_classname in cls.get_doctypes()
+            ])
+        else:
+            results = results.doctypes(*cls.get_doctypes().keys())
+        return results
 
 
 class Section(Tag):

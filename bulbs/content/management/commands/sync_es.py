@@ -30,5 +30,9 @@ class Command(NoArgsCommand):
                 model.get_mapping()
             )
 
-        tag_mapping = Tag.get_mapping()
-        es.put_mapping(index, 'tag', tag_mapping)
+        for mapping_name, model in Tag.get_doctypes().items():
+            es.put_mapping(
+                index,
+                mapping_name,
+                model.get_mapping()
+            )

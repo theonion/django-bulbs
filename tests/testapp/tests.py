@@ -17,19 +17,20 @@ class PolyContentTestCase(TestCase):
         words = ['spam', 'driver', 'dump truck', 'restaurant']
         self.num_subclasses = 2
         self.combos = list(itertools.combinations(words, 2))
+        self.all_tags = []
         for i, combo in enumerate(self.combos):
             tags = []
             for atom in combo:
                 tag = Tag(name=atom)
                 tag.save()
-                tags.append(tag)
+                self.all_tags.append(tag)
             obj = TestContentObj.objects.create(
                 title=' '.join(combo),
                 description=' '.join(reversed(combo)),
                 foo=combo[0],
                 published=one_hour_ago
             )
-            obj.tags.add(*tags)
+            obj.tags.add(*self.all_tags)
             obj2 = TestContentObjTwo.objects.create(
                 title=' '.join(reversed(combo)),
                 description=' '.join(combo),
@@ -37,7 +38,7 @@ class PolyContentTestCase(TestCase):
                 bar=i,
                 published=one_hour_ago
             )
-            obj2.tags.add(*tags)
+            obj2.tags.add(*self.all_tags)
 
     def test_content_subclasses(self):
         # We created one of each subclass per combination so the following should be true:
@@ -82,6 +83,7 @@ class PolyContentTestCase(TestCase):
         original_tag_count = len(real_content.tags.all())
         new_tag = Tag(name='crankdat')
         new_tag.save()
+        self.all_tags.append(new_tag) # save it for later tests
         real_content.tags.add(new_tag)
         self.assertEqual(len(real_content.tags.all()), original_tag_count + 1)
         readonly_content = Content.search(pk=real_content.id)[0]
@@ -90,7 +92,15 @@ class PolyContentTestCase(TestCase):
             len(real_content.tags.all())
         )
 
-        
+    def test_search_exact_name_tags(self):
+        tag = Tag(name='Beeftank')
+        tag.save(index=True, refresh=True)
+        self.all_tags.append(tag) # save it for later tests
+        results = Tag.search(name='Beeftank')
+        self.assertEqual(len(results), 1)
+        tag_result = results[0]
+        self.assertIsInstance(tag_result, Tag)
+
     # def test_content_detail_view(self):
     #     client = Client()
     #     for content in Content.objects.all():
