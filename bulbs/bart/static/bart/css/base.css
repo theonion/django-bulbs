@@ -343,6 +343,7 @@ header#primary nav a:hover {
   font-weight: normal;
   right: 0;
   left: 0;
+  top: 0;
 }
 @media only screen and (min-width: 650px) and (max-width: 1439px), only screen and (min-width: 1140px) {
   .header-container header#primary {
