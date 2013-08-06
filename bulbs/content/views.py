@@ -2,7 +2,7 @@ import json
 
 from django.conf import settings
 from django.http import Http404, HttpResponse
-from django.views.generic import CreateView, ListView
+from django.views.generic import CreateView, ListView, UpdateView
 
 from elasticutils import S
 
@@ -92,34 +92,47 @@ class ContentListView(ListView):
 content_list = ContentListView.as_view()
 
 
-class ContentCreateView(CreateView):
-    model = Content
+class PolymorphicContentFormMixin(object):
     _form_cache = {}
 
-    def get_form_class(self):
-        """Return a `ModelForm` based on the request `doctype` parameter."""
+    def get_polymorphic_content_form_class(self, model_class):
         from django import forms
 
+        try:
+            form_class = self._form_cache[model_class]
+        except KeyError:
+            class DoctypeModelForm(forms.ModelForm):
+                class Meta:
+                    model = model_class
+                    exclude = ['authors', 'image']
+            form_class = DoctypeModelForm
+            self._form_cache[model_class] = form_class
+
+        return form_class
+
+
+class ContentCreateView(PolymorphicContentFormMixin, CreateView):
+    model = Content
+ 
+    def get_form_class(self):
+        """Return a `ModelForm` based on the request `doctype` parameter."""
         try:
             doctype_name = self.request.REQUEST['doctype']
         except KeyError:    
             raise Http404('Create view needs a doctype parameter')
         try:
-            doctype_class = Content.get_doctypes()[doctype_name]
+            doctype_class = self.model.get_doctypes()[doctype_name]
         except KeyError:
             raise Http404('Doctype "%s" not found :(' % doctype_name)
 
-        # We have a valid doctype class, let's get a model form
-        try:
-            form_class = self._form_cache[doctype_name]
-        except KeyError:
-            class DoctypeModelForm(forms.ModelForm):
-                class Meta:
-                    model = doctype_class
-                    exclude = ['authors', 'image']
-            form_class = DoctypeModelForm
-            self._form_cache[doctype_name] = form_class
+        return self.get_polymorphic_content_form_class(doctype_class)
 
-        return form_class
 
+class ContentUpdateView(PolymorphicContentFormMixin, UpdateView):
+    model = Content
+
+    def get_form_class(self):
+        # The polymorphic query retrieved the true subclass
+        real_model_class = self.object.__class__
+        return self.get_polymorphic_content_form_class(real_model_class)
 
