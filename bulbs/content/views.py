@@ -1,8 +1,8 @@
 import json
 
 from django.conf import settings
-from django.http import HttpResponse
-from django.views.generic import ListView
+from django.http import Http404, HttpResponse
+from django.views.generic import CreateView, ListView
 
 from elasticutils import S
 
@@ -90,4 +90,36 @@ class ContentListView(ListView):
 
 
 content_list = ContentListView.as_view()
+
+
+class ContentCreateView(CreateView):
+    model = Content
+    _form_cache = {}
+
+    def get_form_class(self):
+        """Return a `ModelForm` based on the request `doctype` parameter."""
+        from django import forms
+
+        try:
+            doctype_name = self.request.REQUEST['doctype']
+        except KeyError:    
+            raise Http404('Create view needs a doctype parameter')
+        try:
+            doctype_class = Content.get_doctypes()[doctype_name]
+        except KeyError:
+            raise Http404('Doctype "%s" not found :(' % doctype_name)
+
+        # We have a valid doctype class, let's get a model form
+        try:
+            form_class = self._form_cache[doctype_name]
+        except KeyError:
+            class DoctypeModelForm(forms.ModelForm):
+                class Meta:
+                    model = doctype_class
+                    exclude = ['authors', 'image']
+            form_class = DoctypeModelForm
+            self._form_cache[doctype_name] = form_class
+
+        return form_class
+
 
