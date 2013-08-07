@@ -2,7 +2,9 @@ import json
 
 from django.conf import settings
 from django.http import Http404, HttpResponse
-from django.views.generic import CreateView, ListView, UpdateView
+from django.utils import simplejson as json
+from django.views.generic import CreateView, ListView, UpdateView, View
+from django.views.generic.detail import SingleObjectMixin
 
 from elasticutils import S
 
@@ -136,3 +138,48 @@ class ContentUpdateView(PolymorphicContentFormMixin, UpdateView):
         real_model_class = self.object.__class__
         return self.get_polymorphic_content_form_class(real_model_class)
 
+
+class ContentTagManagementView(SingleObjectMixin, View):
+    """A view for managing the tags for a given `Content` item."""
+    model = Content
+
+    def get(self, *args, **kwargs):
+        """Return all tags for a piece of content."""
+        #super(ContentTagManagementView, self).get(*args, **kwargs)
+        content = self.get_object()
+        tag_data = [
+            {'name': tag.name, 'slug': tag.slug} for tag in content.tags.all()
+        ]
+        return self.json_response(tag_data)
+
+    def post(self, *args, **kwargs):
+        """Adds a tag to a content item.""" 
+        tag_name = self.get_tag_name()
+        content = self.get_object()
+        tag, created_tag = Tag.objects.get_or_create(name=tag_name)
+        content.tags.add(tag)
+        return self.json_response(dict(name=tag.name, slug=tag.slug))
+
+    def delete(self, *args, **kwargs):
+        """Removes a tag from a content item."""
+        tag_name = self.get_tag_name()
+        content = self.get_object()
+        content.tags.all().filter(name=tag_name).delete()
+        return HttpResponse('Ok')
+
+    def json_response(self, data):
+        return HttpResponse(json.dumps(data), content_type='application/json')
+
+    def get_tag_name(self):
+        """Pulls the tag name out of the request."""
+        try:
+            tag_name = self.request.REQUEST['tag']
+        except KeyError:
+            raise Http404('No tag provided.')
+        tag_name = tag_name.strip()
+        if not tag_name:
+            return Http404('Tag name is empty.')
+        return tag_name
+
+
+manage_content_tags = ContentTagManagementView.as_view()
