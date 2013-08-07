@@ -308,7 +308,7 @@ header#primary nav a:hover {
   background: #FFF;
   position: fixed;
   width: 100%;
-  z-index: 100;
+  z-index: 1000;
   /** Begin transition block **/
   /** End transition block **/
 

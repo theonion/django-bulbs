@@ -3,17 +3,18 @@
 {% block meta_description%}{{ content.description|striptags }}{% endblock meta_description %}
 {% block site_title %}{{ content.title|striptags }} {{ block.super }}{% endblock site_title %}
 
+
+{% block article_detail_image %}
+<div class="type-coverstory-image">
+	{% include "bart/elements/snippets/image-container.html" %}
+</div>
+{% endblock article_detail_image %}
+
+
 {% block content %}
 <article class="type-coverstory">
 
-
-	{% block image_feature %}
-	{% include "bart/elements/snippets/image-container.html" %}
-	{% endblock image_feature %}
-		
-
 	<div class="article-body">
-
 
 		{% block article_header %}
 		<header class="article-header article-width">
