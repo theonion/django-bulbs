@@ -9,6 +9,10 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class ContentSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name='content-detail',
+        lookup_field='pk'
+    )
     authors = serializers.ChoiceField(
         widget=forms.TextInput()
     )
