@@ -13,9 +13,6 @@ class ContentSerializer(serializers.ModelSerializer):
         view_name='content-detail',
         lookup_field='pk'
     )
-    authors = serializers.ChoiceField(
-        widget=forms.TextInput()
-    )
     class Meta:
         model = Content
 
