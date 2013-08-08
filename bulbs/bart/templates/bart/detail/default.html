@@ -1,18 +1,18 @@
 {% extends "bart/detail/__base.html" %}
-{% block bodyclass %}article-detail{% endblock bodyclass %}
 {% block meta_description%}{{ content.description|striptags }}{% endblock meta_description %}
 {% block site_title %}{{ content.title|striptags }} {{ block.super }}{% endblock site_title %}
 
+{% block bodyclass %}{{ block.super }} type-coverstory{% endblock bodyclass %}
 
 {% block article_detail_image %}
-<div class="type-coverstory-image">
+<div class="main-image">
 	{% include "bart/elements/snippets/image-container.html" %}
 </div>
 {% endblock article_detail_image %}
 
 
 {% block content %}
-<article class="type-coverstory">
+<article class="main">
 
 	<div class="article-body">
 

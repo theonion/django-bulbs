@@ -26,7 +26,7 @@ html { font-size: 100.01%; }
 
 body {
 	.serif();
-	.gradient(@body-bg, #F9F9F9, @body-bg);
+	.body-gradient();
 	font-size: @baseline; // 14px
 	line-height: (@baseline * 2.123); // 26px
 	text-shadow: 0 -1px 1px rgba(255, 255, 255, 0.01);
@@ -182,9 +182,7 @@ ul.inline, ol.inline {
 
 	@media @desktop { width: 1160px } }
 
-.header-container, 
-.main-container, 
-	.footer-container {
+.header-container, .main-container, .footer-container {
 	.clearfix();
 	display: block; }
 
@@ -312,9 +310,13 @@ header#primary {
    ========================================================================== */
 
 .footer-container {
+	background: @body-fade;
 	color: @grey-regular;
-	margin: 2em 0; 
-	.colophon { text-align: center; } }
+	margin: 0;
+	padding: 2em 0; 
+	position: relative;
+
+		.colophon { text-align: center; } }
 
 /* ==========================================================================
    Responsive

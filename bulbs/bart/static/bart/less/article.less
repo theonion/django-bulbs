@@ -296,23 +296,45 @@
    Type-specific article classes
    ========================================================================== */
 
-article.type-longform {
+body.type-longform {
 	// Not using this yet.
 
 }
 
-article.type-coverstory {
+body.type-coverstory {
+
 	// The kind with the big ass image.
-}
 
-.type-coverstory-image + .main-container {
-    padding-top: 0;
-    position: relative; }
+	.top-banner { 
+		.body-gradient();
+		z-index:500; 
+		position: relative; }
 
-.type-coverstory-image + .main-container .main { padding: 0 }
+    .main-container { 
+    	.body-gradient();
+    	.main { padding: 0; } }
+
+    .main-image { 
+    	height: 500px; 
+    	overflow: hidden; 
+    	margin-top: 0px;
+
+		figure {
+			position: fixed; 
+			width: 100%; 
+			height: 100%; 
+			overflow: hidden; 
+			top: 30px
+		} 
+
+		& + .main-container {
+		    padding-top: 0;
+		    position: relative; 
+
+		    .main { padding: 0 } } } }
 
 
-article.type-default {
+body.type-default {
 	// Probably gonna be the most common template.
 
 	/*
@@ -402,7 +424,7 @@ article.type-default {
 
 }
 
-article.type-shortform {
+body.type-shortform {
 	// Shorty shorts.
 
 }

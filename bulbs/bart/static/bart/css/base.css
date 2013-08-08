@@ -460,8 +460,11 @@ header#primary h1.title a img {
    Basic footer (to be moved/updated when footer design finished)
    ========================================================================== */
 .footer-container {
+  background: #f9f9f9;
   color: #bcbcbc;
-  margin: 2em 0;
+  margin: 0;
+  padding: 2em 0;
+  position: relative;
 }
 .footer-container .colophon {
   text-align: center;
