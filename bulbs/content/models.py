@@ -416,7 +416,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
         if types:
             # only use valid subtypes
             results = results.doctypes(*[
-                type_classname for type_classname in kwargs['types'] \
+                type_classname for type_classname in types \
                 if type_classname in cls.get_doctypes()
             ])
         else:
