@@ -2,6 +2,7 @@ from collections import Iterable
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.backends import util
 from django.db.models.query_utils import deferred_class_factory
@@ -270,7 +271,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
         return '%s: %s' % (self.__class__.__name__, self.title)
 
     def get_absolute_url(self):
-        return '/content/%d/' % self.id
+        return reverse('content-detail-view', kwargs=dict(pk=self.pk, slug=self.slug))
 
     @property
     def byline(self):
