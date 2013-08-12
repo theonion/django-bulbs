@@ -9,10 +9,10 @@ class DoctypeChoiceField(forms.ChoiceField):
             (doctype_id, klass.__name__) for doctype_id, klass in model.get_doctypes().items()
             if not exclude_base or klass != model
         ]
-        super(DoctypeChoiceField, self).__init__(choices=choices)
+        super(DoctypeChoiceField, self).__init__(choices=choices, *args, **kwargs)
 
 
-class ContentModelTypeForm(forms.Form):
+class ContentDoctypeForm(forms.Form):
     """Form for choosing a Content subclass doctype."""
-    doctype = DoctypeChoiceField(Content, exclude_base=True)
+    doctype = DoctypeChoiceField(Content, exclude_base=True, label='Type')
 
