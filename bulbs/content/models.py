@@ -75,12 +75,10 @@ def deserialize_polymorphic_model(data):
 class ContentSearchResults(SearchResults):
     def set_objects(self, results):
         self.objects = []
+        readonly_cls = readonly_content_factory(Content)
         for result in results:
-            content_type = ContentType.objects.get_for_id(result['_source']['polymorphic_ctype_id'])
-            if content_type:
-                readonly_cls = readonly_content_factory(content_type.model_class())
-                obj = readonly_cls.from_source(result['_source'])
-                self.objects.append(obj)
+            obj = readonly_cls.from_source(result['_source'])
+            self.objects.append(obj)
 
     def __iter__(self):
         return self.objects.__iter__()
@@ -499,8 +497,6 @@ class Content(PolymorphicIndexable, PolymorphicModel):
     def from_source(cls, _source):
         obj = cls(
             id=_source['id'],
-            # HACKISH: content_ptr_id is from django-polymorphic Content subclasses
-            content_ptr_id=_source['id'],
             published=_source['published'],
             title=_source['title'],
             slug=_source['slug'],
