@@ -13,6 +13,8 @@ class ContentSerializer(serializers.ModelSerializer):
         view_name='content-detail',
         lookup_field='pk'
     )
+    tags = TagSerializer(many=True)
+
     class Meta:
         model = Content
 
