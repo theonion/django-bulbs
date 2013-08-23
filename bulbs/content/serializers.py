@@ -18,3 +18,14 @@ class ContentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Content
 
+
+class PolymorphicContentSerializer(ContentSerializer):
+    def to_native(self, value):
+        # TODO: allow per-class definitions of serializers like this:
+        # real_serializer = value.get_serializer()
+        # For now, here's the simplest possible thing:
+        class ThisSerializer(serializers.ModelSerializer):
+            class Meta:
+                model = value.__class__
+        real_serializer = ThisSerializer()
+        return real_serializer.to_native(value)
