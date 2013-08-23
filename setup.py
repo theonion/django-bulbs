@@ -19,7 +19,7 @@ requires = [
     "Markdown==2.2.1",
     "Pillow==1.7.8",
     "South==0.8.1",
-    "djangorestframework==2.3.6",
+    #"djangorestframework==2.4.0",
     "django_polymorphic==0.5.1",
     "elasticutils==0.7",
     "mdx-smartypants==1.3",
