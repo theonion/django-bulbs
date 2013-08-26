@@ -12,9 +12,10 @@ class TagSerializer(serializers.ModelSerializer):
         model = Tag
 
 
-class AuthorSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
+        exclude = ('password',)
 
 
 class ImageSerializer(serializers.ModelSerializer):
@@ -28,7 +29,7 @@ class ContentSerializer(serializers.ModelSerializer):
         lookup_field='pk'
     )
     tags = TagSerializer(many=True)
-    authors = AuthorSerializer(many=True)
+    authors = UserSerializer(many=True)
     image = ImageSerializer()
 
     class Meta:
