@@ -1,4 +1,3 @@
 -r requirements.txt
 Sphinx==1.2b1
 ipython==0.13.1
-django-jenkins==0.14.1
