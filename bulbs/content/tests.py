@@ -1,7 +1,6 @@
 import itertools
 import datetime
 import json
-import time
 
 from django.test import TestCase
 from django.utils import timezone

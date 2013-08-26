@@ -6,7 +6,7 @@ import django
 import sys
 import os
 
-TESTABLE_APPS = ['content',]
+TESTABLE_APPS = ['content', 'images']
 
 
 # Give feedback on used versions
@@ -47,8 +47,7 @@ settings.configure(
 
 
         'bulbs.content',
-        'bulbs.images',
-        'bulbs.markdown',
+        'bulbs.images'
     ),
     SITE_ID = 3,
 
