@@ -1,8 +1,0 @@
-<h3>Test Headline</h3>
-<ul>
-<li>List Item One</li>
-<li>List Item Two</li>
-<li>List Item Three</li>
-</ul>
-<p><em>Italic</em></p>
-<p><strong>Bold</strong></p>
