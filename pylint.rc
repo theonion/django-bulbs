@@ -51,7 +51,7 @@ load-plugins=
 # Put messages in a separate file for each module / package specified on the
 # command line instead of printing them on stdout. Reports (if any) will be
 # written in a file name "pylint_global.[txt|html]".
-files-output=yes
+files-output=no
 
 # Tells whether to display a full report or only the messages
 reports=yes
