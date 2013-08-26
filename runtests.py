@@ -6,8 +6,7 @@ import django
 import sys
 import os
 
-TESTABLE_APPS = ['content', 'images']
-
+TESTABLE_APPS = ['bulbs.content', 'bulbs.images']
 
 # Give feedback on used versions
 sys.stderr.write('Using Python version {0} from {1}\n'.format(sys.version[:5], sys.executable))
@@ -15,7 +14,6 @@ sys.stderr.write('Using Django version {0} from {1}\n'.format(
     django.get_version(),
     os.path.dirname(os.path.abspath(django.__file__)))
 )
-
 
 # Detect location and available modules
 module_root = dirname(realpath(__file__))
@@ -45,13 +43,16 @@ settings.configure(
         'rest_framework',
         'polymorphic',
 
-
         'bulbs.content',
-        'bulbs.images'
+        'bulbs.images',
+
+        'discover_runner'
     ),
     SITE_ID = 3,
 
     ROOT_URLCONF = 'tests.urls',
+
+    TEST_RUNNER = 'tests.runner.XMLTestRunner',
     
     ES_URLS = ['http://localhost:9200'],
     ES_INDEXES = {
@@ -61,7 +62,6 @@ settings.configure(
 )
 
 call_command('syncdb', verbosity=1, interactive=False)
-
 
 # ---- app start
 verbosity = 2 if '-v' in sys.argv else 1
