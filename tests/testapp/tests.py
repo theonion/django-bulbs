@@ -1,9 +1,10 @@
 import datetime
 import itertools
 
+from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import Client
-from django.utils import timezone
+from django.utils import simplejson, timezone
 
 from .models import (
     Content, ReadonlyRelatedManager, ROBud, Tag, TestContentObj, TestContentObjTwo
@@ -100,6 +101,30 @@ class PolyContentTestCase(TestCase):
         self.assertEqual(len(results), 1)
         tag_result = results[0]
         self.assertIsInstance(tag_result, Tag)
+
+    def test_content_tag_management_view(self):
+        content = Content.objects.all()[0]
+        content_tag_names = set([tag.name for tag in content.tags.all()])
+        # get tags
+        client = Client()
+        tag_url = reverse('bulbs.content.views.manage_content_tags', kwargs={'pk': content.pk})
+        response = client.get(tag_url)
+        data = simplejson.loads(response.content)
+        self.assertEqual(len(data), len(content_tag_names))
+        # add tag
+        response = client.post(tag_url, {
+            'tag': 'Chowdah'
+        })
+        data = simplejson.loads(response.content)
+        self.assertEqual(data['name'], 'Chowdah')
+        new_content_tag_names = set([tag.name for tag in content.tags.all()])
+        self.assertEqual(len(new_content_tag_names - content_tag_names), 1)
+        self.assertIn('Chowdah', new_content_tag_names)
+        # remove tag
+        response = client.delete(tag_url + '?tag=Chowdah')
+        new_content_tag_names = set([tag.name for tag in content.tags.all()])
+        self.assertEqual(len(new_content_tag_names - content_tag_names), 0)
+
 
     # def test_content_detail_view(self):
     #     client = Client()

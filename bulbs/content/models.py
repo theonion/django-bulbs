@@ -2,6 +2,7 @@ from collections import Iterable
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.backends import util
 from django.db.models.query_utils import deferred_class_factory
@@ -75,12 +76,10 @@ def deserialize_polymorphic_model(data):
 class ContentSearchResults(SearchResults):
     def set_objects(self, results):
         self.objects = []
+        readonly_cls = readonly_content_factory(Content)
         for result in results:
-            content_type = ContentType.objects.get_for_id(result['_source']['polymorphic_ctype_id'])
-            if content_type:
-                readonly_cls = readonly_content_factory(content_type.model_class())
-                obj = readonly_cls.from_source(result['_source'])
-                self.objects.append(obj)
+            obj = readonly_cls.from_source(result['_source'])
+            self.objects.append(obj)
 
     def __iter__(self):
         return self.objects.__iter__()
@@ -122,174 +121,6 @@ class TagS(S):
             return super(TagS, self).get_results_class()
 
         return TagSearchResults
-
-
-class Tagish(models.Model):
-
-    name = models.CharField(max_length=255)
-    slug = models.SlugField()
-
-    class Meta:
-        abstract = True
-
-    def __unicode__(self):
-        if self.__class__ == Tagish:
-            return 'Tag: %s' % self.name
-        else:
-            return '%s: %s' % (self.__class__.__name__, self.name)
-
-    def save(self, *args, **kwargs):
-        es = get_es()
-        indexes = settings.ES_INDEXES
-        index = indexes.get('tag') or indexes['default']
-
-        # The default slug for a tagish object is "[slugified name]-[slugified classname]"
-        # If that's already taken, we start appending numbers
-        counter = 1
-        slug = slugify('%s %s' % (self.name, self.__class__.__name__))
-        while self.slug is None or self.slug == '':
-            try:
-                es_tag = es.get(index, 'tag', slug)
-            except ElasticHttpNotFoundError:
-                self.slug = slug
-                break
-
-            slug = slugify('%s %s %s' % (self.name, self.__class__.__name__, counter))
-            counter += 1
-
-        super(Tagish, self).save(*args, **kwargs)
-        self.index()
-
-    @classmethod
-    def get(cls, slug):
-        es = get_es()
-        indexes = settings.ES_INDEXES
-        index = indexes.get('tag') or indexes['default']
-        try:
-            es_tag = es.get(index, 'tag', slug)
-        except ElasticHttpNotFoundError:
-            raise cls.ObjectDoesNotExist
-
-        return cls.from_source(es_tag['_source'])
-
-    @classmethod
-    def from_source(cls, _source):
-        if _source.get('id'):
-            model = ContentType.objects.get_for_id(_source['content_type']).model_class()
-            # Get the attributes to be deferred.
-            attrs = [fn for fn in model._meta.get_all_field_names() if fn not in ['pk', 'slug', 'name']]
-            model = deferred_class_factory(model, attrs)
-            return model(id=_source['id'], name=_source['name'], slug=_source['slug'])
-        return Tagish(name=_source['name'], slug=_source['slug'])
-
-    @classmethod
-    def from_name(cls, name):
-        obj = cls()
-        obj.name = name
-        obj.slug = slugify(name)
-        return obj
-
-    def index(self):
-        es = get_es()
-        indexes = settings.ES_INDEXES
-        index = indexes.get('tag') or indexes['default']
-        try:
-            response = es.index(index, 'tag', self.extract_document(), self.slug)
-        except InvalidJsonResponseError as e:
-            print(e.response.content)
-
-    def extract_document(self):
-        data = {'name': self.name, 'slug': self.slug}
-        if getattr(self, 'id', None):
-            data['content_type'] = ContentType.objects.get_for_model(self).id
-            data['id'] = self.id
-        return data
-
-    @classmethod
-    def search(cls, query=None):
-        index = settings.ES_INDEXES.get('default')
-        results = TagishS().es(urls=settings.ES_URLS).indexes(index).doctypes('tag')
-        if query:
-            results = results.query(name__match={'query': query, 'fuzziness': 0.35})
-        return results
-
-    def content(self):
-        return Content.search(tags=[self.slug])
-
-
-class TagishRelatedManage():
-    """ This is pretty messy, but it does work. This is basically a related manager-ish
-        class that allows adding, removing and retriving the tags from a Content object.
-    """
-
-    def __init__(self, content):
-        self.content = content
-
-    def _save_tags(self, refresh=False):
-        self.content.save(index=False, update_fields=['_tags'])
-        es = get_es()
-        indexes = settings.ES_INDEXES
-        index = indexes.get('tag') or indexes['default']
-        doc = {}
-        doc['tags'] = [
-            {
-                'name': tag_name,
-                'slug': slugify(tag_name)
-            } for tag_name in self.content._tags.split('\n')]
-        es.update(index, self.content.get_mapping_type_name(), self.content.id, doc=doc, refresh=refresh)
-        for tag_name in self.content._tags.split('\n'):
-            tag = Tagish.from_name(tag_name)
-            try:
-                tag = es.get(index, 'tag', tag.slug)
-            except ElasticHttpNotFoundError:
-                tag.index()
-
-    def all(self):
-        if self.content._tags:
-            return Tagish.search().query(slug__terms=[slugify(tag) for tag in self.content._tags.split('\n')])
-        return []
-
-    def remove(self, tags):
-        if not isinstance(tags, Iterable):
-            tags = [tags]
-        if self.content._tags is None:
-            tag_list = []
-        else:
-            tag_list = self.content._tags.split('\n')
-        for tag in tags:
-            if isinstance(tag, Tagish):
-                tag_name = tag.name
-            elif isinstance(tag, basestring):
-                tag_name = tag
-            else:
-                raise TypeError('Tags must be strings or Tagish objects')
-            if tag_name in tag_list:
-                tag_list.remove(tag_name)
-            else:
-                raise AttributeError('There is no attached tag with the name \"%s\"' % tag_name)
-        self.content._tags = '\n'.join(tag_list)
-        self._save_tags()
-
-    def add(self, tags):
-        if not isinstance(tags, Iterable):
-            tags = [tags]
-        if self.content._tags is None:
-            tag_list = []
-        else:
-            tag_list = self.content._tags.split('\n')
-        for tag in tags:
-            if isinstance(tag, Tagish):
-                tag_name = tag.name
-            elif isinstance(tag, basestring):
-                tag_name = tag
-            else:
-                raise TypeError('Tags must be strings or Tagish objects')
-            if tag_name in tag_list:
-                raise AttributeError('There is already an attached tag with the name \"%s\"' % tag_name)
-            else:
-                tag_list.append(tag_name)
-        self.content._tags = '\n'.join(tag_list)
-        self._save_tags()
 
 
 class PolymorphicIndexable(object):
@@ -440,7 +271,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
         return '%s: %s' % (self.__class__.__name__, self.title)
 
     def get_absolute_url(self):
-        return '/content/%d/' % self.id
+        return reverse('content-detail-view', kwargs=dict(pk=self.pk, slug=self.slug))
 
     @property
     def byline(self):
@@ -499,8 +330,6 @@ class Content(PolymorphicIndexable, PolymorphicModel):
     def from_source(cls, _source):
         obj = cls(
             id=_source['id'],
-            # HACKISH: content_ptr_id is from django-polymorphic Content subclasses
-            content_ptr_id=_source['id'],
             published=_source['published'],
             title=_source['title'],
             slug=_source['slug'],
@@ -587,7 +416,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
         if types:
             # only use valid subtypes
             results = results.doctypes(*[
-                type_classname for type_classname in kwargs['types'] \
+                type_classname for type_classname in types \
                 if type_classname in cls.get_doctypes()
             ])
         else:
