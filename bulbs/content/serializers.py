@@ -18,6 +18,12 @@ class UserSerializer(serializers.ModelSerializer):
         exclude = ('password',)
 
 
+class SimpleAuthorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'first_name', 'last_name')
+
+
 class ImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Image
@@ -29,7 +35,7 @@ class ContentSerializer(serializers.ModelSerializer):
         lookup_field='pk'
     )
     tags = TagSerializer(many=True)
-    authors = UserSerializer(many=True)
+    authors = SimpleAuthorSerializer(many=True)
     image = ImageSerializer()
 
     class Meta:

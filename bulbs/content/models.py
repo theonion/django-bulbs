@@ -87,6 +87,22 @@ class ContentSearchResults(SearchResults):
 
 class ContentS(S):
 
+    def all(self):
+        """
+        Fixes the default `S.all` method given by elasticutils.
+        `S` generally looks like django queryset but differs in
+        a few ways, one of which is `all`. Django `QuerySet` just
+        returns a clone for `all` but `S` wants to return all
+        the documents. This makes `all` at least respect slices
+        but the real fix is to probably make `S` work more like
+        `QuerySet`.
+        """
+        if self.start == 0 and self.stop is None:
+            # no slicing has occurred. let's get all of the records.
+            count = self.count()
+            return self[:count].execute()
+        return self.execute()            
+
     def get_results_class(self):
         """Returns the results class to use
 
