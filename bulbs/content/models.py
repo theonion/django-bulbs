@@ -390,6 +390,11 @@ class Content(PolymorphicIndexable, PolymorphicModel):
         return properties
 
     @classmethod
+    def get_serializer_class(cls):
+        from .serializers import ContentSerializer
+        return ContentSerializer
+
+    @classmethod
     def search(cls, **kwargs):
         """
         If ElasticSearch is being used, we'll use that for the query, and otherwise
