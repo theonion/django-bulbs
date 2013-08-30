@@ -1,3 +1,7 @@
+"""Base models for "Content", including the indexing and search features
+that we want any piece of content to have."""
+
+
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
@@ -43,6 +47,10 @@ class ReadonlyRelatedManager(object):
 
 
 def readonly_content_factory(model):
+    """This is used to generate a class for a piece of content that we
+    have retrieved from ElasticSearch. This content will have a number
+    of "read-only" fields."""
+
     class Meta:
         proxy = True
         app_label = model._meta.app_label
@@ -97,7 +105,7 @@ class ContentS(S):
             # no slicing has occurred. let's get all of the records.
             count = self.count()
             return self[:count].execute()
-        return self.execute()            
+        return self.execute()
 
     def get_results_class(self):
         """Returns the results class to use
@@ -116,7 +124,7 @@ class TagSearchResults(SearchResults):
         self.objects = [
             deserialize_polymorphic_model(result['_source']) for result in results
         ]
-        
+
     def __iter__(self):
         return self.objects.__iter__()
 
