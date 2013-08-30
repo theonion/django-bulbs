@@ -1,20 +1,16 @@
-from collections import Iterable
-
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.backends import util
-from django.db.models.query_utils import deferred_class_factory
 from django.template.defaultfilters import slugify
 from django.utils import timezone
+
+from bulbs.images.models import Image
 
 from elasticutils import SearchResults, S
 from elasticutils.contrib.django import get_es
 from polymorphic import PolymorphicModel
-from pyelasticsearch.exceptions import ElasticHttpNotFoundError, InvalidJsonResponseError
-
-from bulbs.images.models import Image
 
 
 class ReadonlyRelatedManager(object):
