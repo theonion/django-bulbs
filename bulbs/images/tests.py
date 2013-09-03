@@ -28,9 +28,10 @@ class TestModel(models.Model):
 class ImageTagsTestCase(TestCase):
 
     def setUp(self):
-        with open(os.path.join(APP_DIR, "test_images", "Lenna.png"), "r") as lenna:
-            test = TestModel()
-            test.image = File(lenna, name="666")
+        # with open(os.path.join(APP_DIR, "test_images", "Lenna.png"), "r") as lenna:
+        test = TestModel()
+        test.image = test.image.field.attr_class(test, test.image.field, '666')
+        test.save()
         self.context = {'image': test.image}
 
     def test_image_field(self):
