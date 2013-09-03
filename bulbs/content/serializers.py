@@ -34,9 +34,9 @@ class ContentSerializer(serializers.ModelSerializer):
         view_name='content-detail',
         lookup_field='pk'
     )
-    tags = TagSerializer(many=True)
-    authors = SimpleAuthorSerializer(many=True)
-    image = ImageSerializer()
+    tags = TagSerializer(many=True, required=False)
+    authors = SimpleAuthorSerializer(many=True, required=False)
+    image = ImageSerializer(required=False)
 
     class Meta:
         model = Content
