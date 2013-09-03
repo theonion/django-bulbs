@@ -6,7 +6,10 @@ import django
 import sys
 import os
 
-TESTABLE_APPS = ['bulbs.content', 'bulbs.images']
+# TESTABLE_APPS = ['bulbs.content', 'bulbs.images']
+TESTABLE_APPS = ['bulbs.images']
+
+
 
 # Give feedback on used versions
 sys.stderr.write('Using Python version {0} from {1}\n'.format(sys.version[:5], sys.executable))

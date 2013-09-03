@@ -1,15 +1,22 @@
+import os
+import shutil
+import random
+import json
+import socket
+
 from django.template import Context, Template
 from django.template import TemplateSyntaxError
 from django.core.files import File
 from django.conf import settings
 from django.test.client import Client
-
+from django.db import models
+from django.core.files import File
 from django.test import TestCase
-import os
-import shutil
 
-from bulbs.images.models import Image, ImageAspectRatio
+from pretenders.client.http import HTTPMock
+from pretenders.constants import FOREVER
 
+from bulbs.images.fields import RemoteImageField
 
 class ImageTagsTestCase(TestCase):
 
@@ -84,3 +91,30 @@ class ImageTagsTestCase(TestCase):
 
         rendered = test_template.render(test_context)
         self.assertEqual(rendered, '<img src="/images/crops/1/3x4/100_90.jpg" alt="test image" />')
+
+class TestModel(models.Model):
+    image = RemoteImageField()
+
+
+class BettyCropperTestCase(TestCase):
+    def test_image_field(self):
+        try:
+            mock_betty_admin = HTTPMock('localhost', 9999, timeout=20, name="betty_admin")
+            mock_betty_public = HTTPMock('localhost', 9999, timeout=20, name="betty_public")
+        except socket.error:
+            # Skip this test, we don't have a working server.
+            return
+
+        settings.BETTY_CROPPER = {
+            'ADMIN_URL': 'http://localhost:9999%s' % mock_betty_admin.pretender_details.get('path'),
+            'PUBLIC_URL': 'http://localhost:9999%s' % mock_betty_public.pretender_details.get('path')
+        }
+        mock_betty_admin.when("POST /api/new").reply(json.dumps({"id": 10}), status=201, times=FOREVER)
+        app_dir = os.path.dirname(__file__)
+
+        with open(os.path.join(app_dir, "test_images", "Lenna.png"), "r") as lenna:
+            test = TestModel()
+            test.image = File(lenna)
+            test.save()
+            self.assertEqual(test.image.name, "10")
+            print(test.image.url)
