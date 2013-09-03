@@ -14,5 +14,4 @@ django_bulbs.egg-info
 .vagrant
 docs/_build/*
 coverage_html_report
-images
 reports
