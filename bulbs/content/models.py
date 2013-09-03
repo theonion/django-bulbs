@@ -10,7 +10,7 @@ from django.db.backends import util
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 
-from bulbs.images.models import Image
+from bulbs.images.fields import RemoteImageField
 
 from elasticutils import SearchResults, S
 from elasticutils.contrib.django import get_es
@@ -274,7 +274,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
     title = models.CharField(max_length=512)
     slug = models.SlugField()
     description = models.TextField(max_length=1024)
-    image = models.ForeignKey(Image, null=True, blank=True)
+    image = RemoteImageField(null=True, blank=True)
     
     authors = models.ManyToManyField(settings.AUTH_USER_MODEL)
     _byline = models.CharField(max_length=255, null=True, blank=True)  # This is an overridable field that is by default the author names
@@ -317,7 +317,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
             'title': self.title,
             'slug': self.slug,
             'description': self.description,
-            'image': self.image_id,
+            'image': self.image.name,
             'byline': self.byline,
             'subhead': self.subhead,
             'feature_type': self.feature_type,

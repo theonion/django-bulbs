@@ -1,40 +1,21 @@
 from django import template
-from django.conf import settings
 from django.template import TemplateSyntaxError
-
-from bulbs.images.models import ImageAspectRatio, Image
-
 
 register = template.Library()
 
 
 @register.simple_tag
-def image_url(image, width, ratio='16x9', quality=90, extension='jpg'):
-    if width is None or not isinstance(image, Image):
+def image_url(image, width, ratio='16x9', format='jpg'):
+    if width is None:
         raise TemplateSyntaxError
-    return image.crop_url(ratio, width, extension, quality)
-
-
-def _image_context(image, ratio, width, extension, quality):
-    context = {'image': image, 'size': (0, 0), 'image_url': None}
-    if image:
-        if ratio == 'original':
-            height = (image.height * width) / image.width
-            context['size'] = (width, height)
-        else:
-            ratio_object = ImageAspectRatio.objects.get_for_slug(ratio)
-            context['size'] = ratio_object.get_size(width=width)
-
-        if settings.DEBUG:
-            context['image_url'] = 'http://placehold.it/%sx%s' % context['size']
-        else:
-            context['image_url'] = image.crop_url(ratio, width, extension, quality)
-    context['ratio'] = ratio
-    return context
-
+    return image.crop_url(width=width, ratio=ratio, format=format)
 
 @register.inclusion_tag('images/image.html', takes_context=True)
-def image(context, image, width, ratio='16x9', quality=90, extension="jpg"):
-    if width is None or not isinstance(image, Image):
+def image(context, image, width, ratio='16x9', format="jpg"):
+    if width is None:
         raise TemplateSyntaxError
-    return context.update(_image_context(image, ratio, width, extension, quality))
+    context['image'] = image
+    context['image_url'] = image.crop_url(width=width, ratio=ratio, format=format)
+    context['ratio'] = ratio
+    context['width'] = width
+    return context

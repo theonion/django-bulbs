@@ -1,1 +1,1 @@
-<img src="{{ image_url }}" alt="{{ image.alt }}" />
+<img src="{{ image_url }}" {% if alt %}alt="{{ image.alt }}"{% endif %}/>
