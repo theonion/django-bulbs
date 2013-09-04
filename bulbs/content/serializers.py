@@ -27,15 +27,18 @@ class ContentSerializer(serializers.ModelSerializer):
         view_name='content-detail',
         lookup_field='pk'
     )
-    tags = TagSerializer(many=True, required=False)
-    authors = SimpleAuthorSerializer(many=True, required=False)
 
     class Meta:
         model = Content
         exclude = ('polymorphic_ctype',)
 
 
-class PolymorphicContentSerializer(ContentSerializer):
+class ContentSerializerReadOnly(ContentSerializer):
+    tags = TagSerializer(many=True, required=False)
+    authors = SimpleAuthorSerializer(many=True, required=False)
+
+    
+class PolymorphicContentSerializerMixin(object):
     def to_native(self, value):
         if hasattr(value, 'get_serializer_class'):
             ThisSerializer = value.get_serializer_class()
@@ -46,3 +49,12 @@ class PolymorphicContentSerializer(ContentSerializer):
             
         serializer = ThisSerializer(context=self.context)
         return serializer.to_native(value)
+
+
+class PolymorphicContentSerializer(ContentSerializer, PolymorphicContentSerializerMixin):
+    pass
+
+
+class PolymorphicContentSerializerReadOnly(ContentSerializerReadOnly, PolymorphicContentSerializerMixin):
+    pass
+

@@ -395,6 +395,11 @@ class Content(PolymorphicIndexable, PolymorphicModel):
 
     @classmethod
     def get_serializer_class(cls):
+        from .serializers import ContentSerializerReadOnly
+        return ContentSerializerReadOnly
+
+    @classmethod
+    def get_writable_serializer_class(cls):
         from .serializers import ContentSerializer
         return ContentSerializer
 
