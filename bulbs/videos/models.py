@@ -4,7 +4,6 @@ import json
 from django.db import models
 from django.conf import settings
 
-from bulbs.images.models import Image
 
 DEFAULT_VIDEO_OUTPUT = {
     "public": True,
@@ -15,7 +14,6 @@ DEFAULT_VIDEO_OUTPUT = {
 
 class Video(models.Model):
     title = models.CharField(max_length=255)
-    poster = models.ForeignKey(Image, null=True, blank=True)
     original = models.TextField(null=True, blank=True)
 
     def __unicode__(self):
