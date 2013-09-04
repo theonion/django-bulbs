@@ -2,8 +2,6 @@ from django import forms
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from bulbs.images.models import Image
-
 from .models import Content, Tag
 
 
@@ -24,11 +22,6 @@ class SimpleAuthorSerializer(serializers.ModelSerializer):
         fields = ('id', 'first_name', 'last_name')
 
 
-class ImageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Image
-
-
 class ContentSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='content-detail',
@@ -36,7 +29,6 @@ class ContentSerializer(serializers.ModelSerializer):
     )
     tags = TagSerializer(many=True, required=False)
     authors = SimpleAuthorSerializer(many=True, required=False)
-    image = ImageSerializer(required=False)
 
     class Meta:
         model = Content
