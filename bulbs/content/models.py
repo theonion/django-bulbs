@@ -272,8 +272,8 @@ class Content(PolymorphicIndexable, PolymorphicModel):
     """The base content model from which all other content derives."""
     published = models.DateTimeField(blank=True, null=True)
     title = models.CharField(max_length=512)
-    slug = models.SlugField()
-    description = models.TextField(max_length=1024)
+    slug = models.SlugField(blank=True, default='')
+    description = models.TextField(max_length=1024, blank=True, default='')
     image = RemoteImageField(null=True, blank=True)
     
     authors = models.ManyToManyField(settings.AUTH_USER_MODEL)
@@ -310,6 +310,9 @@ class Content(PolymorphicIndexable, PolymorphicModel):
         # Well, shit. I guess there's no byline.
         return None
 
+    def build_slug(self):
+        return self.title
+
     def extract_document(self):
         doc = super(Content, self).extract_document()
         doc.update({
@@ -344,6 +347,10 @@ class Content(PolymorphicIndexable, PolymorphicModel):
             raise AttributeError('This content object is read only.')
         self._feature_type = value
 
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.build_slug())
+
+        return super(Content, self).save(*args, **kwargs)
     # class methods ##############################
 
     @classmethod
