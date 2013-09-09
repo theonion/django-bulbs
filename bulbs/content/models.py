@@ -348,7 +348,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
         self._feature_type = value
 
     def save(self, *args, **kwargs):
-        self.slug = slugify(self.build_slug())
+        self.slug = slugify(self.build_slug())[:self._meta.get_field('slug').max_length]
 
         return super(Content, self).save(*args, **kwargs)
     # class methods ##############################
