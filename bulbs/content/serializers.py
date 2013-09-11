@@ -23,40 +23,42 @@ class SimpleAuthorSerializer(serializers.ModelSerializer):
 
 
 class ContentSerializer(serializers.ModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='content-detail',
-        lookup_field='pk'
-    )
+    # url = serializers.HyperlinkedIdentityField(
+    #     view_name='content-detail',
+    #     lookup_field='pk'
+    # )
     tags = serializers.PrimaryKeyRelatedField(many=True, required=False)
     authors = serializers.PrimaryKeyRelatedField(many=True, required=False)
 
     class Meta:
         model = Content
-        exclude = ('polymorphic_ctype',)
 
 
 class ContentSerializerReadOnly(ContentSerializer):
     tags = TagSerializer(many=True, required=False)
     authors = SimpleAuthorSerializer(many=True, required=False)
 
-    
+
 class PolymorphicContentSerializerMixin(object):
     def to_native(self, value):
-        if hasattr(value, 'get_serializer_class'):
-            ThisSerializer = value.get_serializer_class()
-        else:
-            class ThisSerializer(serializers.ModelSerializer):
-                class Meta:
-                    model = value.__class__
+        if value:
+            if hasattr(value, 'get_serializer_class'):
+                ThisSerializer = value.get_serializer_class()
+            else:
+                class ThisSerializer(serializers.ModelSerializer):
+                    class Meta:
+                        model = value.__class__
             
-        serializer = ThisSerializer(context=self.context)
-        return serializer.to_native(value)
+            serializer = ThisSerializer(context=self.context)
+            return serializer.to_native(value)
+        else:
+            return super(PolymorphicContentSerializerMixin, self).to_native(value)
 
 
-class PolymorphicContentSerializer(ContentSerializer, PolymorphicContentSerializerMixin):
+class PolymorphicContentSerializer(PolymorphicContentSerializerMixin, ContentSerializer):
     pass
 
 
-class PolymorphicContentSerializerReadOnly(ContentSerializerReadOnly, PolymorphicContentSerializerMixin):
+class PolymorphicContentSerializerReadOnly(PolymorphicContentSerializerMixin, ContentSerializerReadOnly):
     pass
 

@@ -17,60 +17,9 @@ from elasticutils.contrib.django import get_es
 from polymorphic import PolymorphicModel
 
 
-class ReadonlyRelatedManager(object):
-    """Replaces Django's RelatedMangers in read-only scenarios."""
-    def __init__(self):
-        self.data = []
-
-    def __set__(self, obj, data):
-        if data:
-            if not isinstance(data, list):
-                data = [data]
-        else:
-            data = []
-        self.data = data
-
-    def add(self, *args):
-        self._on_bad_access()
-
-    def all(self):
-        return self.data
-
-    def clear(self):
-        self._on_bad_access()
-
-    def remove(self, *args):
-        self._on_bad_access()
-
-    def _on_bad_access(self):
-        raise TypeError('%s is read-only' % self.__class__.__name__)
-
-
-def readonly_content_factory(model):
-    """This is used to generate a class for a piece of content that we
-    have retrieved from ElasticSearch. This content will have a number
-    of "read-only" fields."""
-
-    class Meta:
-        proxy = True
-        app_label = model._meta.app_label
-
-    name = '%s_Readonly' % model.__name__
-    name = util.truncate_name(name, 80, 32)
-
-    overrides = {
-        'Meta': Meta,
-        '__module__': model.__module__,
-        '_readonly': True,
-        'tags': ReadonlyRelatedManager()
-    }
-    # TODO: Add additional deferred fields here, just as placeholders.
-    return type(str(name), (model,), overrides)
-
-
 def deserialize_polymorphic_model(data):
     """Deserializes simple polymorphic models."""
-    content_type = ContentType.objects.get_for_id(data['polymorphic_ctype_id'])
+    content_type = ContentType.objects.get_for_id(data['polymorphic_ctype'])
     if content_type:
         klass = content_type.model_class()
         instance = klass.from_source(data)
@@ -80,9 +29,8 @@ def deserialize_polymorphic_model(data):
 class ContentSearchResults(SearchResults):
     def set_objects(self, results):
         self.objects = []
-        readonly_cls = readonly_content_factory(Content)
         for result in results:
-            obj = readonly_cls.from_source(result['_source'])
+            obj = deserialize_polymorphic_model(result['_source'])
             self.objects.append(obj)
 
     def __iter__(self):
@@ -146,10 +94,9 @@ class TagS(S):
 class PolymorphicIndexable(object):
     """Base mixin for polymorphic indexin'"""
     def extract_document(self):
-        return {
-            'id': self.id,
-            'polymorphic_ctype_id': self.polymorphic_ctype_id
-        }
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(self)
+        return serializer.data
 
     def index(self, refresh=False):
         es = get_es(urls=settings.ES_URLS)
@@ -169,9 +116,25 @@ class PolymorphicIndexable(object):
         return result
 
     @classmethod
+    def from_source(cls, source):
+        serializer_class = cls.get_serializer_class()
+        serializer = serializer_class(data=source)
+        if serializer.is_valid():
+            if 'id' in source:
+                serializer.object.id = source['id']
+                # TODO: arrrrrrgh ugh
+                serializer.object.content = source['id']
+            return serializer.object
+        else:
+            raise RuntimeError(serializer.errors)
+
+    @classmethod
     def get_mapping(cls):
         return {
             cls.get_mapping_type_name(): {
+                '_id': {
+                    'path': 'id'
+                },
                 'properties': cls.get_mapping_properties()
             }
         }
@@ -180,12 +143,16 @@ class PolymorphicIndexable(object):
     def get_mapping_properties(cls):
         return {
             'id': {'type': 'integer'},
-            'polymorphic_ctype_id': {'type': 'integer'}
+            'polymorphic_ctype': {'type': 'integer'}
         }
 
     @classmethod
     def get_mapping_type_name(cls):
         return '%s_%s' % (cls._meta.app_label, cls.__name__.lower())
+
+    @classmethod
+    def get_serializer_class(cls):
+        raise NotImplementedError('%s must define `get_serializer_class`.' % cls.__name__)
 
 
 class Tag(PolymorphicIndexable, PolymorphicModel):
@@ -201,23 +168,6 @@ class Tag(PolymorphicIndexable, PolymorphicModel):
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
         return super(Tag, self).save(*args, **kwargs)
-
-    def extract_document(self):
-        doc = super(Tag, self).extract_document()
-        doc.update({
-            'name': self.name,
-            'slug': self.slug
-        })
-        return doc
-
-    @classmethod
-    def from_source(cls, _source):
-        return cls(
-            id=_source['id'],
-            polymorphic_ctype_id=_source['polymorphic_ctype_id'],
-            name=_source['name'],
-            slug=_source['slug']
-        )
 
     @classmethod
     def get_doctypes(cls):
@@ -236,6 +186,11 @@ class Tag(PolymorphicIndexable, PolymorphicModel):
             'slug': {'type': 'string', 'index': 'not_analyzed'},
         })
         return props
+    
+    @classmethod
+    def get_serializer_class(cls):
+        from .serializers import TagSerializer
+        return TagSerializer
 
     @classmethod
     def search(cls, **kwargs):
@@ -313,23 +268,6 @@ class Content(PolymorphicIndexable, PolymorphicModel):
     def build_slug(self):
         return self.title
 
-    def extract_document(self):
-        doc = super(Content, self).extract_document()
-        doc.update({
-            'published': self.published,
-            'title': self.title,
-            'slug': self.slug,
-            'description': self.description,
-            'image': self.image.name,
-            'byline': self.byline,
-            'subhead': self.subhead,
-            'feature_type': self.feature_type,
-            'feature_type.slug': slugify(self.feature_type)
-        })
-        if self.tags:
-            doc['tags'] = [tag.extract_document() for tag in self.tags.all()]
-        return doc
-
     @property
     def feature_type(self):
         # If the subclass has customized the feature_type accessing, use that.
@@ -351,22 +289,8 @@ class Content(PolymorphicIndexable, PolymorphicModel):
         self.slug = slugify(self.build_slug())[:self._meta.get_field('slug').max_length]
 
         return super(Content, self).save(*args, **kwargs)
-    # class methods ##############################
 
-    @classmethod
-    def from_source(cls, _source):
-        obj = cls(
-            id=_source['id'],
-            published=_source['published'],
-            title=_source['title'],
-            slug=_source['slug'],
-            description=_source['description'],
-            subhead=_source['subhead'],
-            _feature_type=_source['feature_type'],
-        )
-        tags = [deserialize_polymorphic_model(tag_source) for tag_source in _source.get('tags', [])]
-        obj.tags = tags
-        return obj
+    # class methods ##############################
 
     @classmethod
     def get_doctypes(cls):

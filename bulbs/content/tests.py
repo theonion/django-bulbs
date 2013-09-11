@@ -10,12 +10,12 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 from elasticutils.contrib.django import get_es
 
-from bulbs.content.models import Content, ReadonlyRelatedManager, Tag
+from bulbs.content.models import Content, Tag
 from bulbs.content.management import sync_es
 
 
 class TestContentObj(Content):
-
+    """Fake content here"""
     foo = models.CharField(max_length=255)
 
     def get_absolute_url(self):
@@ -23,16 +23,12 @@ class TestContentObj(Content):
 
 
 class TestContentObjTwo(Content):
-
+    """Come and get your fake content"""
     foo = models.CharField(max_length=255)
     bar = models.IntegerField()
 
     def get_absolute_url(self):
         return '/detail/%s/' % self.pk
-
-
-class ROBud(object):
-    foo = ReadonlyRelatedManager()
 
 
 class PolyContentTestCase(TestCase):
@@ -77,6 +73,18 @@ class PolyContentTestCase(TestCase):
         es = get_es(urls=settings.ES_URLS)
         es.delete_index(settings.ES_INDEXES.get('default', 'testing'))
 
+    def test_serialize_id(self):
+        c = Content.objects.all()[0]
+        c_id = c.from_source(c.extract_document()).id
+        self.assertNotEqual(c_id, None)
+
+    def test_serialize_idempotence(self):
+        c = Content.objects.all()[0]
+        self.assertEqual(
+            c.extract_document(),
+            c.__class__.from_source(c.extract_document()).extract_document()
+        )
+
     def test_content_subclasses(self):
         # We created one of each subclass per combination so the following should be true:
         self.assertEqual(Content.objects.count(), len(self.combos) * self.num_subclasses)
@@ -94,26 +102,6 @@ class PolyContentTestCase(TestCase):
         with self.assertNumQueries(1 + self.num_subclasses):
             for content in Content.objects.all():
                 self.assertIsInstance(content, (TestContentObj, TestContentObjTwo))
-
-    def test_readonly_related_manager(self):
-        r = ROBud()
-        r.foo = ['bar', 'schlub']
-        self.assertEqual(2, len(r.foo.all()))
-        with self.assertRaises(TypeError):
-            r.foo.add('tagz')
-        with self.assertRaises(TypeError):
-            r.foo.clear()
-        with self.assertRaises(TypeError):
-            r.foo.remove('bar')
-
-    def test_readonly_tags(self):
-        readonly_content= Content.search()[0]
-        real_content = Content.objects.get(id=readonly_content.id)
-        self.assertIsInstance(readonly_content.tags, ReadonlyRelatedManager)
-        self.assertEqual(
-            len(readonly_content.tags.all()),
-            len(real_content.tags.all())
-        )
 
     def test_add_remove_tags(self):
         real_content = Content.objects.all()[0]
