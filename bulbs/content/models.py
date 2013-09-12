@@ -232,9 +232,8 @@ class Content(PolymorphicIndexable, PolymorphicModel):
     image = RemoteImageField(null=True, blank=True)
     
     authors = models.ManyToManyField(settings.AUTH_USER_MODEL)
-    _byline = models.CharField(max_length=255, null=True, blank=True)  # This is an overridable field that is by default the author names
     _tags = models.TextField(null=True, blank=True)  # A return-separated list of tag names, exposed as a list of strings
-    _feature_type = models.CharField(max_length=255, null=True, blank=True)  # "New in Brief", "Newswire", etc.
+    feature_type = models.CharField(max_length=255, null=True, blank=True)  # "New in Brief", "Newswire", etc.
     subhead = models.CharField(max_length=255, null=True, blank=True)
 
     tags = models.ManyToManyField(Tag, blank=True)
@@ -250,14 +249,6 @@ class Content(PolymorphicIndexable, PolymorphicModel):
 
     @property
     def byline(self):
-        # If the subclass has customized the byline accessing, use that.
-        if hasattr(self, 'get_byline'):
-            return self.get_byline()
-
-        # If we have an override byline, we'll use that first.
-        if self._byline:
-            return self._byline
-
         # If we have authors, just put them in a list
         if self.authors.exists():
             return ', '.join([user.get_full_name() for user in self.authors.all()])
@@ -267,23 +258,6 @@ class Content(PolymorphicIndexable, PolymorphicModel):
 
     def build_slug(self):
         return self.title
-
-    @property
-    def feature_type(self):
-        # If the subclass has customized the feature_type accessing, use that.
-        if hasattr(self, 'get_feature_type'):
-            return self.get_feature_type()
-
-        if self._feature_type:
-            return self._feature_type
-
-        return None
-
-    @feature_type.setter
-    def feature_type(self, value):
-        if self._readonly:
-            raise AttributeError('This content object is read only.')
-        self._feature_type = value
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.build_slug())[:self._meta.get_field('slug').max_length]
@@ -310,7 +284,6 @@ class Content(PolymorphicIndexable, PolymorphicModel):
             'slug': {'type': 'string'},
             'description': {'type': 'string'},
             'image': {'type': 'integer'},
-            'byline': {'type': 'string'},
             'feature_type': {
                 'type': 'multi_field',
                 'fields': {
