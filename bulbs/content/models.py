@@ -113,6 +113,7 @@ class PolymorphicIndexable(object):
         result = super(PolymorphicIndexable, self).save(*args, **kwargs)
         if index:
             self.index(refresh=refresh)
+        self._index = index
         return result
 
     @classmethod
@@ -361,12 +362,13 @@ class Content(PolymorphicIndexable, PolymorphicModel):
 
 def content_tags_changed(sender, instance=None, action='', **kwargs):
     """Reindex content tags when they change."""
-    es = get_es()
-    indexes = settings.ES_INDEXES
-    index = indexes['default']
-    doc = {}
-    doc['tags'] = [tag.extract_document() for tag in instance.tags.all()]
-    es.update(index, instance.get_mapping_type_name(), instance.id, doc=doc, refresh=True)
+    if getattr(sender, "_index", True):
+        es = get_es()
+        indexes = settings.ES_INDEXES
+        index = indexes['default']
+        doc = {}
+        doc['tags'] = [tag.extract_document() for tag in instance.tags.all()]
+        es.update(index, instance.get_mapping_type_name(), instance.id, doc=doc, refresh=True)
 
 
 models.signals.m2m_changed.connect(
