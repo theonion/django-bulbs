@@ -64,7 +64,7 @@ class Command(NoArgsCommand):
                     payload.append(json.dumps(metadata, cls=JsonEncoder, use_decimal=True))
                     source = instance.extract_document()
                     payload.append(json.dumps(source, cls=JsonEncoder, use_decimal=True))
-                    if chunk_size == len(payload)/2:
+                    if chunk_size == (len(payload)/2) or ((len(payload)/2) + num_processed == instance_count):
                         r = requests.post(bulk_endpoint, data="\n".join(payload))
                         if r.status_code != 200:
                             raise Exception(r.json())

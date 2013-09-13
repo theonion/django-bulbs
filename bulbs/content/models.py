@@ -218,12 +218,6 @@ class Tag(PolymorphicIndexable, PolymorphicModel):
         return results
 
 
-class Section(Tag):
-    """Tag subclass which represents major sections of the site."""
-    class Meta(Tag.Meta):
-        proxy = True
-
-
 class Content(PolymorphicIndexable, PolymorphicModel):
     """The base content model from which all other content derives."""
     published = models.DateTimeField(blank=True, null=True)
