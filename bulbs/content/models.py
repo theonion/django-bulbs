@@ -356,7 +356,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
 
 def content_tags_changed(sender, instance=None, action='', **kwargs):
     """Reindex content tags when they change."""
-    if getattr(sender, "_index", True):
+    if getattr(instance, "_index", True):  # TODO: Rethink this hackey shit. Is there a better way?
         es = get_es()
         indexes = settings.ES_INDEXES
         index = indexes['default']
