@@ -121,10 +121,7 @@ class PolymorphicIndexable(object):
         serializer_class = cls.get_serializer_class()
         serializer = serializer_class(data=source)
         if serializer.is_valid():
-            if 'id' in source:
-                serializer.object.id = source['id']
-                # TODO: arrrrrrgh ugh
-                serializer.object.content = source['id']
+            serializer.object.pk = source[cls.polymorphic_primary_key_name] 
             return serializer.object
         else:
             raise RuntimeError(serializer.errors)
@@ -183,7 +180,18 @@ class Tag(PolymorphicIndexable, PolymorphicModel):
     def get_mapping_properties(cls):
         props = super(Tag, cls).get_mapping_properties()
         props.update({
-            'name': {'type': 'string', 'index': 'not_analyzed'},
+            'name': {
+                'type': 'multi_field',
+                'fields': {
+                    'name': {
+                        'type': 'string'
+                    },
+                    'slug': {
+                        'type': 'string',
+                        'index': 'not_analyzed'
+                    }
+                }
+            },
             'slug': {'type': 'string', 'index': 'not_analyzed'},
         })
         return props
@@ -282,7 +290,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
             'feature_type': {
                 'type': 'multi_field',
                 'fields': {
-                    'feature_type': {'type': 'string', 'index': 'not_analyzed'},
+                    'feature_type': {'type': 'string'},
                     'slug': {'type': 'string', 'index': 'not_analyzed'}
                 }
             },
@@ -334,11 +342,11 @@ class Content(PolymorphicIndexable, PolymorphicModel):
             results = results.query(published__lte=now, must=True)
 
         for tag in kwargs.get('tags', []):
-            tag_query_string = 'tags.slug:%s' % tag
+            tag_query_string = 'tags.name:%s' % tag
             results = results.query(__query_string=tag_query_string)
 
-        for feature_type in kwargs.get('feature_types', []):
-            feature_type_query_string = 'feature_type.slug:%s' % feature_type
+        for feature_type in kwargs.get('feature_type', []):
+            feature_type_query_string = 'feature_type:%s' % feature_type
             results = results.query(__query_string=feature_type_query_string)
 
         types = kwargs.pop('types', [])
