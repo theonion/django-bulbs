@@ -12,6 +12,6 @@ share
 dist
 django_bulbs.egg-info
 .vagrant
-docs/_build/*
+docs/_build/
 coverage_html_report
 reports

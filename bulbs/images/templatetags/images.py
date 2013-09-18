@@ -1,31 +1,29 @@
 from django import template
-from bulbs.images.conf import settings
 from django.template import TemplateSyntaxError
-from bulbs.images.fields import RemoteImageField
+from django.template.loader import select_template
+from bulbs.images.fields import RemoteImageFieldFile
 
 register = template.Library()
 
-def crop_url(image, width, ratio="original", format="jpg"):
-    return "%s/%s/%s/%s.%s" % (settings.BETTY_CROPPER['PUBLIC_URL'], image, ratio, width, format)
 
 @register.simple_tag
-def image_url(image, width, ratio='16x9', format='jpg'):
+def cropped_url(image, ratio, width, format='jpg'):
     if width is None:
         raise TemplateSyntaxError
-    if isinstance(image, RemoteImageField):
-        return image.crop_url(width=width, ratio=ratio, format=format)
-    else:
-        return crop_url(image, width=width, ratio=ratio, format=format)
+    if not isinstance(image, RemoteImageFieldFile):
+        raise TemplateSyntaxError("You must use a RemoteImageField as the first argument to this tag.")
+    return image.crop_url(width=width, ratio=ratio, format=format)
 
-@register.inclusion_tag('images/image.html', takes_context=True)
-def image(context, image, width, ratio='16x9', format="jpg"):
+
+@register.simple_tag(takes_context=True)
+def cropped(context, image, ratio, width, format="jpg", caption=None, alt=None):
     if width is None:
         raise TemplateSyntaxError
     context['image'] = image
-    if isinstance(image, RemoteImageField):
-        context['image_url'] = image.crop_url(width=width, ratio=ratio, format=format)
-    else:
-        context['image_url'] = crop_url(image, width=width, ratio=ratio, format=format)
+    if not isinstance(image, RemoteImageFieldFile):
+        raise TemplateSyntaxError("You must use a RemoteImageField as the first argument to this tag.")
+    context['image_url'] = image.crop_url(width=width, ratio=ratio, format=format)
     context['ratio'] = ratio
     context['width'] = width
-    return context
+    template = select_template(["images/crop.html", "images/_crop.html"])
+    return template.render(context)

@@ -36,7 +36,7 @@ class ImageTagsTestCase(TestCase):
         test = TestModel()
         test.image = test.image.field.attr_class(test, test.image.field, '666')
         test.save()
-        self.context = {'image': test.image}
+        self.context = {'test': test}
 
     def test_image_field(self):
         settings.BETTY_CROPPER = {
@@ -57,22 +57,22 @@ class ImageTagsTestCase(TestCase):
 
     def testImageUrlTag(self):
 
-        test_template = Template("""{% load images %}{% image_url image 200 ratio="1x1" %}""")
+        test_template = Template("""{% load images %}{% cropped_url test.image "1x1" 200 %}""")
         test_context = Context(self.context)
 
         rendered = test_template.render(test_context)
         self.assertEqual(rendered, "http://localhost:8698/666/1x1/200.jpg")
 
-        test_template = Template("""{% load images %}{% image_url image 200 ratio="1x1" format="png" %}""")
+        test_template = Template("""{% load images %}{% cropped_url test.image "1x1" 200 format="png" %}""")
         rendered = test_template.render(test_context)
         self.assertEqual(rendered, "http://localhost:8698/666/1x1/200.png")
 
-        test_template = Template("""{% load images %}{% image_url image 200 ratio="1x1" format="png" %}""")
+        test_template = Template("""{% load images %}{% cropped_url test.image "1x1" 200 format="png" %}""")
         rendered = test_template.render(test_context)
         self.assertEqual(rendered, "http://localhost:8698/666/1x1/200.png")
 
     def testImageTag(self):
-        test_template = Template("""{% load images %}{% image image 100 ratio="3x4" %}""")
+        test_template = Template("""{% load images %}{% cropped test.image "3x4" 100 %}""")
         test_context = Context(self.context)
 
         rendered = test_template.render(test_context)

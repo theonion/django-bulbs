@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-# Bulbs documentation build configuration file, created by
-# sphinx-quickstart on Sat Jun  1 11:47:19 2013.
+# django-bulbs documentation build configuration file, created by
+# sphinx-quickstart on Wed Sep 18 16:55:34 2013.
 #
 # This file is execfile()d with the current directory set to its containing dir.
 #
@@ -16,7 +16,9 @@ import sys, os
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('_ext'))
+sys.path.insert(0, os.path.abspath('../bulbs'))
+print(sys.path)
 
 # -- General configuration -----------------------------------------------------
 
@@ -25,7 +27,7 @@ import sys, os
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo', 'sphinx.ext.coverage']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.todo', 'sphinx.ext.intersphinx']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -40,8 +42,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Bulbs'
-copyright = u'2013, Chris Sinchok'
+project = u'django-bulbs'
+copyright = u'2013, Onion Tech Team'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -64,7 +66,7 @@ release = '0.1'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ['_build']
+exclude_patterns = ["_build"]
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 #default_role = None
@@ -167,7 +169,7 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'Bulbsdoc'
+htmlhelp_basename = 'django-bulbsdoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -186,8 +188,8 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'Bulbs.tex', u'Bulbs Documentation',
-   u'Chris Sinchok', 'manual'),
+  ('index', 'django-bulbs.tex', u'django-bulbs Documentation',
+   u'Onion Tech Team', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -216,8 +218,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'bulbs', u'Bulbs Documentation',
-     [u'Chris Sinchok'], 1)
+    ('index', 'django-bulbs', u'django-bulbs Documentation',
+     [u'Onion Tech Team'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -230,8 +232,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'Bulbs', u'Bulbs Documentation',
-   u'Chris Sinchok', 'Bulbs', 'One line description of project.',
+  ('index', 'django-bulbs', u'django-bulbs Documentation',
+   u'Onion Tech Team', 'django-bulbs', 'One line description of project.',
    'Miscellaneous'),
 ]
 
@@ -246,3 +248,8 @@ texinfo_documents = [
 
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 #texinfo_no_detailmenu = False
+
+intersphinx_mapping = {
+    #'http://docs.python.org/': None,
+    'https://docs.djangoproject.com/en/dev': 'https://docs.djangoproject.com/en/dev/_objects',
+}

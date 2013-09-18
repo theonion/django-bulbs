@@ -1,10 +1,10 @@
-.. Bulbs documentation master file, created by
-   sphinx-quickstart on Sat Jun  1 11:47:19 2013.
+.. django-bulbs documentation master file, created by
+   sphinx-quickstart on Wed Sep 18 16:55:34 2013.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Bulbs' documentation!
-=================================
+Welcome to django-bulbs's documentation!
+========================================
 
 Contents:
 

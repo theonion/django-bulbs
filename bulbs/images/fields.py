@@ -7,7 +7,14 @@ from bulbs.images.storages import BettyCropperStorage
 
 class RemoteImageFieldFile(FieldFile):
     def crop_url(self, width, ratio="original", format="jpg"):
-        return "%s/%s/%s/%d.%s" % (settings.BETTY_CROPPER['PUBLIC_URL'], self.name, ratio, width, format)
+        image_dir = ""
+        for char in self.name:
+            image_dir += char
+            if len(image_dir) % 4 == 0:
+                image_dir += "/"
+        if image_dir.endswith("/"):
+            image_dir = image_dir[:-1]
+        return "%s/%s/%s/%s.%s" % (settings.BETTY_CROPPER['PUBLIC_URL'], image_dir, ratio, width, format)
 
 class RemoteImageField(FileField):
     description = _("RemoteImage")
