@@ -53,7 +53,7 @@ class ContentListView(ListView):
         types = self.types or self.kwargs.get('types') or self.request.GET.getlist('types', [])
         feature_types = self.feature_types or self.kwargs.get('feature_types') or self.request.GET.getlist('feature_types', [])
         published = self.published or self.kwargs.get('published') or self.request.GET.get('published', [])
-        return Content.search(
+        return Content.objects.search(
             pk=pk, tags=tags, feature_types=feature_types,
             types=types, published=published
         )

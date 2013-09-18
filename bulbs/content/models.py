@@ -14,7 +14,7 @@ from bulbs.images.fields import RemoteImageField
 
 from elasticutils import SearchResults, S
 from elasticutils.contrib.django import get_es
-from polymorphic import PolymorphicModel
+from polymorphic import PolymorphicModel, PolymorphicManager
 
 
 def deserialize_polymorphic_model(data):
@@ -247,6 +247,57 @@ class Tag(PolymorphicIndexable, PolymorphicModel):
         return results
 
 
+class ContentManager(PolymorphicManager):
+    def search(self, s_class=ContentS, **kwargs):
+        """
+        Queries using ElasticSearch, returning an elasticutils queryset.
+
+        Allowed params:
+
+         * query
+         * tags
+         * types
+         * feature_types
+         * published
+        """
+        
+        index = settings.ES_INDEXES.get('default')
+        results = s_class().es(urls=settings.ES_URLS).indexes(index)
+        if kwargs.get('pk'):
+            try:
+                pk = int(kwargs['pk'])
+            except ValueError:
+                pass
+            else:
+                results = results.query(id=pk)
+
+        if kwargs.get('query'):
+            results = results.query(_all__text_phrase=kwargs.get('query'))
+
+        if kwargs.get('published', True):
+            now = timezone.now()
+            results = results.query(published__lte=now, must=True)
+
+        for tag in kwargs.get('tags', []):
+            tag_query_string = 'tags.name:%s' % tag
+            results = results.query(__query_string=tag_query_string)
+
+        for feature_type in kwargs.get('feature_type', []):
+            feature_type_query_string = 'feature_type:%s' % feature_type
+            results = results.query(__query_string=feature_type_query_string)
+
+        types = kwargs.pop('types', [])
+        if types:
+            # only use valid subtypes
+            results = results.doctypes(*[
+                type_classname for type_classname in types \
+                if type_classname in self.model.get_doctypes()
+            ])
+        else:
+            results = results.doctypes(*self.model.get_doctypes().keys())
+
+        return results.order_by('-published')
+
 class Content(PolymorphicIndexable, PolymorphicModel):
     """The base content model from which all other content derives."""
     published = models.DateTimeField(blank=True, null=True)
@@ -264,6 +315,8 @@ class Content(PolymorphicIndexable, PolymorphicModel):
 
     _readonly = False  # Is this a read only model? (i.e. from elasticsearch)
     _cache = {}  # This is a cache for the content doctypes
+
+    objects = ContentManager()
 
     def __unicode__(self):
         return '%s: %s' % (self.__class__.__name__, self.title)

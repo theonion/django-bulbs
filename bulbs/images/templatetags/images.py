@@ -1,5 +1,5 @@
 from django import template
-from django.conf import settings
+from bulbs.images.conf import settings
 from django.template import TemplateSyntaxError
 from bulbs.images.fields import RemoteImageField
 

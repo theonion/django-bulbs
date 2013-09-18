@@ -5,4 +5,4 @@ unittest-xml-reporting==1.6.0
 coverage==3.6b1
 django-discover-runner==1.0
 pylint==1.0.0
-pretenders==1.0.2
+httpmock==1.0.5
