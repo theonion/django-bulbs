@@ -173,11 +173,36 @@ class PolymorphicIndexable(object):
     def get_serializer_class(cls):
         raise NotImplementedError('%s must define `get_serializer_class`.' % cls.__name__)
 
+class TagManager(PolymorphicManager):
+    def search(self, s_class=TagS, **kwargs):
+        """Search tags...profit."""
+        index = settings.ES_INDEXES.get('default')
+        results = s_class().es(urls=settings.ES_URLS).indexes(index)
+        name = kwargs.pop('name', '')
+        if name:
+            results = results.query(name__prefix=name, boost=4, should=True).query(name__fuzzy={
+                'value': name,
+                'prefix_length': 1,
+                'min_similarity': 0.35
+            }, should=True)
+
+        types = kwargs.pop('types', [])
+        if types:
+            # only use valid subtypes
+            results = results.doctypes(*[
+                type_classname for type_classname in kwargs['types'] \
+                if type_classname in self.model.get_doctypes()
+            ])
+        else:
+            results = results.doctypes(*self.model.get_doctypes().keys())
+        return results
 
 class Tag(PolymorphicIndexable, PolymorphicModel):
     """Model for tagging up Content."""
     name = models.CharField(max_length=255)
     slug = models.SlugField()
+
+    objects = TagManager()
 
     _doctype_cache = {}
 

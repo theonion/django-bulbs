@@ -12,7 +12,7 @@ from bulbs.content.models import Content, Tag
 
 
 def search_tags(request):
-    tags = Tag.search(name=request.GET.get('q'))
+    tags = Tag.objects.search(name=request.GET.get('q'))
     tag_data = [{'name': tag.name, 'slug': tag.slug} for tag in tags]
     return HttpResponse(json.dumps(tag_data), content_type='application/json')
 
