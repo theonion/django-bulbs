@@ -150,3 +150,11 @@ class PolyContentTestCase(TestCase):
         response = client.delete(tag_url + '?tag=Chowdah')
         new_content_tag_names = set([tag.name for tag in content.tags.all()])
         self.assertEqual(len(new_content_tag_names - content_tag_names), 0)
+
+    def test_in_bulk_performs_polymorphic_query(self):
+        content_ids = [c.id for c in Content.objects.all()]
+        results = Content.objects.in_bulk(content_ids)
+        subclasses = tuple(Content.__subclasses__())
+        for result in results.values():
+            self.assertIsInstance(result, subclasses)
+

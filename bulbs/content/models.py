@@ -26,19 +26,8 @@ def deserialize_polymorphic_model(data):
         return instance
 
 
-class ContentSearchResults(SearchResults):
-    def set_objects(self, results):
-        self.objects = []
-        for result in results:
-            obj = deserialize_polymorphic_model(result['_source'])
-            self.objects.append(obj)
-
-    def __iter__(self):
-        return self.objects.__iter__()
-
-
-class ContentS(S):
-
+class PatchedS(S):
+    """Common patches for the S model."""
     def all(self):
         """
         Fixes the default `S.all` method given by elasticutils.
@@ -55,16 +44,48 @@ class ContentS(S):
             return self[:count].execute()
         return self.execute()
 
+
+class ModelSearchResults(SearchResults):
+    """Takes the 'id' list returned by a ModelS and delivers model instances."""
+    @classmethod
+    def get_model(cls):
+        raise NotImplementedError('ModelSearchResults requires a `get_model` method.')
+        
+    def set_objects(self, results):
+        ids = list(int(r['_id']) for r in results)
+        model_objects = self.get_model().objects.in_bulk(ids)
+        self.objects = [
+            model_objects[id] for id in ids if id in model_objects
+        ]
+
+    def __iter__(self):
+        return self.objects.__iter__()
+
+
+class ModelS(PatchedS):
+    """ModelS makes queries which return ids from ES and result in models."""
+    results_class = ModelSearchResults
+
+    def __init__(self, *args, **kwargs):
+        super(ModelS, self).__init__(*args, **kwargs)
+        self.steps.append(('values_list', ['_id']))
+
     def get_results_class(self):
-        """Returns the results class to use
+        """Returns the results class to use.
 
         The results class should be a subclass of SearchResults.
-
         """
-        if self.as_list or self.as_dict:
-            return super(ContentS, self).get_results_class()
+        return self.results_class
 
-        return ContentSearchResults
+
+class ContentSearchResults(ModelSearchResults):
+    @classmethod
+    def get_model(cls):
+        return Content
+
+
+class ContentS(ModelS):
+    results_class = ContentSearchResults
 
 
 class TagSearchResults(SearchResults):
@@ -311,7 +332,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
         return ContentSerializer
 
     @classmethod
-    def search(cls, **kwargs):
+    def search(cls, s_class=ContentS, **kwargs):
         """
         If ElasticSearch is being used, we'll use that for the query, and otherwise
         fall back to Django's .filter().
@@ -325,7 +346,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
          * published
         """
         index = settings.ES_INDEXES.get('default')
-        results = ContentS().es(urls=settings.ES_URLS).indexes(index)
+        results = s_class().es(urls=settings.ES_URLS).indexes(index)
         if kwargs.get('pk'):
             try:
                 pk = int(kwargs['pk'])
