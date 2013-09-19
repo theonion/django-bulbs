@@ -123,7 +123,7 @@ class PolyContentTestCase(TestCase):
         tag = Tag(name='Beeftank')
         tag.save(index=True, refresh=True)
         self.all_tags.append(tag) # save it for later tests
-        results = Tag.objects.search(name='beeftan')
+        results = Tag.objects.search(name='beeftank')
         self.assertEqual(len(results), 1)
         tag_result = results[0]
         self.assertIsInstance(tag_result, Tag)

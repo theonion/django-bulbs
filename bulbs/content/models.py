@@ -180,7 +180,7 @@ class TagManager(PolymorphicManager):
         results = s_class().es(urls=settings.ES_URLS).indexes(index)
         name = kwargs.pop('name', '')
         if name:
-            results = results.query(name__prefix=name, boost=4, should=True).query(name__fuzzy={
+            results = results.query(name__fuzzy={
                 'value': name,
                 'prefix_length': 1,
                 'min_similarity': 0.35
