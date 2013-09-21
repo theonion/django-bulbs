@@ -25,7 +25,7 @@ class Command(NoArgsCommand):
         make_option('--chunk',
             type=int,
             dest='chunk',
-            default=100,
+            default=250,
             help='The chunk size to index with'),
     )
 

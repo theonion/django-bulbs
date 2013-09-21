@@ -230,7 +230,8 @@ class Tag(PolymorphicIndexable, PolymorphicModel):
                 'type': 'multi_field',
                 'fields': {
                     'name': {
-                        'type': 'string'
+                        'type': 'string',
+                        'analyzer': 'standard'
                     },
                     'slug': {
                         'type': 'string',
@@ -382,14 +383,14 @@ class Content(PolymorphicIndexable, PolymorphicModel):
         properties = super(Content, cls).get_mapping_properties()
         properties.update({
             'published': {'type': 'date'},
-            'title': {'type': 'string'},
+            'title': {'type': 'string', 'analyzer': 'snowball'},
             'slug': {'type': 'string'},
             'description': {'type': 'string'},
             'image': {'type': 'integer'},
             'feature_type': {
                 'type': 'multi_field',
                 'fields': {
-                    'feature_type': {'type': 'string'},
+                    'feature_type': {'type': 'string', 'analyzer': 'standard'},
                     'slug': {'type': 'string', 'index': 'not_analyzed'}
                 }
             },
