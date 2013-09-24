@@ -158,3 +158,6 @@ class PolyContentTestCase(TestCase):
         for result in results.values():
             self.assertIsInstance(result, subclasses)
 
+    def test_deserialize_none(self):
+        s = Content.get_serializer_class()(data=None)
+        d = s.data
