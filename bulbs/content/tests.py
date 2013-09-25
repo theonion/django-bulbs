@@ -57,7 +57,8 @@ class PolyContentTestCase(TestCase):
                 title=' '.join(combo),
                 description=' '.join(reversed(combo)),
                 foo=combo[0],
-                published=one_hour_ago
+                published=one_hour_ago,
+                feature_type='Obj one'
             )
             obj.tags.add(*self.all_tags)
             obj2 = TestContentObjTwo.objects.create(
@@ -65,7 +66,8 @@ class PolyContentTestCase(TestCase):
                 description=' '.join(combo),
                 foo=combo[0],
                 bar=i,
-                published=one_hour_ago
+                published=one_hour_ago,
+                feature_type='Obj two'
             )
             obj2.tags.add(*self.all_tags)
 
@@ -161,3 +163,12 @@ class PolyContentTestCase(TestCase):
     def test_deserialize_none(self):
         s = Content.get_serializer_class()(data=None)
         d = s.data
+
+    def test_filter_search_content(self):
+        tag = self.all_tags[0]
+        q = Content.objects.search(tags=[tag.slug])
+        self.assertNotEqual([], list(q))
+        feature_type = Content.objects.all()[0].feature_type
+        q = Content.objects.search(feature_types=[feature_type])
+        self.assertNotEqual([], list(q))
+

@@ -248,30 +248,6 @@ class Tag(PolymorphicIndexable, PolymorphicModel):
         from .serializers import TagSerializer
         return TagSerializer
 
-    @classmethod
-    def search(cls, **kwargs):
-        """Search tags...profit."""
-        index = settings.ES_INDEXES.get('default')
-        results = TagS().es(urls=settings.ES_URLS).indexes(index)
-        name = kwargs.pop('name', '')
-        if name:
-            results = results.query(name__prefix=name, boost=4, should=True).query(name__fuzzy={
-                'value': name,
-                'prefix_length': 1,
-                'min_similarity': 0.35
-            }, should=True)
-
-        types = kwargs.pop('types', [])
-        if types:
-            # only use valid subtypes
-            results = results.doctypes(*[
-                type_classname for type_classname in kwargs['types'] \
-                if type_classname in cls.get_doctypes()
-            ])
-        else:
-            results = results.doctypes(*cls.get_doctypes().keys())
-        return results
-
 
 class ContentManager(PolymorphicManager):
     def search(self, s_class=ContentS, **kwargs):
@@ -304,13 +280,13 @@ class ContentManager(PolymorphicManager):
             now = timezone.now()
             results = results.query(published__lte=now, must=True)
 
-        for tag in kwargs.get('tags', []):
-            tag_query_string = 'tags.name:%s' % tag
-            results = results.query(__query_string=tag_query_string)
+        if 'tags' in kwargs:
+            tags = kwargs['tags']
+            results = results.filter(**{'tags.slug__in':tags})
 
-        for feature_type in kwargs.get('feature_type', []):
-            feature_type_query_string = 'feature_type:%s' % feature_type
-            results = results.query(__query_string=feature_type_query_string)
+        if 'feature_types' in kwargs:
+            feature_types = kwargs['feature_types']
+            results = results.filter(**{'feature_type.slug__in':feature_types})
 
         types = kwargs.pop('types', [])
         if types:
@@ -323,6 +299,7 @@ class ContentManager(PolymorphicManager):
             results = results.doctypes(*self.model.get_doctypes().keys())
 
         return results.order_by('-published')
+
 
 class Content(PolymorphicIndexable, PolymorphicModel):
     """The base content model from which all other content derives."""
@@ -409,57 +386,6 @@ class Content(PolymorphicIndexable, PolymorphicModel):
     def get_writable_serializer_class(cls):
         from .serializers import ContentSerializer
         return ContentSerializer
-
-    @classmethod
-    def search(cls, s_class=ContentS, **kwargs):
-        """
-        If ElasticSearch is being used, we'll use that for the query, and otherwise
-        fall back to Django's .filter().
-
-        Allowed params:
-
-         * query
-         * tag(s)
-         * type(s)
-         * feature_type(s)
-         * published
-        """
-        index = settings.ES_INDEXES.get('default')
-        results = s_class().es(urls=settings.ES_URLS).indexes(index)
-        if kwargs.get('pk'):
-            try:
-                pk = int(kwargs['pk'])
-            except ValueError:
-                pass
-            else:
-                results = results.query(id=kwargs['pk'])
-
-        if kwargs.get('query'):
-            results = results.query(_all__text_phrase=kwargs.get('query'))
-
-        if kwargs.get('published', True):
-            now = timezone.now()
-            results = results.query(published__lte=now, must=True)
-
-        for tag in kwargs.get('tags', []):
-            tag_query_string = 'tags.name:%s' % tag
-            results = results.query(__query_string=tag_query_string)
-
-        for feature_type in kwargs.get('feature_type', []):
-            feature_type_query_string = 'feature_type:%s' % feature_type
-            results = results.query(__query_string=feature_type_query_string)
-
-        types = kwargs.pop('types', [])
-        if types:
-            # only use valid subtypes
-            results = results.doctypes(*[
-                type_classname for type_classname in types \
-                if type_classname in cls.get_doctypes()
-            ])
-        else:
-            results = results.doctypes(*cls.get_doctypes().keys())
-
-        return results.order_by('-published')
 
 
 def content_tags_changed(sender, instance=None, action='', **kwargs):
