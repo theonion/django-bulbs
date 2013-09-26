@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.models import User
+from django.contrib import auth
 from rest_framework import serializers
 
 from .models import Content, Tag
@@ -12,13 +12,13 @@ class TagSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
+        model = auth.get_user_model()
         exclude = ('password',)
 
 
 class SimpleAuthorSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
+        model = auth.get_user_model()
         fields = ('id', 'first_name', 'last_name')
 
 
