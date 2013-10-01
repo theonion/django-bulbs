@@ -10,7 +10,7 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 from elasticutils.contrib.django import get_es
 
-from bulbs.content.models import Content, Tag
+from bulbs.content.models import Content, Tag, fetch_cached_models_by_id
 from bulbs.content.management import sync_es
 
 
@@ -171,4 +171,22 @@ class PolyContentTestCase(TestCase):
         feature_type = Content.objects.all()[0].feature_type
         q = Content.objects.search(feature_types=[feature_type])
         self.assertNotEqual([], list(q))
+
+    def test_fetch_cached_models(self):
+        all_objs = list(Content.objects.all())
+        ids = [obj.id for obj in Content.objects.all()]
+        with self.assertNumQueries(3):
+            results = fetch_cached_models_by_id(Content, ids)
+        # make sure we got everything we wanted
+        self.assertEqual(all_objs, results)
+        # ensure we get the results from cache on the 2nd query
+        with self.assertNumQueries(0):
+            results = fetch_cached_models_by_id(Content, ids)
+
+    def test_tag_model_faceting(self):
+        s = Tag.objects.search()
+        s = s.facet('id')
+        results = s.model_facet_counts()
+        for r in results:
+            self.assertTrue(hasattr(r, 'facet_count'))
 

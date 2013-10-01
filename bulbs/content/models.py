@@ -4,6 +4,7 @@ that we want any piece of content to have."""
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.backends import util
@@ -15,6 +16,30 @@ from bulbs.images.fields import RemoteImageField
 from elasticutils import SearchResults, S
 from elasticutils.contrib.django import get_es
 from polymorphic import PolymorphicModel, PolymorphicManager
+
+
+def fetch_cached_models_by_id(model_class, model_ids, key_template='bulkcache/%s/id/%d'):
+    """Bulk loads models by first checking the cache, then db."""
+    result_map = {}
+    cache_keys = {
+        model_id: key_template % (model_class._meta.db_table, model_id)
+        for model_id in model_ids
+    }
+    # get all of the desired objects which are already cached
+    cached_results = cache.get_many(cache_keys.values())
+    for key, obj in cached_results.items():
+        result_map[obj.id] = obj
+        del cache_keys[obj.id]
+    # load up the remaining, uncached objects from the db and cache them:
+    if cache_keys:
+        db_results = model_class.objects.in_bulk(cache_keys.keys())
+        for id, obj in db_results.items():
+            result_map[id] = obj
+        cache.set_many({
+            cache_keys[id]: obj for id, obj in db_results.items()
+        })
+    # return a correctly ordered list of the objects
+    return [result_map[id] for id in model_ids]
 
 
 def deserialize_polymorphic_model(data):
@@ -110,6 +135,26 @@ class TagS(S):
             return super(TagS, self).get_results_class()
 
         return TagSearchResults
+
+    def model_facet_counts(self):
+        """Retrieves facet counts and interpretes the faceted field as
+        the pk for the current model. The models are then fetched and
+        annotated with `facet_count`.
+
+        Requires that a valid facet query has already been added to
+        this S object.
+        """
+        id_facet_counts = self.facet_counts().get('id', None)
+        if id_facet_counts is None:
+            raise ValueError('No id facets found.')
+        # the facet "term" is the id. let's get a list of those.
+        ids = [fc['term'] for fc in id_facet_counts]
+        # NOTE: The Tag model is hard-coded in here right now.
+        models = fetch_cached_models_by_id(Tag, ids)
+        # annotate models with facet counts
+        for model, facet_result in zip(models, id_facet_counts):
+            model.facet_count = facet_result['count']
+        return models
 
 
 class PolymorphicIndexable(object):
