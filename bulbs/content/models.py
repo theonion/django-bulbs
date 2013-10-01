@@ -69,6 +69,26 @@ class PatchedS(S):
             return self[:count].execute()
         return self.execute()
 
+    def model_facet_counts(self, model_class):
+        """Retrieves facet counts and interpretes the faceted field as
+        the pk of the `model_class` argument. The models are then fetched and
+        annotated with `facet_count`.
+
+        Requires that a valid facet query has already been added to
+        this S object.
+        """
+        id_facet_counts = self.facet_counts().get('id', None)
+        if id_facet_counts is None:
+            raise ValueError('No id facets found.')
+        # the facet "term" is the id. let's get a list of those.
+        ids = [fc['term'] for fc in id_facet_counts]
+        # NOTE: The Tag model is hard-coded in here right now.
+        models = fetch_cached_models_by_id(model_class, ids)
+        # annotate models with facet counts
+        for model, facet_result in zip(models, id_facet_counts):
+            model.facet_count = facet_result['count']
+        return models
+
 
 class ModelSearchResults(SearchResults):
     """Takes the 'id' list returned by a ModelS and delivers model instances."""
@@ -123,7 +143,7 @@ class TagSearchResults(SearchResults):
         return self.objects.__iter__()
 
 
-class TagS(S):
+class TagS(PatchedS):
 
     def get_results_class(self):
         """Returns the results class to use
@@ -135,26 +155,6 @@ class TagS(S):
             return super(TagS, self).get_results_class()
 
         return TagSearchResults
-
-    def model_facet_counts(self):
-        """Retrieves facet counts and interpretes the faceted field as
-        the pk for the current model. The models are then fetched and
-        annotated with `facet_count`.
-
-        Requires that a valid facet query has already been added to
-        this S object.
-        """
-        id_facet_counts = self.facet_counts().get('id', None)
-        if id_facet_counts is None:
-            raise ValueError('No id facets found.')
-        # the facet "term" is the id. let's get a list of those.
-        ids = [fc['term'] for fc in id_facet_counts]
-        # NOTE: The Tag model is hard-coded in here right now.
-        models = fetch_cached_models_by_id(Tag, ids)
-        # annotate models with facet counts
-        for model, facet_result in zip(models, id_facet_counts):
-            model.facet_count = facet_result['count']
-        return models
 
 
 class PolymorphicIndexable(object):

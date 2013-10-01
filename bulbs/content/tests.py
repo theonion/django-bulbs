@@ -188,7 +188,7 @@ class PolyContentTestCase(TestCase):
     def test_tag_model_faceting(self):
         s = Tag.objects.search()
         s = s.facet('id')
-        results = s.model_facet_counts()
+        results = s.model_facet_counts(Tag)
         for r in results:
             self.assertTrue(hasattr(r, 'facet_count'))
 
