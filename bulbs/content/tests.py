@@ -182,6 +182,8 @@ class PolyContentTestCase(TestCase):
         # ensure we get the results from cache on the 2nd query
         with self.assertNumQueries(0):
             results = fetch_cached_models_by_id(Content, ids)
+        # and that the cached entries are correct
+        self.assertEqual(all_objs, results)
 
     def test_tag_model_faceting(self):
         s = Tag.objects.search()
