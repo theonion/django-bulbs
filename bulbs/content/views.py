@@ -37,58 +37,45 @@ def search_feature_types(request):
 
 class ContentListView(ListView):
 
-    feature_types = []
-    tags = []
-    types = []
+    feature_types = None
+    tags = None
+    types = None
     published = None
 
     allow_empty = True
     paginate_by = 20
-    context_object_name = 'content'
+    context_object_name = 'content_list'
     template_name = None
 
     def get_queryset(self):
-        pk = self.kwargs.get('pk') or self.request.GET.get('pk', None)
-        tags = self.tags or self.kwargs.get('tags') or self.request.GET.getlist('tags', [])
-        types = self.types or self.kwargs.get('types') or self.request.GET.getlist('types', [])
-        feature_types = self.feature_types or self.kwargs.get('feature_types') or self.request.GET.getlist('feature_types', [])
-        published = self.published or self.kwargs.get('published') or self.request.GET.get('published', [])
-        return Content.objects.search(
-            pk=pk, tags=tags, feature_types=feature_types,
-            types=types, published=published
-        )
+        search_kwargs = {}
+        if 'tags' in self.request.GET:
+            search_kwargs['tags'] = self.request.GET.getlist('tags', [])
+        if 'tags' in self.kwargs:
+            search_kwargs['tags'] = self.kwargs['tags']
+        if self.tags > 0:
+            search_kwargs['tags'] = self.tags
 
-    def render_to_response(self, context, **response_kwargs):
-        http_accept = self.request.META.get('HTTP_ACCEPT')
-        if http_accept == 'application/json':
-            data = {
-                'count': context['paginator'].count,
-                'num_pages': context['paginator'].num_pages,
-                'page': {
-                    # Page methods
-                    'has_next': context['page_obj'].has_next(),
-                    'has_previous': context['page_obj'].has_previous(),
-                    'has_other_pages': context['page_obj'].has_other_pages(),
-                    'start_index': context['page_obj'].start_index(),
-                    'end_index': context['page_obj'].end_index(),
-                    # Page attributes
-                    'number': context['page_obj'].number
-                },
-            }
-            data['results'] = [{
-                'id': result.id,
-                'slug': result.slug,
-                'title': result.title,
-                'description': result.description,
-                'image': result.image_id,
-                'byline': result.byline,
-                'subhead': result.subhead,
-                'published': result.published,
-                'feature_type': result.feature_type} for result in context['object_list']]
+        if 'types' in self.request.GET:
+            search_kwargs['types'] = self.request.GET.getlist('types', [])
+        if 'types' in self.kwargs:
+            search_kwargs['types'] = self.kwargs['types']
+        if self.types > 0:
+            search_kwargs['types'] = self.types
 
-            return HttpResponse(json.dumps(data), content_type='application/json')
+        if 'feature_types' in self.request.GET:
+            search_kwargs['feature_types'] = self.request.GET.getlist('feature_types', [])
+        if 'feature_types' in self.kwargs:
+            search_kwargs['feature_types'] = self.kwargs['feature_types']
+        if self.feature_types > 0:
+            search_kwargs['feature_types'] = self.feature_types
 
-        return super(ContentListView, self).render_to_response(context, **response_kwargs)
+        if 'published' in self.kwargs:
+            search_kwargs['published'] = self.kwargs['published']
+        if self.published:
+            search_kwargs['published'] = self.published
+
+        return Content.objects.search(**search_kwargs)
 
 
 content_list = ContentListView.as_view()
