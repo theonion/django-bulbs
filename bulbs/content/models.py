@@ -333,6 +333,10 @@ class ContentManager(PolymorphicManager):
             feature_types = kwargs['feature_types']
             results = results.filter(**{'feature_type.slug__in':feature_types})
 
+        if 'authors' in kwargs:
+            authors = kwargs['authors']
+            results = results.filter(**{'authors.username__in':authors})
+
         types = kwargs.pop('types', [])
         if types:
             # only use valid subtypes
@@ -414,6 +418,14 @@ class Content(PolymorphicIndexable, PolymorphicModel):
                 'fields': {
                     'feature_type': {'type': 'string', 'analyzer': 'standard'},
                     'slug': {'type': 'string', 'index': 'not_analyzed'}
+                }
+            },
+            'authors': {
+                'properties': {
+                    'first_name': {'type': 'string'},
+                    'id': {'type': 'long'},
+                    'last_name': {'type': 'string'},
+                    'username': {'type': 'string', 'index': 'not_analyzed'}
                 }
             },
             'tags': {

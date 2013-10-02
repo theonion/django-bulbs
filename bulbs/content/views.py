@@ -41,6 +41,7 @@ class ContentListView(ListView):
     tags = None
     types = None
     published = None
+    authors = None
 
     allow_empty = True
     paginate_by = 20
@@ -74,6 +75,13 @@ class ContentListView(ListView):
             search_kwargs['published'] = self.kwargs['published']
         if self.published:
             search_kwargs['published'] = self.published
+
+        if 'authors' in self.request.GET:
+            search_kwargs['authors'] = self.request.GET.getlist('authors', [])
+        if 'authors' in self.kwargs:
+            search_kwargs['authors'] = self.kwargs['authors']
+        if self.authors:
+            search_kwargs['authors'] = self.authors
 
         if 'q' in self.request.GET:
             search_kwargs['query'] = self.request.GET['q']

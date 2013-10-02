@@ -1,5 +1,7 @@
 from django import forms
 from django.contrib import auth
+from django.template.defaultfilters import slugify
+
 from rest_framework import serializers
 
 from .models import Content, Tag
@@ -19,19 +21,20 @@ class UserSerializer(serializers.ModelSerializer):
 class SimpleAuthorSerializer(serializers.ModelSerializer):
     class Meta:
         model = auth.get_user_model()
-        fields = ('id', 'first_name', 'last_name')
+        fields = ('id', 'first_name', 'last_name', 'username')
 
 
 class ContentSerializer(serializers.ModelSerializer):
-    # url = serializers.HyperlinkedIdentityField(
-    #     view_name='content-detail',
-    #     lookup_field='pk'
-    # )
     tags = serializers.PrimaryKeyRelatedField(many=True, required=False)
     authors = serializers.PrimaryKeyRelatedField(many=True, required=False)
 
     class Meta:
         model = Content
+
+    def to_native(self, *args, **kwargs):
+        data = super(ContentSerializer, self).to_native(*args, **kwargs)
+        data['feature_type.slug'] = slugify(data['feature_type'])
+        return data
 
 
 class ContentSerializerReadOnly(ContentSerializer):
