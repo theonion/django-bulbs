@@ -318,7 +318,7 @@ class ContentManager(PolymorphicManager):
             else:
                 results = results.query(id=pk)
 
-        if kwargs.get('query'):
+        if 'query' in kwargs:
             results = results.query(_all__text_phrase=kwargs.get('query'))
 
         if kwargs.get('published', True):

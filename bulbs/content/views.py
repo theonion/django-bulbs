@@ -75,6 +75,9 @@ class ContentListView(ListView):
         if self.published:
             search_kwargs['published'] = self.published
 
+        if 'q' in self.request.GET:
+            search_kwargs['query'] = self.request.GET['q']
+
         return Content.objects.search(**search_kwargs)
 
 
