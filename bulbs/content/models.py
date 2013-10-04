@@ -160,9 +160,10 @@ class TagS(PatchedS):
 class PolymorphicIndexable(object):
     """Base mixin for polymorphic indexin'"""
     def extract_document(self):
-        serializer_class = self.get_serializer_class()
-        serializer = serializer_class(self)
-        return serializer.data
+        return {
+            'polymorphic_ctype': self.polymorphic_ctype_id,
+            'id': self.pk
+        }
 
     def index(self, refresh=False):
         es = get_es(urls=settings.ES_URLS)
@@ -214,9 +215,6 @@ class PolymorphicIndexable(object):
     def get_mapping_type_name(cls):
         return '%s_%s' % (cls._meta.app_label, cls.__name__.lower())
 
-    @classmethod
-    def get_serializer_class(cls):
-        raise NotImplementedError('%s must define `get_serializer_class`.' % cls.__name__)
 
 class TagManager(PolymorphicManager):
     def search(self, s_class=TagS, **kwargs):
@@ -288,6 +286,14 @@ class Tag(PolymorphicIndexable, PolymorphicModel):
         })
         return props
     
+    def extract_document(self):
+        data = super(Tag, self).extract_document()
+        data.update({
+            'name': self.name,
+            'slug': self.slug
+        })
+        return data
+
     @classmethod
     def get_serializer_class(cls):
         from .serializers import TagSerializer
@@ -359,7 +365,6 @@ class Content(PolymorphicIndexable, PolymorphicModel):
     image = RemoteImageField(null=True, blank=True)
     
     authors = models.ManyToManyField(settings.AUTH_USER_MODEL)
-    _tags = models.TextField(null=True, blank=True)  # A return-separated list of tag names, exposed as a list of strings
     feature_type = models.CharField(max_length=255, null=True, blank=True)  # "New in Brief", "Newswire", etc.
     subhead = models.CharField(max_length=255, null=True, blank=True)
 
@@ -412,7 +417,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
             'title': {'type': 'string', 'analyzer': 'snowball'},
             'slug': {'type': 'string'},
             'description': {'type': 'string'},
-            'image': {'type': 'integer'},
+            'image': {'type': 'string'},
             'feature_type': {
                 'type': 'multi_field',
                 'fields': {
@@ -433,6 +438,30 @@ class Content(PolymorphicIndexable, PolymorphicModel):
             }
         })
         return properties
+
+    def extract_document(self):
+        data = super(Content, self).extract_document()
+        data.update({
+            'published'        : self.published,
+            'title'            : self.title,
+            'slug'             : self.slug,
+            'description'      : self.description,
+            'image'            : self.image.name if self.image else None,
+            'feature_type'     : self.feature_type,
+            'feature_type.slug': slugify(self.feature_type),
+            'authors': [{
+                'first_name': author.first_name,
+                'id'        : author.id,
+                'last_name' : author.last_name,
+                'username'  : author.username
+            } for author in self.authors.all()],
+            'tags': [{
+                'id': tag.id,
+                'name': tag.name,
+                'slug': tag.slug
+            } for tag in self.tags.all()]
+        })
+        return data
 
     @classmethod
     def get_serializer_class(cls):
