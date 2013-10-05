@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib import auth
 from django.template.defaultfilters import slugify
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import ValidationError
 
 from rest_framework import serializers
 from rest_framework import relations
@@ -42,6 +42,7 @@ class TagField(relations.RelatedField):
             name = value['name']
             slug = value.get('slug', slugify(name))
             try:
+                # Make sure that a tag with that slug doesn't already exist.
                 tag = Tag.objects.get(slug=slug)
             except Tag.DoesNotExist:
                 tag = Tag.objects.create(name=name, slug=slug)
