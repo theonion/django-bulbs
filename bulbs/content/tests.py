@@ -106,20 +106,14 @@ class PolyContentTestCase(TestCase):
                 self.assertIsInstance(content, (TestContentObj, TestContentObjTwo))
 
     def test_add_remove_tags(self):
-        real_content = Content.objects.all()[0]
-        original_tag_count = len(real_content.tags.all())
+        content = Content.objects.all()[0]
+        original_tag_count = len(content.tags.all())
         new_tag = Tag(name='crankdat')
         new_tag.save()
         self.all_tags.append(new_tag) # save it for later tests
-        real_content.tags.add(new_tag)
-        self.assertEqual(len(real_content.tags.all()), original_tag_count + 1)
-
-        readonly_content = Content.objects.search(pk=real_content.id)[0]
-
-        self.assertEqual(
-            len(readonly_content.tags.all()),
-            len(real_content.tags.all())
-        )
+        content.tags.add(new_tag)
+        self.assertEqual(len(content.tags.all()), original_tag_count + 1)
+        self.assertEqual(len(content.tags.all()), len(content.extract_document()['tags']))
 
     def test_search_exact_name_tags(self):
         tag = Tag(name='Beeftank')
