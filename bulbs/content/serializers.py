@@ -1,8 +1,10 @@
 from django import forms
 from django.contrib import auth
 from django.template.defaultfilters import slugify
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 
 from rest_framework import serializers
+from rest_framework import relations
 
 from .models import Content, Tag
 
@@ -10,6 +12,44 @@ from .models import Content, Tag
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
+
+
+class TagField(relations.RelatedField):
+    """This is a relational field that handles the addition of tags to content
+    objects. This field also allows the user to create tags in the db if they
+    don't already exist."""
+
+    read_only = False
+
+    def to_native(self, obj):
+        return {
+            'id': obj.pk,
+            'name': obj.name,
+            'slug': obj.slug,
+            'type': obj.__class__.__name__
+        }
+
+    def from_native(self, value):
+        """Basically, each tag dict must include a full dict with id,
+        name and slug--or else you need to pass in a dict with just a name,
+        which indicated that the Tag doesn't exist, and should be added."""
+
+        if 'id' in value:
+            tag = Tag.objects.get(id=value['id'])
+        else:
+            if 'name' not in value:
+                raise ValidationError("Tags must include an ID or a name.")
+            name = value['name']
+            slug = value.get('slug', slugify(name))
+            try:
+                tag = Tag.objects.get(slug=slug)
+            except Tag.DoesNotExist:
+                tag = Tag.objects.create(name=name, slug=slug)
+        return tag
+
+
+    # def field_from_native(self, data, files, field_name, into):
+    #     print("field from native")
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -25,21 +65,15 @@ class SimpleAuthorSerializer(serializers.ModelSerializer):
 
 
 class ContentSerializer(serializers.ModelSerializer):
-    tags = serializers.PrimaryKeyRelatedField(many=True, required=False)
+    tags = TagField(many=True)
     authors = serializers.PrimaryKeyRelatedField(many=True, required=False)
 
     class Meta:
         model = Content
 
-    def to_native(self, *args, **kwargs):
-        data = super(ContentSerializer, self).to_native(*args, **kwargs)
-        data['feature_type.slug'] = slugify(data['feature_type'])
-        return data
-
 
 class ContentSerializerReadOnly(ContentSerializer):
-    tags = TagSerializer(many=True, required=False)
-    authors = SimpleAuthorSerializer(many=True, required=False)
+    pass
 
 
 class PolymorphicContentSerializerMixin(object):
