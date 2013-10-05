@@ -311,21 +311,12 @@ class ContentManager(PolymorphicManager):
          * tags
          * types
          * feature_types
+         * authors
          * published
         """
         
         index = settings.ES_INDEXES.get('default')
         results = s_class().es(urls=settings.ES_URLS).indexes(index)
-        if kwargs.get('pk'):
-            try:
-                pk = int(kwargs['pk'])
-            except ValueError:
-                pass
-            else:
-                results = results.query(id=pk)
-
-        if 'pk' in kwargs:
-            return self.filter(pk=kwargs.get('pk'))
 
         if 'query' in kwargs:
             results = results.query(_all__text_phrase=kwargs.get('query'))
