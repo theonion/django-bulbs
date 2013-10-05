@@ -324,6 +324,9 @@ class ContentManager(PolymorphicManager):
             else:
                 results = results.query(id=pk)
 
+        if 'pk' in kwargs:
+            return self.filter(pk=kwargs.get('pk'))
+
         if 'query' in kwargs:
             results = results.query(_all__text_phrase=kwargs.get('query'))
 
