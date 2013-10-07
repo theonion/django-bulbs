@@ -221,13 +221,9 @@ class TagManager(PolymorphicManager):
         """Search tags...profit."""
         index = settings.ES_INDEXES.get('default')
         results = s_class().es(urls=settings.ES_URLS).indexes(index)
-        name = kwargs.pop('name', '')
+        name = kwargs.pop('query', '')
         if name:
-            results = results.query(name__fuzzy={
-                'value': name,
-                'prefix_length': 1,
-                'min_similarity': 0.35
-            }, should=True)
+            results = results.query(name__match=name, should=True)
 
         types = kwargs.pop('types', [])
         if types:
@@ -274,7 +270,7 @@ class Tag(PolymorphicIndexable, PolymorphicModel):
                 'fields': {
                     'name': {
                         'type': 'string',
-                        'analyzer': 'standard'
+                        'analyzer': 'autocomplete'
                     },
                     'slug': {
                         'type': 'string',

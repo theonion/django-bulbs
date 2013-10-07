@@ -19,9 +19,31 @@ def sync_es(sender, **kwargs):
     for name, model in bulbs.content.models.Tag.get_doctypes().items():
         mappings[name] = model.get_mapping()
 
+    es_settings = {
+        "index": {
+            "analysis": {
+                "analyzer": {
+                    "autocomplete": {
+                        "type": "custom",
+                        "tokenizer": "edge_ngram_tokenizer",
+                        "filter": ["asciifolding", "lowercase"]
+                    }
+                },
+                "tokenizer": {
+                    "edge_ngram_tokenizer": {
+                        "type" : "edgeNGram",
+                        "min_gram" : "2",
+                        "max_gram" : "20"
+                    }
+                }
+            }
+        }
+    }
+
     try:
         es.create_index(index, settings= {
             "mappings": mappings,
+            "settings": es_settings
         })
     except IndexAlreadyExistsError:
         pass
