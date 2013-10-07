@@ -381,6 +381,10 @@ class Content(PolymorphicIndexable, PolymorphicModel):
         # Well, shit. I guess there's no byline.
         return None
 
+    @property
+    def feature_type_slug(self):
+        return slugify(self.feature_type)
+
     def build_slug(self):
         return self.title
 
