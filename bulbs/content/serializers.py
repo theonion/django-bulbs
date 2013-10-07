@@ -49,10 +49,6 @@ class TagField(relations.RelatedField):
         return tag
 
 
-    # def field_from_native(self, data, files, field_name, into):
-    #     print("field from native")
-
-
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = auth.get_user_model()
