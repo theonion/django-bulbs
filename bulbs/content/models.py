@@ -229,12 +229,13 @@ class TagManager(PolymorphicManager):
         if types:
             # only use valid subtypes
             results = results.doctypes(*[
-                type_classname for type_classname in kwargs['types'] \
+                type_classname for type_classname in types \
                 if type_classname in self.model.get_doctypes()
             ])
         else:
             results = results.doctypes(*self.model.get_doctypes().keys())
         return results
+
 
 class Tag(PolymorphicIndexable, PolymorphicModel):
     """Model for tagging up Content."""
