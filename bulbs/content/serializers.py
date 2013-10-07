@@ -13,6 +13,14 @@ class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
 
+    def to_native(self, obj):
+        return {
+            'id': obj.pk,
+            'name': obj.name,
+            'slug': obj.slug,
+            'type': obj.__class__.__name__.lower()
+        }
+
 
 class TagField(relations.RelatedField):
     """This is a relational field that handles the addition of tags to content
@@ -26,7 +34,7 @@ class TagField(relations.RelatedField):
             'id': obj.pk,
             'name': obj.name,
             'slug': obj.slug,
-            'type': obj.__class__.__name__
+            'type': obj.__class__.__name__.lower()
         }
 
     def from_native(self, value):
