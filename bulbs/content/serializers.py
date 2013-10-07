@@ -1,4 +1,3 @@
-from django import forms
 from django.contrib import auth
 from django.template.defaultfilters import slugify
 from django.core.exceptions import ValidationError

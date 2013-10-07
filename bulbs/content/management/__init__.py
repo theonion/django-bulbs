@@ -19,12 +19,6 @@ def sync_es(sender, **kwargs):
     for name, model in bulbs.content.models.Tag.get_doctypes().items():
         mappings[name] = model.get_mapping()
 
-    # analysis = {
-    #     "analyzer": {
-        
-    #     }
-    # }
-
     try:
         es.create_index(index, settings= {
             "mappings": mappings,
