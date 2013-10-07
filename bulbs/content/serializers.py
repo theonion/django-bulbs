@@ -90,12 +90,6 @@ class AuthorField(relations.RelatedField):
         return author
 
 
-class SimpleAuthorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = auth.get_user_model()
-        fields = ('id', 'first_name', 'last_name', 'username')
-
-
 class ContentSerializer(serializers.ModelSerializer):
     tags = TagField(many=True)
     authors = AuthorField(many=True)
