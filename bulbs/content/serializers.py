@@ -73,10 +73,6 @@ class ContentSerializer(serializers.ModelSerializer):
         model = Content
 
 
-class ContentSerializerReadOnly(ContentSerializer):
-    pass
-
-
 class PolymorphicContentSerializerMixin(object):
     def to_native(self, value):
         if value:
@@ -96,7 +92,4 @@ class PolymorphicContentSerializerMixin(object):
 class PolymorphicContentSerializer(PolymorphicContentSerializerMixin, ContentSerializer):
     pass
 
-
-class PolymorphicContentSerializerReadOnly(PolymorphicContentSerializerMixin, ContentSerializerReadOnly):
-    pass
 
