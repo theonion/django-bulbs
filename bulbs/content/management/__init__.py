@@ -27,6 +27,12 @@ def sync_es(sender, **kwargs):
                         "type": "custom",
                         "tokenizer": "edge_ngram_tokenizer",
                         "filter": ["asciifolding", "lowercase"]
+                    },
+                    "html": {
+                        "type": "custom",
+                        "char_filter": ["html_strip"],
+                        "tokenizer": "standard",
+                        "filter": ["asciifolding", "lowercase", "stop", "snowball"]
                     }
                 },
                 "tokenizer": {
