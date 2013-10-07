@@ -62,6 +62,34 @@ class UserSerializer(serializers.ModelSerializer):
         exclude = ('password',)
 
 
+class AuthorField(relations.RelatedField):
+    """This field manages the authors on a piece of content, and allows a "fatter"
+    endpoint then would normally be possible with a RelatedField"""
+
+    read_only = False
+
+    def to_native(self, obj):
+        return {
+            'id': obj.pk,
+            'first_name': obj.first_name,
+            'last_name': obj.last_name,
+            'username': obj.username
+        }
+
+    def from_native(self, value):
+        """Basically, each author dict must include either a username or id."""
+        model = auth.get_user_model()
+
+        if 'id' in value:
+            author = model.objects.get(id=value['id'])
+        else:
+            if 'username' not in value:
+                raise ValidationError("Authors must include an ID or a username.")
+            username = value['username']
+            author = model.objects.get(username=username)
+        return author
+
+
 class SimpleAuthorSerializer(serializers.ModelSerializer):
     class Meta:
         model = auth.get_user_model()
@@ -70,7 +98,7 @@ class SimpleAuthorSerializer(serializers.ModelSerializer):
 
 class ContentSerializer(serializers.ModelSerializer):
     tags = TagField(many=True)
-    authors = serializers.PrimaryKeyRelatedField(many=True, required=False)
+    authors = AuthorField(many=True)
 
     class Meta:
         model = Content
