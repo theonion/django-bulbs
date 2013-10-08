@@ -135,10 +135,10 @@ class PolyContentTestCase(TestCase):
         es = get_es(urls=settings.ES_URLS)
         es.delete_index(settings.ES_INDEXES.get('default', 'testing'))
 
-    def test_serialize_id(self):
-        c = Content.objects.all()[0]
-        c_id = c.from_source(c.extract_document()).id
-        self.assertNotEqual(c_id, None)
+    # def test_serialize_id(self):
+    #     c = Content.objects.all()[0]
+    #     c_id = c.from_source(c.extract_document()).id
+    #     self.assertNotEqual(c_id, None)
 
     # NOTE: Since extract_document is now only concerned with a one-way
     #       trip to elasticsearch, this should probably be rewritten.
