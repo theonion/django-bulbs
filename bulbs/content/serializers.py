@@ -1,4 +1,5 @@
 from django.contrib import auth
+from django.contrib.contenttypes.models import ContentType
 from django.template.defaultfilters import slugify
 from django.core.exceptions import ValidationError
 
@@ -6,6 +7,20 @@ from rest_framework import serializers
 from rest_framework import relations
 
 from .models import Content, Tag
+
+
+class ContentTypeField(serializers.WritableField):
+    """Converts between natural key for native use and integer for non-native."""
+    def to_native(self, value):
+        """Convert to natural key."""
+        content_type = ContentType.objects.get_for_id(value)
+        return '_'.join(content_type.natural_key())
+
+    def from_native(self, value):
+        """Convert to integer id."""
+        natural_key = value.split('_')
+        content_type = ContentType.objects.get_by_natural_key(*natural_key)
+        return content_type.id
 
 
 class TagSerializer(serializers.ModelSerializer):
