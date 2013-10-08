@@ -140,12 +140,14 @@ class PolyContentTestCase(TestCase):
         c_id = c.from_source(c.extract_document()).id
         self.assertNotEqual(c_id, None)
 
-    def test_serialize_idempotence(self):
-        c = Content.objects.all()[0]
-        self.assertEqual(
-            c.extract_document(),
-            c.__class__.from_source(c.extract_document()).extract_document()
-        )
+    # NOTE: Since extract_document is now only concerned with a one-way
+    #       trip to elasticsearch, this should probably be rewritten.
+    # def test_serialize_idempotence(self):
+    #     c = Content.objects.all()[0]
+    #     self.assertEqual(
+    #         c.extract_document(),
+    #         c.__class__.from_source(c.extract_document()).extract_document()
+    #     )
 
     def test_content_subclasses(self):
         # We created one of each subclass per combination so the following should be true:
