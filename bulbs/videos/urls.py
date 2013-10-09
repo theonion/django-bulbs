@@ -1,6 +1,6 @@
-from django.conf.urls import patterns
+from django.conf.urls import patterns, url
 
 urlpatterns = patterns('bulbs.videos.views',
-    (r'^aws_attrs\.js', 'aws_attrs'),
-    (r'^upload_successful$', 'upload_successful')
+    url(r'videoAttrs\.js$', 'video_attrs'),
+    url(r'notification$', 'notification')
 )
