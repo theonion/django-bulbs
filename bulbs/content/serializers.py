@@ -106,7 +106,7 @@ class AuthorField(relations.RelatedField):
 
 
 class ContentSerializer(serializers.ModelSerializer):
-    polymorphic_ctype = ContentTypeField(source='polymorphic_ctype_id')
+    polymorphic_ctype = ContentTypeField(source='polymorphic_ctype_id', read_only=True)
     tags = TagField(many=True)
     authors = AuthorField(many=True)
 
