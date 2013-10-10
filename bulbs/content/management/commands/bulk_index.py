@@ -67,7 +67,7 @@ class Command(NoArgsCommand):
                     if chunk_size == (len(payload)/2) or ((len(payload)/2) + num_processed == instance_count):
                         r = requests.post(bulk_endpoint, data="\n".join(payload))
                         if r.status_code != 200:
-                            raise Exception(r.json())
+                            print r.json()
                         num_processed += chunk_size
                         print('Processed %d %s items' % (
                             num_processed, klass.__name__
