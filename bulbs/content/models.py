@@ -133,28 +133,14 @@ class ContentS(ModelS):
     results_class = ContentSearchResults
 
 
-class TagSearchResults(SearchResults):
-    def set_objects(self, results):
-        self.objects = [
-            deserialize_polymorphic_model(result['_source']) for result in results
-        ]
-
-    def __iter__(self):
-        return self.objects.__iter__()
+class TagSearchResults(ModelSearchResults):
+    @classmethod
+    def get_model(cls):
+        return Tag
 
 
-class TagS(PatchedS):
-
-    def get_results_class(self):
-        """Returns the results class to use
-
-        The results class should be a subclass of SearchResults.
-
-        """
-        if self.as_list or self.as_dict:
-            return super(TagS, self).get_results_class()
-
-        return TagSearchResults
+class TagS(ModelS):
+    results_class = TagSearchResults
 
 
 class PolymorphicIndexable(object):
