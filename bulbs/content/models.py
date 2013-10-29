@@ -239,6 +239,9 @@ class Tag(PolymorphicIndexable, PolymorphicModel):
         self.slug = slugify(self.name)
         return super(Tag, self).save(*args, **kwargs)
 
+    def count(self):
+        return 10  # TODO: Make this a real thing
+
     @classmethod
     def get_doctypes(cls):
         if len(cls._doctype_cache) == 0:
