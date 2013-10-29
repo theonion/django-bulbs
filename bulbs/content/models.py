@@ -405,7 +405,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
             'feature_type': {
                 'type': 'multi_field',
                 'fields': {
-                    'feature_type': {'type': 'string', 'analyzer': 'standard'},
+                    'feature_type': {'type': 'string', 'analyzer': 'autocomplete'},
                     'slug': {'type': 'string', 'index': 'not_analyzed'}
                 }
             },
