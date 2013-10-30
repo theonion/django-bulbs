@@ -1,10 +1,18 @@
-"""This module contains class that help deal with ElasticSearch"""
+"""This module contains classes that help deal with ElasticSearch"""
 
-class ShallowFeatureType(str):
+from elasticutils import SearchResults, S
 
-    def __init__(self, name, slug):
-        self = name
+class ShallowFeatureType(object):
+
+    def __init__(self, name, slug=None):
+        self.name = name
         self.slug = slug
+
+    def __str__(self):
+        return self.name
+
+    def __unicode__(self):
+        return self.name
 
 
 class ShallowTag(object):
@@ -18,16 +26,25 @@ class ShallowTag(object):
 class ShallowAuthor(object):
 
     def __init__(self, data):
+        self.id = data.get('id')
         self.username = data.get('username')
         self.first_name = data.get('first_name')
         self.last_name = data.get('last_name')
 
+class ShallowAuthorRelation(list):
 
-class ShallowRelation(object):
+    def __init__(self, items):
+        for item in items:
+            self.append(ShallowAuthor(item))
 
-    def __init__(self, klass, data):
-        for datum in data:
-            self.append(klass(datum))
+    def all(self):
+        return self
+
+class ShallowTagRelation(list):
+
+    def __init__(self, items):
+        for item in items:
+            self.append(ShallowTag(item))
 
     def all(self):
         return self
@@ -41,17 +58,18 @@ class ShallowContentResult(object):
         self.image = _source.get('image')
         self.title = _source.get('title')
         self.slug = _source.get('slug')
-        self.feature_type = ShallowFeatureType(_source.get('feature_type'), _source.get('feature_type.slug'))
+        self.published = _source.get('published')
+        self.feature_type = ShallowFeatureType(_source.get('feature_type'), slug=_source.get('feature_type.slug'))
         self.description = _source.get('description')
-        self.tags = ShallowRelation(ShallowTag, _source.get('tags'))
-        self.tags = ShallowRelation(ShallowAuthor, _source.get('authors'))
+        self.tags = ShallowTagRelation(_source.get('tags'))
+        self.authors = ShallowAuthorRelation(_source.get('authors'))
 
 
 class ShallowContentSearchResults(SearchResults):
 
     def set_objects(self, results):
         self.objects = [
-            ShallowContentResult(_source) for r['_source'] in results
+            ShallowContentResult(r['_source']) for r in results
         ]
 
     def __iter__(self):
@@ -59,3 +77,6 @@ class ShallowContentSearchResults(SearchResults):
 
 
 class ShallowContentS(S):
+
+    def get_results_class(self):
+        return ShallowContentSearchResults

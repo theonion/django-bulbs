@@ -287,6 +287,7 @@ class Tag(PolymorphicIndexable, PolymorphicModel):
 
 
 class ContentManager(PolymorphicManager):
+
     def search(self, s_class=ContentS, **kwargs):
         """
         Queries using ElasticSearch, returning an elasticutils queryset.
