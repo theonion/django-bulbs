@@ -50,27 +50,40 @@ class ShallowTagRelation(list):
         return self
 
 
-class ShallowContentResult(object):
+class ShallowObject(object):
+
+    def __init__(self, data):
+        for key, item in data.items():
+            if hasattr(self, key):
+                continue
+            if isinstance(item, dict):
+                setattr(self, key, ShallowObject(item))
+            elif isinstance(item, list):
+                setattr(self, key, ShallowRelation(item))
+            else:
+                setattr(self, key, item)
+
+class ShallowRelation(list):
+    def __init__(self, items):
+        for item in items:
+            self.append(ShallowObject(item))
+
+    def all(self):
+        return self
+
+class ShallowContentResult(ShallowObject):
 
     def __init__(self, _source):
-        self._source = _source
-        self.id = _source.get('id')
-        self.image = _source.get('image')
-        self.title = _source.get('title')
-        self.slug = _source.get('slug')
-        self.published = _source.get('published')
         self.feature_type = ShallowFeatureType(_source.get('feature_type'), slug=_source.get('feature_type.slug'))
-        self.description = _source.get('description')
-        self.tags = ShallowTagRelation(_source.get('tags'))
-        self.authors = ShallowAuthorRelation(_source.get('authors'))
+        super(ShallowContentResult, self).__init__(_source)
 
 
 class ShallowContentSearchResults(SearchResults):
 
     def set_objects(self, results):
-        self.objects = [
-            ShallowContentResult(r['_source']) for r in results
-        ]
+        self.objects = []
+        for r in results:
+            self.objects.append(ShallowContentResult(r['_source']))
 
     def __iter__(self):
         return self.objects.__iter__()
