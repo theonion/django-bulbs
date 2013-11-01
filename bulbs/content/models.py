@@ -11,7 +11,9 @@ from django.db.backends import util
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 
+from bulbs.content import TagCache
 from bulbs.images.fields import RemoteImageField
+from .elasticsearch import ShallowContentS, ShallowContentResult
 
 from elasticutils import SearchResults, S
 from elasticutils.contrib.django import get_es
@@ -240,7 +242,7 @@ class Tag(PolymorphicIndexable, PolymorphicModel):
         return super(Tag, self).save(*args, **kwargs)
 
     def count(self):
-        return 10  # TODO: Make this a real thing
+        return TagCache.count(self.slug)
 
     @classmethod
     def get_doctypes(cls):
@@ -269,6 +271,7 @@ class Tag(PolymorphicIndexable, PolymorphicModel):
                 }
             },
             'slug': {'type': 'string', 'index': 'not_analyzed'},
+            'type': {'type': 'string', 'index': 'not_analyzed'}
         })
         return props
     
@@ -276,7 +279,8 @@ class Tag(PolymorphicIndexable, PolymorphicModel):
         data = super(Tag, self).extract_document()
         data.update({
             'name': self.name,
-            'slug': self.slug
+            'slug': self.slug,
+            'type': self.get_mapping_type_name()
         })
         return data
 
@@ -336,6 +340,13 @@ class ContentManager(PolymorphicManager):
 
         return results.order_by('-published')
 
+    def search_shallow(self, **kwargs):
+        return self.search(s_class=ShallowContentS, **kwargs)
+
+    def bulk_shallow(self, pks):
+        index = settings.ES_INDEXES.get('default')
+        results = get_es().multi_get(pks, index=index)
+        return [ShallowContentResult(r['_source']) for r in results['docs']]
 
 class Content(PolymorphicIndexable, PolymorphicModel):
     """The base content model from which all other content derives."""
@@ -360,7 +371,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
         return '%s: %s' % (self.__class__.__name__, self.title)
 
     def get_absolute_url(self):
-        return reverse('content-detail-view', kwargs=dict(pk=self.pk, slug=self.slug))
+        return reverse('content-detail-view', kwargs={'pk': self.pk, 'slug': self.slug})
 
     @property
     def byline(self):
@@ -370,6 +381,11 @@ class Content(PolymorphicIndexable, PolymorphicModel):
 
         # Well, shit. I guess there's no byline.
         return None
+
+    def ordered_tags(self):
+        tags = list(self.tags.all())
+        sorted(tags, key=lambda tag: ((type(tag) != Tag) * 100000) + tag.count())
+        return tags
 
     @property
     def feature_type_slug(self):
@@ -420,7 +436,8 @@ class Content(PolymorphicIndexable, PolymorphicModel):
             },
             'tags': {
                 'properties': Tag.get_mapping_properties()
-            }
+            },
+            'absolute_url': {'type': 'string'}
         })
         return properties
 
@@ -440,11 +457,8 @@ class Content(PolymorphicIndexable, PolymorphicModel):
                 'last_name' : author.last_name,
                 'username'  : author.username
             } for author in self.authors.all()],
-            'tags': [{
-                'id': tag.id,
-                'name': tag.name,
-                'slug': tag.slug
-            } for tag in self.tags.all()]
+            'tags': [tag.extract_document() for tag in self.tags.all()],
+            'absolute_url': self.get_absolute_url()
         })
         return data
 

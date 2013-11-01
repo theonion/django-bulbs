@@ -1,6 +1,7 @@
 """This module contains classes that help deal with ElasticSearch"""
 
 from elasticutils import SearchResults, S
+import bulbs.content
 
 class ShallowFeatureType(object):
 
@@ -66,7 +67,10 @@ class ShallowObject(object):
 class ShallowRelation(list):
     def __init__(self, items):
         for item in items:
-            self.append(ShallowObject(item))
+            if isinstance(item, dict):
+                self.append(ShallowObject(item))
+            else:
+                self.append(item)
 
     def all(self):
         return self
@@ -77,6 +81,13 @@ class ShallowContentResult(ShallowObject):
         self.feature_type = ShallowFeatureType(_source.get('feature_type'), slug=_source.get('feature_type.slug'))
         super(ShallowContentResult, self).__init__(_source)
 
+    def get_absolute_url(self):
+        return getattr(self, 'absolute_url', None)
+
+    def ordered_tags(self):
+        tags = list(self.tags.all())
+        sorted(tags, key=lambda tag: ((tag.type != "content_tag") * 100000) + bulbs.content.TagCache.count(tag.slug))
+        return tags
 
 class ShallowContentSearchResults(SearchResults):
 

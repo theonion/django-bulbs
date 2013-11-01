@@ -6,7 +6,6 @@ from bulbs.images.fields import RemoteImageFieldFile
 
 register = template.Library()
 
-
 def crop_url(image_id, width, ratio="original", format="jpg"):
     image_dir = ""
     for char in image_id:
@@ -15,11 +14,13 @@ def crop_url(image_id, width, ratio="original", format="jpg"):
             image_dir += "/"
     if image_dir.endswith("/"):
         image_dir = image_dir[:-1]
-    return "%s/%s/%s/%s.%s" % (settings.BETTY_CROPPER['PUBLIC_URL'], image_dir, ratio, width, format)
+    return "%s%s/%s/%s.%s" % (settings.BETTY_CROPPER['PUBLIC_URL'], image_dir, ratio, width, format)
 
 
 @register.simple_tag
 def cropped_url(image, ratio, width, format='jpg'):
+    if image is None:
+        return None
     if width is None:
         raise TemplateSyntaxError
     if isinstance(image, RemoteImageFieldFile):
@@ -31,13 +32,16 @@ def cropped_url(image, ratio, width, format='jpg'):
 
 @register.simple_tag(takes_context=True)
 def cropped(context, image, ratio, width, format="jpg", caption=None, alt=None):
+    if image is None:
+        return None
     if width is None:
         raise TemplateSyntaxError
-    context['image'] = image
     if isinstance(image, RemoteImageFieldFile):
         context['image_url'] = crop_url(image.name, width=width, ratio=ratio, format=format)
+        context['image_id'] = image.name
     elif isinstance(image, basestring):
         context['image_url'] = crop_url(image, width=width, ratio=ratio, format=format)
+        context['image_id'] = image
     else:
         raise TemplateSyntaxError("You must use a RemoteImageField as the first argument to this tag.")
 
