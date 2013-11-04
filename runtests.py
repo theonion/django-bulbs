@@ -57,8 +57,12 @@ settings.configure(
     ES_URLS = ['http://localhost:9200'],
     ES_INDEXES = {
         'default': 'testing'
-    }
+    },
 
+    BETTY_CROPPER = {
+            'ADMIN_URL': 'http://localhost:8698/',
+            'PUBLIC_URL': 'http://localhost:8698/'
+    }
 )
 
 call_command('syncdb', verbosity=1, interactive=False)
