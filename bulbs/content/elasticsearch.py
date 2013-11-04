@@ -1,6 +1,9 @@
 """This module contains classes that help deal with ElasticSearch"""
+from datetime import datetime
 
 from elasticutils import SearchResults, S
+from django.utils import timezone
+from django.utils.timezone import utc
 import bulbs.content
 
 class ShallowFeatureType(object):
@@ -78,6 +81,8 @@ class ShallowRelation(list):
 class ShallowContentResult(ShallowObject):
 
     def __init__(self, _source):
+        published_utc = datetime.strptime(_source.get('published'), '%Y-%m-%dT%H:%M:%S.%f+00:00').replace(tzinfo=utc)
+        self.published = timezone.localtime(published_utc)
         self.feature_type = ShallowFeatureType(_source.get('feature_type'), slug=_source.get('feature_type.slug'))
         super(ShallowContentResult, self).__init__(_source)
 
