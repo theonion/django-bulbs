@@ -15,13 +15,26 @@ from rest_framework.response import Response
 
 from .models import Video
 
+class JSONField(serializers.WritableField):
+    def to_native(self, obj):
+        if obj is None:
+            return self.default
+        return obj
+
+    def from_native(self, data):
+        if data is None:
+            return self.default
+        return data
 
 class VideoSerializer(serializers.ModelSerializer):
 
-    status = fields.Field(source='get_status_display', read_only=True)
+    status = fields.Field(source='get_status_display')
+    sources = JSONField()
 
     class Meta:
         model = Video
+        exclude = ("data",)
+        read_only_fields = ("id", "name",)
 
 
 class VideoViewSet(viewsets.ModelViewSet):
