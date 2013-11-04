@@ -11,6 +11,7 @@ from rest_framework import serializers
 from rest_framework import fields
 from rest_framework import viewsets
 from rest_framework import decorators
+from rest_framework import routers
 from rest_framework.response import Response
 
 from .models import Video
@@ -34,7 +35,7 @@ class VideoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Video
         exclude = ("data",)
-        read_only_fields = ("id", "name",)
+        read_only_fields = ("id", "job_id")
 
 
 class VideoViewSet(viewsets.ModelViewSet):
@@ -85,3 +86,6 @@ class VideoViewSet(viewsets.ModelViewSet):
             video.save()
 
         return Response(response.json(), status_code=response.status_code)
+
+router = routers.SimpleRouter()
+router.register('video', VideoViewSet)

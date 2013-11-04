@@ -31,6 +31,7 @@ class Video(models.Model):
     sources = JSONField(null=True, blank=True, default=[], help_text="This is a JSON array of sources.")
     poster = RemoteImageField(null=True, blank=True)
     status = models.IntegerField(choices=STATUSES, default=NOT_STARTED)
+    job_id = models.IntegerField(null=True, blank=True, help_text="The zencoder job ID")
 
     def __unicode__(self):
         return self.name
