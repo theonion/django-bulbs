@@ -457,7 +457,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
                 'last_name' : author.last_name,
                 'username'  : author.username
             } for author in self.authors.all()],
-            'tags': [tag.extract_document() for tag in self.tags.all()],
+            'tags': [tag.extract_document() for tag in self.ordered_tags()],
             'absolute_url': self.get_absolute_url()
         })
         return data
