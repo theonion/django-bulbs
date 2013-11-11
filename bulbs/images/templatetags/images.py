@@ -14,7 +14,7 @@ def crop_url(image_id, width, ratio="original", format="jpg"):
             image_dir += "/"
     if image_dir.endswith("/"):
         image_dir = image_dir[:-1]
-    return "/%s%s/%s/%s.%s" % (settings.BETTY_CROPPER['PUBLIC_URL'], image_dir, ratio, width, format)
+    return "%s/%s/%s/%s.%s" % (settings.BETTY_CROPPER['PUBLIC_URL'], image_dir, ratio, width, format)
 
 
 @register.simple_tag
