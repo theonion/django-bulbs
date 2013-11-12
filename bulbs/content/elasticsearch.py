@@ -93,6 +93,12 @@ class ShallowContentResult(ShallowObject):
         self.feature_type = ShallowFeatureType(_source.get('feature_type'), slug=_source.get('feature_type.slug'))
         super(ShallowContentResult, self).__init__(_source)
 
+    def __unicode__(self):
+        return "Content:%s" % self.id
+
+    def __repr__(self):
+        return "Content:%s" % self.id
+
     def get_absolute_url(self):
         return getattr(self, 'absolute_url', None)
 
