@@ -80,7 +80,9 @@ class ShallowRelation(list):
 
 class ShallowContentResult(ShallowObject):
 
-    def __init__(self, _source):
+    def __init__(self, _source, type=None):
+        if type:
+            self.type = type
         try:
             published_utc = datetime.strptime(_source.get('published'), '%Y-%m-%dT%H:%M:%S.%f+00:00').replace(tzinfo=utc)
         except ValueError:
@@ -112,7 +114,7 @@ class ShallowContentSearchResults(SearchResults):
     def set_objects(self, results):
         self.objects = []
         for r in results:
-            self.objects.append(ShallowContentResult(r['_source']))
+            self.objects.append(ShallowContentResult(r['_source'], type=r['_type']))
 
     def __iter__(self):
         return self.objects.__iter__()

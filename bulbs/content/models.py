@@ -374,6 +374,10 @@ class Content(PolymorphicIndexable, PolymorphicModel):
         return reverse('content-detail-view', kwargs={'pk': self.pk, 'slug': self.slug})
 
     @property
+    def type(self):
+        return self.get_mapping_type_name()
+
+    @property
     def byline(self):
         # If we have authors, just put them in a list
         if self.authors.exists():
