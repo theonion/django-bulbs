@@ -346,7 +346,13 @@ class ContentManager(PolymorphicManager):
     def bulk_shallow(self, pks):
         index = settings.ES_INDEXES.get('default')
         results = get_es().multi_get(pks, index=index)
-        return [ShallowContentResult(r['_source']) for r in results['docs']]
+        ret = []
+        for r in results['docs']:
+            if '_source' in r:
+                ret.append(ShallowContentResult(r['_source']))
+            else:
+                ret.append(None)
+        return ret
 
 class Content(PolymorphicIndexable, PolymorphicModel):
     """The base content model from which all other content derives."""
@@ -481,6 +487,18 @@ def content_tags_changed(sender, instance=None, action='', **kwargs):
         doc = {}
         doc['tags'] = [tag.extract_document() for tag in instance.tags.all()]
         es.update(index, instance.get_mapping_type_name(), instance.id, doc=doc, refresh=True)
+
+
+def content_deleted(sender, instance=None, **kwargs):
+    if getattr(instance, "_index", True):
+        es = get_es()
+        indexes = settings.ES_INDEXES
+        index = indexes['default']
+        klass = instance.get_real_instance_class()
+        es.delete(index, klass.get_mapping_type_name(), instance.id)
+
+
+models.signals.pre_delete.connect(content_deleted, Content)
 
 
 models.signals.m2m_changed.connect(
