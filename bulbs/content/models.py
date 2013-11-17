@@ -427,9 +427,9 @@ class Content(PolymorphicIndexable, PolymorphicModel):
         properties = super(Content, cls).get_mapping_properties()
         properties.update({
             'published': {'type': 'date'},
-            'title': {'type': 'string', 'analyzer': 'snowball'},
+            'title': {'type': 'string', 'analyzer': 'html'},
             'slug': {'type': 'string'},
-            'description': {'type': 'string'},
+            'description': {'type': 'string', 'analyzer': 'html'},
             'image': {'type': 'string'},
             'feature_type': {
                 'type': 'multi_field',
