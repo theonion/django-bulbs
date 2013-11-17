@@ -11,6 +11,7 @@ from django.db.backends import util
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django.utils.html import strip_tags
+from django.core.urlresolvers import NoReverseMatch
 
 from bulbs.content import TagCache
 from bulbs.images.fields import RemoteImageField
@@ -378,7 +379,11 @@ class Content(PolymorphicIndexable, PolymorphicModel):
         return '%s: %s' % (self.__class__.__name__, self.title)
 
     def get_absolute_url(self):
-        return reverse('content-detail-view', kwargs={'pk': self.pk, 'slug': self.slug})
+        try:
+            url = reverse('content-detail-view', kwargs={'pk': self.pk, 'slug': self.slug})
+        except NoReverseMatch:
+            url = None
+        return url
 
     @property
     def type(self):
