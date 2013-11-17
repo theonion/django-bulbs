@@ -10,6 +10,8 @@ from django.db import models
 from django.db.backends import util
 from django.template.defaultfilters import slugify
 from django.utils import timezone
+from django.utils.html import strip_tags
+from django.core.urlresolvers import NoReverseMatch
 
 from bulbs.content import TagCache
 from bulbs.images.fields import RemoteImageField
@@ -381,7 +383,11 @@ class Content(PolymorphicIndexable, PolymorphicModel):
         return '%s: %s' % (self.__class__.__name__, self.title)
 
     def get_absolute_url(self):
-        return reverse('content-detail-view', kwargs={'pk': self.pk, 'slug': self.slug})
+        try:
+            url = reverse('content-detail-view', kwargs={'pk': self.pk, 'slug': self.slug})
+        except NoReverseMatch:
+            url = None
+        return url
 
     @property
     def type(self):
@@ -406,10 +412,11 @@ class Content(PolymorphicIndexable, PolymorphicModel):
         return slugify(self.feature_type)
 
     def build_slug(self):
-        return self.title
+        return strip_tags(self.title)
 
     def save(self, *args, **kwargs):
-        self.slug = slugify(self.build_slug())[:self._meta.get_field('slug').max_length]
+        if self.slug is None:
+            self.slug = slugify(self.build_slug())[:self._meta.get_field('slug').max_length]
 
         return super(Content, self).save(*args, **kwargs)
 
@@ -429,9 +436,9 @@ class Content(PolymorphicIndexable, PolymorphicModel):
         properties = super(Content, cls).get_mapping_properties()
         properties.update({
             'published': {'type': 'date'},
-            'title': {'type': 'string', 'analyzer': 'snowball'},
+            'title': {'type': 'string', 'analyzer': 'html'},
             'slug': {'type': 'string'},
-            'description': {'type': 'string'},
+            'description': {'type': 'string', 'analyzer': 'html'},
             'image': {'type': 'string'},
             'feature_type': {
                 'type': 'multi_field',
