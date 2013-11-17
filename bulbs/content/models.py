@@ -156,12 +156,16 @@ class PolymorphicIndexable(object):
     def index(self, refresh=False):
         es = get_es(urls=settings.ES_URLS)
         index = settings.ES_INDEXES.get('default')
-        es.index(
+        doc = self.extract_document()
+        # NOTE: this could be made more efficient with the `doc_as_upsert`
+        # param when the following pull request is merged into pyelasticsearch:
+        # https://github.com/rhec/pyelasticsearch/pull/132
+        es.update(
             index,
             self.get_mapping_type_name(),
-            self.extract_document(),
             self.id,
-            refresh=refresh
+            doc=doc,
+            upsert=doc
         )
 
     def save(self, index=True, refresh=False, *args, **kwargs):
