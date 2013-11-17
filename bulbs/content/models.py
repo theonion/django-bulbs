@@ -10,6 +10,7 @@ from django.db import models
 from django.db.backends import util
 from django.template.defaultfilters import slugify
 from django.utils import timezone
+from django.utils.html import strip_tags
 
 from bulbs.content import TagCache
 from bulbs.images.fields import RemoteImageField
@@ -402,10 +403,11 @@ class Content(PolymorphicIndexable, PolymorphicModel):
         return slugify(self.feature_type)
 
     def build_slug(self):
-        return self.title
+        return strip_tags(self.title)
 
     def save(self, *args, **kwargs):
-        self.slug = slugify(self.build_slug())[:self._meta.get_field('slug').max_length]
+        if self.slug is None:
+            self.slug = slugify(self.build_slug())[:self._meta.get_field('slug').max_length]
 
         return super(Content, self).save(*args, **kwargs)
 
