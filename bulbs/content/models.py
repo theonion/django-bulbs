@@ -316,7 +316,7 @@ class ContentManager(PolymorphicManager):
         results = s_class().es(urls=settings.ES_URLS).indexes(index)
 
         if 'query' in kwargs:
-            results = results.query(_all__text_phrase=kwargs.get('query'))
+            results = results.query(_all__match=kwargs.get('query'))
 
         if kwargs.get('published', True):
             now = timezone.now()
