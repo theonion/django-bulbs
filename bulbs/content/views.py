@@ -52,6 +52,9 @@ class ContentListView(ListView):
         search_kwargs = {}
         if 'tags' in self.request.GET:
             search_kwargs['tags'] = self.request.GET.getlist('tags', [])
+        elif 'tag' in self.request.GET:
+            search_kwargs['tags'] = self.request.GET.getlist('tag', [])
+
         if 'tags' in self.kwargs:
             search_kwargs['tags'] = self.kwargs['tags']
         if self.tags > 0:
@@ -59,6 +62,9 @@ class ContentListView(ListView):
 
         if 'types' in self.request.GET:
             search_kwargs['types'] = self.request.GET.getlist('types', [])
+        elif 'type' in self.request.GET:
+            search_kwargs['types'] = self.request.GET.getlist('type', [])
+
         if 'types' in self.kwargs:
             search_kwargs['types'] = self.kwargs['types']
         if self.types > 0:
@@ -66,6 +72,9 @@ class ContentListView(ListView):
 
         if 'feature_types' in self.request.GET:
             search_kwargs['feature_types'] = self.request.GET.getlist('feature_types', [])
+        elif 'feature_type' in self.request.GET:
+            search_kwargs['feature_types'] = self.request.GET.getlist('feature_type', [])
+
         if 'feature_types' in self.kwargs:
             search_kwargs['feature_types'] = self.kwargs['feature_types']
         if self.feature_types > 0:
@@ -78,6 +87,8 @@ class ContentListView(ListView):
 
         if 'authors' in self.request.GET:
             search_kwargs['authors'] = self.request.GET.getlist('authors', [])
+        elif 'author' in self.request.GET:
+            search_kwargs['authors'] = self.request.GET.getlist('author', [])
         if 'authors' in self.kwargs:
             search_kwargs['authors'] = self.kwargs['authors']
         if self.authors:
