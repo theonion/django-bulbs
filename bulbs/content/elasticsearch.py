@@ -96,7 +96,7 @@ class ShallowContentResult(ShallowObject):
         super(ShallowContentResult, self).__init__(_source)
 
     def __unicode__(self):
-        return "Content:%s" % self.id
+        return "Content:%s" % getattr(self, 'id')
 
     def __repr__(self):
         return "<Content:%s>" % getattr(self, 'id')
