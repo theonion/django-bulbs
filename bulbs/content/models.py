@@ -415,7 +415,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
         return strip_tags(self.title)
 
     def save(self, *args, **kwargs):
-        if self.slug is None:
+        if not self.slug:
             self.slug = slugify(self.build_slug())[:self._meta.get_field('slug').max_length]
 
         return super(Content, self).save(*args, **kwargs)
