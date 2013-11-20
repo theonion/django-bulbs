@@ -3,7 +3,7 @@ from datetime import datetime
 
 from elasticutils import SearchResults, S
 from django.utils import timezone
-from django.utils.timezone import utc
+from django.utils.timezone import utc, now
 import bulbs.content
 
 class ShallowFeatureType(object):
@@ -83,15 +83,22 @@ class ShallowContentResult(ShallowObject):
     def __init__(self, _source, type=None):
         if type:
             self.type = type
-        try:
-            published_utc = datetime.strptime(_source.get('published'), '%Y-%m-%dT%H:%M:%S.%f+00:00').replace(tzinfo=utc)
-        except ValueError:
-            try:
-                published_utc = datetime.strptime(_source.get('published'), '%Y-%m-%dT%H:%M:%S+00:00').replace(tzinfo=utc)
-            except ValueError:
-                published_utc = datetime.now()
 
-        self.published = timezone.localtime(published_utc)
+        published_utc = None
+        if _source.get('published'):
+            try:
+                published_utc = datetime.strptime(_source.get('published'), '%Y-%m-%dT%H:%M:%S.%f+00:00').replace(tzinfo=utc)
+            except ValueError:
+                try:
+                    published_utc = datetime.strptime(_source.get('published'), '%Y-%m-%dT%H:%M:%S+00:00').replace(tzinfo=utc)
+                except ValueError:
+                    pass
+
+        if published_utc:
+            self.published = timezone.localtime(published_utc)
+        else:
+            self.published = None
+        
         self.feature_type = ShallowFeatureType(_source.get('feature_type'), slug=_source.get('feature_type.slug'))
         super(ShallowContentResult, self).__init__(_source)
 
