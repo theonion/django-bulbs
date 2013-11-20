@@ -99,7 +99,7 @@ class ShallowContentResult(ShallowObject):
         return "Content:%s" % self.id
 
     def __repr__(self):
-        return "Content:%s" % self.id
+        return "<Content:%s>" % getattr(self, 'id')
 
     def get_absolute_url(self):
         return getattr(self, 'absolute_url', None)
