@@ -89,7 +89,7 @@ class ShallowContentResult(ShallowObject):
             try:
                 published_utc = datetime.strptime(_source.get('published'), '%Y-%m-%dT%H:%M:%S+00:00').replace(tzinfo=utc)
             except ValueError:
-                published_utc = datetime.datetime.now()
+                published_utc = datetime.now()
 
         self.published = timezone.localtime(published_utc)
         self.feature_type = ShallowFeatureType(_source.get('feature_type'), slug=_source.get('feature_type.slug'))
