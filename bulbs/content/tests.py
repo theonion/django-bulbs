@@ -15,6 +15,18 @@ from bulbs.content.management import sync_es
 from bulbs.content.serializers import ContentSerializer
 
 
+from bulbs.indexable import PolymorphicIndexable
+from polymorphic import PolymorphicModel
+
+class ParentIndexable(PolymorphicIndexable, PolymorphicModel):
+    foo = models.CharField(max_length=255)
+
+class ChildIndexable(ParentIndexable):
+    bar = models.CharField(max_length=255)
+
+class GrandchildIndexable(ChildIndexable):
+    baz = models.CharField(max_length=255)
+
 class TestContentObj(Content):
     """Fake content here"""
     foo = models.CharField(max_length=255)
@@ -30,6 +42,14 @@ class TestContentObjTwo(Content):
 
     def get_absolute_url(self):
         return '/detail/%s/' % self.pk
+
+
+class IndexableTestCase(TestCase):
+
+    def test_simple(self):
+        self.assertEqual(ParentIndexable.get_index_name(), 'content_parentindexable')
+        self.assertEqual(ChildIndexable.get_index_name(), 'content_parentindexable')
+        self.assertEqual(GrandchildIndexable.get_index_name(), 'content_parentindexable')
 
 
 class SerialzerTestCase(TestCase):

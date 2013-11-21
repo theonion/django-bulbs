@@ -1,10 +1,12 @@
 from django.db.models.signals import post_syncdb
 from django.conf import settings
+from django.db import models
 
 from elasticutils import get_es
 from pyelasticsearch.exceptions import IndexAlreadyExistsError, ElasticHttpError
 
 import bulbs.content.models
+from bulbs.indexable import PolymorphicIndexable
 
 
 def sync_es(sender, **kwargs):
@@ -56,5 +58,15 @@ def sync_es(sender, **kwargs):
     except ElasticHttpError as e:
         print("ES Error: %s" % e.error)
 
+def create_polymorphic_indexes(sender, **kwargs):
+    mappings = {}
 
+    for app in models.get_apps():
+        for model in models.get_models(app, include_auto_created=True):
+            if isinstance(model(), PolymorphicIndexable):
+                mappings[model.get_mapping_type_name()] = model.get_mapping()
+
+    print(mappings)
+
+post_syncdb.connect(create_polymorphic_indexes, sender=bulbs.content.models)
 post_syncdb.connect(sync_es, sender=bulbs.content.models)

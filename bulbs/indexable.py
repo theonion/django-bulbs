@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 
 from elasticutils.contrib.django import get_es
 
@@ -12,11 +13,13 @@ class PolymorphicIndexable(object):
 
     @classmethod
     def get_index_name(cls):
-        pass
+        while cls.__bases__[0] != PolymorphicIndexable:
+            cls = cls.__bases__[0]
+        return '%s_%s' % (cls._meta.app_label, cls.__name__.lower())
 
+    @classmethod
     def get_es(self):
-        es = get_es(urls=settings.ES_URLS)
-
+        return get_es(urls=settings.ES_URLS).index(self.get_index_name())
 
     def index(self, refresh=False):
         es = get_es(urls=settings.ES_URLS)
