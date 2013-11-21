@@ -33,15 +33,18 @@ class ImageTagsTestCase(TestCase):
 
     def setUp(self):
         # with open(os.path.join(APP_DIR, "test_images", "Lenna.png"), "r") as lenna:
-        test = TestModel()
-        test.image = test.image.field.attr_class(test, test.image.field, '666')
-        test.save()
-        self.context = {'test': test}
+        self.test = TestModel()
+        self.test.image = self.test.image.field.attr_class(self.test, self.test.image.field, '666')
+        self.test.save()
+        self.context = {'test': self.test}
+
+        self.test_empty = TestModel()
+        self.test_empty.save()
 
     def test_image_field(self):
         settings.BETTY_CROPPER = {
             'ADMIN_URL': 'http://localhost:8698',
-            'PUBLIC_URL': 'http://localhost:8698'
+            'PUBLIC_URL': 'http://localhost:8698',
         }
         with HTTMock(betty_mock):
             with open(os.path.join(APP_DIR, "test_images", "Lenna.png"), "r") as lenna:
@@ -55,7 +58,7 @@ class ImageTagsTestCase(TestCase):
         if os.path.exists(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
 
-    def testImageUrlTag(self):
+    def test_image_url_tag(self):
 
         test_template = Template("""{% load images %}{% cropped_url test.image "1x1" 200 %}""")
         test_context = Context(self.context)
@@ -71,9 +74,16 @@ class ImageTagsTestCase(TestCase):
         rendered = test_template.render(test_context)
         self.assertEqual(rendered, "http://localhost:8698/666/1x1/200.png")
 
-    def testImageTag(self):
+    def test_image_tag(self):
         test_template = Template("""{% load images %}{% cropped test.image "3x4" 100 %}""")
         test_context = Context(self.context)
 
         rendered = test_template.render(test_context)
         self.assertEqual(rendered, '<img src="http://localhost:8698/666/3x4/100.jpg" />')
+
+    def test_default_image(self):
+        test_template = Template("""{% load images %}{% cropped test_empty.image "3x4" 100 %}""")
+        test_context = Context({'test_empty': self.test_empty})
+
+        rendered = test_template.render(test_context)
+        self.assertEqual(rendered, '<img src="http://localhost:8698/1234/5/3x4/100.jpg" />')
