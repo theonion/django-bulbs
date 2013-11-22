@@ -26,22 +26,22 @@ def cropped_url(image, ratio, width, format='jpg'):
     if width is None:
         raise TemplateSyntaxError
     if isinstance(image, RemoteImageFieldFile):
-        return crop_url(image.name, width=width, ratio=ratio, format=format)
+        return crop_url(image.id, width=width, ratio=ratio, format=format)
     if isinstance(image, basestring):
         return crop_url(image, width=width, ratio=ratio, format=format)
     raise TemplateSyntaxError("You must use a RemoteImageField or string as the first argument to this tag.")
 
 
 @register.simple_tag(takes_context=True)
-def cropped(context, image, ratio, width, format="jpg", caption=None, alt=None):
+def cropped(context, image, ratio, width, format="jpg", alt=None):
     if width is None:
         raise TemplateSyntaxError
     if isinstance(image, RemoteImageFieldFile):
-        context['image_url'] = crop_url(image.name, width=width, ratio=ratio, format=format)
-        if not image.name and DEFAULT_IMAGE:
+        context['image_url'] = crop_url(image.id, width=width, ratio=ratio, format=format)
+        if not image.id and DEFAULT_IMAGE:
             context['image_id'] = DEFAULT_IMAGE
         else:
-            context['image_id'] = image.name
+            context['image_id'] = image.id
     elif isinstance(image, basestring):
         context['image_url'] = crop_url(image, width=width, ratio=ratio, format=format)
         context['image_id'] = image

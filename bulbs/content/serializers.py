@@ -9,6 +9,8 @@ from rest_framework import relations
 
 from .models import Content, Tag
 
+from bulbs.images.fields import RemoteImageSerializer
+
 import simplejson, time, hmac, hashlib, base64
 
 class ContentTypeField(serializers.WritableField):
@@ -142,6 +144,7 @@ class ContentSerializer(serializers.ModelSerializer):
     polymorphic_ctype = ContentTypeField(source='polymorphic_ctype_id', read_only=True)
     tags = TagField(many=True)
     authors = AuthorField(many=True)
+    image = RemoteImageSerializer()
 
     class Meta:
         model = Content

@@ -29,6 +29,26 @@ def betty_mock(url, request):
 class TestModel(models.Model):
     image = RemoteImageField()
 
+
+class ImageCaptionTestCase(TestCase):
+
+    def test_caption(self):
+        test = TestModel()
+        test.image = test.image.field.attr_class(test, test.image.field, '666')
+        test.save()
+
+        self.assertIsNone(test.image.caption)
+        test.image.caption = "Testing caption"
+        self.assertEqual(test.image.caption, "Testing caption")
+        self.assertEqual(test.image.id, "666")
+        test.save()
+
+        test = TestModel.objects.get(id=test.id)
+        self.assertEqual(test.image.caption, "Testing caption")
+        self.assertEqual(test.image.id, "666")
+
+
+
 class ImageTagsTestCase(TestCase):
 
     def setUp(self):
