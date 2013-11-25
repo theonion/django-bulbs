@@ -8,6 +8,32 @@ from pyelasticsearch.exceptions import IndexAlreadyExistsError, ElasticHttpError
 import bulbs.content.models
 from bulbs.indexable import PolymorphicIndexable
 
+ES_SETTINGS = {
+    "index": {
+        "analysis": {
+            "analyzer": {
+                "autocomplete": {
+                    "type": "custom",
+                    "tokenizer": "edge_ngram_tokenizer",
+                    "filter": ["asciifolding", "lowercase"]
+                },
+                "html": {
+                    "type": "custom",
+                    "char_filter": ["html_strip"],
+                    "tokenizer": "standard",
+                    "filter": ["asciifolding", "lowercase", "stop", "snowball"]
+                }
+            },
+            "tokenizer": {
+                "edge_ngram_tokenizer": {
+                    "type" : "edgeNGram",
+                    "min_gram" : "2",
+                    "max_gram" : "20"
+                }
+            }
+        }
+    }
+}
 
 def sync_es(sender, **kwargs):
     # Your specific logic here
@@ -21,52 +47,45 @@ def sync_es(sender, **kwargs):
     for name, model in bulbs.content.models.Tag.get_doctypes().items():
         mappings[name] = model.get_mapping()
 
-    es_settings = {
-        "index": {
-            "analysis": {
-                "analyzer": {
-                    "autocomplete": {
-                        "type": "custom",
-                        "tokenizer": "edge_ngram_tokenizer",
-                        "filter": ["asciifolding", "lowercase"]
-                    },
-                    "html": {
-                        "type": "custom",
-                        "char_filter": ["html_strip"],
-                        "tokenizer": "standard",
-                        "filter": ["asciifolding", "lowercase", "stop", "snowball"]
-                    }
-                },
-                "tokenizer": {
-                    "edge_ngram_tokenizer": {
-                        "type" : "edgeNGram",
-                        "min_gram" : "2",
-                        "max_gram" : "20"
-                    }
-                }
-            }
-        }
-    }
-
     try:
         es.create_index(index, settings= {
             "mappings": mappings,
-            "settings": es_settings
+            "settings": ES_SETTINGS
         })
     except IndexAlreadyExistsError:
         pass
     except ElasticHttpError as e:
         print("ES Error: %s" % e.error)
 
+
 def create_polymorphic_indexes(sender, **kwargs):
+
+    indexes = {}
     mappings = {}
 
     for app in models.get_apps():
         for model in models.get_models(app, include_auto_created=True):
             if isinstance(model(), PolymorphicIndexable):
-                mappings[model.get_mapping_type_name()] = model.get_mapping()
+                index = model.get_index_name()
+                name = model.get_mapping_type_name()
+                if model.get_index_name() in indexes:
+                    indexes[index][name] = model.get_mapping()
+                else:
+                    indexes[index]= {
+                        name: model.get_mapping()
+                    }
 
-    print(mappings)
+    es = get_es(urls=settings.ES_URLS)
+    for index,mappings in indexes.items():
+        try:
+            es.create_index(index, settings= {
+                "mappings": mappings,
+                "settings": ES_SETTINGS
+            })
+        except IndexAlreadyExistsError:
+            pass
+        except ElasticHttpError as e:
+            print("ES Error: %s" % e.error)
 
 post_syncdb.connect(create_polymorphic_indexes, sender=bulbs.content.models)
 post_syncdb.connect(sync_es, sender=bulbs.content.models)
