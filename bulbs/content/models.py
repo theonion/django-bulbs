@@ -21,6 +21,12 @@ from elasticutils import SearchResults, S
 from elasticutils.contrib.django import get_es
 from polymorphic import PolymorphicModel, PolymorphicManager
 
+try:
+    from bulbs.content.tasks import index as index_task
+    CELERY_ENABLED = True
+except ImportError:
+    CELERY_ENABLED = False
+
 
 def fetch_cached_models_by_id(model_class, model_ids, key_template='bulkcache/%s/id/%d'):
     """Bulk loads models by first checking the cache, then db."""
@@ -173,7 +179,11 @@ class PolymorphicIndexable(object):
     def save(self, index=True, refresh=False, *args, **kwargs):
         result = super(PolymorphicIndexable, self).save(*args, **kwargs)
         if index:
-            self.index(refresh=refresh)
+            if CELERY_ENABLED:
+                ctype_id = ContentType.objects.get_for_model(self).pk
+                index_task.delay(ctype_id, self.pk, refresh=refresh)
+            else:
+                self.index(refresh=refresh)
         self._index = index
         return result
 
