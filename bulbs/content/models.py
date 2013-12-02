@@ -509,7 +509,7 @@ def content_tags_changed(sender, instance=None, action='', **kwargs):
         else:
             index = settings.ES_INDEXES.get('default')
             es = get_es()
-            es.update(index, instance.get_mapping_type_name(), instance.id, doc=doc, refresh=True)
+            es.update(index, instance.get_mapping_type_name(), instance.id, doc=doc)
 
 
 def content_deleted(sender, instance=None, **kwargs):
