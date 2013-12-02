@@ -40,13 +40,31 @@ class ImageCaptionTestCase(TestCase):
         self.assertIsNone(test.image.caption)
         test.image.caption = "Testing caption"
         self.assertEqual(test.image.caption, "Testing caption")
+        self.assertIsNone(test.image.alt)
         self.assertEqual(test.image.id, "666")
         test.save()
 
         test = TestModel.objects.get(id=test.id)
         self.assertEqual(test.image.caption, "Testing caption")
+        self.assertIsNone(test.image.alt)
         self.assertEqual(test.image.id, "666")
 
+    def test_alt(self):
+        test = TestModel()
+        test.image = test.image.field.attr_class(test, test.image.field, '69')
+        test.save()
+
+        self.assertIsNone(test.image.alt)
+        test.image.alt = "Some snarky shit"
+        self.assertIsNone(test.image.caption)
+        self.assertEqual(test.image.alt, "Some snarky shit")
+        self.assertEqual(test.image.id, "69")
+        test.save()
+
+        test = TestModel.objects.get(id=test.id)
+        self.assertIsNone(test.image.caption)
+        self.assertEqual(test.image.alt, "Some snarky shit")
+        self.assertEqual(test.image.id, "69")
 
 
 class ImageTagsTestCase(TestCase):
