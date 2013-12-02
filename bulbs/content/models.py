@@ -23,6 +23,7 @@ from polymorphic import PolymorphicModel, PolymorphicManager
 
 try:
     from bulbs.content.tasks import index as index_task
+    from bulbs.content.tasks import update as update_task
     CELERY_ENABLED = True
 except ImportError:
     CELERY_ENABLED = False
@@ -180,8 +181,7 @@ class PolymorphicIndexable(object):
         result = super(PolymorphicIndexable, self).save(*args, **kwargs)
         if index:
             if CELERY_ENABLED:
-                ctype_id = ContentType.objects.get_for_model(self).pk
-                index_task.delay(ctype_id, self.pk, refresh=refresh)
+                index_task.delay(self.pk, refresh=refresh)
             else:
                 self.index(refresh=refresh)
         self._index = index
@@ -502,12 +502,14 @@ class Content(PolymorphicIndexable, PolymorphicModel):
 def content_tags_changed(sender, instance=None, action='', **kwargs):
     """Reindex content tags when they change."""
     if getattr(instance, "_index", True):  # TODO: Rethink this hackey shit. Is there a better way?
-        es = get_es()
-        indexes = settings.ES_INDEXES
-        index = indexes['default']
         doc = {}
         doc['tags'] = [tag.extract_document() for tag in instance.tags.all()]
-        es.update(index, instance.get_mapping_type_name(), instance.id, doc=doc, refresh=True)
+        if CELERY_ENABLED:
+            update_task.delay(instance.pk, doc)
+        else:
+            index = settings.ES_INDEXES.get('default')
+            es = get_es()
+            es.update(index, instance.get_mapping_type_name(), instance.id, doc=doc, refresh=True)
 
 
 def content_deleted(sender, instance=None, **kwargs):
