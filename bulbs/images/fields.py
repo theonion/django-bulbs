@@ -3,14 +3,14 @@ import json
 from django.utils.translation import ugettext_lazy as _
 from django.db.models.fields.files import FileField, FieldFile
 
-from rest_framework import serializers
+from rest_framework import fields
 
 
 from bulbs.images.conf import settings
 from bulbs.images.storages import BettyCropperStorage
 
 
-class RemoteImageSerializer(serializers.WritableField):
+class RemoteImageSerializer(fields.FileField):
 
     def to_native(self, obj):
         return {
