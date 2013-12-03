@@ -479,7 +479,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
             'title'            : self.title,
             'slug'             : self.slug,
             'description'      : self.description,
-            'image'            : self.image.name if self.image else None,
+            'image'            : self.image.id if self.image else None,
             'feature_type'     : self.feature_type,
             'feature_type.slug': slugify(self.feature_type),
             'authors': [{
