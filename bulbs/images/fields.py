@@ -3,14 +3,14 @@ import json
 from django.utils.translation import ugettext_lazy as _
 from django.db.models.fields.files import FileField, FieldFile
 
-from rest_framework import fields
+from rest_framework import serializers
 
 
 from bulbs.images.conf import settings
 from bulbs.images.storages import BettyCropperStorage
 
 
-class RemoteImageSerializer(fields.FileField):
+class RemoteImageSerializer(serializers.WritableField):
 
     def to_native(self, obj):
         return {
@@ -112,6 +112,11 @@ class RemoteImageField(FileField):
 
         kwargs['max_length'] = kwargs.get('max_length', 100)
         super(RemoteImageField, self).__init__(verbose_name, name, upload_to=self.upload_to, storage=self.storage, **kwargs)
+
+    def pre_save(self, model_instance, add):
+        "Returns field's value just before saving."
+        file = super(FileField, self).pre_save(model_instance, add)
+        return file
 
     def get_prep_lookup(self, lookup_type, value):
         if hasattr(value, 'name'):
