@@ -15,7 +15,7 @@ from django.db.models.fields.files import FieldFile
 
 from httmock import urlmatch, HTTMock
 
-from bulbs.images.fields import RemoteImageField
+from bulbs.images.fields import RemoteImageField, RemoteImageSerializer
 
 
 APP_DIR = os.path.dirname(__file__)
@@ -65,6 +65,35 @@ class ImageCaptionTestCase(TestCase):
         self.assertIsNone(test.image.caption)
         self.assertEqual(test.image.alt, "Some snarky shit")
         self.assertEqual(test.image.id, "69")
+
+    def test_import(self):
+        test = TestModel()
+        test.image = test.image.field.attr_class(test, test.image.field, '{"id": "69"}')
+        test.save()
+
+        self.assertIsNone(test.image.alt)
+        test.image.alt = "Some snarky shit"
+        self.assertIsNone(test.image.caption)
+        self.assertEqual(test.image.alt, "Some snarky shit")
+        self.assertEqual(test.image.id, "69")
+        test.save()
+
+        test = TestModel.objects.get(id=test.id)
+        self.assertIsNone(test.image.caption)
+        self.assertEqual(test.image.alt, "Some snarky shit")
+        self.assertEqual(test.image.id, "69")
+
+class ImageSerializationTestCase(TestCase):
+
+    def test_from_native(self):
+        test = TestModel()
+        test.image = test.image.field.attr_class(test, test.image.field, '{"id": "69"}')
+        test.save()
+        serializer = RemoteImageSerializer()
+        self.assertEqual(serializer.to_native(test.image).get('id'), '69')
+
+    def test_to_native(self):
+        pass
 
 
 class ImageTagsTestCase(TestCase):
