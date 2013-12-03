@@ -174,7 +174,8 @@ class PolymorphicIndexable(object):
             self.get_mapping_type_name(),
             self.id,
             doc=doc,
-            upsert=doc
+            upsert=doc,
+            retry_on_conflict=5
         )
 
     def save(self, index=True, refresh=False, *args, **kwargs):
