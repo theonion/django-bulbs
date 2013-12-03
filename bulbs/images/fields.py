@@ -111,7 +111,7 @@ class RemoteImageField(FileField):
         self.upload_to = settings.BETTY_CROPPER['ADMIN_URL']
 
         kwargs['max_length'] = kwargs.get('max_length', 100)
-        super(RemoteImageField, self).__init__(verbose_name, name, **kwargs)
+        super(RemoteImageField, self).__init__(verbose_name, name, upload_to=self.upload_to, storage=self.storage, **kwargs)
 
     def get_prep_lookup(self, lookup_type, value):
         if hasattr(value, 'name'):
