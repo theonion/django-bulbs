@@ -401,6 +401,14 @@ class Content(PolymorphicIndexable, PolymorphicModel):
         return url
 
     @property
+    def is_published(self):
+        if self.published:
+            now = timezone.now()
+            if now >= self.published:
+                return True
+        return False
+
+    @property
     def type(self):
         return self.get_mapping_type_name()
 
