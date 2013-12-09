@@ -23,7 +23,9 @@ class RemoteImageSerializer(serializers.WritableField):
         }
 
     def from_native(self, data):
-        return json.dumps(data)
+        if data:
+            return json.dumps(data)
+        return None
 
 
 class RemoteImageFieldFile(FieldFile):
