@@ -144,7 +144,7 @@ class ContentSerializer(serializers.ModelSerializer):
     polymorphic_ctype = ContentTypeField(source='polymorphic_ctype_id', read_only=True)
     tags = TagField(many=True)
     authors = AuthorField(many=True)
-    image = RemoteImageSerializer()
+    image = RemoteImageSerializer(required=False)
 
     class Meta:
         model = Content

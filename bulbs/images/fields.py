@@ -2,6 +2,7 @@ import json
 
 from django.utils.translation import ugettext_lazy as _
 from django.db.models.fields.files import FileField, FieldFile
+from django.core.exceptions import ValidationError
 
 from rest_framework import serializers
 
@@ -13,6 +14,8 @@ from bulbs.images.storages import BettyCropperStorage
 class RemoteImageSerializer(serializers.WritableField):
 
     def to_native(self, obj):
+        if obj.name is None or obj.name == "":
+            return None
         return {
             'id': obj.id,
             'caption': obj.caption,
@@ -112,6 +115,16 @@ class RemoteImageField(FileField):
 
         kwargs['max_length'] = kwargs.get('max_length', 100)
         super(RemoteImageField, self).__init__(verbose_name, name, upload_to=self.upload_to, storage=self.storage, **kwargs)
+
+    def validate(self, value, model_instance):
+        try:
+            data = json.loads(value.name)
+        except TypeError:
+            raise ValidationError("Invalid JSON document")
+
+        if 'id' in data and not isinstance(data['id'], basestring):
+            raise ValidationError("Invalid must be a string")
+
 
     def pre_save(self, model_instance, add):
         "Returns field's value just before saving."
