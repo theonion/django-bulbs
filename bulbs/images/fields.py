@@ -117,12 +117,12 @@ class RemoteImageField(FileField):
         super(RemoteImageField, self).__init__(verbose_name, name, upload_to=self.upload_to, storage=self.storage, **kwargs)
 
     def validate(self, value, model_instance):
-        if value.name:
-            try:
-                data = json.loads(value.name)
-            except TypeError:
-                raise ValidationError("Invalid JSON document")
+        try:
+            data = json.loads(value.name)
+        except TypeError:
+            raise ValidationError("Invalid JSON document")
 
+        if data:
             if 'id' in data and not isinstance(data['id'], basestring):
                 raise ValidationError("")
 
