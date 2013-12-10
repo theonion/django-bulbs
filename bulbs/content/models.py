@@ -507,7 +507,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
         from .serializers import ContentSerializer
         return ContentSerializer
 
-
+# NOTE: I dont *think* we need this now that we explictly index in ContentViewSet.post_save
 def content_tags_changed(sender, instance=None, action='', **kwargs):
     """Reindex content tags when they change."""
     if getattr(instance, "_index", True):  # TODO: Rethink this hackey shit. Is there a better way?
@@ -533,9 +533,9 @@ def content_deleted(sender, instance=None, **kwargs):
 models.signals.pre_delete.connect(content_deleted, Content)
 
 
-models.signals.m2m_changed.connect(
-    content_tags_changed,
-    sender=Content.tags.through,
-    dispatch_uid='content_tags_changed_signal'
-)
+# models.signals.m2m_changed.connect(
+#     content_tags_changed,
+#     sender=Content.tags.through,
+#     dispatch_uid='content_tags_changed_signal'
+# )
 

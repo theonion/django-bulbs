@@ -149,6 +149,11 @@ class ContentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Content
 
+    def save(self, *args, **kwargs):
+        if not 'index' in kwargs:
+            kwargs['index'] = False
+        return super(ContentSerializer, self).save(*args, **kwargs)
+
 
 class PolymorphicContentSerializerMixin(object):
     def to_native(self, value):
@@ -164,6 +169,11 @@ class PolymorphicContentSerializerMixin(object):
             return serializer.to_native(value)
         else:
             return super(PolymorphicContentSerializerMixin, self).to_native(value)
+
+    def save(self, *args, **kwargs):
+        if not 'index' in kwargs:
+            kwargs['index'] = False
+        return super(PolymorphicContentSerializerMixin, self).save(*args, **kwargs)
 
 
 class PolymorphicContentSerializer(PolymorphicContentSerializerMixin, ContentSerializer):
