@@ -1,7 +1,6 @@
 """Base models for "Content", including the indexing and search features
 that we want any piece of content to have."""
 
-
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
@@ -245,7 +244,7 @@ class TagManager(PolymorphicManager):
 class Tag(PolymorphicIndexable, PolymorphicModel):
     """Model for tagging up Content."""
     name = models.CharField(max_length=255)
-    slug = models.SlugField()
+    slug = models.SlugField(unique=True)
 
     objects = TagManager()
 
@@ -374,6 +373,7 @@ class ContentManager(PolymorphicManager):
 class Content(PolymorphicIndexable, PolymorphicModel):
     """The base content model from which all other content derives."""
     published = models.DateTimeField(blank=True, null=True)
+    last_modified = models.DateTimeField(auto_now=True, default=timezone.now)
     title = models.CharField(max_length=512)
     slug = models.SlugField(blank=True, default='')
     description = models.TextField(max_length=1024, blank=True, default='')
