@@ -423,8 +423,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
 
     def ordered_tags(self):
         tags = list(self.tags.all())
-        sorted(tags, key=lambda tag: ((type(tag) != Tag) * 100000) + tag.count())
-        return tags
+        return sorted(tags, key=lambda tag: ((type(tag) != Tag) * 100000) + tag.count(), reverse=True)
 
     @property
     def feature_type_slug(self):
