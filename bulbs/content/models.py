@@ -182,7 +182,7 @@ class PolymorphicIndexable(object):
         result = super(PolymorphicIndexable, self).save(*args, **kwargs)
         if index:
             if CELERY_ENABLED:
-                index_task.delay(self.pk, refresh=refresh)
+                index_task.delay(self.polymorphic_ctype_id, self.pk, refresh=refresh)
             else:
                 self.index(refresh=refresh)
         self._index = index

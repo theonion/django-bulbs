@@ -5,9 +5,10 @@ from elasticutils.contrib.django import get_es
 from celery import task
 
 @task(default_retry_delay=5)
-def index(pk, refresh=False):
-    from bulbs.content.models import Content
-    obj = Content.objects.get(pk=pk)
+def index(content_type_id, pk, refresh=False):
+    from django.contrib.contenttypes.models import ContentType
+    content_type = ContentType.objects.get_for_id(content_type_id)
+    obj = content_type.model_class().objects.get(id=pk)
     obj.index(refresh=refresh)
 
 @task(default_retry_delay=10)
