@@ -108,17 +108,17 @@ class ImageTagsTestCase(TestCase):
         self.test_empty = TestModel()
         self.test_empty.save()
 
-    def test_image_field(self):
-        settings.BETTY_CROPPER = {
-            'ADMIN_URL': 'http://localhost:8698',
-            'PUBLIC_URL': 'http://localhost:8698',
-        }
-        with HTTMock(betty_mock):
-            with open(os.path.join(APP_DIR, "test_images", "Lenna.png"), "r") as lenna:
-                test = TestModel()
-                test.image = File(lenna)
-                test.save()
-                self.assertEqual(test.image.name, "10")
+    # def test_image_field(self):
+    #     settings.BETTY_CROPPER = {
+    #         'ADMIN_URL': 'http://localhost:8698',
+    #         'PUBLIC_URL': 'http://localhost:8698',
+    #     }
+    #     with HTTMock(betty_mock):
+    #         with open(os.path.join(APP_DIR, "test_images", "Lenna.png"), "r") as lenna:
+    #             test = TestModel()
+    #             test.image = File(lenna)
+    #             test.save()
+    #             self.assertEqual(test.image.name, "10")
 
 
     def tearDown(self):
