@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import django
 from django.conf import settings, global_settings as default_settings
 from django.core.management import call_command
 from os.path import dirname, realpath
@@ -46,14 +47,10 @@ settings.configure(
 
         'bulbs.content',
         'bulbs.images',
-
-        'discover_runner'
     ),
     SITE_ID = 3,
 
     ROOT_URLCONF = 'tests.urls',
-
-    TEST_RUNNER = 'tests.runner.XMLTestRunner',
     
     ES_URLS = ['http://localhost:9200'],
     ES_INDEXES = {
@@ -66,6 +63,11 @@ settings.configure(
             'DEFAULT_IMAGE': '12345'
     }
 )
+if django.VERSION[1] < 6:
+    settings.INSTALLED_APPS += ('discover_runner',)
+    settings.TEST_RUNNER = 'tests.runner.XMLTestRunner'
+
+
 
 call_command('syncdb', verbosity=1, interactive=False)
 
