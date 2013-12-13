@@ -8,6 +8,8 @@ from django.test.client import Client
 from django.db import models
 from django.core.urlresolvers import reverse
 from django.conf import settings
+from django.template.defaultfilters import slugify
+
 from elasticutils.contrib.django import get_es
 
 from bulbs.content.models import Content, Tag, fetch_cached_models_by_id
@@ -110,8 +112,7 @@ class PolyContentTestCase(TestCase):
         self.all_tags = []
         for i, combo in enumerate(self.combos):
             for atom in combo:
-                tag = Tag(name=atom)
-                tag.save()
+                tag, created = Tag.objects.get_or_create(name=atom, slug=slugify(atom))
                 self.all_tags.append(tag)
             obj = TestContentObj.objects.create(
                 title=' '.join(combo),
