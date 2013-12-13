@@ -100,6 +100,8 @@ class PolyContentTestCase(TestCase):
         Normally, the "Content" class picks up available doctypes from installed apps, but
         in this case, our test models don't exist in a real app, so we'll hack them on.
         """
+        self.es = get_es(urls=settings.ES_URLS)
+
         for model in [TestContentObj, TestContentObjTwo]:
             Content._cache[model.get_mapping_type_name()] = model
         sync_es(None)  # We should pass "bulbs.content.models" here, but for now this is fine.
@@ -131,10 +133,10 @@ class PolyContentTestCase(TestCase):
                 feature_type='Obj two'
             )
             obj2.tags.add(*self.all_tags)
+        self.es.refresh(settings.ES_INDEXES['default'])
 
     def tearDown(self):
-        es = get_es(urls=settings.ES_URLS)
-        es.delete_index(settings.ES_INDEXES.get('default', 'testing'))
+        self.es.delete_index(settings.ES_INDEXES.get('default', 'testing'))
 
     # def test_serialize_id(self):
     #     c = Content.objects.all()[0]
@@ -180,8 +182,9 @@ class PolyContentTestCase(TestCase):
 
     def test_search_exact_name_tags(self):
         tag = Tag(name='Beeftank')
-        tag.save(index=True, refresh=True)
+        tag.save(index=True)
         self.all_tags.append(tag) # save it for later tests
+        self.es.refresh(settings.ES_INDEXES['default'])
         results = Tag.objects.search(name='beeftank')
         self.assertTrue(len(results) > 0)
         tag_result = results[0]
