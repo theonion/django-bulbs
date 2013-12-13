@@ -1,7 +1,10 @@
 language: python
 python:
   - "2.7"
-install: "pip install -r requirements-dev.txt"
+cache:
+  directories:
+  - pipcache
+install: "PIP_DOWNLOAD_CACHE=./pipcache pip install -r requirements-dev.txt"
 services:
   - elasticsearch
   - postgresql
