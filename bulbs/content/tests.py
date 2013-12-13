@@ -1,6 +1,7 @@
 import itertools
 import datetime
 import json
+import time
 
 from django.test import TestCase
 from django.utils import timezone
@@ -133,7 +134,10 @@ class PolyContentTestCase(TestCase):
                 feature_type='Obj two'
             )
             obj2.tags.add(*self.all_tags)
+        
+        # We need to let the index refresh
         self.es.refresh(settings.ES_INDEXES['default'])
+        time.sleep(1)
 
     def tearDown(self):
         self.es.delete_index(settings.ES_INDEXES.get('default', 'testing'))
