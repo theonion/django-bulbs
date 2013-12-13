@@ -1,10 +1,17 @@
 language: python
 python:
+  - "3.0"
   - "2.7"
+env:
+  - DJANGO_VERSION=1.4
+  - DJANGO_VERSION=1.5
+  - DJANGO_VERSION=1.6
 cache:
   directories:
   - pipcache
-install: "PIP_DOWNLOAD_CACHE=./pipcache pip install -r requirements-dev.txt"
+install:
+  - "pip install -q Django==$DJANGO_VERSION"
+  - "PIP_DOWNLOAD_CACHE=./pipcache pip install -r requirements-dev.txt"
 services:
   - elasticsearch
   - postgresql
