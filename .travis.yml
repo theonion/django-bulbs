@@ -1,0 +1,10 @@
+language: python
+python:
+  - "2.7"
+install: "pip install -r requirements-dev.txt"
+services:
+  - elasticsearch
+  - postgresql
+before_script:
+  - psql -c 'create database avclub;' -U postgres
+script: python runtests.py
