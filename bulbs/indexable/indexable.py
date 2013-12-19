@@ -70,7 +70,7 @@ class ModelSearchResults(SearchResults):
 
     def set_objects(self, results):
         ids = list(int(r['_id']) for r in results)
-        model_objects = self.type.objects.in_bulk(ids)
+        model_objects = self.type.get_model().objects.in_bulk(ids)
         self.objects = [
             model_objects[id] for id in ids if id in model_objects
         ]
@@ -82,19 +82,24 @@ class ModelSearchResults(SearchResults):
 class PolymorphicS(S):
     """A custom S class, adding a few methods to ease searching for Polymorphic objects"""
 
-    def __init__(self, type_=None, klass=None):
+    def __init__(self, type_=None):
         """When it comes to PolymorphicS objects, we always want a PolymorphicModel class,
         instead of the MappingType that elasticutils uses, so we'll pass it in to the init method."""
         super(PolymorphicS, self).__init__(type_=type_)
-        self.klass = klass
         self.as_models = False
 
     def _clone(self, next_step=None):
         """Since we have some special stuff in this S class, we need to pass it along when we clone."""
         new = super(PolymorphicS, self)._clone(next_step=next_step)
-        new.klass = self.klass
         new.as_models = self.as_models
         return new
+
+    def get_doctypes(self):
+        for action, value in reversed(self.steps):
+            if action == 'doctypes':
+                return list(value)
+
+        return None
 
     def instanceof(self, klass, exact=False):
         """This gets results that are of this type, or inherit from it.
@@ -122,27 +127,18 @@ class PolymorphicS(S):
             return ModelSearchResults
         return super(PolymorphicS, self).get_results_class()
 
-    def _do_search(self):
-        """
-        Perform the search, then convert that raw format into a
-        SearchResults instance and return it.
-        """
-        if self._results_cache is None:
-            response = self.raw()
-            ResultsClass = self.get_results_class()
-            results = self.to_python(response.get('hits', {}).get('hits', []))
-
-            # This is a little terrible, but the ModelSearchResults expects a "type" that's an actual polymorphicmodel class.s
-            if ResultsClass == ModelSearchResults:
-                self._results_cache = ResultsClass(self.klass, response, results, self.fields)
-            else:
-                self._results_cache = ResultsClass(self.type, response, results, self.fields)
-        return self._results_cache
-
     def full(self):
         """This will allow the search to return full model instances, using ModelSearchResults"""
         self.as_models = True
         return self._clone(next_step=('values_list', ['_id']))
+
+
+class PolymorphicMappingType(MappingType):
+
+    @classmethod
+    def get_model(cls):
+        return cls.base_polymorphic_class
+
 
 class SearchManager(models.Manager):
     """This custom Manager provides some helper methods to easily query and filter elasticsearch
@@ -152,7 +148,10 @@ class SearchManager(models.Manager):
     def s(self):
         """Returns a PolymorphicS() instance, using an ES URL from the settings, and an index
         from this manager's model"""
-        return PolymorphicS(klass=self.model).es(urls=settings.ES_URLS).indexes(self.model.get_index_name())
+        base_polymorphic_class = self.model.get_base_class()
+        type_ = type('%sMappingType' % base_polymorphic_class.__name__, (PolymorphicMappingType,), {'base_polymorphic_class': base_polymorphic_class})
+
+        return PolymorphicS(type_=type_).es(urls=settings.ES_URLS).indexes(self.model.get_index_name())
 
     @property
     def es(self):
