@@ -109,6 +109,13 @@ class IndexableTestCase(TestCase):
         self.assertEqual(ParentIndexable.search.s().instanceof(ChildIndexable).count(), 2)
         self.assertEqual(ParentIndexable.search.s().instanceof(GrandchildIndexable).count(), 1)
 
+    def test_model_Results(self):
+        qs = ParentIndexable.search.s().full()
+        for obj in qs:
+            self.assertTrue(obj.__class__ in [ParentIndexable, ChildIndexable, GrandchildIndexable])
+
+        self.assertEqual(len(qs[:2]), 2)
+
     def tearDown(self):
         es = get_es(urls=settings.ES_URLS)
         es.delete_index(ParentIndexable.get_index_name())
