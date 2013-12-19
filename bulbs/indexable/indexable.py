@@ -34,6 +34,7 @@ ES_SETTINGS = {
     }
 }
 
+
 def create_polymorphic_indexes(sender, **kwargs):
 
     indexes = {}
@@ -83,8 +84,7 @@ class PolymorphicS(S):
     """A custom S class, adding a few methods to ease searching for Polymorphic objects"""
 
     def __init__(self, type_=None):
-        """When it comes to PolymorphicS objects, we always want a PolymorphicModel class,
-        instead of the MappingType that elasticutils uses, so we'll pass it in to the init method."""
+        """The base S class has "as_list" and "as_dict", and we need to add "as_models"."""
         super(PolymorphicS, self).__init__(type_=type_)
         self.as_models = False
 
@@ -98,7 +98,6 @@ class PolymorphicS(S):
         for action, value in reversed(self.steps):
             if action == 'doctypes':
                 return list(value)
-
         return None
 
     def instanceof(self, klass, exact=False):
@@ -139,6 +138,10 @@ class PolymorphicMappingType(MappingType):
     def get_model(cls):
         return cls.base_polymorphic_class
 
+    @classmethod
+    def get_index(cls):
+        return cls.base_polymorphic_class.get_index_name()
+
 
 class SearchManager(models.Manager):
     """This custom Manager provides some helper methods to easily query and filter elasticsearch
@@ -148,10 +151,12 @@ class SearchManager(models.Manager):
     def s(self):
         """Returns a PolymorphicS() instance, using an ES URL from the settings, and an index
         from this manager's model"""
+
+
         base_polymorphic_class = self.model.get_base_class()
         type_ = type('%sMappingType' % base_polymorphic_class.__name__, (PolymorphicMappingType,), {'base_polymorphic_class': base_polymorphic_class})
 
-        return PolymorphicS(type_=type_).es(urls=settings.ES_URLS).indexes(self.model.get_index_name())
+        return PolymorphicS(type_=type_).es(urls=settings.ES_URLS)
 
     @property
     def es(self):
