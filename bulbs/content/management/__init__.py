@@ -8,11 +8,6 @@ import bulbs.content.models
 
 
 def sync_es(sender, **kwargs):
-    """
-    You must delete the index first to actually update the ES index.
-    
-    -> es.delete_index(index_name)
-    """
     es = get_es(urls=settings.ES_URLS)
     index = settings.ES_INDEXES.get('default')
 
@@ -55,9 +50,12 @@ def sync_es(sender, **kwargs):
             "mappings": mappings,
             "settings": es_settings
         })
-    except IndexAlreadyExistsError as e:
-        print(e.error)
-        pass
+    except IndexAlreadyExistsError:
+        for doc_type, mapping in mappings.iteritems():
+            try:
+                es.put_mapping(index, doc_type, mapping)
+            except ElasticHttpError as e:
+                print("ES Error: %s" % e.error)
     except ElasticHttpError as e:
         print("ES Error: %s" % e.error)
 
