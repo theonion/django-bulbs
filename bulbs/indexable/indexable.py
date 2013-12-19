@@ -57,23 +57,47 @@ def create_polymorphic_indexes(sender, **kwargs):
                 "mappings": mappings,
                 "settings": ES_SETTINGS
             })
-            print("Creating index: %s" % index)
         except IndexAlreadyExistsError:
             pass
         except ElasticHttpError as e:
             print("ES Error: %s" % e.error)
 
 
+class PolymorphicS(S):
+
+    def instanceof(self, klass, exact=False):
+        """This gets results that are of this type, or inherit from it."""
+
+        def _get_doctypes(klass):
+            doctypes = [klass.get_mapping_type_name()]
+            for subklass in klass.__subclasses__():
+                doctypes.extend(_get_doctypes(subklass))
+            return doctypes
+
+        if exact is False:
+            doctypes = _get_doctypes(klass)
+        else:
+            doctypes = [klass.get_mapping_type_name()]
+
+        return self._clone(next_step=('doctypes', doctypes))
+
 class SearchManager(models.Manager):
     
+    def s(self):
+        return PolymorphicS().es(urls=settings.ES_URLS).indexes(self.model.get_index_name())
+
+    @property
     def es(self):
-        return S().es(urls=settings.ES_URLS).indexes(self.model.get_index_name())
+        return get_es(urls=settings.ES_URLS)
+
+    def refresh(self):
+        return self.es.refresh(index=self.model.get_index_name())
 
     def query(self, **kwargs):
-        return self.es().query(**kwargs)
+        return self.s().query(**kwargs)
 
     def filter(self, **kwargs):
-        return self.es().filter(**kwargs)
+        return self.s().filter(**kwargs)
 
 
 class PolymorphicIndexable(object):
