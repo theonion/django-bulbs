@@ -2,12 +2,9 @@
 import django
 from django.conf import settings, global_settings as default_settings
 from django.core.management import call_command
-from os.path import dirname, realpath
-import django
+import os.path
 import sys
 import os
-
-TESTABLE_APPS = ['bulbs.content', 'bulbs.images']
 
 # Give feedback on used versions
 sys.stderr.write('Using Python version {0} from {1}\n'.format(sys.version[:5], sys.executable))
@@ -17,7 +14,7 @@ sys.stderr.write('Using Django version {0} from {1}\n'.format(
 )
 
 # Detect location and available modules
-module_root = dirname(realpath(__file__))
+module_root = os.path.dirname(os.path.realpath(__file__))
 
 # Inline settings file
 settings.configure(
@@ -25,9 +22,8 @@ settings.configure(
     TEMPLATE_DEBUG = False,
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'bulbs',
-            'USER': 'postgres'
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:'
         }
     },
     TEMPLATE_DIRS = (os.path.join(module_root, 'tests', 'templates'), ),
@@ -47,6 +43,7 @@ settings.configure(
 
         'bulbs.content',
         'bulbs.images',
+        'bulbs.indexable',
     ),
     SITE_ID = 3,
 
@@ -66,8 +63,10 @@ settings.configure(
 )
 if django.VERSION[1] < 6:
     settings.INSTALLED_APPS += ('discover_runner',)
-    settings.TEST_RUNNER = 'tests.runner.XMLTestRunner'
-
+    # settings.TEST_RUNNER = 'tests.runner.XMLTestRunner'
+    settings.TEST_RUNNER = 'discover_runner.DiscoverRunner'
+    settings.TEST_DISCOVER_TOP_LEVEL = os.path.join(module_root, 'bulbs')
+    print(settings.TEST_DISCOVER_TOP_LEVEL)
 
 
 call_command('syncdb', verbosity=1, interactive=False)
@@ -78,7 +77,7 @@ verbosity = 2 if '-v' in sys.argv else 1
 from django.test.utils import get_runner
 TestRunner = get_runner(settings)  # DjangoTestSuiteRunner
 runner = TestRunner(verbosity=verbosity, interactive=True, failfast=False)
-failures = runner.run_tests(TESTABLE_APPS)
+failures = runner.run_tests(['bulbs',])
 
 if failures:
     sys.exit(bool(failures))
