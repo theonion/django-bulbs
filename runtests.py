@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import django
 from django.conf import settings, global_settings as default_settings
 from django.core.management import call_command
 from os.path import dirname, realpath
@@ -24,8 +25,9 @@ settings.configure(
     TEMPLATE_DEBUG = False,
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': ':memory:'
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'bulbs',
+            'USER': 'postgres'
         }
     },
     TEMPLATE_DIRS = (os.path.join(module_root, 'tests', 'templates'), ),
@@ -45,14 +47,10 @@ settings.configure(
 
         'bulbs.content',
         'bulbs.images',
-
-        'discover_runner'
     ),
     SITE_ID = 3,
 
     ROOT_URLCONF = 'tests.urls',
-
-    TEST_RUNNER = 'tests.runner.XMLTestRunner',
     
     ES_DISABLED = False,
     ES_URLS = ['http://localhost:9200'],
@@ -62,9 +60,15 @@ settings.configure(
 
     BETTY_CROPPER = {
             'ADMIN_URL': 'http://localhost:8698/',
-            'PUBLIC_URL': 'http://localhost:8698/'
+            'PUBLIC_URL': 'http://localhost:8698/',
+            'DEFAULT_IMAGE': '12345'
     }
 )
+if django.VERSION[1] < 6:
+    settings.INSTALLED_APPS += ('discover_runner',)
+    settings.TEST_RUNNER = 'tests.runner.XMLTestRunner'
+
+
 
 call_command('syncdb', verbosity=1, interactive=False)
 

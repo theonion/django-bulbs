@@ -1,7 +1,6 @@
 """Base models for "Content", including the indexing and search features
 that we want any piece of content to have."""
 
-
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
@@ -20,6 +19,13 @@ from .elasticsearch import ShallowContentS, ShallowContentResult
 from elasticutils import SearchResults, S
 from elasticutils.contrib.django import get_es
 from polymorphic import PolymorphicModel, PolymorphicManager
+
+try:
+    from bulbs.content.tasks import index as index_task
+    from bulbs.content.tasks import update as update_task
+    CELERY_ENABLED = True
+except ImportError:
+    CELERY_ENABLED = False
 
 
 def fetch_cached_models_by_id(model_class, model_ids, key_template='bulkcache/%s/id/%d'):
@@ -167,13 +173,17 @@ class PolymorphicIndexable(object):
             self.get_mapping_type_name(),
             self.id,
             doc=doc,
-            upsert=doc
+            upsert=doc,
+            retry_on_conflict=5
         )
 
     def save(self, index=True, refresh=False, *args, **kwargs):
         result = super(PolymorphicIndexable, self).save(*args, **kwargs)
         if index:
-            self.index(refresh=refresh)
+            if CELERY_ENABLED:
+                index_task.delay(self.polymorphic_ctype_id, self.pk, refresh=refresh)
+            else:
+                self.index(refresh=refresh)
         self._index = index
         return result
 
@@ -234,7 +244,7 @@ class TagManager(PolymorphicManager):
 class Tag(PolymorphicIndexable, PolymorphicModel):
     """Model for tagging up Content."""
     name = models.CharField(max_length=255)
-    slug = models.SlugField()
+    slug = models.SlugField(unique=True)
 
     objects = TagManager()
 
@@ -363,6 +373,7 @@ class ContentManager(PolymorphicManager):
 class Content(PolymorphicIndexable, PolymorphicModel):
     """The base content model from which all other content derives."""
     published = models.DateTimeField(blank=True, null=True)
+    last_modified = models.DateTimeField(auto_now=True, default=timezone.now)
     title = models.CharField(max_length=512)
     slug = models.SlugField(blank=True, default='')
     description = models.TextField(max_length=1024, blank=True, default='')
@@ -390,6 +401,14 @@ class Content(PolymorphicIndexable, PolymorphicModel):
         return url
 
     @property
+    def is_published(self):
+        if self.published:
+            now = timezone.now()
+            if now >= self.published:
+                return True
+        return False
+
+    @property
     def type(self):
         return self.get_mapping_type_name()
 
@@ -404,8 +423,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
 
     def ordered_tags(self):
         tags = list(self.tags.all())
-        sorted(tags, key=lambda tag: ((type(tag) != Tag) * 100000) + tag.count())
-        return tags
+        return sorted(tags, key=lambda tag: ((type(tag) != Tag) * 100000) + tag.count(), reverse=True)
 
     @property
     def feature_type_slug(self):
@@ -469,7 +487,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
             'title'            : self.title,
             'slug'             : self.slug,
             'description'      : self.description,
-            'image'            : self.image.name if self.image else None,
+            'image'            : self.image.id if self.image else None,
             'feature_type'     : self.feature_type,
             'feature_type.slug': slugify(self.feature_type),
             'authors': [{
@@ -488,16 +506,18 @@ class Content(PolymorphicIndexable, PolymorphicModel):
         from .serializers import ContentSerializer
         return ContentSerializer
 
-
+# NOTE: I dont *think* we need this now that we explictly index in ContentViewSet.post_save
 def content_tags_changed(sender, instance=None, action='', **kwargs):
     """Reindex content tags when they change."""
     if getattr(instance, "_index", True):  # TODO: Rethink this hackey shit. Is there a better way?
-        es = get_es()
-        indexes = settings.ES_INDEXES
-        index = indexes['default']
         doc = {}
         doc['tags'] = [tag.extract_document() for tag in instance.tags.all()]
-        es.update(index, instance.get_mapping_type_name(), instance.id, doc=doc, refresh=True)
+        if CELERY_ENABLED:
+            update_task.delay(instance.pk, doc)
+        else:
+            index = settings.ES_INDEXES.get('default')
+            es = get_es()
+            es.update(index, instance.get_mapping_type_name(), instance.id, doc=doc)
 
 
 def content_deleted(sender, instance=None, **kwargs):
@@ -512,9 +532,9 @@ def content_deleted(sender, instance=None, **kwargs):
 models.signals.pre_delete.connect(content_deleted, Content)
 
 
-models.signals.m2m_changed.connect(
-    content_tags_changed,
-    sender=Content.tags.through,
-    dispatch_uid='content_tags_changed_signal'
-)
+# models.signals.m2m_changed.connect(
+#     content_tags_changed,
+#     sender=Content.tags.through,
+#     dispatch_uid='content_tags_changed_signal'
+# )
 

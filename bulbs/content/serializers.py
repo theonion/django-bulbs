@@ -1,15 +1,19 @@
+import base64, hmac, hashlib, simplejson, time
+
+from django.conf import settings
 from django.contrib import auth
 from django.contrib.contenttypes.models import ContentType
-from django.conf import settings
-from django.template.defaultfilters import slugify
 from django.core.exceptions import ValidationError
+from django.db import IntegrityError, transaction
+from django.template.defaultfilters import slugify
 
 from rest_framework import serializers
 from rest_framework import relations
 
+from bulbs.images.fields import RemoteImageSerializer
+
 from .models import Content, Tag
 
-import simplejson, time, hmac, hashlib, base64
 
 class ContentTypeField(serializers.WritableField):
     """Converts between natural key for native use and integer for non-native."""
@@ -66,10 +70,9 @@ class TagField(relations.RelatedField):
             name = value['name']
             slug = value.get('slug', slugify(name))
             try:
-                # Make sure that a tag with that slug doesn't already exist.
                 tag = Tag.objects.get(slug=slug)
             except Tag.DoesNotExist:
-                tag = Tag.objects.create(name=name, slug=slug)
+                tag, created = Tag.objects.get_or_create(name=name, slug=slug)
         return tag
 
 
@@ -142,9 +145,16 @@ class ContentSerializer(serializers.ModelSerializer):
     polymorphic_ctype = ContentTypeField(source='polymorphic_ctype_id', read_only=True)
     tags = TagField(many=True)
     authors = AuthorField(many=True)
+    image = RemoteImageSerializer(required=False)
 
     class Meta:
         model = Content
+
+    @transaction.commit_on_success
+    def save(self, *args, **kwargs):
+        if not 'index' in kwargs:
+            kwargs['index'] = False
+        return super(ContentSerializer, self).save(*args, **kwargs)
 
 
 class PolymorphicContentSerializerMixin(object):
@@ -165,5 +175,4 @@ class PolymorphicContentSerializerMixin(object):
 
 class PolymorphicContentSerializer(PolymorphicContentSerializerMixin, ContentSerializer):
     pass
-
 

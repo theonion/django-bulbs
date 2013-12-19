@@ -1,3 +1,5 @@
+import copy
+
 from django.db import models
 
 from json_field import JSONField
@@ -10,6 +12,11 @@ DEFAULT_VIDEO_OUTPUT = {
     "height": 320
 }
 
+
+VIDEO_PREFERENCES = {
+    "video/mp4" : 0.75,
+    "video/webm": 1.25
+}
 
 class Video(models.Model):
     """This is a very lightweight model that basically wraps an externally available set of sources
@@ -35,3 +42,6 @@ class Video(models.Model):
 
     def __unicode__(self):
         return self.name
+
+    def ordered_sources(self):
+        return sorted(self.sources, key=lambda source:VIDEO_PREFERENCES.get(source['content_type'], 1) * source.get('width', 1))

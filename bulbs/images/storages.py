@@ -1,4 +1,5 @@
 import os
+import json
 
 from django.core.files.storage import Storage
 from bulbs.images.conf import settings
@@ -27,7 +28,7 @@ class BettyCropperStorage(Storage):
     	r = requests.post(new_url, files=files)
     	if r.status_code != 201:
     		raise Exception("Couldn't save file to URL: \"%s\" (code %s, message: %s)" % (new_url, r.status_code, r.content))
-    	return str(r.json()['id'])
+    	return json.dumps({'id': r.json()['id']})
 
     def size(self, name):
     	raise NotImplementedError
