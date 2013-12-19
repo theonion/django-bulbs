@@ -56,6 +56,8 @@ def sync_es(sender, **kwargs):
                 es.put_mapping(index, doc_type, mapping)
             except ElasticHttpError as e:
                 print("ES Error: %s" % e.error)
+                # MergeExceptionError?
+                # es.put_mapping(index, doc_type, mapping, query_params=)
     except ElasticHttpError as e:
         print("ES Error: %s" % e.error)
 
