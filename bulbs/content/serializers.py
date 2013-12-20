@@ -113,7 +113,7 @@ class UserSerializer(serializers.ModelSerializer):
             'f_user': True if obj.facebook_uid else False
         }
 
-
+ 
 class AuthorField(relations.RelatedField):
     """This field manages the authors on a piece of content, and allows a "fatter"
     endpoint then would normally be possible with a RelatedField"""
