@@ -109,10 +109,11 @@ class UserSerializer(serializers.ModelSerializer):
             'email': obj.email,
             'first_name': obj.first_name,
             'last_name': obj.last_name,
-            'remote_auth_s3': get_remote_auth(obj)
+            'remote_auth_s3': get_remote_auth(obj),
+            'f_user': True if obj.facebook_uid else False
         }
 
-
+ 
 class AuthorField(relations.RelatedField):
     """This field manages the authors on a piece of content, and allows a "fatter"
     endpoint then would normally be possible with a RelatedField"""

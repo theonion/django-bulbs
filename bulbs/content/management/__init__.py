@@ -34,7 +34,6 @@ ES_SETTINGS = {
 }
 
 def sync_es(sender, **kwargs):
-    # Your specific logic here
     es = get_es(urls=settings.ES_URLS)
     index = settings.ES_INDEXES.get('default')
 
@@ -51,7 +50,13 @@ def sync_es(sender, **kwargs):
             "settings": ES_SETTINGS
         })
     except IndexAlreadyExistsError:
-        pass
+        for doc_type, mapping in mappings.iteritems():
+            try:
+                es.put_mapping(index, doc_type, mapping)
+            except ElasticHttpError as e:
+                print("ES Error: %s" % e.error)
+                # MergeExceptionError and want to override conflicts?
+                # es.put_mapping(index, doc_type, mapping, ignore_conflicts=True)
     except ElasticHttpError as e:
         print("ES Error: %s" % e.error)
 
