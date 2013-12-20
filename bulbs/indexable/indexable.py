@@ -60,7 +60,8 @@ def create_polymorphic_indexes(sender, **kwargs):
                 "settings": ES_SETTINGS
             })
         except IndexAlreadyExistsError:
-            pass
+            for doctype,mapping in mappings.items():
+                es.put_mapping(index, doctype, mapping)
         except ElasticHttpError as e:
             print("ES Error: %s" % e.error)
 
@@ -147,11 +148,9 @@ class SearchManager(models.Manager):
     """This custom Manager provides some helper methods to easily query and filter elasticsearch
     results for polymorphic objects."""
 
-
     def s(self):
         """Returns a PolymorphicS() instance, using an ES URL from the settings, and an index
         from this manager's model"""
-
 
         base_polymorphic_class = self.model.get_base_class()
         type_ = type('%sMappingType' % base_polymorphic_class.__name__, (PolymorphicMappingType,), {'base_polymorphic_class': base_polymorphic_class})
