@@ -44,6 +44,8 @@ settings.configure(
         'bulbs.content',
         'bulbs.images',
         'bulbs.indexable',
+
+        'tests.testindexable'  # Just here for a couple of test models
     ),
     SITE_ID = 3,
 

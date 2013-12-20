@@ -1,1 +1,1 @@
-from .indexable import PolymorphicIndexable, SearchManager, create_polymorphic_indexes
+from .indexable import PolymorphicIndexable, SearchManager

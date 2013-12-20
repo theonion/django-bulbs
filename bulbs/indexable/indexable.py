@@ -3,67 +3,6 @@ from django.db import models
 
 from elasticutils import S, MappingType, SearchResults
 from elasticutils.contrib.django import get_es
-from pyelasticsearch.exceptions import IndexAlreadyExistsError, ElasticHttpError
-
-
-# Default ES Settings--should probably be grabbed from the django settings?
-ES_SETTINGS = {
-    "index": {
-        "analysis": {
-            "analyzer": {
-                "autocomplete": {
-                    "type": "custom",
-                    "tokenizer": "edge_ngram_tokenizer",
-                    "filter": ["asciifolding", "lowercase"]
-                },
-                "html": {
-                    "type": "custom",
-                    "char_filter": ["html_strip"],
-                    "tokenizer": "standard",
-                    "filter": ["asciifolding", "lowercase", "stop", "snowball"]
-                }
-            },
-            "tokenizer": {
-                "edge_ngram_tokenizer": {
-                    "type" : "edgeNGram",
-                    "min_gram" : "2",
-                    "max_gram" : "20"
-                }
-            }
-        }
-    }
-}
-
-
-def create_polymorphic_indexes(sender, **kwargs):
-
-    indexes = {}
-    mappings = {}
-
-    for app in models.get_apps():
-        for model in models.get_models(app, include_auto_created=True):
-            if isinstance(model(), PolymorphicIndexable):
-                index = model.get_index_name()
-                name = model.get_mapping_type_name()
-                if model.get_index_name() in indexes:
-                    indexes[index][name] = model.get_mapping()
-                else:
-                    indexes[index]= {
-                        name: model.get_mapping()
-                    }
-
-    es = get_es(urls=settings.ES_URLS)
-    for index,mappings in indexes.items():
-        try:
-            es.create_index(index, settings= {
-                "mappings": mappings,
-                "settings": ES_SETTINGS
-            })
-        except IndexAlreadyExistsError:
-            for doctype,mapping in mappings.items():
-                es.put_mapping(index, doctype, mapping)
-        except ElasticHttpError as e:
-            print("ES Error: %s" % e.error)
 
 
 class ModelSearchResults(SearchResults):
