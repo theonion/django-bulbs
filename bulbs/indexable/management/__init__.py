@@ -1,4 +1,5 @@
-"""This module allows us to automatically"""
+"""This module allows us to automatically create mappings and indexes for Polymorphic models
+after syncdb runs. The way that this works is a little fragile, but better than having to connect a signal in each of your apps."""
 
 import importlib
 
@@ -40,9 +41,8 @@ ES_SETTINGS = {
     }
 }
 
-
 def create_polymorphic_indexes(sender, **kwargs):
-    """This is a post_syncdb (in 1.7, post_migrate) signal that creates indexes and mappings
+    """This is a post_syncdb (in 1.7, ) signal thpost_migrateat creates indexes and mappings
     for the polymorphic models in this model file."""
 
     indexes = {}
@@ -70,7 +70,7 @@ def create_polymorphic_indexes(sender, **kwargs):
         except ElasticHttpError as e:
             print("ES Error: %s" % e.error)
 
-
+# Let's register a signal for everything that's PolymorphicIndexable
 for app in models.get_apps():
     for model in models.get_models(app):
         if isinstance(model(), PolymorphicIndexable):
