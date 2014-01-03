@@ -79,6 +79,13 @@ class IndexableTestCase(TestCase):
 
         self.assertEqual(len(qs[:2]), 2)
 
+    def test_s_all_respects_slicing(self):
+        s =  ParentIndexable.search.s()
+        num_s = s.count()
+        self.assertEqual(len(s), num_s)
+        sliced = s[1:2]
+        self.assertEqual(len(sliced.all()), 1)
+
     def tearDown(self):
         es = get_es(urls=settings.ES_URLS)
         es.delete_index(ParentIndexable.get_index_name())

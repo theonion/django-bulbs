@@ -61,6 +61,21 @@ class PolymorphicS(S):
         self.as_models = True
         return self._clone(next_step=('values_list', ['_id']))
 
+    def all(self):
+        """
+        Fixes the default `S.all` method given by elasticutils.
+        `S` generally looks like django queryset but differs in
+        a few ways, one of which is `all`. Django's `QuerySet.all()`
+        returns a clone but `S` returns all the documents at once.
+        This makes `all` at least respect slices but the real fix
+        is to probably make `S` work more like `QuerySet`.
+        """
+        if self.start == 0 and self.stop is None:
+            # no slicing has occurred. let's get all of the records.
+            count = self.count()
+            return self[:count].execute()
+        return self.execute()
+
 
 class PolymorphicMappingType(MappingType):
 
