@@ -20,6 +20,9 @@ from elasticutils import SearchResults, S
 from elasticutils.contrib.django import get_es
 from polymorphic import PolymorphicModel, PolymorphicManager
 
+from bulbs.indexable.indexable import PolymorphicIndexable
+
+
 try:
     from bulbs.content.tasks import index as index_task
     from bulbs.content.tasks import update as update_task
@@ -153,77 +156,10 @@ class TagS(ModelS):
     results_class = TagSearchResults
 
 
-class PolymorphicIndexable(object):
-    """Base mixin for polymorphic indexin'"""
-    def extract_document(self):
-        return {
-            'polymorphic_ctype': self.polymorphic_ctype_id,
-            'id': self.pk
-        }
-
-    def index(self, refresh=False):
-        es = get_es(urls=settings.ES_URLS)
-        index = settings.ES_INDEXES.get('default')
-        doc = self.extract_document()
-        # NOTE: this could be made more efficient with the `doc_as_upsert`
-        # param when the following pull request is merged into pyelasticsearch:
-        # https://github.com/rhec/pyelasticsearch/pull/132
-        es.update(
-            index,
-            self.get_mapping_type_name(),
-            self.id,
-            doc=doc,
-            upsert=doc,
-            retry_on_conflict=5
-        )
-
-    def save(self, index=True, refresh=False, *args, **kwargs):
-        result = super(PolymorphicIndexable, self).save(*args, **kwargs)
-        if index:
-            if CELERY_ENABLED:
-                index_task.delay(self.polymorphic_ctype_id, self.pk, refresh=refresh)
-            else:
-                self.index(refresh=refresh)
-        self._index = index
-        return result
-
-    @classmethod
-    def from_source(cls, source):
-        serializer_class = cls.get_serializer_class()
-        serializer = serializer_class(data=source)
-        if serializer.is_valid():
-            serializer.object.pk = source[cls.polymorphic_primary_key_name] 
-            return serializer.object
-        else:
-            raise RuntimeError(serializer.errors)
-
-    @classmethod
-    def get_mapping(cls):
-        return {
-            cls.get_mapping_type_name(): {
-                '_id': {
-                    'path': 'id'
-                },
-                'properties': cls.get_mapping_properties()
-            }
-        }
-
-    @classmethod
-    def get_mapping_properties(cls):
-        return {
-            'id': {'type': 'integer'},
-            'polymorphic_ctype': {'type': 'integer'}
-        }
-
-    @classmethod
-    def get_mapping_type_name(cls):
-        return '%s_%s' % (cls._meta.app_label, cls.__name__.lower())
-
-
 class TagManager(PolymorphicManager):
     def search(self, s_class=TagS, **kwargs):
         """Search tags...profit."""
-        index = settings.ES_INDEXES.get('default')
+        index = self.model.get_index_name()
         results = s_class().es(urls=settings.ES_URLS).indexes(index)
         name = kwargs.pop('query', '')
         if name:
@@ -234,10 +170,10 @@ class TagManager(PolymorphicManager):
             # only use valid subtypes
             results = results.doctypes(*[
                 type_classname for type_classname in types \
-                if type_classname in self.model.get_doctypes()
+                if type_classname in self.model.get_mapping_type_names()
             ])
         else:
-            results = results.doctypes(*self.model.get_doctypes().keys())
+            results = results.doctypes(*self.model.get_mapping_type_names())
         return results
 
 
@@ -248,8 +184,6 @@ class Tag(PolymorphicIndexable, PolymorphicModel):
 
     objects = TagManager()
 
-    _doctype_cache = {}
-
     def __unicode__(self):
         return '%s: %s' % (self.__class__.__name__, self.name)
 
@@ -259,15 +193,6 @@ class Tag(PolymorphicIndexable, PolymorphicModel):
 
     def count(self):
         return TagCache.count(self.slug)
-
-    @classmethod
-    def get_doctypes(cls):
-        if len(cls._doctype_cache) == 0:
-            for app in models.get_apps():
-                for model in models.get_models(app, include_auto_created=True):
-                    if isinstance(model(), Tag):
-                        cls._doctype_cache[model.get_mapping_type_name()] = model
-        return cls._doctype_cache
 
     @classmethod
     def get_mapping_properties(cls):
@@ -322,7 +247,7 @@ class ContentManager(PolymorphicManager):
          * published
         """
         
-        index = settings.ES_INDEXES.get('default')
+        index = self.model.get_index_name()
         results = s_class().es(urls=settings.ES_URLS).indexes(index)
 
         if 'query' in kwargs:
@@ -357,10 +282,10 @@ class ContentManager(PolymorphicManager):
             # only use valid subtypes
             results = results.doctypes(*[
                 type_classname for type_classname in types \
-                if type_classname in self.model.get_doctypes()
+                if type_classname in self.model.get_mapping_type_names()
             ])
         else:
-            results = results.doctypes(*self.model.get_doctypes().keys())
+            results = results.doctypes(*self.model.get_mapping_type_names())
 
         return results.order_by('-published')
 
@@ -368,7 +293,7 @@ class ContentManager(PolymorphicManager):
         return self.search(s_class=ShallowContentS, **kwargs)
 
     def bulk_shallow(self, pks):
-        index = settings.ES_INDEXES.get('default')
+        index = self.model.get_index_name()
         results = get_es().multi_get(pks, index=index)
         ret = []
         for r in results['docs']:
@@ -394,7 +319,6 @@ class Content(PolymorphicIndexable, PolymorphicModel):
     tags = models.ManyToManyField(Tag, blank=True)
 
     _readonly = False  # Is this a read only model? (i.e. from elasticsearch)
-    _cache = {}  # This is a cache for the content doctypes
 
     objects = ContentManager()
 
@@ -447,16 +371,6 @@ class Content(PolymorphicIndexable, PolymorphicModel):
         return super(Content, self).save(*args, **kwargs)
 
     # class methods ##############################
-
-    @classmethod
-    def get_doctypes(cls):
-        if len(cls._cache) == 0:
-            for app in models.get_apps():
-                for model in models.get_models(app, include_auto_created=True):
-                    if isinstance(model(), Content):
-                        cls._cache[model.get_mapping_type_name()] = model
-        return cls._cache
-
     @classmethod
     def get_mapping_properties(cls):
         properties = super(Content, cls).get_mapping_properties()
@@ -523,7 +437,7 @@ def content_tags_changed(sender, instance=None, action='', **kwargs):
         if CELERY_ENABLED:
             update_task.delay(instance.pk, doc)
         else:
-            index = settings.ES_INDEXES.get('default')
+            index = instance.get_index_name()
             es = get_es()
             es.update(index, instance.get_mapping_type_name(), instance.id, doc=doc)
 
@@ -532,7 +446,7 @@ def content_deleted(sender, instance=None, **kwargs):
     if getattr(instance, "_index", True):
         es = get_es()
         indexes = settings.ES_INDEXES
-        index = indexes['default']
+        index = instance.get_index_name()
         klass = instance.get_real_instance_class()
         es.delete(index, klass.get_mapping_type_name(), instance.id)
 

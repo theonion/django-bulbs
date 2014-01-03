@@ -179,6 +179,17 @@ class PolymorphicIndexable(object):
             names.extend(subclass.get_mapping_type_names())
         return names    
 
+    @classmethod
+    def get_index_mappings(cls):
+        from collections import defaultdict
+
+        indexes = defaultdict(dict)
+        for subclass in cls.__subclasses__():
+            sub_indexes = subclass.get_index_mappings()
+            for key, value in sub_indexes:
+                sub_indexes[key].update(subclass.get_index_mappings())
+        return indexes
+
     def index(self, refresh=False):
         es = get_es(urls=settings.ES_URLS)
         doc = self.extract_document()

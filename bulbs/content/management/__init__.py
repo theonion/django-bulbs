@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from django.db.models.signals import post_syncdb
 from django.conf import settings
 
@@ -35,30 +37,28 @@ ES_SETTINGS = {
 
 def sync_es(sender, **kwargs):
     es = get_es(urls=settings.ES_URLS)
-    index = settings.ES_INDEXES.get('default')
 
-    mappings = {}
-    for name, model in bulbs.content.models.Content.get_doctypes().items():
-        mappings[name] = model.get_mapping()
-
-    for name, model in bulbs.content.models.Tag.get_doctypes().items():
-        mappings[name] = model.get_mapping()
-
-    try:
-        es.create_index(index, settings= {
-            "mappings": mappings,
-            "settings": ES_SETTINGS
-        })
-    except IndexAlreadyExistsError:
-        for doc_type, mapping in mappings.iteritems():
-            try:
-                es.put_mapping(index, doc_type, mapping)
-            except ElasticHttpError as e:
-                print("ES Error: %s" % e.error)
-                # MergeExceptionError and want to override conflicts?
-                # es.put_mapping(index, doc_type, mapping, ignore_conflicts=True)
-    except ElasticHttpError as e:
-        print("ES Error: %s" % e.error)
+    index_mappings = defaultdict(dict)
+    for klass in (bulbs.content.models.Content, bulbs.content.models.Tag):
+        for index, mappings in bulbs.content.models.Content.get_index_mappings():
+            index_mappings[index].update(mappings)
+    
+    for index, mappings in index_mappings:
+        try:
+            es.create_index(index, settings={
+                "mappings": mappings,
+                "settings": ES_SETTINGS
+            })
+        except IndexAlreadyExistsError:
+            for mapping_name, mapping in mappings:
+                try:
+                    es.put_mapping(index, mapping_name, mapping)
+                except ElasticHttpError as e:
+                    print("ES Error: %s" % e.error)
+                    # MergeExceptionError and want to override conflicts?
+                    # es.put_mapping(index, doc_type, mapping, ignore_conflicts=True)
+        except ElasticHttpError as e:
+            print("ES Error: %s" % e.error)
 
 
 post_syncdb.connect(sync_es, sender=bulbs.content.models)

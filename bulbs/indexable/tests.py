@@ -49,6 +49,9 @@ class IndexableTestCase(TestCase):
             ]
         )
 
+    def test_get_index_mappings(self):
+        pass
+
     def test_primary_key_name_is_correct(self):
         a, b, c = [klass.get_mapping().values()[0]['_id']['path'] for klass in (
             ParentIndexable, ChildIndexable, GrandchildIndexable

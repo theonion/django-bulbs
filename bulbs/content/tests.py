@@ -18,7 +18,6 @@ from bulbs.content.management import sync_es
 from bulbs.content.serializers import ContentSerializer
 
 
-
 class TestContentObj(Content):
     """Fake content here"""
     foo = models.CharField(max_length=255)
@@ -105,8 +104,6 @@ class PolyContentTestCase(TestCase):
         """
         self.es = get_es(urls=settings.ES_URLS)
 
-        for model in [TestContentObj, TestContentObjTwo]:
-            Content._cache[model.get_mapping_type_name()] = model
         sync_es(None)  # We should pass "bulbs.content.models" here, but for now this is fine.
         
         # generate some data
@@ -138,11 +135,15 @@ class PolyContentTestCase(TestCase):
             obj2.tags.add(*self.all_tags)
         
         # We need to let the index refresh
-        self.es.refresh(settings.ES_INDEXES['default'])
-        time.sleep(1)
+        self.es.refresh()
+        #time.sleep(1) # NOTE: seems like the refresh eliminates the need for this
 
     def tearDown(self):
-        self.es.delete_index(settings.ES_INDEXES.get('default', 'testing'))
+        self.es.delete_index(settings.ES_INDEXES.get(
+            Content.get_index_name(), 
+            Tag.get_index_name()
+            )
+        )
 
     # def test_serialize_id(self):
     #     c = Content.objects.all()[0]
@@ -190,34 +191,11 @@ class PolyContentTestCase(TestCase):
         tag = Tag(name='Beeftank')
         tag.save(index=True)
         self.all_tags.append(tag) # save it for later tests
-        self.es.refresh(settings.ES_INDEXES['default'])
+        self.es.refresh()
         results = Tag.objects.search(name='beeftank')
         self.assertTrue(len(results) > 0)
         tag_result = results[0]
         self.assertIsInstance(tag_result, Tag)
-
-    def test_content_tag_management_view(self):
-        content = Content.objects.all()[0]
-        content_tag_names = set([tag.name for tag in content.tags.all()])
-        # get tags
-        client = Client()
-        tag_url = reverse('bulbs.content.views.manage_content_tags', kwargs={'pk': content.pk})
-        response = client.get(tag_url)
-        data = json.loads(response.content)
-        self.assertEqual(len(data), len(content_tag_names))
-        # add tag
-        response = client.post(tag_url, {
-            'tag': 'Chowdah'
-        })
-        data = json.loads(response.content)
-        self.assertEqual(data['name'], 'Chowdah')
-        new_content_tag_names = set([tag.name for tag in content.tags.all()])
-        self.assertEqual(len(new_content_tag_names - content_tag_names), 1)
-        self.assertIn('Chowdah', new_content_tag_names)
-        # remove tag
-        response = client.delete(tag_url + '?tag=Chowdah')
-        new_content_tag_names = set([tag.name for tag in content.tags.all()])
-        self.assertEqual(len(new_content_tag_names - content_tag_names), 0)
 
     def test_in_bulk_performs_polymorphic_query(self):
         content_ids = [c.id for c in Content.objects.all()]
@@ -239,23 +217,23 @@ class PolyContentTestCase(TestCase):
     #     q = Content.objects.search_shallow(feature_types=[feature_type])
     #     self.assertTrue(q.count() > 0)
 
-    def test_fetch_cached_models(self):
-        all_objs = list(Content.objects.all())
-        ids = [obj.id for obj in Content.objects.all()]
-        with self.assertNumQueries(3):
-            results = fetch_cached_models_by_id(Content, ids)
-        # make sure we got everything we wanted
-        self.assertEqual(all_objs, results)
-        # ensure we get the results from cache on the 2nd query
-        with self.assertNumQueries(0):
-            results = fetch_cached_models_by_id(Content, ids)
-        # and that the cached entries are correct
-        self.assertEqual(all_objs, results)
+    # def test_fetch_cached_models(self):
+    #     all_objs = list(Content.objects.all())
+    #     ids = [obj.id for obj in Content.objects.all()]
+    #     with self.assertNumQueries(3):
+    #         results = fetch_cached_models_by_id(Content, ids)
+    #     # make sure we got everything we wanted
+    #     self.assertEqual(all_objs, results)
+    #     # ensure we get the results from cache on the 2nd query
+    #     with self.assertNumQueries(0):
+    #         results = fetch_cached_models_by_id(Content, ids)
+    #     # and that the cached entries are correct
+    #     self.assertEqual(all_objs, results)
 
-    def test_tag_model_faceting(self):
-        s = Tag.objects.search()
-        s = s.facet('id')
-        results = s.model_facet_counts(Tag)
-        for r in results:
-            self.assertTrue(hasattr(r, 'facet_count'))
+    # def test_tag_model_faceting(self):
+    #     s = Tag.objects.search()
+    #     s = s.facet('id')
+    #     results = s.model_facet_counts(Tag)
+    #     for r in results:
+    #         self.assertTrue(hasattr(r, 'facet_count'))
 
