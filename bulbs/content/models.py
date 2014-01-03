@@ -328,9 +328,17 @@ class ContentManager(PolymorphicManager):
         if 'query' in kwargs:
             results = results.query(_all__match=kwargs.get('query'))
 
-        if kwargs.get('published', True):
-            now = timezone.now()
-            results = results.query(published__lte=now, must=True)
+        # Right now we have "Before", "After" (datetimes), and "published" (a boolean). Should simplify this in the future.
+        if 'before' in kwargs or 'after' in kwargs:
+            if 'before' in kwargs:
+                results = results.query(published__lte=kwargs['before'], must=True)
+
+            if 'after' in kwargs:
+                results = results.query(published__gte=kwargs['after'], must=True)
+        else:
+            if kwargs.get('published', True):
+                now = timezone.now()
+                results = results.query(published__lte=now, must=True)
 
         if 'tags' in kwargs:
             tags = kwargs['tags']
