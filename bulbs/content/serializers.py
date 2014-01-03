@@ -77,40 +77,18 @@ class TagField(relations.RelatedField):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    """"Returns basic User fields and an HMAC hash for Disqus authorization"""
+    """"Returns basic User fields"""
     class Meta:
         model = auth.get_user_model()
 
     def to_native(self, obj):
-
-        def get_remote_auth(user):
-            data = simplejson.dumps({
-                'id': user.pk,
-                'username': user.username,
-                'email': user.email,
-            })
-            message = base64.b64encode(data)
-            timestamp = int(time.time())
-
-            sig = hmac.HMAC(
-                settings.DISQUS_SECRET, 
-                '%s %s' % (message, timestamp), 
-                hashlib.sha1
-                ).hexdigest()
-
-            return "%(message)s %(sig)s %(timestamp)s" % dict(
-                message=message,
-                timestamp=timestamp,
-                sig=sig)
-
+        
         return {
             'id': obj.pk,
             'username': obj.username,
             'email': obj.email,
             'first_name': obj.first_name,
-            'last_name': obj.last_name,
-            'remote_auth_s3': get_remote_auth(obj),
-            'f_user': True if obj.facebook_uid else False
+            'last_name': obj.last_name
         }
 
  
