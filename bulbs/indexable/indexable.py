@@ -124,8 +124,6 @@ class SearchManager(models.Manager):
 class PolymorphicIndexable(object):
     """Base mixin for polymorphic indexin'"""
 
-    search = SearchManager()
-
     def extract_document(self):
         # Regarding primary key field name of PolymorphicModel subclasses:
         # https://github.com/chrisglass/django_polymorphic/blob/master/polymorphic/query.py#L190

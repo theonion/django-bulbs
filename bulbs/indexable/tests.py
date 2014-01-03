@@ -22,8 +22,8 @@ class IndexableTestCase(TestCase):
 
         SeparateIndexable.objects.create(junk="Testing")
 
-        ParentIndexable.search.refresh()
-        SeparateIndexable.search.refresh()
+        ParentIndexable.search_objects.refresh()
+        SeparateIndexable.search_objects.refresh()
 
     def test_index_names(self):
         self.assertEqual(ParentIndexable.get_index_name(), 'testindexable_parentindexable')
@@ -60,31 +60,31 @@ class IndexableTestCase(TestCase):
         self.assertEqual(b, c)
 
     def test_search(self):
-        self.assertEqual(ParentIndexable.search.s().count(), 3)
-        self.assertEqual(ParentIndexable.search.query(bar=69).count(), 2)
-        self.assertEqual(ParentIndexable.search.query(foo__match="Fighters").count(), 3)
-        self.assertEqual(ParentIndexable.search.query(baz__lte=datetime.datetime.now()).count(), 1)
+        self.assertEqual(ParentIndexable.search_objects.s().count(), 3)
+        self.assertEqual(ParentIndexable.search_objects.query(bar=69).count(), 2)
+        self.assertEqual(ParentIndexable.search_objects.query(foo__match="Fighters").count(), 3)
+        self.assertEqual(ParentIndexable.search_objects.query(baz__lte=datetime.datetime.now()).count(), 1)
 
-        self.assertEqual(SeparateIndexable.search.s().count(), 1)
+        self.assertEqual(SeparateIndexable.search_objects.s().count(), 1)
 
     def test_instanceof(self):
-        self.assertEqual(ParentIndexable.search.s().instanceof(ParentIndexable, exact=True).count(), 1)
-        self.assertEqual(ParentIndexable.search.s().instanceof(ChildIndexable, exact=True).count(), 1)
-        self.assertEqual(ParentIndexable.search.s().instanceof(GrandchildIndexable, exact=True).count(), 1)
+        self.assertEqual(ParentIndexable.search_objects.s().instanceof(ParentIndexable, exact=True).count(), 1)
+        self.assertEqual(ParentIndexable.search_objects.s().instanceof(ChildIndexable, exact=True).count(), 1)
+        self.assertEqual(ParentIndexable.search_objects.s().instanceof(GrandchildIndexable, exact=True).count(), 1)
 
-        self.assertEqual(ParentIndexable.search.s().instanceof(ParentIndexable).count(), 3)
-        self.assertEqual(ParentIndexable.search.s().instanceof(ChildIndexable).count(), 2)
-        self.assertEqual(ParentIndexable.search.s().instanceof(GrandchildIndexable).count(), 1)
+        self.assertEqual(ParentIndexable.search_objects.s().instanceof(ParentIndexable).count(), 3)
+        self.assertEqual(ParentIndexable.search_objects.s().instanceof(ChildIndexable).count(), 2)
+        self.assertEqual(ParentIndexable.search_objects.s().instanceof(GrandchildIndexable).count(), 1)
 
     def test_model_results(self):
-        qs = ParentIndexable.search.s().full()
+        qs = ParentIndexable.search_objects.s().full()
         for obj in qs:
             self.assertTrue(obj.__class__ in [ParentIndexable, ChildIndexable, GrandchildIndexable])
 
         self.assertEqual(len(qs[:2]), 2)
 
     def test_s_all_respects_slicing(self):
-        s = ParentIndexable.search.s()
+        s = ParentIndexable.search_objects.s()
         num_s = s.count()
         self.assertEqual(len(s), num_s)
         sliced = s[1:2]

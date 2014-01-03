@@ -20,7 +20,7 @@ from elasticutils import SearchResults, S
 from elasticutils.contrib.django import get_es
 from polymorphic import PolymorphicModel, PolymorphicManager
 
-from bulbs.indexable.indexable import PolymorphicIndexable
+from bulbs.indexable.indexable import PolymorphicIndexable, SearchManager
 
 
 try:
@@ -183,6 +183,7 @@ class Tag(PolymorphicIndexable, PolymorphicModel):
     slug = models.SlugField(unique=True)
 
     objects = TagManager()
+    search_objects = SearchManager()
 
     def __unicode__(self):
         return '%s: %s' % (self.__class__.__name__, self.name)
@@ -321,6 +322,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
     _readonly = False  # Is this a read only model? (i.e. from elasticsearch)
 
     objects = ContentManager()
+    search_objects = SearchManager()
 
     def __unicode__(self):
         return '%s: %s' % (self.__class__.__name__, self.title)

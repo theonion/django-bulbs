@@ -12,7 +12,6 @@ class TagCache:
         # Gets the count for a tag, hopefully form an in-memory cache.
         cnt = cls._cache.get(slug)
         if cnt is None:
-            index = Tag.get_index_name()
-            cnt = S().es(urls=settings.ES_URLS).indexes(index).query(**{"tags.slug": slug}).count()
+            cnt = Tag.search_objects.s().query(**{"tags.slug": slug}).count()
             cls._cache[slug] = cnt
         return cnt

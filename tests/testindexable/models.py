@@ -7,13 +7,13 @@ from polymorphic import PolymorphicModel
 class SeparateIndexable(PolymorphicIndexable, PolymorphicModel):
     junk = models.CharField(max_length=255)
 
-    search = SearchManager()
+    search_objects = SearchManager()
 
 
 class ParentIndexable(PolymorphicIndexable, PolymorphicModel):
     foo = models.CharField(max_length=255)
 
-    search = SearchManager()
+    search_objects = SearchManager()
 
     def extract_document(self):
         doc = super(ParentIndexable, self).extract_document()
