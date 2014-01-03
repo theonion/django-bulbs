@@ -24,16 +24,31 @@ class IndexableTestCase(TestCase):
         ParentIndexable.search.refresh()
         SeparateIndexable.search.refresh()
 
-
     def test_index_names(self):
         self.assertEqual(ParentIndexable.get_index_name(), 'testindexable_parentindexable')
         self.assertEqual(ChildIndexable.get_index_name(), 'testindexable_parentindexable')
         self.assertEqual(GrandchildIndexable.get_index_name(), 'testindexable_parentindexable')
-
         self.assertEqual(SeparateIndexable.get_index_name(), 'testindexable_separateindexable')
 
-    def test_search(self):
+    def test_mapping_type_names(self):
+        self.assertEqual(ParentIndexable.get_mapping_type_name(), 'testindexable_parentindexable')
+        self.assertEqual(ChildIndexable.get_mapping_type_name(), 'testindexable_childindexable')
+        self.assertEqual(GrandchildIndexable.get_mapping_type_name(), 'testindexable_grandchildindexable')
+        self.assertEqual(SeparateIndexable.get_mapping_type_name(), 'testindexable_separateindexable')
+        self.assertEqual(
+            ParentIndexable.get_mapping_type_names(), [
+                ParentIndexable.get_mapping_type_name(),
+                ChildIndexable.get_mapping_type_name(),
+                GrandchildIndexable.get_mapping_type_name(),
+            ]
+        )
+        self.assertEqual(
+            SeparateIndexable.get_mapping_type_names(), [
+                SeparateIndexable.get_mapping_type_name(),
+            ]
+        )
 
+    def test_search(self):
         self.assertEqual(ParentIndexable.search.s().count(), 3)
         self.assertEqual(ParentIndexable.search.query(bar=69).count(), 2)
         self.assertEqual(ParentIndexable.search.query(foo__match="Fighters").count(), 3)
@@ -50,7 +65,7 @@ class IndexableTestCase(TestCase):
         self.assertEqual(ParentIndexable.search.s().instanceof(ChildIndexable).count(), 2)
         self.assertEqual(ParentIndexable.search.s().instanceof(GrandchildIndexable).count(), 1)
 
-    def test_model_Results(self):
+    def test_model_results(self):
         qs = ParentIndexable.search.s().full()
         for obj in qs:
             self.assertTrue(obj.__class__ in [ParentIndexable, ChildIndexable, GrandchildIndexable])
