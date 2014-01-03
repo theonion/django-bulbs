@@ -130,8 +130,8 @@ class PolymorphicIndexable(object):
         return cls.get_base_class()._meta.db_table
 
     @classmethod
-    def get_es(self):
-        return get_es(urls=settings.ES_URLS).index(self.get_index_name())
+    def get_es(cls):
+        return get_es(urls=settings.ES_URLS).index(cls.get_index_name())
 
     @classmethod
     def get_mapping(cls):
@@ -148,7 +148,7 @@ class PolymorphicIndexable(object):
     def get_mapping_properties(cls):
         return {
             'polymorphic_ctype': {'type': 'integer'},
-            self.polymorphic_primary_key_name: {'type': 'integer'}
+            cls.polymorphic_primary_key_name: {'type': 'integer'}
         }
 
     @classmethod
