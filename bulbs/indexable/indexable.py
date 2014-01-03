@@ -45,20 +45,10 @@ class PolymorphicS(S):
 
         If exact is True, only results for this exact class are returned. Otherwise, child objects
         are included in the response."""
-
-        def _get_doctypes(klass):
-            """This is a simple recusive method to build a list of doctypes from the ancestors
-            of this class"""
+        if exact:
             doctypes = [klass.get_mapping_type_name()]
-            for subklass in klass.__subclasses__():
-                doctypes.extend(_get_doctypes(subklass))
-            return doctypes
-
-        if exact is False:
-            doctypes = _get_doctypes(klass)
         else:
-            doctypes = [klass.get_mapping_type_name()]
-
+            doctypes = klass.get_mapping_type_names()
         return self._clone(next_step=('doctypes', doctypes))
 
     def get_results_class(self):
@@ -122,9 +112,11 @@ class PolymorphicIndexable(object):
     search = SearchManager()
 
     def extract_document(self):
+        # Regarding primary key field name of PolymorphicModel subclasses:
+        # https://github.com/chrisglass/django_polymorphic/blob/master/polymorphic/query.py#L190
         return {
             'polymorphic_ctype': self.polymorphic_ctype_id,
-            self._meta.pk.name : self.pk
+            self.polymorphic_primary_key_name: self.id
         }
 
     @classmethod
@@ -146,7 +138,7 @@ class PolymorphicIndexable(object):
         return {
             cls.get_mapping_type_name(): {
                 '_id': {
-                    'path': cls._meta.pk.name
+                    'path': cls.polymorphic_primary_key_name
                 },
                 'properties': cls.get_mapping_properties()
             }
@@ -155,14 +147,22 @@ class PolymorphicIndexable(object):
     @classmethod
     def get_mapping_properties(cls):
         return {
-            cls._meta.pk.name : {'type': 'integer'},
-            'polymorphic_ctype': {'type': 'integer'}
+            'polymorphic_ctype': {'type': 'integer'},
+            self.polymorphic_primary_key_name: {'type': 'integer'}
         }
 
     @classmethod
     def get_mapping_type_name(cls):
         """By default, we'll be using the db_table property to get the ES doctype for this object"""
         return cls._meta.db_table
+
+    @classmethod
+    def get_mapping_type_names(cls):
+        """Returns the mapping type name of this class and all of its descendants."""
+        names = [cls.get_mapping_type_name()]
+        for subclass in cls.__subclasses__():
+            names.extend(subclass.get_mapping_type_names())
+        return names    
 
     def index(self, refresh=False):
         es = get_es(urls=settings.ES_URLS)
@@ -184,3 +184,4 @@ class PolymorphicIndexable(object):
             self.index(refresh=refresh)
         self._index = index
         return result
+
