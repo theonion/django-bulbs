@@ -42,14 +42,14 @@ ES_SETTINGS = {
 }
 
 def create_polymorphic_indexes(sender, **kwargs):
-    """This is a post_syncdb (in 1.7, ) signal thpost_migrateat creates indexes and mappings
+    """This is a post_syncdb (in 1.7, post_migrate) signal that creates indexes and mappings
     for the polymorphic models in this model file."""
 
     indexes = {}
 
-    for model in get_models(sender.__package__):
+    for model in get_models(sender):
         if isinstance(model(), PolymorphicIndexable):
-            index = sender.get_index_name()
+            index = model.get_index_name()
             if index not in indexes:
                 indexes[index] = {}
             indexes[index][model.get_mapping_type_name()] = model.get_mapping()
@@ -71,8 +71,11 @@ def create_polymorphic_indexes(sender, **kwargs):
             print("ES Error: %s" % e.error)
 
 # Let's register a signal for everything that's PolymorphicIndexable
+registered_modules = []
 for app in models.get_apps():
     for model in models.get_models(app):
         if isinstance(model(), PolymorphicIndexable):
-            post_syncdb.connect(create_polymorphic_indexes, importlib.import_module(model.__module__))
+            if model.__module__ not in registered_modules:
+                post_syncdb.connect(create_polymorphic_indexes, importlib.import_module(model.__module__))
+                registered_modules.append(model.__module__)
 

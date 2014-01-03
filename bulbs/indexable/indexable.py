@@ -168,8 +168,8 @@ class PolymorphicIndexable(object):
 
     @classmethod
     def get_mapping_type_name(cls):
-        """By default, we'll be using the db_table property to get the ES doctype for this object"""
-        return cls._meta.db_table
+        """By default, we'll be using the app_label and module_name properties to get the ES doctype for this object"""
+        return "%s_%s" % (cls._meta.app_label, cls._meta.module_name)
 
     @classmethod
     def get_mapping_type_names(cls):
