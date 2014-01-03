@@ -9,6 +9,7 @@ from elasticutils.contrib.django import get_es
 
 from tests.testindexable.models import ParentIndexable, ChildIndexable, GrandchildIndexable, SeparateIndexable
 
+
 class IndexableTestCase(TestCase):
 
     def setUp(self):
@@ -18,7 +19,7 @@ class IndexableTestCase(TestCase):
         ParentIndexable.objects.create(foo="Fighters")
         ChildIndexable.objects.create(foo="Fighters", bar=69)
         GrandchildIndexable.objects.create(foo="Fighters", bar=69, baz=datetime.datetime.now() - datetime.timedelta(hours=1))
-        
+
         SeparateIndexable.objects.create(junk="Testing")
 
         ParentIndexable.search.refresh()
@@ -49,7 +50,7 @@ class IndexableTestCase(TestCase):
         )
 
     def test_primary_key_name_is_correct(self):
-        a,b,c = [klass.get_mapping().values()[0]['_id']['path'] for klass in (
+        a, b, c = [klass.get_mapping().values()[0]['_id']['path'] for klass in (
             ParentIndexable, ChildIndexable, GrandchildIndexable
         )]
         self.assertEqual(a, b)
@@ -80,7 +81,7 @@ class IndexableTestCase(TestCase):
         self.assertEqual(len(qs[:2]), 2)
 
     def test_s_all_respects_slicing(self):
-        s =  ParentIndexable.search.s()
+        s = ParentIndexable.search.s()
         num_s = s.count()
         self.assertEqual(len(s), num_s)
         sliced = s[1:2]
