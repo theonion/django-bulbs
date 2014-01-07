@@ -55,7 +55,7 @@ def create_polymorphic_indexes(sender, **kwargs):
             indexes[index][model.get_mapping_type_name()] = model.get_mapping()
 
     es = get_es(urls=settings.ES_URLS)
-    for index,mappings in indexes.items():
+    for index, mappings in indexes.items():
         try:
             es.create_index(index, settings= {
                 "mappings": mappings,

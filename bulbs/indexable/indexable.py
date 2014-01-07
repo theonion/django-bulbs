@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
 from elasticutils import S, MappingType, SearchResults
@@ -170,14 +171,31 @@ class PolymorphicIndexable(object):
         return "%s_%s" % (cls._meta.app_label, cls._meta.module_name)
 
     @classmethod
-    def get_mapping_type_names(cls, include_self=True):
+    def get_mapping_type_names(cls, exclude_base=False):
         """Returns the mapping type name of this class and all of its descendants."""
         names = []
-        if include_self:
+        if not exclude_base:
             names.append(cls.get_mapping_type_name())
         for subclass in cls.__subclasses__():
             names.extend(subclass.get_mapping_type_names())
-        return names    
+        return names
+
+    @classmethod
+    def get_mapping_type_model(cls):
+        mapping_type_name = cls.get_mapping_type_name()
+        app_label, model_name = mapping_type_name.split('_')
+        content_type = ContentType.objects.get_by_natural_key(app_label, model_name)
+        return (mapping_type_name, content_type)      
+
+    @classmethod
+    def get_mapping_type_models(cls, exclude_base=False):
+        mapping_type_names = cls.get_mapping_type_names(exclude_base=exclude_base)
+        choices = []
+        for mapping_type_name in mapping_type_names:
+            app_label, model_name = mapping_type_name.split('_')
+            content_type = ContentType.objects.get_by_natural_key(app_label, model_name)
+            choices.append((mapping_type_name, content_type))
+        return choices
 
     @classmethod
     def get_index_mappings(cls):
