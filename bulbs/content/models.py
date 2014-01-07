@@ -514,6 +514,23 @@ class Content(PolymorphicIndexable, PolymorphicModel):
         from .serializers import ContentSerializer
         return ContentSerializer
 
+class LogEntryManager(models.Manager):
+    def log_action(self, content_id, user_id, change_message=''):
+        entry = self.model(None, None, content_id, user_id, change_message)
+        entry.save()
+
+class LogEntry(models.Model):
+    action_time = models.DateTimeField('action time', auto_now=True)
+    content = models.ForeignKey(Content, related_name='conent')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='user')
+    change_message = models.TextField('change message', blank=True)
+
+    objects = LogEntryManager()
+
+    class Meta:
+        ordering = ('-action_time',)
+
+
 # NOTE: I dont *think* we need this now that we explictly index in ContentViewSet.post_save
 def content_tags_changed(sender, instance=None, action='', **kwargs):
     """Reindex content tags when they change."""
