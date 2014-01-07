@@ -182,17 +182,22 @@ class PolymorphicIndexable(object):
 
     @classmethod
     def get_mapping_type_model(cls):
+        """Returns the mapping type and ContentType for this model."""
         mapping_type_name = cls.get_mapping_type_name()
-        app_label, model_name = mapping_type_name.split('_')
+        app_label, model_name = mapping_type_name.split("_")
         content_type = ContentType.objects.get_by_natural_key(app_label, model_name)
         return (mapping_type_name, content_type)      
 
     @classmethod
     def get_mapping_type_models(cls, exclude_base=False):
+        """
+        Returns the mapping types and corresponding ContentTypes for this model's
+        polymorphic children and optionally itself.
+        """
         mapping_type_names = cls.get_mapping_type_names(exclude_base=exclude_base)
         choices = []
         for mapping_type_name in mapping_type_names:
-            app_label, model_name = mapping_type_name.split('_')
+            app_label, model_name = mapping_type_name.split("_")
             content_type = ContentType.objects.get_by_natural_key(app_label, model_name)
             choices.append((mapping_type_name, content_type))
         return choices

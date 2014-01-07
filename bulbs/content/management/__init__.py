@@ -61,4 +61,4 @@ def sync_es(sender, **kwargs):
             print("ES Error: %s" % e.error)
 
 
-post_syncdb.connect(sync_es, sender=bulbs.content.models)
+#post_syncdb.connect(sync_es, sender=bulbs.content.models)
