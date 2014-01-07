@@ -55,15 +55,6 @@ def fetch_cached_models_by_id(model_class, model_ids, key_template='bulkcache/%s
     return [result_map[id] for id in model_ids]
 
 
-def deserialize_polymorphic_model(data):
-    """Deserializes simple polymorphic models."""
-    content_type = ContentType.objects.get_for_id(data['polymorphic_ctype'])
-    if content_type:
-        klass = content_type.model_class()
-        instance = klass.from_source(data)
-        return instance
-
-
 class PatchedS(S):
     """Common patches for the S model."""
     def all(self):
@@ -430,19 +421,6 @@ class Content(PolymorphicIndexable, PolymorphicModel):
         from .serializers import ContentSerializer
         return ContentSerializer
 
-# NOTE: I dont *think* we need this now that we explictly index in ContentViewSet.post_save
-def content_tags_changed(sender, instance=None, action='', **kwargs):
-    """Reindex content tags when they change."""
-    if getattr(instance, "_index", True):  # TODO: Rethink this hackey shit. Is there a better way?
-        doc = {}
-        doc['tags'] = [tag.extract_document() for tag in instance.tags.all()]
-        if CELERY_ENABLED:
-            update_task.delay(instance.pk, doc)
-        else:
-            index = instance.get_index_name()
-            es = get_es()
-            es.update(index, instance.get_mapping_type_name(), instance.id, doc=doc)
-
 
 def content_deleted(sender, instance=None, **kwargs):
     if getattr(instance, "_index", True):
@@ -454,11 +432,4 @@ def content_deleted(sender, instance=None, **kwargs):
 
 
 models.signals.pre_delete.connect(content_deleted, Content)
-
-
-# models.signals.m2m_changed.connect(
-#     content_tags_changed,
-#     sender=Content.tags.through,
-#     dispatch_uid='content_tags_changed_signal'
-# )
 
