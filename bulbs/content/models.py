@@ -4,23 +4,21 @@ that we want any piece of content to have."""
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import NoReverseMatch, reverse
 from django.db import models
 from django.db.backends import util
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django.utils.html import strip_tags
-from django.core.urlresolvers import NoReverseMatch
 
 from bulbs.content import TagCache
 from bulbs.images.fields import RemoteImageField
-from .elasticsearch import ShallowContentS, ShallowContentResult
-
+from bulbs.indexable.indexable import PolymorphicIndexable, SearchManager
 from elasticutils import SearchResults, S
 from elasticutils.contrib.django import get_es
 from polymorphic import PolymorphicModel, PolymorphicManager
 
-from bulbs.indexable.indexable import PolymorphicIndexable, SearchManager
+from .elasticsearch import ShallowContentS, ShallowContentResult
 
 
 try:
@@ -294,6 +292,7 @@ class ContentManager(PolymorphicManager):
             else:
                 ret.append(None)
         return ret
+
 
 class Content(PolymorphicIndexable, PolymorphicModel):
     """The base content model from which all other content derives."""
