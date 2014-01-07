@@ -170,9 +170,11 @@ class PolymorphicIndexable(object):
         return "%s_%s" % (cls._meta.app_label, cls._meta.module_name)
 
     @classmethod
-    def get_mapping_type_names(cls):
+    def get_mapping_type_names(cls, include_self=True):
         """Returns the mapping type name of this class and all of its descendants."""
-        names = [cls.get_mapping_type_name()]
+        names = []
+        if include_self:
+            names.append(cls.get_mapping_type_name())
         for subclass in cls.__subclasses__():
             names.extend(subclass.get_mapping_type_names())
         return names    
