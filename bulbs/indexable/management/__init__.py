@@ -13,6 +13,7 @@ from pyelasticsearch.exceptions import IndexAlreadyExistsError, ElasticHttpError
 
 from bulbs.indexable import PolymorphicIndexable
 
+
 # Default ES Settings--should probably be grabbed from the django settings?
 ES_SETTINGS = {
     "index": {
@@ -40,6 +41,7 @@ ES_SETTINGS = {
         }
     }
 }
+
 
 def create_polymorphic_indexes(sender, **kwargs):
     """This is a post_syncdb (in 1.7, post_migrate) signal that creates indexes and mappings
@@ -70,12 +72,13 @@ def create_polymorphic_indexes(sender, **kwargs):
         except ElasticHttpError as e:
             print("ES Error: %s" % e.error)
 
+
 # Let's register a signal for everything that's PolymorphicIndexable
-registered_modules = []
+registered_modules = set()
 for app in models.get_apps():
     for model in models.get_models(app):
-        if isinstance(model(), PolymorphicIndexable):
+        if issubclass(model, PolymorphicIndexable):
             if model.__module__ not in registered_modules:
                 post_syncdb.connect(create_polymorphic_indexes, importlib.import_module(model.__module__))
-                registered_modules.append(model.__module__)
+                registered_modules.add(model.__module__)
 
