@@ -84,7 +84,6 @@ class PatchedS(S):
             raise ValueError('No id facets found.')
         # the facet "term" is the id. let's get a list of those.
         ids = [fc['term'] for fc in id_facet_counts]
-        # NOTE: The Tag model is hard-coded in here right now.
         models = fetch_cached_models_by_id(model_class, ids)
         # annotate models with facet counts
         for model, facet_result in zip(models, id_facet_counts):
