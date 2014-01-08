@@ -56,7 +56,7 @@ class Command(NoArgsCommand):
                 for instance in klass.objects.order_by('id').iterator():
                     metadata = {
                         "index": {
-                            "_index": self.index_name,
+                            "_index": klass.get_index_name(),
                             "_type": instance.get_mapping_type_name(),
                             "_id": instance.id
                         }
