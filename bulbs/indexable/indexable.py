@@ -123,11 +123,81 @@ class SearchManager(models.Manager):
 
 
 class PolymorphicIndexable(object):
-    """Base mixin for polymorphic indexin'"""
+    """Mixin for PolymorphicModel, allowing easy indexing and querying.
+
+    This class is a mixin, intended to be used on PolymorphicModel classes. To use it,
+    you just mix it in, and implement a few methods. For example:
+
+        .. code-block:: python
+
+            from django.db import models
+            from bulbs.indexable import PolymorphicIndexable, SearchManager
+            from polymorphic import PolymorphicModel
+
+            class ParentIndexable(PolymorphicIndexable, PolymorphicModel):
+                foo = models.CharField(max_length=255)
+
+                search_objects = SearchManager()
+
+                def extract_document(self):
+                    doc = super(ParentIndexable, self).extract_document()
+                    doc['foo'] = self.foo
+                    return doc
+
+                @classmethod
+                def get_mapping_properties(cls):
+                    properties = super(ParentIndexable, cls).get_mapping_properties()
+                    properties.update({
+                        "foo": {"type": "string"}
+                    })
+                    return properties
+
+            class ChildIndexable(ParentIndexable):
+                bar = models.IntegerField()
+
+                def extract_document(self):
+                    doc = super(ChildIndexable, self).extract_document()
+                    doc['bar'] = self.bar
+                    return doc
+
+                @classmethod
+                def get_mapping_properties(cls):
+                    properties = super(ChildIndexable, cls).get_mapping_properties()
+                    properties.update({
+                        "bar": {"type": "integer"}
+                    })
+                    return properties
+
+    With this example code, after syncdb a new Elasticsearch index named `example_parentindexable` would
+    be created, with two mappings: `example_parentindexable` and `example_childindexable`. At minimum, you
+    should implement the :func:`extract_document` instance method, and the :func:`get_mapping_properties` classmethod. 
+    """
 
     def extract_document(self):
-        # Regarding primary key field name of PolymorphicModel subclasses:
-        # https://github.com/chrisglass/django_polymorphic/blob/master/polymorphic/query.py#L190
+        """Returns a python dictionary, representing the Elasticseach document for this model instance.
+
+        By default, this just includes the `polymorphic_ctype id`_, and the primary key, e.g.::
+
+            {
+                "polymorphic_ctype": 1,
+                "id": 1
+            }
+
+        If when you override this method, be sure to at least return the default fields. This is best
+        done by simply updating the parent's data. For example::
+
+            def extract_document(self):
+                doc = super(ParentModel, self).extract_document()
+                doc.update({
+                    'bar': self.bar
+                })
+                return doc
+
+        It's also wise to be sure that your data is properly modeled (by overriding :func:`get_mapping`), so that
+        you're not letting Elasticseach decide your mappings for you.
+
+        .. _polymorphic_ctype id: https://github.com/chrisglass/django_polymorphic/blob/master/polymorphic/query.py#L190
+        """
         return {
             'polymorphic_ctype': self.polymorphic_ctype_id,
             self.polymorphic_primary_key_name: self.id
@@ -160,6 +230,29 @@ class PolymorphicIndexable(object):
 
     @classmethod
     def get_mapping_properties(cls):
+        """Returns a python dictionary, representing the Elasticseach mapping for this model.
+
+        By default, this just includes the primary key of this object, e.g.::
+
+            {
+                "polymorphic_ctype": {"type": "integer"},
+                "id": {"type": "integer"}
+            }
+
+        If when you override this method, be sure to at least return the default fields. For example::
+
+            @classmethod
+            def get_mapping_properties(cls):
+                properties = super(ParentModel, cls).get_mapping_properties()
+                properties.update({
+                    "bar": {"type": "integer"}
+                })
+                return properties
+
+        You should make sure that the data modeled here matches with what's being returned by
+        :func:`extract_document`, so that you're not letting Elasticseach decide your mappings for you.
+        """
+
         return {
             'polymorphic_ctype': {'type': 'integer'},
             cls.polymorphic_primary_key_name: {'type': 'integer'}
