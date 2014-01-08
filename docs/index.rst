@@ -11,6 +11,12 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   installation
+   requirements
+   indexable
+   content
+   images
+   video
 
 
 Indices and tables
