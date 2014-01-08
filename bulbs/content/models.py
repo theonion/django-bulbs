@@ -521,8 +521,8 @@ class LogEntryManager(models.Manager):
 
 class LogEntry(models.Model):
     action_time = models.DateTimeField('action time', auto_now=True)
-    content = models.ForeignKey(Content, related_name='conent')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='user')
+    content = models.ForeignKey(Content, related_name='change_logs')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='change_logs')
     change_message = models.TextField('change message', blank=True)
 
     objects = LogEntryManager()
