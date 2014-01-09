@@ -179,7 +179,7 @@ class PolymorphicIndexable(object):
 
     def save(self, index=True, refresh=False, *args, **kwargs):
         result = super(PolymorphicIndexable, self).save(*args, **kwargs)
-        if index:
+        if index and getattr(self, 'indexed', True):
             if CELERY_ENABLED:
                 index_task.delay(self.polymorphic_ctype_id, self.pk, refresh=refresh)
             else:
@@ -392,6 +392,8 @@ class Content(PolymorphicIndexable, PolymorphicModel):
     subhead = models.CharField(max_length=255, null=True, blank=True)
 
     tags = models.ManyToManyField(Tag, blank=True)
+
+    indexed = models.BooleanField(default=True) # Should this item be indexed? 
 
     _readonly = False  # Is this a read only model? (i.e. from elasticsearch)
     _cache = {}  # This is a cache for the content doctypes

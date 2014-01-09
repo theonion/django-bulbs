@@ -55,11 +55,11 @@ def sync_es(sender, **kwargs):
             try:
                 es.put_mapping(index, doc_type, mapping)
             except ElasticHttpError as e:
-                print("ES Error: %s" % e.error)
+                print("Put Mapping Error: %s" % e.error)
                 # MergeExceptionError and want to override conflicts?
                 # es.put_mapping(index, doc_type, mapping, ignore_conflicts=True)
     except ElasticHttpError as e:
-        print("ES Error: %s" % e.error)
+        print("Index Creation Error: %s" % e.error)
 
 
 post_syncdb.connect(sync_es, sender=bulbs.content.models)
