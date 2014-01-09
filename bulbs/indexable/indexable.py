@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.db import models
+from django.db import models, DEFAULT_DB_ALIAS
+from django.template.defaultfilters import slugify
 
 from elasticutils import S, MappingType, SearchResults
 from elasticutils.contrib.django import get_es
@@ -211,7 +212,8 @@ class PolymorphicIndexable(object):
 
     @classmethod
     def get_index_name(cls):
-        return cls.get_base_class()._meta.db_table
+        index_prefix = slugify(settings.DATABASES[DEFAULT_DB_ALIAS].get("NAME", "bulbs"))
+        return "%s_%s" % (index_prefix, cls.get_base_class()._meta.db_table)
 
     @classmethod
     def get_es(cls):

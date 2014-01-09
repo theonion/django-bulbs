@@ -44,12 +44,6 @@ class IndexableTestCase(BaseIndexableTestCase):
         ParentIndexable.search_objects.refresh()
         SeparateIndexable.search_objects.refresh()
 
-    def test_index_names(self):
-        self.assertEqual(ParentIndexable.get_index_name(), 'testindexable_parentindexable')
-        self.assertEqual(ChildIndexable.get_index_name(), 'testindexable_parentindexable')
-        self.assertEqual(GrandchildIndexable.get_index_name(), 'testindexable_parentindexable')
-        self.assertEqual(SeparateIndexable.get_index_name(), 'testindexable_separateindexable')
-
     def test_mapping_type_names(self):
         self.assertEqual(ParentIndexable.get_mapping_type_name(), 'testindexable_parentindexable')
         self.assertEqual(ChildIndexable.get_mapping_type_name(), 'testindexable_childindexable')
