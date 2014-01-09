@@ -4,18 +4,39 @@ import datetime
 
 from django.test import TestCase
 from django.conf import settings
+from django.db import models
+from django.core.management import call_command
 
 from elasticutils.contrib.django import get_es
+from pyelasticsearch.exceptions import ElasticHttpNotFoundError
 
+from bulbs.indexable import PolymorphicIndexable
 from tests.testindexable.models import ParentIndexable, ChildIndexable, GrandchildIndexable, SeparateIndexable
 
 
-class IndexableTestCase(TestCase):
+class BaseIndexableTestCase(TestCase):
+    def tearDown(self):
+        # TODO: use the indexable cache, instead of this POS
+
+        indexes = []
+        for app in models.get_apps():
+            for model in models.get_models(app):
+                if issubclass(model, PolymorphicIndexable):
+                    if model.get_index_name() not in indexes:
+                        indexes.append(model.get_index_name())
+
+        es = get_es(urls=settings.ES_URLS)
+        for index in indexes:
+            try:
+                es.delete_index(index)
+            except ElasticHttpNotFoundError:
+                pass
+
+
+
+class IndexableTestCase(BaseIndexableTestCase):
 
     def setUp(self):
-        # create_polymorphic_indexes(ParentIndexable)
-        # create_polymorphic_indexes(SeparateIndexable)
-
         ParentIndexable.objects.create(foo="Fighters")
         ChildIndexable.objects.create(foo="Fighters", bar=69)
         GrandchildIndexable.objects.create(foo="Fighters", bar=69, baz=datetime.datetime.now() - datetime.timedelta(hours=1))
@@ -90,7 +111,67 @@ class IndexableTestCase(TestCase):
         sliced = s[1:2]
         self.assertEqual(len(sliced.all()), 1)
 
-    def tearDown(self):
+
+class BulkIndexTestCase(BaseIndexableTestCase):
+
+    def test_management_command(self):
+        ParentIndexable(foo="Fighters").save(index=False)
+        ChildIndexable(foo="Fighters", bar=69).save(index=False)
+
+        GrandchildIndexable(
+            foo="Fighters",
+            bar=69,
+            baz=datetime.datetime.now() - datetime.timedelta(hours=1)
+        ).save(index=False)
+
+        SeparateIndexable(junk="Testing").save(index=False)
+
+        # Let's make sure that nothing is indexed yet.
+        self.assertEqual(ParentIndexable.search_objects.s().count(), 0)
+        self.assertEqual(SeparateIndexable.search_objects.s().count(), 0)
+
+        # Now that everything has been made, let's try a bulk_index.
+        call_command('bulk_index')
+        ParentIndexable.search_objects.refresh()
+        SeparateIndexable.search_objects.refresh()
+
+        # Let's make sure that everything has the right counts
+        self.assertEqual(ParentIndexable.search_objects.s().count(), 3)
+        self.assertEqual(SeparateIndexable.search_objects.s().count(), 1)
+
+        # Let's add another one, make sure the counts are right.
+        ParentIndexable(foo="Mr. T").save(index=False)
+        self.assertEqual(ParentIndexable.search_objects.s().count(), 3)
+        call_command('bulk_index')
+        ParentIndexable.search_objects.refresh()
+        self.assertEqual(ParentIndexable.search_objects.s().count(), 4)
+
+        # Let's fuck up some data in ES.
+        obj = ParentIndexable.objects.all()[0]
         es = get_es(urls=settings.ES_URLS)
-        es.delete_index(ParentIndexable.get_index_name())
-        es.delete_index(SeparateIndexable.get_index_name())
+        doc = obj.extract_document()
+        doc["foo"] = "DATA FUCKERS"
+        es.update(obj.get_index_name(), obj.get_mapping_type_name(), obj.id, doc=doc, upsert=doc, refresh=True)
+
+        # Make sure the bad data works
+        self.assertEqual(ParentIndexable.search_objects.query(foo__match="DATA FUCKERS").count(), 1)
+        call_command('bulk_index')
+        ParentIndexable.search_objects.refresh()
+        self.assertEqual(ParentIndexable.search_objects.query(foo__match="DATA FUCKERS").count(), 0)
+
+        # Let's delete an item from the db.
+        obj = ParentIndexable.objects.all()[0]
+        obj.delete()
+
+        # Make sure the count is the same
+        self.assertEqual(ParentIndexable.search_objects.s().count(), 4)
+
+        # This shoulnd't remove the item
+        call_command('bulk_index')
+        ParentIndexable.search_objects.refresh()
+        self.assertEqual(ParentIndexable.search_objects.s().count(), 4)
+
+        # This should
+        call_command('bulk_index', purge=True)
+        ParentIndexable.search_objects.refresh()
+        self.assertEqual(ParentIndexable.search_objects.s().count(), 3)
