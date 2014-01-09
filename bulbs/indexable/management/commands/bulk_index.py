@@ -29,6 +29,7 @@ class Command(NoArgsCommand):
     )
 
     def kill_indexes(self, *args):
+        # TODO: use the indexable cache, instead of this POS
         indexes = []
         for app in models.get_apps():
             for model in models.get_models(app):

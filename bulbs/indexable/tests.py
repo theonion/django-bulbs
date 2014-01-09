@@ -17,7 +17,6 @@ from tests.testindexable.models import ParentIndexable, ChildIndexable, Grandchi
 class BaseIndexableTestCase(TestCase):
     def tearDown(self):
         # TODO: use the indexable cache, instead of this POS
-
         indexes = []
         for app in models.get_apps():
             for model in models.get_models(app):
@@ -31,7 +30,6 @@ class BaseIndexableTestCase(TestCase):
                 es.delete_index(index)
             except ElasticHttpNotFoundError:
                 pass
-
 
 
 class IndexableTestCase(BaseIndexableTestCase):
