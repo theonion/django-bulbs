@@ -1,7 +1,5 @@
 from django.db.models.signals import class_prepared
 
-from .indexable import PolymorphicIndexable
-
 
 class PolymorphicIndexableRegistry(object):
     """Contains information about all PolymorphicIndexables in the project."""
@@ -26,6 +24,8 @@ class PolymorphicIndexableRegistry(object):
 polymorphic_indexable_registry = PolymorphicIndexableRegistry()
 
 def register_polymorphicindexables(sender, **kwargs):
+    from .indexable import PolymorphicIndexable
+
     if not issubclass(sender, PolymorphicIndexable):
         return
     polymorphic_indexable_registry.register(sender)
