@@ -161,6 +161,13 @@ class BulkIndexTestCase(BaseIndexableTestCase):
 
 
 class TestPolymorphicIndexableRegistry(TestCase):
-    def test_balh(self):
+    def test_registry_has_models(self):
         self.assertTrue(polymorphic_indexable_registry.all_models)
+        self.assertTrue(polymorphic_indexable_registry.families)
+        types = polymorphic_indexable_registry.get_doctypes(ParentIndexable)
+        desired_classes = set([ParentIndexable, ChildIndexable, GrandchildIndexable])
+        result_classes = set()
+        for name, klass in types.items():
+            result_classes.add(klass)
+        self.assertEqual(desired_classes, result_classes)
 
