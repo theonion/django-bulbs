@@ -171,6 +171,6 @@ class BulkIndexTestCase(BaseIndexableTestCase):
 
 
 class TestPolymorphicIndexableRegistry(TestCase):
-    def test_balh(self):
+    def test_registry_has_models(self):
         self.assertTrue(polymorphic_indexable_registry.all_models)
-
+        self.assertTrue(polymorphic_indexable_registry.families)
