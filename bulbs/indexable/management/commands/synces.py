@@ -8,7 +8,7 @@ from bulbs.indexable.models import polymorphic_indexable_registry
 
 
 class Command(NoArgsCommand):
-    help = 'Creates indexes and mappings for for Indexable objects.'
+    help = "Creates indexes and mappings for for Indexable objects."
 
     def handle(self, *args, **options):
 
@@ -36,5 +36,3 @@ class Command(NoArgsCommand):
                     es.put_mapping(index, doctype, dict(doctype=mapping))
                 except ElasticHttpError as e:
                     self.stderr.write("ES Error: %s" % e.error)
-
-        

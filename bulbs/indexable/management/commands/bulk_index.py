@@ -14,18 +14,18 @@ from bulbs.indexable.conf import settings
 from django.core.management import call_command
 
 class Command(NoArgsCommand):
-    help = 'Bulk indexes all Content and Tag instances.'
+    help = "Bulk indexes all Content and Tag instances."
     option_list = NoArgsCommand.option_list + (
-        make_option('--purge',
-            action='store_true',
-            dest='purge',
+        make_option("--purge",
+            action="store_true",
+            dest="purge",
             default=False,
-            help='Remove all existing data'),
-        make_option('--chunk',
+            help="Remove all existing data"),
+        make_option("--chunk",
             type=int,
-            dest='chunk',
+            dest="chunk",
             default=250,
-            help='The chunk size to index with'),
+            help="The chunk size to index with"),
     )
 
     def kill_indexes(self, *args):
@@ -52,7 +52,7 @@ class Command(NoArgsCommand):
         chunk_size = options.get("chunk")
         if options.get("purge"):
             self.kill_indexes(*args)
-            call_command('synces')  # This will cause all the indexes to get recreated, since that all runs on signals.
+            call_command("synces")  # This will cause all the indexes to get recreated, since that all runs on signals.
 
 
         models_to_index = []
@@ -73,7 +73,7 @@ class Command(NoArgsCommand):
         num_processed = 0
         payload = []
         for model in models_to_index:
-            for instance in model.objects.instance_of(model).order_by('id').iterator():     
+            for instance in model.objects.instance_of(model).order_by("id").iterator():     
                 meta = {
                     "index": {
                         "_index": instance.get_index_name(),
