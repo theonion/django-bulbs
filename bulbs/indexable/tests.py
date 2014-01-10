@@ -4,31 +4,21 @@ import datetime
 
 from django.test import TestCase
 from django.conf import settings
-from django.db import models
 from django.core.management import call_command
 
 from elasticutils.contrib.django import get_es
 from pyelasticsearch.exceptions import ElasticHttpNotFoundError
 
-from bulbs.indexable import PolymorphicIndexable
 from bulbs.indexable.models import polymorphic_indexable_registry
 from tests.testindexable.models import ParentIndexable, ChildIndexable, GrandchildIndexable, SeparateIndexable
 
 
 class BaseIndexableTestCase(TestCase):
     def tearDown(self):
-        # TODO: use the indexable cache, instead of this POS
-        indexes = []
-        for app in models.get_apps():
-            for model in models.get_models(app):
-                if issubclass(model, PolymorphicIndexable):
-                    if model.get_index_name() not in indexes:
-                        indexes.append(model.get_index_name())
-
         es = get_es(urls=settings.ES_URLS)
-        for index in indexes:
+        for base_class in polymorphic_indexable_registry.families.keys():
             try:
-                es.delete_index(index)
+                es.delete_index(base_class.get_index_name())
             except ElasticHttpNotFoundError:
                 pass
 
