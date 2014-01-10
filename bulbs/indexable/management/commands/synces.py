@@ -28,6 +28,8 @@ class Command(NoArgsCommand):
                     "settings": settings.ES_SETTINGS
                 })
             except IndexAlreadyExistsError:
+                pass
+            try:
                 for doctype,mapping in mappings.items():
                     try:
                         es.put_mapping(index, doctype, mapping)
