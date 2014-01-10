@@ -27,7 +27,11 @@ class Command(NoArgsCommand):
                     "settings": settings.ES_SETTINGS
                 })
             except IndexAlreadyExistsError:
-                es.update_settings(index, settings.ES_SETTINGS)
+                try:
+                    es.update_settings(index, settings.ES_SETTINGS)
+                except ElasticHttpError as e:
+                    #self.stderr.write("ES Error: %s" % e.error)
+                    pass # TODO: something better
             except ElasticHttpError as e:
                 self.stderr.write("ES Error: %s" % e.error)
 
