@@ -44,9 +44,13 @@ class Command(NoArgsCommand):
                     try:
                         es.update_settings(index, settings.ES_SETTINGS)
                     except ElasticHttpError as e:
-                        if options.get('drop_existing_indexes', False):
+                        if options.get("drop_existing_indexes", False):
                             es.delete_index(index)
                             keep_trying = True # loop again
+                        else:
+                            self.stderr.write(
+                                "Index '%s' already exists and has incompatible settings." % index)
+        
                 except ElasticHttpError as e:
                     self.stderr.write("ES Error: %s" % e.error)
 
