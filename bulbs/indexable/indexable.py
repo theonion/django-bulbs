@@ -13,7 +13,7 @@ class ModelSearchResults(SearchResults):
     that we're supposed to return results for."""
 
     def set_objects(self, results):
-        ids = list(int(r['_id']) for r in results)
+        ids = list(int(r["_id"]) for r in results)
         model_objects = self.type.get_model().objects.in_bulk(ids)
         self.objects = [
             model_objects[id] for id in ids if id in model_objects
@@ -39,7 +39,7 @@ class PolymorphicS(S):
 
     def get_doctypes(self):
         for action, value in reversed(self.steps):
-            if action == 'doctypes':
+            if action == "doctypes":
                 return list(value)
         return None
 
@@ -52,7 +52,7 @@ class PolymorphicS(S):
             doctypes = [klass.get_mapping_type_name()]
         else:
             doctypes = klass.get_mapping_type_names()
-        return self._clone(next_step=('doctypes', doctypes))
+        return self._clone(next_step=("doctypes", doctypes))
 
     def get_results_class(self):
         if self.as_models:
@@ -62,7 +62,7 @@ class PolymorphicS(S):
     def full(self):
         """This will allow the search to return full model instances, using ModelSearchResults"""
         self.as_models = True
-        return self._clone(next_step=('values_list', ['_id']))
+        return self._clone(next_step=("values_list", ["_id"]))
 
     def all(self):
         """
@@ -100,7 +100,7 @@ class SearchManager(models.Manager):
         from this manager's model"""
 
         base_polymorphic_class = self.model.get_base_class()
-        type_ = type('%sMappingType' % base_polymorphic_class.__name__, (PolymorphicMappingType,), {'base_polymorphic_class': base_polymorphic_class})
+        type_ = type('%sMappingType' % base_polymorphic_class.__name__, (PolymorphicMappingType,), {"base_polymorphic_class": base_polymorphic_class})
 
         return PolymorphicS(type_=type_).es(urls=settings.ES_URLS)
 
@@ -143,7 +143,7 @@ class PolymorphicIndexable(object):
 
                 def extract_document(self):
                     doc = super(ParentIndexable, self).extract_document()
-                    doc['foo'] = self.foo
+                    doc["foo"] = self.foo
                     return doc
 
                 @classmethod
@@ -159,7 +159,7 @@ class PolymorphicIndexable(object):
 
                 def extract_document(self):
                     doc = super(ChildIndexable, self).extract_document()
-                    doc['bar'] = self.bar
+                    doc["bar"] = self.bar
                     return doc
 
                 @classmethod
@@ -191,7 +191,7 @@ class PolymorphicIndexable(object):
             def extract_document(self):
                 doc = super(ParentModel, self).extract_document()
                 doc.update({
-                    'bar': self.bar
+                    "bar": self.bar
                 })
                 return doc
 
@@ -201,7 +201,7 @@ class PolymorphicIndexable(object):
         .. _polymorphic_ctype id: https://github.com/chrisglass/django_polymorphic/blob/master/polymorphic/query.py#L190
         """
         return {
-            'polymorphic_ctype': self.polymorphic_ctype_id,
+            "polymorphic_ctype": self.polymorphic_ctype_id,
             self.polymorphic_primary_key_name: self.id
         }
 
@@ -258,8 +258,8 @@ class PolymorphicIndexable(object):
         """
 
         return {
-            'polymorphic_ctype': {'type': 'integer'},
-            cls.polymorphic_primary_key_name: {'type': 'integer'}
+            "polymorphic_ctype": {"type": "integer"},
+            cls.polymorphic_primary_key_name: {"type": "integer"}
         }
 
     @classmethod

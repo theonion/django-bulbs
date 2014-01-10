@@ -79,26 +79,26 @@ class PatchedS(S):
         Requires that a valid facet query has already been added to
         this S object.
         """
-        id_facet_counts = self.facet_counts().get('id', None)
+        id_facet_counts = self.facet_counts().get("id", None)
         if id_facet_counts is None:
             raise ValueError('No id facets found.')
         # the facet "term" is the id. let's get a list of those.
-        ids = [fc['term'] for fc in id_facet_counts]
+        ids = [fc["term"] for fc in id_facet_counts]
         models = fetch_cached_models_by_id(model_class, ids)
         # annotate models with facet counts
         for model, facet_result in zip(models, id_facet_counts):
-            model.facet_count = facet_result['count']
+            model.facet_count = facet_result["count"]
         return models
 
 
 class ModelSearchResults(SearchResults):
-    """Takes the 'id' list returned by a ModelS and delivers model instances."""
+    """Takes the "id" list returned by a ModelS and delivers model instances."""
     @classmethod
     def get_model(cls):
         raise NotImplementedError('ModelSearchResults requires a `get_model` method.')
         
     def set_objects(self, results):
-        ids = list(int(r['_id']) for r in results)
+        ids = list(int(r["_id"]) for r in results)
         model_objects = self.get_model().objects.in_bulk(ids)
         self.objects = [
             model_objects[id] for id in ids if id in model_objects
@@ -114,7 +114,7 @@ class ModelS(PatchedS):
 
     def __init__(self, *args, **kwargs):
         super(ModelS, self).__init__(*args, **kwargs)
-        self.steps.append(('values_list', ['_id']))
+        self.steps.append(("values_list", ["_id"]))
 
     def get_results_class(self):
         """Returns the results class to use.
@@ -149,11 +149,11 @@ class TagManager(PolymorphicManager):
         """Search tags...profit."""
         index = self.model.get_index_name()
         results = s_class().es(urls=settings.ES_URLS).indexes(index)
-        name = kwargs.pop('query', '')
+        name = kwargs.pop("query", '')
         if name:
             results = results.query(name__match=name, should=True)
 
-        types = kwargs.pop('types', [])
+        types = kwargs.pop("types", [])
         if types:
             # only use valid subtypes
             results = results.doctypes(*[
@@ -187,30 +187,30 @@ class Tag(PolymorphicIndexable, PolymorphicModel):
     def get_mapping_properties(cls):
         props = super(Tag, cls).get_mapping_properties()
         props.update({
-            'name': {
-                'type': 'multi_field',
-                'fields': {
-                    'name': {
-                        'type': 'string',
-                        'analyzer': 'autocomplete'
+            "name": {
+                "type": "multi_field",
+                "fields": {
+                    "name": {
+                        "type": "string",
+                        "analyzer": "autocomplete"
                     },
-                    'slug': {
-                        'type': 'string',
-                        'index': 'not_analyzed'
+                    "slug": {
+                        "type": "string",
+                        "index": "not_analyzed"
                     }
                 }
             },
-            'slug': {'type': 'string', 'index': 'not_analyzed'},
-            'type': {'type': 'string', 'index': 'not_analyzed'}
+            "slug": {"type": "string", "index": "not_analyzed"},
+            "type": {"type": "string", "index": "not_analyzed"}
         })
         return props
     
     def extract_document(self):
         data = super(Tag, self).extract_document()
         data.update({
-            'name': self.name,
-            'slug': self.slug,
-            'type': self.get_mapping_type_name()
+            "name": self.name,
+            "slug": self.slug,
+            "type": self.get_mapping_type_name()
         })
         return data
 
@@ -239,34 +239,34 @@ class ContentManager(PolymorphicManager):
         index = self.model.get_index_name()
         results = s_class().es(urls=settings.ES_URLS).indexes(index)
 
-        if 'query' in kwargs:
-            results = results.query(_all__match=kwargs.get('query'))
+        if "query" in kwargs:
+            results = results.query(_all__match=kwargs.get("query"))
 
         # Right now we have "Before", "After" (datetimes), and "published" (a boolean). Should simplify this in the future.
-        if 'before' in kwargs or 'after' in kwargs:
-            if 'before' in kwargs:
-                results = results.query(published__lte=kwargs['before'], must=True)
+        if "before" in kwargs or "after" in kwargs:
+            if "before" in kwargs:
+                results = results.query(published__lte=kwargs["before"], must=True)
 
-            if 'after' in kwargs:
-                results = results.query(published__gte=kwargs['after'], must=True)
+            if "after" in kwargs:
+                results = results.query(published__gte=kwargs["after"], must=True)
         else:
-            if kwargs.get('published', True):
+            if kwargs.get("published", True):
                 now = timezone.now()
                 results = results.query(published__lte=now, must=True)
 
-        if 'tags' in kwargs:
-            tags = kwargs['tags']
+        if "tags" in kwargs:
+            tags = kwargs["tags"]
             results = results.filter(**{'tags.slug__in':tags})
 
-        if 'feature_types' in kwargs:
-            feature_types = kwargs['feature_types']
+        if "feature_types" in kwargs:
+            feature_types = kwargs["feature_types"]
             results = results.filter(**{'feature_type.slug__in':feature_types})
 
-        if 'authors' in kwargs:
-            authors = kwargs['authors']
+        if "authors" in kwargs:
+            authors = kwargs["authors"]
             results = results.filter(**{'authors.username__in':authors})
 
-        types = kwargs.pop('types', [])
+        types = kwargs.pop("types", [])
         if types:
             # only use valid subtypes
             results = results.doctypes(*[
@@ -285,9 +285,9 @@ class ContentManager(PolymorphicManager):
         index = self.model.get_index_name()
         results = get_es().multi_get(pks, index=index)
         ret = []
-        for r in results['docs']:
-            if '_source' in r:
-                ret.append(ShallowContentResult(r['_source']))
+        for r in results["docs"]:
+            if "_source" in r:
+                ret.append(ShallowContentResult(r["_source"]))
             else:
                 ret.append(None)
         return ret
@@ -318,7 +318,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
 
     def get_absolute_url(self):
         try:
-            url = reverse('content-detail-view', kwargs={'pk': self.pk, 'slug': self.slug})
+            url = reverse('content-detail-view', kwargs={"pk": self.pk, "slug": self.slug})
         except NoReverseMatch:
             url = None
         return url
@@ -357,7 +357,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.build_slug())[:self._meta.get_field('slug').max_length]
+            self.slug = slugify(self.build_slug())[:self._meta.get_field("slug").max_length]
 
         return super(Content, self).save(*args, **kwargs)
 
@@ -366,51 +366,51 @@ class Content(PolymorphicIndexable, PolymorphicModel):
     def get_mapping_properties(cls):
         properties = super(Content, cls).get_mapping_properties()
         properties.update({
-            'published': {'type': 'date'},
-            'title': {'type': 'string', 'analyzer':'snowball'},
-            'slug': {'type': 'string'},
-            'description': {'type': 'string',},
-            'image': {'type': 'string'},
-            'feature_type': {
-                'type': 'multi_field',
-                'fields': {
-                    'feature_type': {'type': 'string', 'analyzer': 'autocomplete'},
-                    'slug': {'type': 'string', 'index': 'not_analyzed'}
+            "published": {"type": "date"},
+            "title": {"type": "string", "analyzer":"snowball", "_boost":  2.0},
+            "slug": {"type": "string"},
+            "description": {"type": "string",},
+            "image": {"type": "string"},
+            "feature_type": {
+                "type": "multi_field",
+                "fields": {
+                    "feature_type": {"type": "string", "analyzer": "autocomplete"},
+                    "slug": {"type": "string", "index": "not_analyzed"}
                 }
             },
-            'authors': {
-                'properties': {
-                    'first_name': {'type': 'string'},
-                    'id': {'type': 'long'},
-                    'last_name': {'type': 'string'},
-                    'username': {'type': 'string', 'index': 'not_analyzed'}
+            "authors": {
+                "properties": {
+                    "first_name": {"type": "string"},
+                    "id": {"type": "long"},
+                    "last_name": {"type": "string"},
+                    "username": {"type": "string", "index": "not_analyzed"}
                 }
             },
-            'tags': {
-                'properties': Tag.get_mapping_properties()
+            "tags": {
+                "properties": Tag.get_mapping_properties()
             },
-            'absolute_url': {'type': 'string'}
+            "absolute_url": {"type": "string"}
         })
         return properties
 
     def extract_document(self):
         data = super(Content, self).extract_document()
         data.update({
-            'published'        : self.published,
-            'title'            : self.title,
-            'slug'             : self.slug,
-            'description'      : self.description,
-            'image'            : self.image.id if self.image else None,
-            'feature_type'     : self.feature_type,
+            "published"        : self.published,
+            "title"            : self.title,
+            "slug"             : self.slug,
+            "description"      : self.description,
+            "image"            : self.image.id if self.image else None,
+            "feature_type"     : self.feature_type,
             'feature_type.slug': slugify(self.feature_type),
-            'authors': [{
-                'first_name': author.first_name,
-                'id'        : author.id,
-                'last_name' : author.last_name,
-                'username'  : author.username
+            "authors": [{
+                "first_name": author.first_name,
+                "id"        : author.id,
+                "last_name" : author.last_name,
+                "username"  : author.username
             } for author in self.authors.all()],
-            'tags': [tag.extract_document() for tag in self.ordered_tags()],
-            'absolute_url': self.get_absolute_url()
+            "tags": [tag.extract_document() for tag in self.ordered_tags()],
+            "absolute_url": self.get_absolute_url()
         })
         return data
 
