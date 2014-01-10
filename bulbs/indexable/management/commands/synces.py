@@ -13,27 +13,29 @@ class Command(NoArgsCommand):
     def handle(self, *args, **options):
 
         indexes = {}
-        for name,model in polymorphic_indexable_registry.all_models.items():
+        for name, model in polymorphic_indexable_registry.all_models.items():
             index = model.get_index_name()
             if index not in indexes:
                 indexes[index] = {}
-            indexes[index][model.get_mapping_type_name()] = model.get_mapping()
+            indexes[index].update(model.get_mapping())
 
         es = get_es(urls=settings.ES_URLS)
 
         for index, mappings in indexes.items():
             try:
-                es.create_index(index, settings= {
+                es.create_index(index, settings={
                     "mappings": mappings,
                     "settings": settings.ES_SETTINGS
                 })
             except IndexAlreadyExistsError:
                 pass
-            try:
-                for doctype,mapping in mappings.items():
-                    try:
-                        es.put_mapping(index, doctype, mapping)
-                    except ElasticHttpError as e:
-                        self.stderr.write("ES Error: %s" % e.error)
             except ElasticHttpError as e:
                 self.stderr.write("ES Error: %s" % e.error)
+
+            for doctype, mapping in mappings.items():
+                try:
+                    es.put_mapping(index, doctype, dict(doctype=mapping))
+                except ElasticHttpError as e:
+                    self.stderr.write("ES Error: %s" % e.error)
+
+        
