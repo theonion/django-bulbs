@@ -12,7 +12,7 @@ from rest_framework import relations
 
 from bulbs.images.fields import RemoteImageSerializer
 
-from .models import Content, Tag
+from .models import Content, Tag, LogEntry
 
 
 class ContentTypeField(serializers.WritableField):
@@ -135,6 +135,9 @@ class ContentSerializer(serializers.ModelSerializer):
             kwargs['index'] = False
         return super(ContentSerializer, self).save(*args, **kwargs)
 
+class LogEntrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LogEntry
 
 class PolymorphicContentSerializerMixin(object):
     def to_native(self, value):

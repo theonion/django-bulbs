@@ -308,6 +308,8 @@ class Content(PolymorphicIndexable, PolymorphicModel):
 
     tags = models.ManyToManyField(Tag, blank=True)
 
+    indexed = models.BooleanField(default=True) # Should this item be indexed? 
+
     _readonly = False  # Is this a read only model? (i.e. from elasticsearch)
 
     objects = ContentManager()
@@ -418,6 +420,30 @@ class Content(PolymorphicIndexable, PolymorphicModel):
     def get_serializer_class(cls):
         from .serializers import ContentSerializer
         return ContentSerializer
+
+
+class LogEntry(models.Model):
+    action_time = models.DateTimeField('action time', auto_now=True)
+    content = models.ForeignKey(Content, related_name='change_logs')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='change_logs')
+    change_message = models.TextField('change message', blank=True)
+
+    class Meta:
+        ordering = ('-action_time',)
+
+
+# NOTE: I dont *think* we need this now that we explictly index in ContentViewSet.post_save
+def content_tags_changed(sender, instance=None, action='', **kwargs):
+    """Reindex content tags when they change."""
+    if getattr(instance, "_index", True):  # TODO: Rethink this hackey shit. Is there a better way?
+        doc = {}
+        doc['tags'] = [tag.extract_document() for tag in instance.tags.all()]
+        if CELERY_ENABLED:
+            update_task.delay(instance.pk, doc)
+        else:
+            index = settings.ES_INDEXES.get('default')
+            es = get_es()
+            es.update(index, instance.get_mapping_type_name(), instance.id, doc=doc)
 
 
 def content_deleted(sender, instance=None, **kwargs):
