@@ -402,7 +402,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
             "description"      : self.description,
             "image"            : self.image.id if self.image else None,
             "feature_type"     : self.feature_type,
-            'feature_type.slug': slugify(self.feature_type),
+            "slug"             : slugify(self.feature_type),
             "authors": [{
                 "first_name": author.first_name,
                 "id"        : author.id,
