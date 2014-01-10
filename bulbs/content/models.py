@@ -360,7 +360,10 @@ class Content(PolymorphicIndexable, PolymorphicModel):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.build_slug())[:self._meta.get_field("slug").max_length]
-
+        if self.indexed is False:
+            if kwargs is None:
+                kwargs = {}
+            kwargs['index'] = False
         return super(Content, self).save(*args, **kwargs)
 
     # class methods ##############################
