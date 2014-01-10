@@ -218,7 +218,7 @@ class PolymorphicIndexable(object):
 
     @classmethod
     def get_es(cls):
-        return get_es(urls=settings.ES_URLS).index(cls.get_index_name())
+        return get_es(urls=settings.ES_URLS)
 
     @classmethod
     def get_mapping(cls):
@@ -310,7 +310,7 @@ class PolymorphicIndexable(object):
         return indexes
 
     def index(self, refresh=False):
-        es = get_es(urls=settings.ES_URLS)
+        es = self.get_es()
         doc = self.extract_document()
         # NOTE: this could be made more efficient with the `doc_as_upsert`
         # param when the following pull request is merged into pyelasticsearch:
