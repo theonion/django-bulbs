@@ -18,7 +18,7 @@ class BaseIndexableTestCase(TestCase):
 
     def setUp(self):
         self.es = get_es(urls=settings.ES_URLS)
-        call_command("synces")
+        call_command("synces", drop_existing_indexes=True)
 
     def tearDown(self):
         for base_class in polymorphic_indexable_registry.families.keys():
