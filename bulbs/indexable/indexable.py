@@ -7,6 +7,8 @@ from bulbs.indexable.conf import settings
 from elasticutils import S, MappingType, SearchResults
 from elasticutils.contrib.django import get_es
 
+from .models import polymorphic_indexable_registry
+
 
 class ModelSearchResults(SearchResults):
     """This is a little hackey, but in this class, "type" is a polymorphic classmethod
@@ -298,6 +300,10 @@ class PolymorphicIndexable(object):
             content_type = ContentType.objects.get_by_natural_key(app_label, model_name)
             choices.append((mapping_type_name, content_type))
         return choices
+
+    @classmethod
+    def get_doctypes(cls):
+        return polymorphic_indexable_registry.get_doctypes(cls)
 
     @classmethod
     def get_index_mappings(cls):
