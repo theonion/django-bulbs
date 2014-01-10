@@ -11,6 +11,7 @@ from elasticutils.contrib.django import get_es
 from pyelasticsearch.exceptions import ElasticHttpNotFoundError
 
 from bulbs.indexable import PolymorphicIndexable
+from bulbs.indexable.models import polymorphic_indexable_registry
 from tests.testindexable.models import ParentIndexable, ChildIndexable, GrandchildIndexable, SeparateIndexable
 
 
@@ -167,3 +168,9 @@ class BulkIndexTestCase(BaseIndexableTestCase):
         call_command('bulk_index', purge=True)
         ParentIndexable.search_objects.refresh()
         self.assertEqual(ParentIndexable.search_objects.s().count(), 3)
+
+
+class TestPolymorphicIndexableRegistry(TestCase):
+    def test_balh(self):
+        self.assertTrue(polymorphic_indexable_registry.all_models)
+
