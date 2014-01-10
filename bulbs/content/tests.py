@@ -17,7 +17,8 @@ from bulbs.indexable.tests import BaseIndexableTestCase
 
 from tests.testcontent.models import TestContentObj, TestContentObjTwo
 
-class SerialzerTestCase(TestCase):
+
+class SerializerTestCase(BaseIndexableTestCase):
 
     def test_tag_serializer(self):
         # generate some data
