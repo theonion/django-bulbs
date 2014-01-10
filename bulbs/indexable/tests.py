@@ -15,6 +15,10 @@ from tests.testindexable.models import ParentIndexable, ChildIndexable, Grandchi
 
 
 class BaseIndexableTestCase(TestCase):
+
+    def setUp(self):
+        call_command("synces")
+
     def tearDown(self):
         es = get_es(urls=settings.ES_URLS)
         for base_class in polymorphic_indexable_registry.families.keys():
@@ -27,6 +31,8 @@ class BaseIndexableTestCase(TestCase):
 class IndexableTestCase(BaseIndexableTestCase):
 
     def setUp(self):
+        super(IndexableTestCase, self).setUp()
+
         ParentIndexable.objects.create(foo="Fighters")
         ChildIndexable.objects.create(foo="Fighters", bar=69)
         GrandchildIndexable.objects.create(foo="Fighters", bar=69, baz=datetime.datetime.now() - datetime.timedelta(hours=1))

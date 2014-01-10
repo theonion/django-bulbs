@@ -3,7 +3,6 @@ import requests
 from optparse import make_option
 
 from django.core.management.base import NoArgsCommand
-from django.conf import settings
 from django.db import models
 
 from elasticutils import get_es
@@ -11,6 +10,7 @@ from pyelasticsearch.exceptions import ElasticHttpNotFoundError
 from pyelasticsearch.client import JsonEncoder
 
 from bulbs.indexable import PolymorphicIndexable
+from bulbs.indexable.conf import settings
 from django.core.management import call_command
 
 class Command(NoArgsCommand):
@@ -52,7 +52,7 @@ class Command(NoArgsCommand):
         chunk_size = options.get("chunk")
         if options.get("purge"):
             self.kill_indexes(*args)
-            call_command('syncdb')  # This will cause all the indexes to get recreated, since that all runs on signals.
+            call_command('synces')  # This will cause all the indexes to get recreated, since that all runs on signals.
 
 
         models_to_index = []
