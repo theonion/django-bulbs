@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.core.management import call_command
 
 from elasticutils.contrib.django import get_es
-from pyelasticsearch.exceptions import ElasticHttpNotFoundError
+from pyelasticsearch.exceptions import ElasticHttpNotFoundError, ElasticHttpError
 
 from bulbs.indexable.models import polymorphic_indexable_registry
 from bulbs.indexable.conf import settings
@@ -17,13 +17,13 @@ from tests.testindexable.models import ParentIndexable, ChildIndexable, Grandchi
 class BaseIndexableTestCase(TestCase):
 
     def setUp(self):
+        self.es = get_es(urls=settings.ES_URLS)
         call_command("synces")
 
     def tearDown(self):
-        es = get_es(urls=settings.ES_URLS)
         for base_class in polymorphic_indexable_registry.families.keys():
             try:
-                es.delete_index(base_class.get_index_name())
+                self.es.delete_index(base_class.get_index_name())
             except ElasticHttpNotFoundError:
                 pass
 
@@ -165,6 +165,30 @@ class BulkIndexTestCase(BaseIndexableTestCase):
         call_command('bulk_index', purge=True)
         ParentIndexable.search_objects.refresh()
         self.assertEqual(ParentIndexable.search_objects.s().count(), 3)
+
+class TestDynamicMappings(BaseIndexableTestCase):
+
+    def test_bad_index(self):
+        """Check to make sure that the mappings are strict"""
+        mapping = self.es.get_mapping(ParentIndexable.get_index_name(), ParentIndexable.get_mapping_type_name())
+        self.assertDictEqual(mapping, ParentIndexable.get_mapping())
+
+        obj = ParentIndexable.objects.create(foo="Fighters")
+        ParentIndexable.search_objects.refresh()
+        doc = obj.extract_document()
+        doc["extra"] = "Just an additional string"
+
+        with self.assertRaises(ElasticHttpError):
+            self.es.update(
+                obj.get_index_name(),
+                obj.get_mapping_type_name(),
+                obj.id,
+                doc=doc,
+                upsert=doc
+            )
+
+        mapping = self.es.get_mapping(ParentIndexable.get_index_name(), ParentIndexable.get_mapping_type_name())
+        self.assertDictEqual(mapping, ParentIndexable.get_mapping())        
 
 
 class TestPolymorphicIndexableRegistry(TestCase):

@@ -36,5 +36,3 @@ class Command(NoArgsCommand):
                     es.put_mapping(index, doctype, dict(doctype=mapping))
                 except ElasticHttpError as e:
                     self.stderr.write("ES Error: %s" % e.error)
-
-        

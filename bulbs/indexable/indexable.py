@@ -224,10 +224,11 @@ class PolymorphicIndexable(object):
     def get_mapping(cls):
         return {
             cls.get_mapping_type_name(): {
-                '_id': {
-                    'path': cls.polymorphic_primary_key_name
+                "_id": {
+                    "path": cls.polymorphic_primary_key_name
                 },
-                'properties': cls.get_mapping_properties()
+                "properties": cls.get_mapping_properties(),
+                "dynamic": "strict",
             }
         }
 
