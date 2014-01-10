@@ -374,9 +374,8 @@ class Content(PolymorphicIndexable, PolymorphicModel):
             "description": {"type": "string",},
             "image": {"type": "string"},
             "feature_type": {
-                "type": "multi_field",
-                "fields": {
-                    "feature_type": {"type": "string", "analyzer": "autocomplete"},
+                "properties": {
+                    "name": {"type": "string", "analyzer": "autocomplete"},
                     "slug": {"type": "string", "index": "not_analyzed"}
                 }
             },
@@ -403,8 +402,10 @@ class Content(PolymorphicIndexable, PolymorphicModel):
             "slug"             : self.slug,
             "description"      : self.description,
             "image"            : self.image.id if self.image else None,
-            "feature_type"     : self.feature_type,
-            "slug"             : slugify(self.feature_type),
+            "feature_type"     : {
+                "name": self.feature_type,
+                "slug": slugify(self.feature_type)
+            },
             "authors": [{
                 "first_name": author.first_name,
                 "id"        : author.id,
