@@ -46,7 +46,6 @@ class Command(NoArgsCommand):
 
 
     def handle(self, *args, **options):
-        self.index_name = settings.ES_INDEXES.get('default')
         self.es = get_es(urls=settings.ES_URLS)
         bulk_endpoint = "%s/_bulk" % settings.ES_URLS[0]
 

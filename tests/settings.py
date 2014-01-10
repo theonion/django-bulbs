@@ -39,12 +39,6 @@ SECRET_KEY = '_(m&)4jinh6cuzjt&p37lbg8ycc3d*xd36!pl3g*n2m3is_89v'
 
 ROOT_URLCONF = 'tests.urls',
 
-ES_DISABLED = False,
-ES_URLS = ['http://localhost:9200'],
-ES_INDEXES = {
-    'default': 'testing'
-}
-
 BETTY_CROPPER = {
         'ADMIN_URL': 'http://localhost:8698/',
         'PUBLIC_URL': 'http://localhost:8698/',

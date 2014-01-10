@@ -1,5 +1,3 @@
-from django.conf import settings
-
 from elasticutils.contrib.django import get_es
 
 from celery import task
@@ -14,7 +12,6 @@ def index(content_type_id, pk, refresh=False):
 @task(default_retry_delay=10)
 def update(pk, doc, refresh=False):
     from bulbs.content.models import Content
-    index = settings.ES_INDEXES.get('default')
     obj = Content.objects.get(pk=pk)
     es = get_es()
-    es.update(index, obj.get_mapping_type_name(), pk, doc=doc, refresh=refresh, retry_on_conflict=5)
+    es.update(obj.index_name(), obj.get_mapping_type_name(), pk, doc=doc, refresh=refresh, retry_on_conflict=5)

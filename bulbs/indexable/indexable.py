@@ -1,7 +1,8 @@
-from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db import models, DEFAULT_DB_ALIAS
 from django.template.defaultfilters import slugify
+
+from bulbs.indexable.conf import settings
 
 from elasticutils import S, MappingType, SearchResults
 from elasticutils.contrib.django import get_es

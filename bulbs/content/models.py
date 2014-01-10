@@ -423,7 +423,6 @@ class Content(PolymorphicIndexable, PolymorphicModel):
 def content_deleted(sender, instance=None, **kwargs):
     if getattr(instance, "_index", True):
         es = get_es()
-        indexes = settings.ES_INDEXES
         index = instance.get_index_name()
         klass = instance.get_real_instance_class()
         es.delete(index, klass.get_mapping_type_name(), instance.id)

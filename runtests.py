@@ -45,7 +45,9 @@ settings.configure(
         'bulbs.images',
         'bulbs.indexable',
 
-        'tests.testindexable'  # Just here for a couple of test models
+        # Just here for a couple of test models
+        'tests.testindexable',
+        'tests.testcontent'
     ),
     SITE_ID = 3,
 
@@ -53,9 +55,6 @@ settings.configure(
     
     ES_DISABLED = False,
     ES_URLS = ['http://localhost:9200'],
-    ES_INDEXES = {
-        'default': 'testing'
-    },
 
     BETTY_CROPPER = {
             'ADMIN_URL': 'http://localhost:8698/',

@@ -3,13 +3,14 @@ from __future__ import absolute_import
 import datetime
 
 from django.test import TestCase
-from django.conf import settings
 from django.core.management import call_command
 
 from elasticutils.contrib.django import get_es
 from pyelasticsearch.exceptions import ElasticHttpNotFoundError
 
 from bulbs.indexable.models import polymorphic_indexable_registry
+from bulbs.indexable.conf import settings
+
 from tests.testindexable.models import ParentIndexable, ChildIndexable, GrandchildIndexable, SeparateIndexable
 
 

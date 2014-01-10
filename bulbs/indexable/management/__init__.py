@@ -43,7 +43,6 @@ ES_SETTINGS = {
     }
 }
 
-
 def create_polymorphic_indexes(sender, **kwargs):
     """This is a post_syncdb (in 1.7, post_migrate) signal that creates indexes and mappings
     for the polymorphic models in this model file."""
@@ -60,6 +59,7 @@ def create_polymorphic_indexes(sender, **kwargs):
     es = get_es(urls=settings.ES_URLS)
     for index, mappings in indexes.items():
         try:
+            print("Creating: %s" % index)
             es.create_index(index, settings= {
                 "mappings": mappings,
                 "settings": ES_SETTINGS

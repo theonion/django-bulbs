@@ -1,40 +1,21 @@
+from __future__ import absolute_import
+
 import itertools
 import datetime
-import json
-import time
 
 from django.test import TestCase
 from django.utils import timezone
 from django.test.client import Client
-from django.db import models
-from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.template.defaultfilters import slugify
 
 from elasticutils.contrib.django import get_es
 
-from bulbs.content.models import Content, Tag, fetch_cached_models_by_id
-from bulbs.content.management import sync_es
+from bulbs.content.models import Content, Tag
 from bulbs.content.serializers import ContentSerializer
+from bulbs.indexable.tests import BaseIndexableTestCase
 
-
-class TestContentObj(Content):
-    """Fake content here"""
-    foo = models.CharField(max_length=255)
-
-    def get_absolute_url(self):
-        return '/detail/%s/' % self.pk
-
-
-class TestContentObjTwo(Content):
-    """Come and get your fake content"""
-    foo = models.CharField(max_length=255)
-    bar = models.IntegerField()
-
-    def get_absolute_url(self):
-        return '/detail/%s/' % self.pk
-
-
+from tests.testcontent.models import TestContentObj, TestContentObjTwo
 
 class SerialzerTestCase(TestCase):
 
@@ -95,7 +76,8 @@ class SerialzerTestCase(TestCase):
         self.assertEqual(test_obj.tags.count(), 1)
         self.assertEqual(Tag.objects.all().count(), 2)
 
-class PolyContentTestCase(TestCase):
+
+class PolyContentTestCase(BaseIndexableTestCase):
     def setUp(self):
 
         """
@@ -104,7 +86,6 @@ class PolyContentTestCase(TestCase):
         """
         self.es = get_es(urls=settings.ES_URLS)
 
-        sync_es(None)  # We should pass "bulbs.content.models" here, but for now this is fine.
         
         # generate some data
         one_hour_ago = timezone.now() - datetime.timedelta(hours=1)
@@ -137,13 +118,6 @@ class PolyContentTestCase(TestCase):
         # We need to let the index refresh
         self.es.refresh()
         #time.sleep(1) # NOTE: seems like the refresh eliminates the need for this
-
-    def tearDown(self):
-        self.es.delete_index(settings.ES_INDEXES.get(
-            Content.get_index_name(), 
-            Tag.get_index_name()
-            )
-        )
 
     # def test_serialize_id(self):
     #     c = Content.objects.all()[0]
