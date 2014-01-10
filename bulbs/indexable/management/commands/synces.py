@@ -24,11 +24,10 @@ class Command(NoArgsCommand):
         for index, mappings in indexes.items():
             try:
                 es.create_index(index, settings={
-                    "mappings": mappings,
                     "settings": settings.ES_SETTINGS
                 })
             except IndexAlreadyExistsError:
-                pass
+                es.update_settings(index, settings.ES_SETTINGS)
             except ElasticHttpError as e:
                 self.stderr.write("ES Error: %s" % e.error)
 
