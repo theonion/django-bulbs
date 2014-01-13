@@ -1,7 +1,3 @@
-from django.conf import settings
-from elasticsearch import S
-
-
 class TagCache:
 
     _cache = {}  # Maybe too terrible?
