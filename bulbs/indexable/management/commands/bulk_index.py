@@ -54,21 +54,30 @@ class Command(NoArgsCommand):
             self.kill_indexes(*args)
             call_command("synces")  # This will cause all the indexes to get recreated, since that all runs on signals.
 
-
-        models_to_index = []
+        all_models_to_index = set()
         if len(args):
             for app_name in args:
                 for model in models.get_models(models.get_app(app_name)):
                     if issubclass(model, PolymorphicIndexable):
-                        models_to_index.append(model)
-
-
+                        all_models_to_index.add(model)
         else:
             for app in models.get_apps():
                 for model in models.get_models(app):
                     if issubclass(model, PolymorphicIndexable):
-                        models_to_index.append(model)
+                        all_models_to_index.add(model)
 
+        # remove redundant subclasses since the instance_of query will select them
+        models_to_index = set()
+        for model_i in all_models_to_index:
+            should_add = True
+            for model_j in all_models_to_index:
+                if model_i != model_j and issubclass(model_i, model_j):
+                    should_add = False
+                    break
+            if should_add:
+                models_to_index.add(model_i)
+
+        self.stdout.write(u"Indexing models: %s" % ', '.join([m.__name__ for m in models_to_index]))
 
         num_processed = 0
         payload = []
