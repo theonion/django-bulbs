@@ -5,7 +5,7 @@ import datetime
 from django.test import TestCase
 from django.core.management import call_command
 
-from elasticutils.contrib.django import get_es
+from elasticutils import get_es
 from pyelasticsearch.exceptions import ElasticHttpNotFoundError, ElasticHttpError
 
 from bulbs.indexable.models import polymorphic_indexable_registry
@@ -123,12 +123,12 @@ class BulkIndexTestCase(BaseIndexableTestCase):
         # Let's make sure that nothing is indexed yet.
         self.assertEqual(ParentIndexable.search_objects.s().count(), 0)
         self.assertEqual(SeparateIndexable.search_objects.s().count(), 0)
-
+        
         # Now that everything has been made, let's try a bulk_index.
         call_command('bulk_index')
         ParentIndexable.search_objects.refresh()
         SeparateIndexable.search_objects.refresh()
-
+        
         # Let's make sure that everything has the right counts
         self.assertEqual(ParentIndexable.search_objects.s().count(), 3)
         self.assertEqual(SeparateIndexable.search_objects.s().count(), 1)

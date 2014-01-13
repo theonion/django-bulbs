@@ -2,7 +2,7 @@ import json
 import requests
 from optparse import make_option
 
-from django.core.management.base import NoArgsCommand
+from django.core.management.base import BaseCommand
 from django.db import models
 
 from elasticutils import get_es
@@ -13,9 +13,10 @@ from bulbs.indexable import PolymorphicIndexable
 from bulbs.indexable.conf import settings
 from django.core.management import call_command
 
-class Command(NoArgsCommand):
+
+class Command(BaseCommand):
     help = "Bulk indexes all Content and Tag instances."
-    option_list = NoArgsCommand.option_list + (
+    option_list = BaseCommand.option_list + (
         make_option("--purge",
             action="store_true",
             dest="purge",
@@ -94,7 +95,7 @@ class Command(NoArgsCommand):
                 doc = instance.extract_document()
                 payload.append(json.dumps(doc, cls=JsonEncoder, use_decimal=True))
                 if len(payload) / 2 == chunk_size:
-                    r = requests.post(bulk_endpoint, data="\n".join(payload))
+                    r = requests.post(bulk_endpoint, data="\n".join(payload) + '\n')
                     if r.status_code != 200:
                         print(payload)
                         print(r.json())
@@ -103,7 +104,7 @@ class Command(NoArgsCommand):
                     payload = []
 
         if payload:
-            r = requests.post(bulk_endpoint, data="\n".join(payload))
+            r = requests.post(bulk_endpoint, data="\n".join(payload) + '\n')
             if r.status_code != 200:
                 print(payload)
                 print(r.json())

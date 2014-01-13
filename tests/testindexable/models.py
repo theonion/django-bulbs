@@ -9,6 +9,19 @@ class SeparateIndexable(PolymorphicIndexable, PolymorphicModel):
 
     search_objects = SearchManager()
 
+    def extract_document(self):
+        doc = super(SeparateIndexable, self).extract_document()
+        doc['junk'] = self.junk
+        return doc
+
+    @classmethod
+    def get_mapping_properties(cls):
+        properties = super(SeparateIndexable, cls).get_mapping_properties()
+        properties.update({
+            "junk": {"type": "string"}
+        })
+        return properties
+
 
 class ParentIndexable(PolymorphicIndexable, PolymorphicModel):
     foo = models.CharField(max_length=255)
@@ -61,3 +74,4 @@ class GrandchildIndexable(ChildIndexable):
             "baz": {"type": "date"}
         })
         return properties
+
