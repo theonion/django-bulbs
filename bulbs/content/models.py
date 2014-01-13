@@ -187,19 +187,7 @@ class Tag(PolymorphicIndexable, PolymorphicModel):
     def get_mapping_properties(cls):
         props = super(Tag, cls).get_mapping_properties()
         props.update({
-            "name": {
-                "type": "multi_field",
-                "fields": {
-                    "name": {
-                        "type": "string",
-                        "analyzer": "autocomplete"
-                    },
-                    "slug": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    }
-                }
-            },
+            "name": {"type": "string", "analyzer": "autocomplete"},
             "slug": {"type": "string", "index": "not_analyzed"},
             "type": {"type": "string", "index": "not_analyzed"}
         })
@@ -220,9 +208,9 @@ class Tag(PolymorphicIndexable, PolymorphicModel):
         return TagSerializer
 
 
-class ContentManager(PolymorphicManager):
+class ContentManager(SearchManager):
 
-    def search(self, s_class=ContentS, **kwargs):
+    def search(self, **kwargs):
         """
         Queries using ElasticSearch, returning an elasticutils queryset.
 
@@ -236,8 +224,7 @@ class ContentManager(PolymorphicManager):
          * published
         """
         
-        index = self.model.get_index_name()
-        results = s_class().es(urls=settings.ES_URLS).indexes(index)
+        results = self.s()
 
         if "query" in kwargs:
             results = results.query(_all__match=kwargs.get("query"))
@@ -269,21 +256,13 @@ class ContentManager(PolymorphicManager):
         types = kwargs.pop("types", [])
         if types:
             # only use valid subtypes
-            results = results.doctypes(*[
-                type_classname for type_classname in types \
-                if type_classname in self.model.get_mapping_type_names()
-            ])
-        else:
-            results = results.doctypes(*self.model.get_mapping_type_names())
+            results = results.doctypes(*types)
 
         return results.order_by('-published')
 
-    def search_shallow(self, **kwargs):
-        return self.search(s_class=ShallowContentS, **kwargs)
-
-    def bulk_shallow(self, pks):
+    def bulk(self, pks):
         index = self.model.get_index_name()
-        results = get_es().multi_get(pks, index=index)
+        results = self.es.multi_get(pks, index=index)
         ret = []
         for r in results["docs"]:
             if "_source" in r:
@@ -312,8 +291,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
 
     _readonly = False  # Is this a read only model? (i.e. from elasticsearch)
 
-    objects = ContentManager()
-    search_objects = SearchManager()
+    search_objects = ContentManager()
 
     def __unicode__(self):
         return '%s: %s' % (self.__class__.__name__, self.title)

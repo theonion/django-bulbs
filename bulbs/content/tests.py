@@ -80,14 +80,12 @@ class SerializerTestCase(BaseIndexableTestCase):
 
 class PolyContentTestCase(BaseIndexableTestCase):
     def setUp(self):
-
+        super(PolyContentTestCase, self).setUp()
         """
         Normally, the "Content" class picks up available doctypes from installed apps, but
         in this case, our test models don't exist in a real app, so we'll hack them on.
         """
-        self.es = get_es(urls=settings.ES_URLS)
 
-        
         # generate some data
         one_hour_ago = timezone.now() - datetime.timedelta(hours=1)
         words = ['spam', 'driver', 'dump truck', 'restaurant']
@@ -106,6 +104,7 @@ class PolyContentTestCase(BaseIndexableTestCase):
                 feature_type='Obj one'
             )
             obj.tags.add(*self.all_tags)
+            obj.index()
             obj2 = TestContentObjTwo.objects.create(
                 title=' '.join(reversed(combo)),
                 description=' '.join(combo),
@@ -115,9 +114,11 @@ class PolyContentTestCase(BaseIndexableTestCase):
                 feature_type='Obj two'
             )
             obj2.tags.add(*self.all_tags)
-        
+            obj2.index()
+
         # We need to let the index refresh
-        self.es.refresh()
+        TestContentObj.search_objects.refresh()
+        TestContentObjTwo.search_objects.refresh()
         #time.sleep(1) # NOTE: seems like the refresh eliminates the need for this
 
     # def test_serialize_id(self):
@@ -155,16 +156,13 @@ class PolyContentTestCase(BaseIndexableTestCase):
     def test_add_remove_tags(self):
         content = Content.objects.all()[0]
         original_tag_count = len(content.tags.all())
-        new_tag = Tag(name='crankdat')
-        new_tag.save()
-        self.all_tags.append(new_tag) # save it for later tests
+        new_tag = Tag.objects.create(name='crankdat')
         content.tags.add(new_tag)
         self.assertEqual(len(content.tags.all()), original_tag_count + 1)
         self.assertEqual(len(content.tags.all()), len(content.extract_document()['tags']))
 
     def test_search_exact_name_tags(self):
-        tag = Tag.objects.create(name='Beeftank')
-        self.all_tags.append(tag) # save it for later tests
+        Tag.objects.create(name='Beeftank')
         self.es.refresh()
         results = Tag.search_objects.query(name__match='beeftank').full()
         self.assertTrue(len(results) > 0)
@@ -183,13 +181,23 @@ class PolyContentTestCase(BaseIndexableTestCase):
         d = s.data
 
     # TODO: Figure out why this test is failing.
-    # def test_filter_search_content(self):
-    #     tag = self.all_tags[0]
-    #     q = Content.objects.search_shallow(tags=[tag.slug])
-    #     self.assertTrue(q.count() > 0)
-    #     feature_type = Content.objects.all()[0].feature_type
-    #     q = Content.objects.search_shallow(feature_types=[feature_type])
-    #     self.assertTrue(q.count() > 0)
+    def test_filter_search_content(self):
+        tag = self.all_tags[0]
+
+        q = Content.search_objects.search(tags=[tag.slug])
+        self.assertTrue(q.count() > 0)
+        feature_type = Content.objects.all()[0].feature_type
+        q = Content.search_objects.search(feature_types=[slugify(feature_type)])
+        self.assertTrue(q.count() > 0)
+
+        q = Content.search_objects.search(types=["testcontent_testcontentobj"])
+        self.assertEqual(q.count(), 6)
+
+        q = Content.search_objects.search(types=["testcontent_testcontentobjtwo"]).full()
+        self.assertEqual(q.count(), 6)
+
+        q = Content.search_objects.search(types=["testcontent_testcontentobjtwo", "testcontent_testcontentobj"])
+        self.assertEqual(q.count(), 12)
 
     # def test_fetch_cached_models(self):
     #     all_objs = list(Content.objects.all())
