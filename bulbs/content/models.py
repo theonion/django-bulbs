@@ -268,9 +268,8 @@ class ContentManager(SearchManager):
 
         return results.order_by('-published')
 
-    def bulk(self, pks):
-        index = self.model.get_index_name()
-        results = self.es.multi_get(pks, index=index)
+    def in_bulk(self, pks):
+        results = self.es.multi_get(pks, index=self.model.get_index_name())
         ret = []
         for r in results["docs"]:
             if "_source" in r:
