@@ -5,7 +5,7 @@ from django.template.defaultfilters import slugify
 from bulbs.indexable.conf import settings
 
 from elasticutils import S, MappingType, SearchResults
-from elasticutils.contrib.django import get_es
+from elasticutils import get_es
 
 from .models import polymorphic_indexable_registry
 

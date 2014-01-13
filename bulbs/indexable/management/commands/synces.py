@@ -1,6 +1,6 @@
 from optparse import make_option
 
-from django.core.management.base import NoArgsCommand
+from django.core.management.base import BaseCommand
 from elasticutils import get_es
 from pyelasticsearch.exceptions import IndexAlreadyExistsError, ElasticHttpError
 
@@ -8,9 +8,9 @@ from bulbs.indexable.conf import settings
 from bulbs.indexable.models import polymorphic_indexable_registry
 
 
-class Command(NoArgsCommand):
+class Command(BaseCommand):
     help = "Creates indexes and mappings for for Indexable objects."
-    option_list = NoArgsCommand.option_list + (
+    option_list = BaseCommand.option_list + (
         make_option("--drop-existing-indexes",
             action="store_true",
             dest="drop_existing_indexes",
@@ -20,7 +20,6 @@ class Command(NoArgsCommand):
     )
 
     def handle(self, *args, **options):
-
         indexes = {}
         for name, model in polymorphic_indexable_registry.all_models.items():
             index = model.get_index_name()
