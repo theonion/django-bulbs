@@ -1,10 +1,16 @@
-"""This module contains classes that help deal with ElasticSearch"""
+"""This module stores code for Shallow content results.
+
+In the future, we should remove this, and simple pass dictionaries into our templates."""
+
 from datetime import datetime
 
-from elasticutils import SearchResults, S
+from elasticutils import SearchResults
 from django.utils import timezone
-from django.utils.timezone import utc, now
+from django.utils.timezone import utc
 import bulbs.content
+
+from bulbs.indexable.indexable import PolymorphicS, ModelSearchResults
+
 
 class ShallowFeatureType(object):
 
@@ -126,8 +132,9 @@ class ShallowContentSearchResults(SearchResults):
     def __iter__(self):
         return self.objects.__iter__()
 
-
-class ShallowContentS(S):
+class ShallowContentS(PolymorphicS):
 
     def get_results_class(self):
+        if self.as_models:
+            return ModelSearchResults
         return ShallowContentSearchResults

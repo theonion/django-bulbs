@@ -13,13 +13,12 @@ from django.utils.html import strip_tags
 
 from bulbs.content import TagCache
 from bulbs.images.fields import RemoteImageField
-from bulbs.indexable.indexable import PolymorphicIndexable, SearchManager
+from bulbs.indexable.indexable import PolymorphicIndexable, SearchManager, PolymorphicMappingType
 from elasticutils import SearchResults, S
 from elasticutils.contrib.django import get_es
 from polymorphic import PolymorphicModel, PolymorphicManager
 
-from .elasticsearch import ShallowContentS, ShallowContentResult
-
+from .shallow import ShallowContentS, ShallowContentResult
 
 try:
     from bulbs.content.tasks import index as index_task
@@ -209,6 +208,15 @@ class Tag(PolymorphicIndexable, PolymorphicModel):
 
 
 class ContentManager(SearchManager):
+
+    def s(self):
+        """Returns a ShallowContentS() instance, using an ES URL from the settings, and an index
+        from this manager's model"""
+
+        base_polymorphic_class = self.model.get_base_class()
+        type_ = type('%sMappingType' % base_polymorphic_class.__name__, (PolymorphicMappingType,), {"base_polymorphic_class": base_polymorphic_class})
+
+        return ShallowContentS(type_=type_).es(urls=settings.ES_URLS)
 
     def search(self, **kwargs):
         """
