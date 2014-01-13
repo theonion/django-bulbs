@@ -163,11 +163,10 @@ class PolyContentTestCase(BaseIndexableTestCase):
         self.assertEqual(len(content.tags.all()), len(content.extract_document()['tags']))
 
     def test_search_exact_name_tags(self):
-        tag = Tag(name='Beeftank')
-        tag.save(index=True)
+        tag = Tag.objects.create(name='Beeftank')
         self.all_tags.append(tag) # save it for later tests
         self.es.refresh()
-        results = Tag.objects.search(name='beeftank')
+        results = Tag.search_objects.query(name__match='beeftank').full()
         self.assertTrue(len(results) > 0)
         tag_result = results[0]
         self.assertIsInstance(tag_result, Tag)

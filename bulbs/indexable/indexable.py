@@ -64,7 +64,7 @@ class PolymorphicS(S):
     def full(self):
         """This will allow the search to return full model instances, using ModelSearchResults"""
         self.as_models = True
-        return self._clone(next_step=("values_list", ["_id"]))
+        return self._clone(next_step=("values_list", ["_id"]))        
 
     def all(self):
         """

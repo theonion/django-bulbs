@@ -83,6 +83,10 @@ class IndexableTestCase(BaseIndexableTestCase):
         self.assertEqual(ParentIndexable.search_objects.s().instanceof(ChildIndexable, exact=True).count(), 1)
         self.assertEqual(ParentIndexable.search_objects.s().instanceof(GrandchildIndexable, exact=True).count(), 1)
 
+        self.assertEqual(ParentIndexable.search_objects.s().doctypes("testindexable_parentindexable").count(), 1)
+        self.assertEqual(ParentIndexable.search_objects.s().doctypes("testindexable_childindexable").count(), 1)
+        self.assertEqual(ParentIndexable.search_objects.s().doctypes("testindexable_grandchildindexable").count(), 1)
+
         self.assertEqual(ParentIndexable.search_objects.s().instanceof(ParentIndexable).count(), 3)
         self.assertEqual(ParentIndexable.search_objects.s().instanceof(ChildIndexable).count(), 2)
         self.assertEqual(ParentIndexable.search_objects.s().instanceof(GrandchildIndexable).count(), 1)
