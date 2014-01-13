@@ -9,6 +9,7 @@ from bulbs.indexable.models import polymorphic_indexable_registry
 
 
 class Command(BaseCommand):
+    args = '<index_suffix>'
     help = "Creates indexes and mappings for for Indexable objects."
     option_list = BaseCommand.option_list + (
         make_option("--drop-existing-indexes",
@@ -19,10 +20,11 @@ class Command(BaseCommand):
         ),
     )
 
-    def handle(self, *args, **options):
+    def handle(self, index_suffix, **options):
+        index_suffix = '_' + index_suffix
         indexes = {}
         for name, model in polymorphic_indexable_registry.all_models.items():
-            index = model.get_index_name()
+            index = model.get_index_name() + index_suffix
             if index not in indexes:
                 indexes[index] = {}
             indexes[index].update(model.get_mapping())
