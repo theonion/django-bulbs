@@ -69,7 +69,7 @@ class Command(BaseCommand):
                             print e
                             self.stderr.write(
                                 "Index '%s' already exists and has incompatible settings." % index)
-        
+
                 except ElasticHttpError as e:
                     self.stderr.write("ES Error: %s" % e.error)
 
