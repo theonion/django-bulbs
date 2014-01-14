@@ -18,6 +18,12 @@ class Command(BaseCommand):
             default=False,
             help="Recreate existing indexes"
         ),
+        make_option("--force",
+            action="store_true",
+            dest="force",
+            default=False,
+            help="Force a close and reopen to update analysis settings"
+        ),
     )
 
     def handle(self, index_suffix, **options):
@@ -43,7 +49,15 @@ class Command(BaseCommand):
                     })
                 except IndexAlreadyExistsError:
                     try:
-                        es.update_settings(index, settings.ES_SETTINGS)
+                        if "analysis" in settings.ES_SETTINGS:
+                            live_settings = es.get_settings(index)
+                            if live_settings["analysis"] != settings.ES_SETTINGS["analysis"]:
+                                if options.get("force", False):
+                                    es.close_index(index)
+                                    es.update_settings(index, settings.ES_SETTINGS)
+                                    es.open_index(index)
+                                else:
+                                    self.stderr.write("Index '%s' already exists and has incompatible settings. You will need to use a new suffix, or use the --force option" % index)
                     except ElasticHttpError as e:
                         if options.get("drop_existing_indexes", False):
                             es.delete_index(index)
