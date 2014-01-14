@@ -363,7 +363,13 @@ class Content(PolymorphicIndexable, PolymorphicModel):
             "image": {"type": "string"},
             "feature_type": {
                 "properties": {
-                    "name": {"type": "string", "analyzer": "autocomplete"},
+                    "name": {
+                        "type": "multi_field",
+                        "fields": {
+                            "name" : {"type": "string", "index": "not_analyzed"},
+                            "autocomplete" : {"type": "string", "analyzer": "autocomplete"}
+                        }
+                    },
                     "slug": {"type": "string", "index": "not_analyzed"}
                 }
             },
