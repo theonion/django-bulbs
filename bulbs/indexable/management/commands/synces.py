@@ -26,16 +26,32 @@ class Command(BaseCommand):
         ),
     )
 
-    def handle(self, index_suffix, **options):
-        index_suffix = '_' + index_suffix
+    def handle(self, *args, **options):
+        es = get_es(urls=settings.ES_URLS)
+        index_alias_map = {}
+        if args:
+            index_suffix = args[0]
+            index_suffix = '_' + index_suffix
+        else:
+            # No suffix supplied. Let's create a map of existing aliases -> indexes
+            # and try to update those instead of creating new indexes.
+            index_suffix = ''
+            aliases = es.aliases()
+            for index_name in aliases:
+                index_aliases = aliases[index_name]['aliases']
+                if index_aliases:
+                    index_alias_map[index_aliases.keys()[0]] = index_name
+
         indexes = {}
         for name, model in polymorphic_indexable_registry.all_models.items():
-            index = model.get_index_name() + index_suffix
+            index = model.get_index_name()
+            if index_suffix:
+                index = index + index_suffix
+            else:
+                index = index_alias_map[index]
             if index not in indexes:
                 indexes[index] = {}
             indexes[index].update(model.get_mapping())
-
-        es = get_es(urls=settings.ES_URLS)
 
         for index, mappings in indexes.items():
             keep_trying = True
@@ -59,10 +75,11 @@ class Command(BaseCommand):
                                 else:
                                     self.stderr.write("Index '%s' already exists and has incompatible settings. You will need to use a new suffix, or use the --force option" % index)
                     except ElasticHttpError as e:
-                        if options.get("drop_existing_indexes", False):
+                        if options.get("drop_existing_indexes", False) and index_suffix:
                             es.delete_index(index)
                             keep_trying = True # loop again
                         else:
+                            print e
                             self.stderr.write(
                                 "Index '%s' already exists and has incompatible settings." % index)
         
