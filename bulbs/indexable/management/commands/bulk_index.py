@@ -16,6 +16,7 @@ from django.core.management import call_command
 
 class Command(BaseCommand):
     help = "Bulk indexes all Content and Tag instances."
+    args = "<?index_suffix>"
     option_list = BaseCommand.option_list + (
         make_option("--purge",
             action="store_true",
@@ -27,33 +28,23 @@ class Command(BaseCommand):
             dest="chunk",
             default=250,
             help="The chunk size to index with"),
+        make_option("--index-suffix",
+            type=str,
+            dest="index_suffix",
+            default="",
+            help="Suffix for ES index."),
     )
-
-    def kill_indexes(self, *args):
-        # TODO: use the indexable cache, instead of this POS
-        indexes = []
-        for app in models.get_apps():
-            for model in models.get_models(app):
-                if issubclass(model, PolymorphicIndexable):
-                    if model.get_index_name() not in indexes:
-                        indexes.append(model.get_index_name())
-
-        es = get_es(urls=settings.ES_URLS)
-        for index in indexes:
-            try:
-                es.delete_index(index)
-            except ElasticHttpNotFoundError:
-                pass
-
 
     def handle(self, *args, **options):
         self.es = get_es(urls=settings.ES_URLS)
         bulk_endpoint = "%s/_bulk" % settings.ES_URLS[0]
 
         chunk_size = options.get("chunk")
+        index_suffix = options.get('index_suffix')
         if options.get("purge"):
-            self.kill_indexes(*args)
-            call_command("synces")  # This will cause all the indexes to get recreated, since that all runs on signals.
+            call_command("synces", index_suffix, drop_existing_indexes=True)  # This will cause all the indexes to get recreated, since that all runs on signals.
+        if index_suffix:
+            index_suffix = '_' + index_suffix
 
         all_models_to_index = set()
         if len(args):
@@ -86,7 +77,7 @@ class Command(BaseCommand):
             for instance in model.objects.instance_of(model).order_by("id").iterator():     
                 meta = {
                     "index": {
-                        "_index": instance.get_index_name(),
+                        "_index": instance.get_index_name() + index_suffix,
                         "_type": instance.get_mapping_type_name(),
                         "_id": instance.pk
                     }
@@ -95,7 +86,7 @@ class Command(BaseCommand):
                 doc = instance.extract_document()
                 payload.append(json.dumps(doc, cls=JsonEncoder, use_decimal=True))
                 if len(payload) / 2 == chunk_size:
-                    r = requests.post(bulk_endpoint, data="\n".join(payload) + '\n')
+                    r = requests.post(bulk_endpoint, data="\n".join(payload) + "\n")
                     if r.status_code != 200:
                         print(payload)
                         print(r.json())
@@ -104,7 +95,7 @@ class Command(BaseCommand):
                     payload = []
 
         if payload:
-            r = requests.post(bulk_endpoint, data="\n".join(payload) + '\n')
+            r = requests.post(bulk_endpoint, data="\n".join(payload) + "\n")
             if r.status_code != 200:
                 print(payload)
                 print(r.json())

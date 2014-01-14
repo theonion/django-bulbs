@@ -1,15 +1,12 @@
-from optparse import make_option
-
 from django.core.management.base import BaseCommand
 from elasticutils.contrib.django import get_es
 from pyelasticsearch.exceptions import IndexAlreadyExistsError, ElasticHttpError
 
-from bulbs.indexable.conf import settings
 from bulbs.indexable.models import polymorphic_indexable_registry
 
 
 class Command(BaseCommand):
-    help = "Updates index aliases."
+    help = "Updates elasticsearch index aliases."
     args = "<index_suffix>"
 
     def handle(self, index_suffix, **options):
