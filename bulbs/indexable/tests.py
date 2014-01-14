@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 import datetime
+import copy
 
 from django.test import TestCase
 from django.core.management import call_command
@@ -111,7 +112,27 @@ class IndexableTestCase(BaseIndexableTestCase):
 class ManagementTestCase(BaseIndexableTestCase):
 
     def test_synces(self):
+        backup_settings = copy.copy(settings.ES_SETTINGS)
+        settings.ES_SETTINGS.update({
+            "index": {
+                "analysis": {
+                    "tokenizer": {
+                        "edge_ngram_test_tokenizer": {
+                            "type" : "edgeNGram",
+                            "min_gram" : "3",
+                            "max_gram" : "4"
+                        }
+                    }
+                }
+            }
+        })
         call_command("synces", self.index_suffix, force=True)
+        es_settings = self.es.get_settings(ParentIndexable.get_index_name())
+        index_settings = es_settings[es_settings.keys()[0]]["settings"]
+        self.assertTrue("index.analysis.tokenizer.edge_ngram_test_tokenizer.type" in index_settings)
+
+        settings.ES_SETTINGS = backup_settings
+
 
     def test_bulk_index(self):
         ParentIndexable(foo="Fighters").save(index=False)
