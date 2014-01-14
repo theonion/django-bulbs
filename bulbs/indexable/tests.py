@@ -24,9 +24,12 @@ class BaseIndexableTestCase(TestCase):
         call_command("es_swap_aliases", self.index_suffix)
 
     def tearDown(self):
+        self.delete_indexes_with_suffix(self.index_suffix)
+
+    def delete_indexes_with_suffix(self, suffix):
         for base_class in polymorphic_indexable_registry.families.keys():
             try:
-                self.es.delete_index(base_class.get_index_name() + "_" + self.index_suffix)
+                self.es.delete_index(base_class.get_index_name() + "_" + suffix)
             except ElasticHttpNotFoundError:
                 pass
 
@@ -133,7 +136,6 @@ class ManagementTestCase(BaseIndexableTestCase):
 
         settings.ES_SETTINGS = backup_settings
 
-
     def test_bulk_index(self):
         ParentIndexable(foo="Fighters").save(index=False)
         ChildIndexable(foo="Fighters", bar=69).save(index=False)
@@ -197,6 +199,32 @@ class ManagementTestCase(BaseIndexableTestCase):
         call_command("bulk_index")
         ParentIndexable.search_objects.refresh()
         self.assertEqual(ParentIndexable.search_objects.s().count(), 3)
+
+    def test_index_upgrade(self):
+        ParentIndexable(foo="Fighters").save()
+        ChildIndexable(foo="Fighters", bar=69).save()
+        GrandchildIndexable(
+            foo="Fighters",
+            bar=69,
+            baz=datetime.datetime.now() - datetime.timedelta(hours=1)
+        ).save()
+        SeparateIndexable(junk="Testing").save()
+        # make sure we have some indexed stuff
+        ParentIndexable.search_objects.refresh()
+        SeparateIndexable.search_objects.refresh()
+        self.assertEqual(ParentIndexable.search_objects.s().count(), 3)
+        self.assertEqual(SeparateIndexable.search_objects.s().count(), 1)
+
+        call_command("synces", "vtest123", drop_existing_indexes=True)
+        call_command("bulk_index", index_suffix="vtest123")
+        call_command("es_swap_aliases", "vtest123")
+        ParentIndexable.search_objects.refresh()
+        SeparateIndexable.search_objects.refresh()
+        # Let's make sure that everything has the right counts
+        self.assertEqual(ParentIndexable.search_objects.s().count(), 3)
+        self.assertEqual(SeparateIndexable.search_objects.s().count(), 1)
+        self.delete_indexes_with_suffix("vtest123") # clean up
+
 
 class TestDynamicMappings(BaseIndexableTestCase):
 
