@@ -7,7 +7,6 @@ from bulbs.indexable.models import polymorphic_indexable_registry
 
 class Command(BaseCommand):
     help = "Adds appropriate aliases to the 'avclub' index. Delete after we're done."
-    args = "<index_suffix>"
 
     def handle(self, **options):
         aliases = set()
