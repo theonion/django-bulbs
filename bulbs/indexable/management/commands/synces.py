@@ -9,7 +9,7 @@ from bulbs.indexable.models import polymorphic_indexable_registry
 
 
 class Command(BaseCommand):
-    args = '<index_suffix>'
+    args = "<?index_suffix>"
     help = "Creates indexes and mappings for for Indexable objects."
     option_list = BaseCommand.option_list + (
         make_option("--drop-existing-indexes",
@@ -25,17 +25,18 @@ class Command(BaseCommand):
         index_alias_map = {}
         if args:
             index_suffix = args[0]
-            index_suffix = '_' + index_suffix
+            index_suffix = "_" + index_suffix
         else:
             # No suffix supplied. Let's create a map of existing aliases -> indexes
             # and try to update those instead of creating new indexes.
-            index_suffix = ''
+            index_suffix = ""
             aliases = es.aliases()
             for index_name in aliases:
-                index_aliases = aliases[index_name]['aliases']
+                index_aliases = aliases[index_name]["aliases"]
                 if index_aliases:
                     index_alias_map[index_aliases.keys()[0]] = index_name
 
+        # build a dict of index -> mapping type configurations
         indexes = {}
         for name, model in polymorphic_indexable_registry.all_models.items():
             index = model.get_index_name()
