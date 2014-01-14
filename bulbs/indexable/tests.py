@@ -108,9 +108,12 @@ class IndexableTestCase(BaseIndexableTestCase):
         self.assertEqual(len(sliced.all()), 1)
 
 
-class BulkIndexTestCase(BaseIndexableTestCase):
+class ManagementTestCase(BaseIndexableTestCase):
 
-    def test_management_command(self):
+    def test_synces(self):
+        call_command("synces", self.index_suffix, force=True)
+
+    def test_bulk_index(self):
         ParentIndexable(foo="Fighters").save(index=False)
         ChildIndexable(foo="Fighters", bar=69).save(index=False)
 

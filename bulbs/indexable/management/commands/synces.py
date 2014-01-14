@@ -54,37 +54,31 @@ class Command(BaseCommand):
             indexes[index].update(model.get_mapping())
 
         for index, mappings in indexes.items():
-            keep_trying = True
-            num_tries = 0
-            while keep_trying and num_tries < 2:
-                keep_trying = False
-                num_tries += 1
+
+            if options.get("drop_existing_indexes", False) and index_suffix:
                 try:
-                    es.create_index(index, settings={
-                        "settings": settings.ES_SETTINGS
-                    })
-                except IndexAlreadyExistsError:
-                    try:
-                        if "analysis" in settings.ES_SETTINGS:
-                            live_settings = es.get_settings(index)
-                            if live_settings["analysis"] != settings.ES_SETTINGS["analysis"]:
-                                if options.get("force", False):
-                                    es.close_index(index)
-                                    es.update_settings(index, settings.ES_SETTINGS)
-                                    es.open_index(index)
-                                else:
-                                    self.stderr.write("Index '%s' already exists and has incompatible settings. You will need to use a new suffix, or use the --force option" % index)
-                    except ElasticHttpError as e:
-                        if options.get("drop_existing_indexes", False) and index_suffix:
-                            es.delete_index(index)
-                            keep_trying = True # loop again
-                        else:
-                            print e
-                            self.stderr.write(
-                                "Index '%s' already exists and has incompatible settings." % index)
-        
+                    es.delete_index(index)
+                except ElasticHttpError:
+                    pass
+
+            try:
+                es.create_index(index, settings={
+                    "settings": settings.ES_SETTINGS
+                })
+            except IndexAlreadyExistsError:
+                try:
+                    # TODO: Actually compare the settings.
+                    es.update_settings(index, settings.ES_SETTINGS)
                 except ElasticHttpError as e:
-                    self.stderr.write("ES Error: %s" % e.error)
+                    if e.status_code == 400:
+                        if options.get("force", False):
+                            es.close_index(index)
+                            es.update_settings(index, settings.ES_SETTINGS)
+                            es.open_index(index)
+                        else:
+                            self.stderr.write("Index '%s' already exists, and you're trying to update non-dynamic settings. You will need to use a new suffix, or use the --force option" % index)
+                    else:
+                        self.stderr.write("ElasticSearch Error: %s" % e)
 
             for doctype, mapping in mappings.items():
                 try:
