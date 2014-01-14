@@ -130,7 +130,7 @@ class ManagementTestCase(BaseIndexableTestCase):
         self.assertEqual(SeparateIndexable.search_objects.s().count(), 0)
         
         # Now that everything has been made, let's try a bulk_index.
-        call_command('bulk_index', index_suffix=self.index_suffix)
+        call_command("bulk_index")
         ParentIndexable.search_objects.refresh()
         SeparateIndexable.search_objects.refresh()
 
@@ -141,7 +141,7 @@ class ManagementTestCase(BaseIndexableTestCase):
         # Let's add another one, make sure the counts are right.
         ParentIndexable(foo="Mr. T").save(index=False)
         self.assertEqual(ParentIndexable.search_objects.s().count(), 3)
-        call_command('bulk_index', index_suffix=self.index_suffix)
+        call_command("bulk_index")
         ParentIndexable.search_objects.refresh()
         self.assertEqual(ParentIndexable.search_objects.s().count(), 4)
 
@@ -154,7 +154,7 @@ class ManagementTestCase(BaseIndexableTestCase):
 
         # Make sure the bad data works
         self.assertEqual(ParentIndexable.search_objects.query(foo__match="DATA FUCKERS").count(), 1)
-        call_command('bulk_index', index_suffix=self.index_suffix)
+        call_command("bulk_index")
         ParentIndexable.search_objects.refresh()
         self.assertEqual(ParentIndexable.search_objects.query(foo__match="DATA FUCKERS").count(), 0)
 
@@ -166,13 +166,14 @@ class ManagementTestCase(BaseIndexableTestCase):
         self.assertEqual(ParentIndexable.search_objects.s().count(), 4)
 
         # This shoulnd't remove the item
-        call_command('bulk_index', index_suffix=self.index_suffix)
+        call_command("bulk_index")
         ParentIndexable.search_objects.refresh()
         self.assertEqual(ParentIndexable.search_objects.s().count(), 4)
 
         # This should
-        call_command('bulk_index', index_suffix=self.index_suffix, purge=True)
+        call_command("synces", self.index_suffix, drop_existing_indexes=True)
         call_command("es_swap_aliases", self.index_suffix)
+        call_command("bulk_index")
         ParentIndexable.search_objects.refresh()
         self.assertEqual(ParentIndexable.search_objects.s().count(), 3)
 

@@ -18,11 +18,6 @@ class Command(BaseCommand):
     help = "Bulk indexes all Content and Tag instances."
     args = "<?index_suffix>"
     option_list = BaseCommand.option_list + (
-        make_option("--purge",
-            action="store_true",
-            dest="purge",
-            default=False,
-            help="Remove all existing data"),
         make_option("--chunk",
             type=int,
             dest="chunk",
@@ -40,11 +35,10 @@ class Command(BaseCommand):
         bulk_endpoint = "%s/_bulk" % settings.ES_URLS[0]
 
         chunk_size = options.get("chunk")
-        index_suffix = options.get('index_suffix')
-        if options.get("purge"):
-            call_command("synces", index_suffix, drop_existing_indexes=True)  # This will cause all the indexes to get recreated, since that all runs on signals.
+        index_suffix = options.get("index_suffix")
+
         if index_suffix:
-            index_suffix = '_' + index_suffix
+            index_suffix = "_" + index_suffix
 
         all_models_to_index = set()
         if len(args):
