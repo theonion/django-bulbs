@@ -19,8 +19,9 @@ ES_SETTINGS = {
             "tokenizer": {
                 "edge_ngram_tokenizer": {
                     "type" : "edgeNGram",
-                    "min_gram" : "2",
-                    "max_gram" : "20"
+                    "min_gram" : "3",
+                    "max_gram" : "10",
+                    "token_chars": "letter"
                 }
             }
         }
