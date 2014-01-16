@@ -10,30 +10,6 @@ from elasticutils import S
 
 from bulbs.content.models import Content, Tag
 
-# TODO: shall we remove 'search_tags' and 'search_feature_types'?
-def search_tags(request):
-    tags = Tag.objects.search(name=request.GET.get('q'))
-    tag_data = [{'name': tag.name, 'slug': tag.slug} for tag in tags]
-    return HttpResponse(json.dumps(tag_data), content_type='application/json')
-
-
-def search_feature_types(request):
-    results = S().es(urls=settings.ES_URLS).indexes(settings.ES_INDEXES.get('default'))
-    if 'q' in request.GET:
-        results = results.query(feature_type__prefix=request.GET['q'])
-    facet_counts = results.facet_raw(feature_type={'terms': {'field': 'feature_type.slug', 'size': 20}}).facet_counts()
-
-    slug_facets = facet_counts['feature_type'][::2]
-    names_facets = facet_counts['feature_type'][1::2]
-    data = [{
-        'slug': facet['term'],
-        'count': facet['count']
-    } for facet in slug_facets]
-    for index, facet in enumerate(names_facets):
-        data[index]['name'] = facet['term']
-
-    return HttpResponse(json.dumps(data), content_type='application/json')
-
 
 class ContentListView(ListView):
 
