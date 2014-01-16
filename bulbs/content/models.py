@@ -427,20 +427,6 @@ class LogEntry(models.Model):
         ordering = ('-action_time',)
 
 
-# NOTE: I dont *think* we need this now that we explictly index in ContentViewSet.post_save
-def content_tags_changed(sender, instance=None, action='', **kwargs):
-    """Reindex content tags when they change."""
-    if getattr(instance, "_index", True):  # TODO: Rethink this hackey shit. Is there a better way?
-        doc = {}
-        doc['tags'] = [tag.extract_document() for tag in instance.tags.all()]
-        if CELERY_ENABLED:
-            update_task.delay(instance.pk, doc)
-        else:
-            index = settings.ES_INDEXES.get('default')
-            es = get_es()
-            es.update(index, instance.get_mapping_type_name(), instance.id, doc=doc)
-
-
 def content_deleted(sender, instance=None, **kwargs):
     if getattr(instance, "_index", True):
         es = get_es()
