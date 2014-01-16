@@ -84,6 +84,15 @@ class Command(BaseCommand):
                     if r.status_code != 200:
                         print(payload)
                         print(r.json())
+                    else:
+                        # make sure it indexed everything:
+                        result = r.json()
+                        good_items = [item for item in result["items"] if item["index"].get("ok", False)]
+                        if len(good_items) != len(payload) // 2:
+                            self.stdout.write("Bulk indexing error! Item count mismatch.")
+                            bad_items = [item for item in result["items"] if not item["index"].get("ok", False)]
+                            self.stdout.write("These were rejected: %s" % str(bad_items))
+                            return "Bulk indexing failed."
                     num_processed += (len(payload) / 2)
                     self.stdout.write("Indexed %d items" % num_processed)
                     payload = []
