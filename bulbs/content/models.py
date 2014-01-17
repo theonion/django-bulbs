@@ -357,6 +357,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
         properties = super(Content, cls).get_mapping_properties()
         properties.update({
             "published": {"type": "date"},
+            "last_modified": {"type": "date"},
             "title": {"type": "string", "analyzer":"snowball", "_boost":  2.0},
             "slug": {"type": "string"},
             "description": {"type": "string",},
@@ -392,6 +393,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
         data = super(Content, self).extract_document()
         data.update({
             "published"        : self.published,
+            "last_modified"    : self.last_modified,
             "title"            : self.title,
             "slug"             : self.slug,
             "description"      : self.description,
