@@ -266,7 +266,7 @@ class ContentManager(SearchManager):
             # only use valid subtypes
             results = results.doctypes(*types)
 
-        return results.order_by('-published')
+        return results.order_by('-published', '-last_modified')
 
     def in_bulk(self, pks):
         results = self.es.multi_get(pks, index=self.model.get_index_name())
@@ -305,7 +305,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
 
     def get_absolute_url(self):
         try:
-            url = reverse('content-detail-view', kwargs={"pk": self.pk, "slug": self.slug})
+            url = reverse("content-detail-view", kwargs={"pk": self.pk, "slug": self.slug})
         except NoReverseMatch:
             url = None
         return url
@@ -326,7 +326,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
     def byline(self):
         # If we have authors, just put them in a list
         if self.authors.exists():
-            return ', '.join([user.get_full_name() for user in self.authors.all()])
+            return ", ".join([user.get_full_name() for user in self.authors.all()])
 
         # Well, shit. I guess there's no byline.
         return None
@@ -348,7 +348,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
         if self.indexed is False:
             if kwargs is None:
                 kwargs = {}
-            kwargs['index'] = False
+            kwargs["index"] = False
         return super(Content, self).save(*args, **kwargs)
 
     # class methods ##############################
@@ -420,13 +420,13 @@ class Content(PolymorphicIndexable, PolymorphicModel):
 
 
 class LogEntry(models.Model):
-    action_time = models.DateTimeField('action time', auto_now=True)
-    content = models.ForeignKey(Content, related_name='change_logs')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='change_logs')
-    change_message = models.TextField('change message', blank=True)
+    action_time = models.DateTimeField("action time", auto_now=True)
+    content = models.ForeignKey(Content, related_name="change_logs")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="change_logs")
+    change_message = models.TextField("change message", blank=True)
 
     class Meta:
-        ordering = ('-action_time',)
+        ordering = ("-action_time",)
 
 
 def content_deleted(sender, instance=None, **kwargs):

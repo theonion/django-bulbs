@@ -20,11 +20,11 @@ class ContentTypeField(serializers.WritableField):
     def to_native(self, value):
         """Convert to natural key."""
         content_type = ContentType.objects.get_for_id(value)
-        return '_'.join(content_type.natural_key())
+        return "_".join(content_type.natural_key())
 
     def from_native(self, value):
         """Convert to integer id."""
-        natural_key = value.split('_')
+        natural_key = value.split("_")
         content_type = ContentType.objects.get_by_natural_key(*natural_key)
         return content_type.id
 
@@ -35,10 +35,10 @@ class TagSerializer(serializers.ModelSerializer):
 
     def to_native(self, obj):
         return {
-            'id': obj.pk,
-            'name': obj.name,
-            'slug': obj.slug,
-            'type': obj.get_mapping_type_name()
+            "id": obj.pk,
+            "name": obj.name,
+            "slug": obj.slug,
+            "type": obj.get_mapping_type_name()
         }
 
 
@@ -51,10 +51,10 @@ class TagField(relations.RelatedField):
 
     def to_native(self, obj):
         return {
-            'id': obj.pk,
-            'name': obj.name,
-            'slug': obj.slug,
-            'type': obj.get_mapping_type_name()
+            "id": obj.pk,
+            "name": obj.name,
+            "slug": obj.slug,
+            "type": obj.get_mapping_type_name()
         }
 
     def from_native(self, value):
@@ -62,13 +62,13 @@ class TagField(relations.RelatedField):
         name and slug--or else you need to pass in a dict with just a name,
         which indicated that the Tag doesn't exist, and should be added."""
 
-        if 'id' in value:
-            tag = Tag.objects.get(id=value['id'])
+        if "id" in value:
+            tag = Tag.objects.get(id=value["id"])
         else:
-            if 'name' not in value:
+            if "name" not in value:
                 raise ValidationError("Tags must include an ID or a name.")
-            name = value['name']
-            slug = value.get('slug', slugify(name))
+            name = value["name"]
+            slug = value.get("slug", slugify(name))
             try:
                 tag = Tag.objects.get(slug=slug)
             except Tag.DoesNotExist:
@@ -84,11 +84,11 @@ class UserSerializer(serializers.ModelSerializer):
     def to_native(self, obj):
         
         return {
-            'id': obj.pk,
-            'username': obj.username,
-            'email': obj.email,
-            'first_name': obj.first_name,
-            'last_name': obj.last_name
+            "id": obj.pk,
+            "username": obj.username,
+            "email": obj.email,
+            "first_name": obj.first_name,
+            "last_name": obj.last_name
         }
 
  
@@ -100,28 +100,28 @@ class AuthorField(relations.RelatedField):
 
     def to_native(self, obj):
         return {
-            'id': obj.pk,
-            'first_name': obj.first_name,
-            'last_name': obj.last_name,
-            'username': obj.username
+            "id": obj.pk,
+            "first_name": obj.first_name,
+            "last_name": obj.last_name,
+            "username": obj.username
         }
 
     def from_native(self, value):
         """Basically, each author dict must include either a username or id."""
         model = auth.get_user_model()
 
-        if 'id' in value:
-            author = model.objects.get(id=value['id'])
+        if "id" in value:
+            author = model.objects.get(id=value["id"])
         else:
-            if 'username' not in value:
+            if "username" not in value:
                 raise ValidationError("Authors must include an ID or a username.")
-            username = value['username']
+            username = value["username"]
             author = model.objects.get(username=username)
         return author
 
 
 class ContentSerializer(serializers.ModelSerializer):
-    polymorphic_ctype = ContentTypeField(source='polymorphic_ctype_id', read_only=True)
+    polymorphic_ctype = ContentTypeField(source="polymorphic_ctype_id", read_only=True)
     tags = TagField(many=True)
     authors = AuthorField(many=True)
     image = RemoteImageSerializer(required=False)
@@ -131,8 +131,8 @@ class ContentSerializer(serializers.ModelSerializer):
 
     @transaction.commit_on_success
     def save(self, *args, **kwargs):
-        if not 'index' in kwargs:
-            kwargs['index'] = False
+        if not "index" in kwargs:
+            kwargs["index"] = False
         return super(ContentSerializer, self).save(*args, **kwargs)
 
 class LogEntrySerializer(serializers.ModelSerializer):
@@ -142,7 +142,7 @@ class LogEntrySerializer(serializers.ModelSerializer):
 class PolymorphicContentSerializerMixin(object):
     def to_native(self, value):
         if value:
-            if hasattr(value, 'get_serializer_class'):
+            if hasattr(value, "get_serializer_class"):
                 ThisSerializer = value.get_serializer_class()
             else:
                 class ThisSerializer(serializers.ModelSerializer):
