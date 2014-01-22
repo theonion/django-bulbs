@@ -4,9 +4,12 @@ import hmac
 import hashlib
 import datetime
 
-from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
+from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponse, HttpResponseNotAllowed
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.cache import cache_control
+
 
 from .models import Video
 
@@ -65,7 +68,8 @@ def notification(request):
         video.save()
     return HttpResponse(status=204)
 
-
+@cache_control(no_cache=True)
+@staff_member_required
 def video_attrs(request):
     expiration = datetime.datetime.utcnow() + datetime.timedelta(hours=1)
     directory = settings.VIDEO_ENCODING.get('directory')
