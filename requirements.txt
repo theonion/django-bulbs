@@ -1,7 +1,6 @@
 Django>=1.4
 Markdown==2.2.1
 South==0.8.1
-django-oauth2-provider==0.2.6
 -e git+https://github.com/awentzonline/django-rest-framework.git@2.4.0#egg=rest_framework
 django_polymorphic==0.5.1
 elasticutils==0.7
