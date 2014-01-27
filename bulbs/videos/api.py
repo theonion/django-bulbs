@@ -30,7 +30,7 @@ class JSONField(serializers.WritableField):
 class VideoSerializer(serializers.ModelSerializer):
 
     status = fields.Field(source='get_status_display')
-    sources = JSONField()
+    sources = JSONField(required=False)
 
     class Meta:
         model = Video

@@ -44,6 +44,7 @@ settings.configure(
         'bulbs.content',
         'bulbs.images',
         'bulbs.indexable',
+        'bulbs.videos',
 
         # Just here for a couple of test models
         'tests.testindexable',
