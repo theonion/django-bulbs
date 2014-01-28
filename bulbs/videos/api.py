@@ -50,7 +50,7 @@ class VideoViewSet(viewsets.ModelViewSet):
             video.name = request.POST.get('name')
 
         try:
-            s3_path = os.path.join(settings.VIDEO_ENCODING['bucket'], settings.VIDEO_ENCODING['directory'], video.pk)
+            s3_path = os.path.join(settings.VIDEO_ENCODING['bucket'], settings.VIDEO_ENCODING['directory'], str(video.pk))
         except KeyError:
             raise ImproperlyConfigured("Video encoding settings aren't defined.")
 
