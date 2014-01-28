@@ -60,7 +60,7 @@ class VideoViewSet(viewsets.ModelViewSet):
             'input': '%s/original' % base_url,
             'outputs': [],
             'notifications': [{
-                "url": request.build_absolute_uri(reverse('videoads.videos.views.notification')),
+                "url": request.build_absolute_uri(reverse('bulbs.videos.views.notification')),
                 "format": "json"
             }]
         }
