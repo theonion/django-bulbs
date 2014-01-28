@@ -82,7 +82,7 @@ class VideoViewSet(viewsets.ModelViewSet):
             video.data = response.json()
             video.save()
 
-        return Response(response.json(), status_code=response.status_code)
+        return Response(response.json(), status=response.status_code)
 
 router = routers.SimpleRouter()
 router.register('video', VideoViewSet)
