@@ -54,13 +54,13 @@ class VideoViewSet(viewsets.ModelViewSet):
         except KeyError:
             raise ImproperlyConfigured("Video encoding settings aren't defined.")
 
-        base_url = "s3://%d" % s3_path
+        base_url = "s3://%s" % s3_path
 
         payload = {
             'input': '%s/original' % base_url,
             'outputs': [],
             'notifications': [{
-                "url": "http://videoads.theonion.com%s" % reverse('videoads.videos.views.notification'),
+                "url": request.build_absolute_uri(reverse('videoads.videos.views.notification')),
                 "format": "json"
             }]
         }
@@ -76,9 +76,6 @@ class VideoViewSet(viewsets.ModelViewSet):
 
         auth_headers = {'Zencoder-Api-Key': settings.VIDEO_ENCODING.get('zencoder_api_key')}
         response = requests.post("https://app.zencoder.com/api/v2/jobs", data=json.dumps(payload), headers=auth_headers)
-        from raven import Client
-        client = Client('http://fad3598fbbfc45a3857c31dda948a975:cbfa1ddba9ac43bfa83b5f1daf218a12@sentry.onion.com/7')
-        client.captureMessage('Zencoder response: %s' % response.content)
         if response.status_code == 201:
             video.job_id = response.json().get('id')
             video.status = Video.IN_PROGRESS
