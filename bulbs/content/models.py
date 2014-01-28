@@ -236,6 +236,8 @@ class ContentManager(SearchManager):
 
         if "query" in kwargs:
             results = results.query(_all__match=kwargs.get("query"))
+        else:
+            results = results.order_by('-published', '-last_modified')
 
         # Right now we have "Before", "After" (datetimes), and "published" (a boolean). Should simplify this in the future.
         if "before" in kwargs or "after" in kwargs:
@@ -266,7 +268,7 @@ class ContentManager(SearchManager):
             # only use valid subtypes
             results = results.doctypes(*types)
 
-        return results.order_by('-published', '-last_modified')
+        return results
 
     def in_bulk(self, pks):
         results = self.es.multi_get(pks, index=self.model.get_index_name())
