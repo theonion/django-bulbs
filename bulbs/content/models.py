@@ -420,6 +420,13 @@ class Content(PolymorphicIndexable, PolymorphicModel):
         from .serializers import ContentSerializer
         return ContentSerializer
 
+class LogEntryManager(models.Manager):
+    def log(self, user, content, message):
+        return self.create(
+            user=user,
+            content=content,
+            change_message=message
+        )
 
 class LogEntry(models.Model):
     action_time = models.DateTimeField("action time", auto_now=True)
@@ -427,9 +434,10 @@ class LogEntry(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="change_logs")
     change_message = models.TextField("change message", blank=True)
 
+    objects = LogEntryManager()
+
     class Meta:
         ordering = ("-action_time",)
-
 
 def content_deleted(sender, instance=None, **kwargs):
     if getattr(instance, "_index", True):
