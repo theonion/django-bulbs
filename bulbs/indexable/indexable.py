@@ -45,7 +45,7 @@ class PolymorphicS(S):
                 return list(value)
         return None
 
-    def instanceof(self, klass, exact=False):
+    def instance_of(self, klass, exact=False):
         """This gets results that are of this type, or inherit from it.
 
         If exact is True, only results for this exact class are returned. Otherwise, child objects

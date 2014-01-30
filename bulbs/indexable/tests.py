@@ -49,10 +49,10 @@ class IndexableTestCase(BaseIndexableTestCase):
         SeparateIndexable.search_objects.refresh()
 
     def test_mapping_type_names(self):
-        self.assertEqual(ParentIndexable.get_mapping_type_name(), 'testindexable_parentindexable')
-        self.assertEqual(ChildIndexable.get_mapping_type_name(), 'testindexable_childindexable')
-        self.assertEqual(GrandchildIndexable.get_mapping_type_name(), 'testindexable_grandchildindexable')
-        self.assertEqual(SeparateIndexable.get_mapping_type_name(), 'testindexable_separateindexable')
+        self.assertEqual(ParentIndexable.get_mapping_type_name(), "testindexable_parentindexable")
+        self.assertEqual(ChildIndexable.get_mapping_type_name(), "testindexable_childindexable")
+        self.assertEqual(GrandchildIndexable.get_mapping_type_name(), "testindexable_grandchildindexable")
+        self.assertEqual(SeparateIndexable.get_mapping_type_name(), "testindexable_separateindexable")
         self.assertEqual(
             ParentIndexable.get_mapping_type_names(), [
                 ParentIndexable.get_mapping_type_name(),
@@ -70,7 +70,7 @@ class IndexableTestCase(BaseIndexableTestCase):
         pass
 
     def test_primary_key_name_is_correct(self):
-        a, b, c = [klass.get_mapping().values()[0]['_id']['path'] for klass in (
+        a, b, c = [klass.get_mapping().values()[0]["_id"]["path"] for klass in (
             ParentIndexable, ChildIndexable, GrandchildIndexable
         )]
         self.assertEqual(a, b)
@@ -84,18 +84,18 @@ class IndexableTestCase(BaseIndexableTestCase):
 
         self.assertEqual(SeparateIndexable.search_objects.s().count(), 1)
 
-    def test_instanceof(self):
-        self.assertEqual(ParentIndexable.search_objects.s().instanceof(ParentIndexable, exact=True).count(), 1)
-        self.assertEqual(ParentIndexable.search_objects.s().instanceof(ChildIndexable, exact=True).count(), 1)
-        self.assertEqual(ParentIndexable.search_objects.s().instanceof(GrandchildIndexable, exact=True).count(), 1)
+    def test_instance_of(self):
+        self.assertEqual(ParentIndexable.search_objects.s().instance_of(ParentIndexable, exact=True).count(), 1)
+        self.assertEqual(ParentIndexable.search_objects.s().instance_of(ChildIndexable, exact=True).count(), 1)
+        self.assertEqual(ParentIndexable.search_objects.s().instance_of(GrandchildIndexable, exact=True).count(), 1)
 
         self.assertEqual(ParentIndexable.search_objects.s().doctypes("testindexable_parentindexable").count(), 1)
         self.assertEqual(ParentIndexable.search_objects.s().doctypes("testindexable_childindexable").count(), 1)
         self.assertEqual(ParentIndexable.search_objects.s().doctypes("testindexable_grandchildindexable").count(), 1)
 
-        self.assertEqual(ParentIndexable.search_objects.s().instanceof(ParentIndexable).count(), 3)
-        self.assertEqual(ParentIndexable.search_objects.s().instanceof(ChildIndexable).count(), 2)
-        self.assertEqual(ParentIndexable.search_objects.s().instanceof(GrandchildIndexable).count(), 1)
+        self.assertEqual(ParentIndexable.search_objects.s().instance_of(ParentIndexable).count(), 3)
+        self.assertEqual(ParentIndexable.search_objects.s().instance_of(ChildIndexable).count(), 2)
+        self.assertEqual(ParentIndexable.search_objects.s().instance_of(GrandchildIndexable).count(), 1)
 
     def test_model_results(self):
         qs = ParentIndexable.search_objects.s().full()
