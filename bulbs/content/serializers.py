@@ -11,6 +11,7 @@ from rest_framework import serializers
 from rest_framework import relations
 
 from bulbs.images.fields import RemoteImageSerializer
+from bulbs.indexable.serializers import PolymorphicSerializerMixin
 
 from .models import Content, Tag, LogEntry
 
@@ -139,22 +140,7 @@ class LogEntrySerializer(serializers.ModelSerializer):
     class Meta:
         model = LogEntry
 
-class PolymorphicContentSerializerMixin(object):
-    def to_native(self, value):
-        if value:
-            if hasattr(value, "get_serializer_class"):
-                ThisSerializer = value.get_serializer_class()
-            else:
-                class ThisSerializer(serializers.ModelSerializer):
-                    class Meta:
-                        model = value.__class__
-            
-            serializer = ThisSerializer(context=self.context)
-            return serializer.to_native(value)
-        else:
-            return super(PolymorphicContentSerializerMixin, self).to_native(value)
 
-
-class PolymorphicContentSerializer(PolymorphicContentSerializerMixin, ContentSerializer):
+class PolymorphicContentSerializer(PolymorphicSerializerMixin, ContentSerializer):
     pass
 
