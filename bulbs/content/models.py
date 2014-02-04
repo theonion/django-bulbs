@@ -433,7 +433,7 @@ class LogEntry(models.Model):
     action_time = models.DateTimeField("action time", auto_now=True)
     content_type = models.ForeignKey(ContentType, blank=True, null=True, related_name="change_logs")
     object_id = models.TextField(("object id"), blank=True, null=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="change_logs")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, related_name="change_logs")
     change_message = models.TextField("change message", blank=True)
 
     objects = LogEntryManager()
