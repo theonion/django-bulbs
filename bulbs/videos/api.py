@@ -86,13 +86,19 @@ class VideoViewSet(viewsets.ModelViewSet):
             video.status = Video.IN_PROGRESS
             video.data = response.json()
             video.save()
-            LogEntry.objects.log(request.user, video, "Encoded")
+            if request.user.is_authenticated():
+                LogEntry.objects.log(request.user, video, "Encoded")
+            else:
+                LogEntry.objects.log(None, video, "Encoded")
 
         return Response(response.json(), status=response.status_code)
 
     def post_save(self, obj, created=False):
         message = "Created" if created else "Saved"
-        LogEntry.objects.log(self.request.user, obj, message)
+        if self.request.user.is_authenticated():
+            LogEntry.objects.log(self.request.user, obj, message)
+        else:
+            LogEntry.objects.log(None, obj, message)
         return super(VideoViewSet, self).post_save(obj, created=created)
 
 router = routers.SimpleRouter()
