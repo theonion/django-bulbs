@@ -56,12 +56,13 @@ class VideoViewSet(viewsets.ModelViewSet):
             raise ImproperlyConfigured("Video encoding settings aren't defined.")
 
         base_url = "s3://%s" % s3_path
+        default_notification_url = request.build_absolute_uri(reverse('bulbs.videos.views.notification'))
 
         payload = {
             'input': '%s/original' % base_url,
             'outputs': [],
             'notifications': [{
-                "url": request.build_absolute_uri(reverse('bulbs.videos.views.notification')),
+                "url": settings.VIDEO_ENCODING.get("notification_url", default_notification_url),
                 "format": "json"
             }]
         }

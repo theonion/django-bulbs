@@ -13,7 +13,7 @@ from django.views.decorators.cache import cache_control
 
 from .models import Video
 
-
+@cache_control(no_cache=True)
 @csrf_exempt
 def notification(request):
     if request.method != "POST":
