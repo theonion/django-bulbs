@@ -17,7 +17,7 @@ from .models import Video
 @csrf_exempt
 def notification(request):
     if request.method != "POST":
-        return HttpResponseNotAllowed()
+        return HttpResponseNotAllowed(["GET"])
 
     # Grab the encoding details from message
     details = json.loads(request.body)
