@@ -15,6 +15,7 @@ from rest_framework import routers
 from rest_framework.response import Response
 
 from .models import Video
+from bulbs.content.models import LogEntry
 
 class JSONField(serializers.WritableField):
     def to_native(self, obj):
@@ -84,8 +85,14 @@ class VideoViewSet(viewsets.ModelViewSet):
             video.status = Video.IN_PROGRESS
             video.data = response.json()
             video.save()
+            LogEntry.objects.log(request.user, video, "Encoded")
 
         return Response(response.json(), status=response.status_code)
+
+    def post_save(self, obj, created=False):
+        message = "Created" if created else "Saved"
+        LogEntry.objects.log(self.request.user, obj, message)
+        return super(VideoViewSet, self).post_save(obj, created=created)
 
 router = routers.SimpleRouter()
 router.register('video', VideoViewSet)

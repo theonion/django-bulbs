@@ -424,13 +424,15 @@ class LogEntryManager(models.Manager):
     def log(self, user, content, message):
         return self.create(
             user=user,
-            content=content,
+            content_type=ContentType.objects.get_for_model(content),
+            object_id=content.pk,
             change_message=message
         )
 
 class LogEntry(models.Model):
     action_time = models.DateTimeField("action time", auto_now=True)
-    content = models.ForeignKey(Content, related_name="change_logs")
+    content_type = models.ForeignKey(ContentType, blank=True, null=True, related_name="change_logs")
+    object_id = models.TextField(("object id"), blank=True, null=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="change_logs")
     change_message = models.TextField("change message", blank=True)
 
