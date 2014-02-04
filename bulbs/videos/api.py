@@ -71,7 +71,10 @@ class VideoViewSet(viewsets.ModelViewSet):
         }
         for output_template in settings.VIDEO_ENCODING.get('outputs', []):
             output = copy.copy(output_template)
-            output.update(output_update)
+            if "thumbnails" in output_template:
+                output["thumbnails"].update(output_update)
+            else:
+                output.update(output_update)
             payload['outputs'].append(output)
 
         auth_headers = {'Zencoder-Api-Key': settings.VIDEO_ENCODING.get('zencoder_api_key')}
