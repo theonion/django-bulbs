@@ -93,8 +93,10 @@ class PolyContentTestCase(BaseIndexableTestCase):
         self.combos = list(itertools.combinations(words, 2))
         self.all_tags = []
         for i, combo in enumerate(self.combos):
+            tags = []
             for atom in combo:
                 tag, created = Tag.objects.get_or_create(name=atom, slug=slugify(atom))
+                tags.append(tag)
                 self.all_tags.append(tag)
             obj = TestContentObj.objects.create(
                 title=' '.join(combo),
@@ -103,37 +105,60 @@ class PolyContentTestCase(BaseIndexableTestCase):
                 published=one_hour_ago,
                 feature_type='Obj one'
             )
-            obj.tags.add(*self.all_tags)
+            obj.tags.add(*tags)
             obj.index()
             obj2 = TestContentObjTwo.objects.create(
                 title=' '.join(reversed(combo)),
                 description=' '.join(combo),
-                foo=combo[0],
+                foo=combo[1],
                 bar=i,
                 published=one_hour_ago,
                 feature_type='Obj two'
             )
-            obj2.tags.add(*self.all_tags)
+            obj2.tags.add(*tags)
             obj2.index()
 
         # We need to let the index refresh
         TestContentObj.search_objects.refresh()
         TestContentObjTwo.search_objects.refresh()
-        #time.sleep(1) # NOTE: seems like the refresh eliminates the need for this
 
-    # def test_serialize_id(self):
-    #     c = Content.objects.all()[0]
-    #     c_id = c.from_source(c.extract_document()).id
-    #     self.assertNotEqual(c_id, None)
 
-    # NOTE: Since extract_document is now only concerned with a one-way
-    #       trip to elasticsearch, this should probably be rewritten.
-    # def test_serialize_idempotence(self):
-    #     c = Content.objects.all()[0]
-    #     self.assertEqual(
-    #         c.extract_document(),
-    #         c.__class__.from_source(c.extract_document()).extract_document()
-    #     )
+    def test_filter_search_content(self):
+
+        self.assertEqual(Content.objects.count(), 12)
+
+        q = Content.search_objects.search()
+        self.assertEqual(q.count(), 12)
+
+        q = Content.search_objects.search(tags=["spam"])
+        self.assertEqual(q.count(), 6)
+        for content in q.full():
+            self.assertTrue("spam" in content.tags.values_list("slug", flat=True))
+
+        q = Content.search_objects.search(feature_types=["obj-one"])
+        self.assertEqual(q.count(), 6)
+        for content in q.full():
+            self.assertEqual("Obj one", content.feature_type)
+
+        q = Content.search_objects.search(types=["testcontent_testcontentobj"])
+        self.assertEqual(q.count(), 6)
+
+        q = Content.search_objects.search(types=["testcontent_testcontentobjtwo"]).full()
+        self.assertEqual(q.count(), 6)
+
+        q = Content.search_objects.search(types=["testcontent_testcontentobjtwo", "testcontent_testcontentobj"])
+        self.assertEqual(q.count(), 12)
+
+
+    def test_negative_filters(self):
+        q = Content.search_objects.search(tags=["-spam"])
+        self.assertEqual(q.count(), 6)
+
+        q = Content.search_objects.search(feature_types=["-obj-one"])
+        self.assertEqual(q.count(), 6)
+        for content in q.full():
+            self.assertNotEqual("Obj one", content.feature_type)
+
 
     def test_content_subclasses(self):
         # We created one of each subclass per combination so the following should be true:
@@ -179,43 +204,3 @@ class PolyContentTestCase(BaseIndexableTestCase):
     def test_deserialize_none(self):
         s = Content.get_serializer_class()(data=None)
         d = s.data
-
-    # TODO: Figure out why this test is failing.
-    def test_filter_search_content(self):
-        tag = self.all_tags[0]
-
-        q = Content.search_objects.search(tags=[tag.slug])
-        self.assertTrue(q.count() > 0)
-        feature_type = Content.objects.all()[0].feature_type
-        q = Content.search_objects.search(feature_types=[slugify(feature_type)])
-        self.assertTrue(q.count() > 0)
-
-        q = Content.search_objects.search(types=["testcontent_testcontentobj"])
-        self.assertEqual(q.count(), 6)
-
-        q = Content.search_objects.search(types=["testcontent_testcontentobjtwo"]).full()
-        self.assertEqual(q.count(), 6)
-
-        q = Content.search_objects.search(types=["testcontent_testcontentobjtwo", "testcontent_testcontentobj"])
-        self.assertEqual(q.count(), 12)
-
-    # def test_fetch_cached_models(self):
-    #     all_objs = list(Content.objects.all())
-    #     ids = [obj.id for obj in Content.objects.all()]
-    #     with self.assertNumQueries(3):
-    #         results = fetch_cached_models_by_id(Content, ids)
-    #     # make sure we got everything we wanted
-    #     self.assertEqual(all_objs, results)
-    #     # ensure we get the results from cache on the 2nd query
-    #     with self.assertNumQueries(0):
-    #         results = fetch_cached_models_by_id(Content, ids)
-    #     # and that the cached entries are correct
-    #     self.assertEqual(all_objs, results)
-
-    # def test_tag_model_faceting(self):
-    #     s = Tag.objects.search()
-    #     s = s.facet('id')
-    #     results = s.model_facet_counts(Tag)
-    #     for r in results:
-    #         self.assertTrue(hasattr(r, 'facet_count'))
-

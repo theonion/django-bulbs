@@ -14,7 +14,7 @@ from django.utils.html import strip_tags
 from bulbs.content import TagCache
 from bulbs.images.fields import RemoteImageField
 from bulbs.indexable.indexable import PolymorphicIndexable, SearchManager, PolymorphicMappingType
-from elasticutils import SearchResults, S
+from elasticutils import SearchResults, S, F
 from elasticutils.contrib.django import get_es
 from polymorphic import PolymorphicModel, PolymorphicManager
 
@@ -251,17 +251,26 @@ class ContentManager(SearchManager):
                 now = timezone.now()
                 results = results.query(published__lte=now, must=True)
 
-        if "tags" in kwargs:
-            tags = kwargs["tags"]
-            results = results.filter(**{'tags.slug__in':tags})
+        f = F()
+        for tag in kwargs.get("tags", []):
+            if tag.startswith("-"):
+                f &= ~ F(**{"tags.slug": tag[1:]})
+            else:
+                f |= F(**{"tags.slug": tag})
 
-        if "feature_types" in kwargs:
-            feature_types = kwargs["feature_types"]
-            results = results.filter(**{'feature_type.slug__in':feature_types})
+        for feature_type in kwargs.get("feature_types", []):
+            if feature_type.startswith("-"):
+                f &= ~ F(**{"feature_type.slug": feature_type[1:]})
+            else:
+                f |= F(**{"feature_type.slug": feature_type})
 
-        if "authors" in kwargs:
-            authors = kwargs["authors"]
-            results = results.filter(**{'authors.username__in':authors})
+        for author in kwargs.get("authors", []):
+            if author.startswith("-"):
+                f &= ~ F(**{"authors.username": author})
+            else:
+                f |= F(**{"authors.username": author})
+
+        results = results.filter(f)
 
         types = kwargs.pop("types", [])
         if types:
