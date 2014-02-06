@@ -32,7 +32,10 @@ class ContentListView(ListView):
             search_kwargs['tags'] = self.request.GET.getlist('tag', [])
 
         if 'tags' in self.kwargs:
-            search_kwargs['tags'] = self.kwargs['tags']
+            tags = self.kwargs['tags']
+            if not isinstance(tags, list):
+                tags = [tags]
+            search_kwargs['tags'] = tags 
         if self.tags > 0:
             search_kwargs['tags'] = self.tags
 
