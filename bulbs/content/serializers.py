@@ -111,6 +111,7 @@ class ContentSerializer(serializers.ModelSerializer):
     tags = TagField(many=True)
     authors = AuthorField(many=True)
     image = RemoteImageSerializer(required=False)
+    absolute_url = serializers.Field(source="get_absolute_url")
 
     class Meta:
         model = Content
@@ -120,6 +121,7 @@ class ContentSerializer(serializers.ModelSerializer):
         if not "index" in kwargs:
             kwargs["index"] = False
         return super(ContentSerializer, self).save(*args, **kwargs)
+
 
 class LogEntrySerializer(serializers.ModelSerializer):
     class Meta:
