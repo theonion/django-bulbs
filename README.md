@@ -1,8 +1,8 @@
 # Django Bulbs [![Build Status](https://magnum.travis-ci.com/theonion/django-bulbs.png?token=cBZRscrrbcP3TYq87VqV&branch=indexable)](https://magnum.travis-ci.com/theonion/django-bulbs)
 
-django-bulbs is a set of reusable apps developed at [The Onion](http://www.theonion.com) to assist with content, images and video.
+django-bulbs is a set of apps used to power content at [The Onion](http://www.theonion.com).
 
-You can read the documentation [here](http://jenkins.onion.com/view/All/job/bulbs-documentation/lastSuccessfulBuild/artifact/docs/_build/html/index.html).
+This project very much under active development, and is currently not as reusable as it could be.
 
 ## Running tests:
 
