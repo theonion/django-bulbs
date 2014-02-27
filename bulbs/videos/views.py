@@ -82,7 +82,7 @@ def video_attrs(request):
             {"acl": "private"},
             {"success_action_status": '201'},
             ["starts-with", "$key", directory],
-            ["content-length-range", 0, 314572800],
+            ["content-length-range", 0, 1073741824],
         ]
     }
 
