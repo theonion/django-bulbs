@@ -254,29 +254,34 @@ class ContentManager(SearchManager):
         f = F()
         for tag in kwargs.get("tags", []):
             if tag.startswith("-"):
-                f &= ~ F(**{"tags.slug": tag[1:]})
+                f &= ~F(**{"tags.slug": tag[1:]})
             else:
                 f |= F(**{"tags.slug": tag})
 
         for feature_type in kwargs.get("feature_types", []):
             if feature_type.startswith("-"):
-                f &= ~ F(**{"feature_type.slug": feature_type[1:]})
+                f &= ~F(**{"feature_type.slug": feature_type[1:]})
             else:
                 f |= F(**{"feature_type.slug": feature_type})
 
         for author in kwargs.get("authors", []):
             if author.startswith("-"):
-                f &= ~ F(**{"authors.username": author})
+                f &= ~F(**{"authors.username": author})
             else:
                 f |= F(**{"authors.username": author})
 
         results = results.filter(f)
 
+        # only use valid subtypes
         types = kwargs.pop("types", [])
+        model_types = self.model.get_mapping_type_names()
         if types:
-            # only use valid subtypes
-            results = results.doctypes(*types)
-
+            results = results.doctypes(*[
+                type_classname for type_classname in types \
+                if type_classname in model_types
+            ])
+        else:
+            results = results.doctypes(*model_types)
         return results
 
     def in_bulk(self, pks):
