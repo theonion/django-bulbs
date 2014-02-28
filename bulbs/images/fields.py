@@ -37,7 +37,8 @@ class RemoteImageFieldFile(FieldFile):
                 image_dir += "/"
         if image_dir.endswith("/"):
             image_dir = image_dir[:-1]
-        return "%s/%s/%s/%s.%s" % (settings.BETTY_CROPPER['PUBLIC_URL'], image_dir, ratio, width, format)
+        return "%s/%s/%s/%s.%s" % (
+            settings.BETTY_CROPPER['PUBLIC_URL'], image_dir, ratio, width, format)
 
     @property
     def id(self):
@@ -116,7 +117,8 @@ class RemoteImageField(FileField):
         self.upload_to = settings.BETTY_CROPPER['ADMIN_URL']
 
         kwargs['max_length'] = kwargs.get('max_length', 100)
-        super(RemoteImageField, self).__init__(verbose_name, name, upload_to=self.upload_to, storage=self.storage, **kwargs)
+        super(RemoteImageField, self).__init__(
+            verbose_name, name, upload_to=self.upload_to, storage=self.storage, **kwargs)
 
     def validate(self, value, model_instance):
         try:
@@ -127,7 +129,6 @@ class RemoteImageField(FileField):
         if data:
             if 'id' in data and not isinstance(data['id'], basestring):
                 raise ValidationError("")
-
 
     def pre_save(self, model_instance, add):
         "Returns field's value just before saving."
