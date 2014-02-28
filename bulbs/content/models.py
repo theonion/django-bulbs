@@ -6,14 +6,17 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.core.urlresolvers import NoReverseMatch, reverse
 from django.db import models
-from django.db.backends import util
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django.utils.html import strip_tags
 
 from bulbs.content import TagCache
 from bulbs.images.fields import RemoteImageField
-from bulbs.indexable.indexable import PolymorphicIndexable, SearchManager, PolymorphicMappingType
+from bulbs.indexable.indexable import (
+    PolymorphicIndexable,
+    SearchManager,
+    PolymorphicMappingType
+)
 from elasticutils import SearchResults, S, F
 from elasticutils.contrib.django import get_es
 from polymorphic import PolymorphicModel, PolymorphicManager
@@ -21,8 +24,8 @@ from polymorphic import PolymorphicModel, PolymorphicManager
 from .shallow import ShallowContentS, ShallowContentResult
 
 try:
-    from bulbs.content.tasks import index as index_task
-    from bulbs.content.tasks import update as update_task
+    from bulbs.content.tasks import index as index_task  # noqa
+    from bulbs.content.tasks import update as update_task  # noqa
     CELERY_ENABLED = True
 except ImportError:
     CELERY_ENABLED = False
@@ -95,7 +98,7 @@ class ModelSearchResults(SearchResults):
     @classmethod
     def get_model(cls):
         raise NotImplementedError('ModelSearchResults requires a `get_model` method.')
-        
+
     def set_objects(self, results):
         ids = list(int(r["_id"]) for r in results)
         model_objects = self.get_model().objects.in_bulk(ids)
@@ -191,7 +194,7 @@ class Tag(PolymorphicIndexable, PolymorphicModel):
             "type": {"type": "string", "index": "not_analyzed"}
         })
         return props
-    
+
     def extract_document(self):
         data = super(Tag, self).extract_document()
         data.update({
@@ -214,7 +217,10 @@ class ContentManager(SearchManager):
         from this manager's model"""
 
         base_polymorphic_class = self.model.get_base_class()
-        type_ = type('%sMappingType' % base_polymorphic_class.__name__, (PolymorphicMappingType,), {"base_polymorphic_class": base_polymorphic_class})
+        type_ = type(
+            '%sMappingType' % base_polymorphic_class.__name__,
+            (PolymorphicMappingType,),
+            {"base_polymorphic_class": base_polymorphic_class})
 
         return ShallowContentS(type_=type_).es(urls=settings.ES_URLS)
 
@@ -231,7 +237,7 @@ class ContentManager(SearchManager):
          * authors
          * published
         """
-        
+
         results = self.s()
 
         if "query" in kwargs:
@@ -239,7 +245,8 @@ class ContentManager(SearchManager):
         else:
             results = results.order_by('-published', '-last_modified')
 
-        # Right now we have "Before", "After" (datetimes), and "published" (a boolean). Should simplify this in the future.
+        # Right now we have "Before", "After" (datetimes),
+        # and "published" (a boolean). Should simplify this in the future.
         if "before" in kwargs or "after" in kwargs:
             if "before" in kwargs:
                 results = results.query(published__lte=kwargs["before"], must=True)
@@ -303,14 +310,14 @@ class Content(PolymorphicIndexable, PolymorphicModel):
     slug = models.SlugField(blank=True, default='')
     description = models.TextField(max_length=1024, blank=True, default='')
     image = RemoteImageField(max_length=512, null=True, blank=True)
-    
+
     authors = models.ManyToManyField(settings.AUTH_USER_MODEL)
     feature_type = models.CharField(max_length=255, null=True, blank=True)  # "New in Brief", "Newswire", etc.
     subhead = models.CharField(max_length=255, null=True, blank=True)
 
     tags = models.ManyToManyField(Tag, blank=True)
 
-    indexed = models.BooleanField(default=True) # Should this item be indexed? 
+    indexed = models.BooleanField(default=True)  # Should this item be indexed?
 
     _readonly = False  # Is this a read only model? (i.e. from elasticsearch)
 
@@ -349,7 +356,8 @@ class Content(PolymorphicIndexable, PolymorphicModel):
 
     def ordered_tags(self):
         tags = list(self.tags.all())
-        return sorted(tags, key=lambda tag: ((type(tag) != Tag) * 100000) + tag.count(), reverse=True)
+        return sorted(
+            tags, key=lambda tag: ((type(tag) != Tag) * 100000) + tag.count(), reverse=True)
 
     @property
     def feature_type_slug(self):
@@ -374,17 +382,17 @@ class Content(PolymorphicIndexable, PolymorphicModel):
         properties.update({
             "published": {"type": "date"},
             "last_modified": {"type": "date"},
-            "title": {"type": "string", "analyzer":"snowball", "_boost":  2.0},
+            "title": {"type": "string", "analyzer": "snowball", "_boost": 2.0},
             "slug": {"type": "string"},
-            "description": {"type": "string",},
+            "description": {"type": "string", },
             "image": {"type": "string"},
             "feature_type": {
                 "properties": {
                     "name": {
                         "type": "multi_field",
                         "fields": {
-                            "name" : {"type": "string", "index": "not_analyzed"},
-                            "autocomplete" : {"type": "string", "analyzer": "autocomplete"}
+                            "name": {"type": "string", "index": "not_analyzed"},
+                            "autocomplete": {"type": "string", "analyzer": "autocomplete"}
                         }
                     },
                     "slug": {"type": "string", "index": "not_analyzed"}
@@ -434,6 +442,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
         from .serializers import ContentSerializer
         return ContentSerializer
 
+
 class LogEntryManager(models.Manager):
     def log(self, user, content, message):
         return self.create(
@@ -442,6 +451,7 @@ class LogEntryManager(models.Manager):
             object_id=content.pk,
             change_message=message
         )
+
 
 class LogEntry(models.Model):
     action_time = models.DateTimeField("action time", auto_now=True)
@@ -455,6 +465,7 @@ class LogEntry(models.Model):
     class Meta:
         ordering = ("-action_time",)
 
+
 def content_deleted(sender, instance=None, **kwargs):
     if getattr(instance, "_index", True):
         es = get_es()
@@ -464,4 +475,3 @@ def content_deleted(sender, instance=None, **kwargs):
 
 
 models.signals.pre_delete.connect(content_deleted, Content)
-
