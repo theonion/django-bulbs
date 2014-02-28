@@ -4,11 +4,12 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.test.client import Client
 
+
 class VideoAPICase(TestCase):
 
     def setUp(self):
         User = get_user_model()
-        admin = User.objects.create_user("admin", "tech@theonion.com" , "secret")
+        admin = User.objects.create_user("admin", "tech@theonion.com", "secret")
         admin.is_staff = True
         admin.save()
 
@@ -20,6 +21,8 @@ class VideoAPICase(TestCase):
         data = {
             "name": "Testing Video"
         }
-        response = client.post("/videos/api/video/", json.dumps(data), content_type="application/json")
-        self.assertEqual(response.status_code, 201) # 201 Created
+        response = client.post(
+            "/videos/api/video/",
+            json.dumps(data), content_type="application/json")
+        self.assertEqual(response.status_code, 201)  # 201 Created
         self.assertEqual(response.data.get("name"), "Testing Video")
