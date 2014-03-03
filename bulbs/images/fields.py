@@ -16,6 +16,8 @@ class RemoteImageSerializer(serializers.WritableField):
     def to_native(self, obj):
         if obj.name is None or obj.name == "":
             return None
+        if obj.id is None:
+            return None
         return {
             'id': obj.id,
             'caption': obj.caption,
