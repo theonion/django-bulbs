@@ -20,4 +20,3 @@ class ContentDoctypeForm(forms.Form):
         choices=lazy(mapping_type_choices(Content, exclude_base=True), list)(),
         label='Type'
     )
-

@@ -1,9 +1,6 @@
-import base64, hmac, hashlib, simplejson, time
-
-from django.conf import settings
 from django.contrib import auth
 from django.core.exceptions import ValidationError
-from django.db import IntegrityError, transaction
+from django.db import transaction
 from django.template.defaultfilters import slugify
 
 from rest_framework import serializers
@@ -68,7 +65,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = auth.get_user_model()
 
     def to_native(self, obj):
-        
+
         return {
             "id": obj.pk,
             "username": obj.username,
@@ -77,7 +74,7 @@ class UserSerializer(serializers.ModelSerializer):
             "last_name": obj.last_name
         }
 
- 
+
 class AuthorField(relations.RelatedField):
     """This field manages the authors on a piece of content, and allows a "fatter"
     endpoint then would normally be possible with a RelatedField"""
@@ -130,4 +127,3 @@ class LogEntrySerializer(serializers.ModelSerializer):
 
 class PolymorphicContentSerializer(PolymorphicSerializerMixin, ContentSerializer):
     pass
-

@@ -13,6 +13,7 @@ from django.views.decorators.cache import cache_control
 
 from .models import Video
 
+
 @cache_control(no_cache=True)
 @csrf_exempt
 def notification(request):
@@ -68,6 +69,7 @@ def notification(request):
         video.save()
     return HttpResponse(status=204)
 
+
 @cache_control(no_cache=True)
 @staff_member_required
 def video_attrs(request):
@@ -88,7 +90,8 @@ def video_attrs(request):
 
     policy_document = json.dumps(policy_dict)
     policy = base64.b64encode(policy_document)
-    signature = base64.b64encode(hmac.new(settings.AWS_SECRET_ACCESS_KEY, policy, hashlib.sha1).digest())
+    signature = base64.b64encode(
+        hmac.new(settings.AWS_SECRET_ACCESS_KEY, policy, hashlib.sha1).digest())
 
     contents = {
         'AWSAccessKeyId': settings.AWS_ACCESS_KEY_ID,

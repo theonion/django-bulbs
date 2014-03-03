@@ -8,6 +8,7 @@ register = template.Library()
 
 DEFAULT_IMAGE = getattr(settings, 'BETTY_CROPPER', {}).get('DEFAULT_IMAGE')
 
+
 def crop_url(image_id, width, ratio="original", format="jpg"):
     if not image_id and DEFAULT_IMAGE is not None:
         image_id = DEFAULT_IMAGE
@@ -29,7 +30,8 @@ def cropped_url(image, ratio, width, format='jpg'):
         return crop_url(image.id, width=width, ratio=ratio, format=format)
     if isinstance(image, basestring):
         return crop_url(image, width=width, ratio=ratio, format=format)
-    raise TemplateSyntaxError("You must use a RemoteImageField or string as the first argument to this tag.")
+    raise TemplateSyntaxError(
+        "You must use a RemoteImageField or string as the first argument to this tag.")
 
 
 @register.simple_tag(takes_context=True)
@@ -49,7 +51,8 @@ def cropped(context, image, ratio, width, format="jpg", alt=None):
         context['image_url'] = crop_url(image, width=width, ratio=ratio, format=format)
         context['image_id'] = DEFAULT_IMAGE
     else:
-        raise TemplateSyntaxError("You must use a RemoteImageField as the first argument to this tag.")
+        raise TemplateSyntaxError(
+            "You must use a RemoteImageField as the first argument to this tag.")
 
     context['ratio'] = ratio
     context['width'] = width

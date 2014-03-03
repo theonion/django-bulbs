@@ -1,14 +1,6 @@
-import json
+from django.views.generic import ListView
 
-from django.conf import settings
-from django.http import Http404, HttpResponse
-from django.utils import simplejson as json
-from django.views.generic import CreateView, ListView, UpdateView, View
-from django.views.generic.detail import SingleObjectMixin
-
-from elasticutils import S
-
-from bulbs.content.models import Content, Tag
+from bulbs.content.models import Content
 
 
 class ContentListView(ListView):

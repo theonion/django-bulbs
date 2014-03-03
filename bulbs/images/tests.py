@@ -1,17 +1,11 @@
 import os
 import shutil
-import random
 import json
-import socket
 
 from django.template import Context, Template
-from django.template import TemplateSyntaxError
-from django.core.files import File
 from bulbs.images.conf import settings
-from django.test.client import Client
 from django.db import models
 from django.test import TestCase
-from django.db.models.fields.files import FieldFile
 
 from httmock import urlmatch, HTTMock
 
@@ -83,6 +77,7 @@ class ImageCaptionTestCase(TestCase):
         self.assertEqual(test.image.alt, "Some snarky shit")
         self.assertEqual(test.image.id, "69")
 
+
 class ImageSerializationTestCase(TestCase):
 
     def test_from_native(self):
@@ -120,7 +115,6 @@ class ImageTagsTestCase(TestCase):
     #             test.save()
     #             self.assertEqual(test.image.name, "10")
 
-
     def tearDown(self):
         if os.path.exists(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
@@ -133,11 +127,13 @@ class ImageTagsTestCase(TestCase):
         rendered = test_template.render(test_context)
         self.assertEqual(rendered, "http://localhost:8698/666/1x1/200.jpg")
 
-        test_template = Template("""{% load images %}{% cropped_url test.image "1x1" 200 format="png" %}""")
+        test_template = Template(
+            """{% load images %}{% cropped_url test.image "1x1" 200 format="png" %}""")
         rendered = test_template.render(test_context)
         self.assertEqual(rendered, "http://localhost:8698/666/1x1/200.png")
 
-        test_template = Template("""{% load images %}{% cropped_url test.image "1x1" 200 format="png" %}""")
+        test_template = Template(
+            """{% load images %}{% cropped_url test.image "1x1" 200 format="png" %}""")
         rendered = test_template.render(test_context)
         self.assertEqual(rendered, "http://localhost:8698/666/1x1/200.png")
 

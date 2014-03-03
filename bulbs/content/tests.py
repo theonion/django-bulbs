@@ -3,13 +3,9 @@ from __future__ import absolute_import
 import itertools
 import datetime
 
-from django.test import TestCase
 from django.utils import timezone
 from django.test.client import Client
-from django.conf import settings
 from django.template.defaultfilters import slugify
-
-from elasticutils.contrib.django import get_es
 
 from bulbs.content.models import Content, Tag
 from bulbs.content.serializers import ContentSerializer
@@ -122,7 +118,6 @@ class PolyContentTestCase(BaseIndexableTestCase):
         TestContentObj.search_objects.refresh()
         TestContentObjTwo.search_objects.refresh()
 
-
     def test_filter_search_content(self):
 
         self.assertEqual(Content.objects.count(), 12)
@@ -146,9 +141,9 @@ class PolyContentTestCase(BaseIndexableTestCase):
         q = Content.search_objects.search(types=["testcontent_testcontentobjtwo"]).full()
         self.assertEqual(q.count(), 6)
 
-        q = Content.search_objects.search(types=["testcontent_testcontentobjtwo", "testcontent_testcontentobj"])
+        q = Content.search_objects.search(types=[
+            "testcontent_testcontentobjtwo", "testcontent_testcontentobj"])
         self.assertEqual(q.count(), 12)
-
 
     def test_negative_filters(self):
         q = Content.search_objects.search(tags=["-spam"])
@@ -158,7 +153,6 @@ class PolyContentTestCase(BaseIndexableTestCase):
         self.assertEqual(q.count(), 6)
         for content in q.full():
             self.assertNotEqual("Obj one", content.feature_type)
-
 
     def test_content_subclasses(self):
         # We created one of each subclass per combination so the following should be true:
@@ -203,4 +197,4 @@ class PolyContentTestCase(BaseIndexableTestCase):
 
     def test_deserialize_none(self):
         s = Content.get_serializer_class()(data=None)
-        d = s.data
+        s.data

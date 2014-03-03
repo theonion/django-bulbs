@@ -1,6 +1,9 @@
-"""This module stores code for Shallow content results.
+"""
+This module stores code for Shallow content results.
 
-In the future, we should remove this, and simple pass dictionaries into our templates."""
+In the future, we should remove this, and pass
+simple dictionaries into our templates.
+"""
 
 from datetime import datetime
 
@@ -41,6 +44,7 @@ class ShallowAuthor(object):
         self.first_name = data.get('first_name')
         self.last_name = data.get('last_name')
 
+
 class ShallowAuthorRelation(list):
 
     def __init__(self, items):
@@ -49,6 +53,7 @@ class ShallowAuthorRelation(list):
 
     def all(self):
         return self
+
 
 class ShallowTagRelation(list):
 
@@ -73,6 +78,7 @@ class ShallowObject(object):
             else:
                 setattr(self, key, item)
 
+
 class ShallowRelation(list):
     def __init__(self, items):
         for item in items:
@@ -84,6 +90,7 @@ class ShallowRelation(list):
     def all(self):
         return self
 
+
 class ShallowContentResult(ShallowObject):
 
     def __init__(self, _source, type=None):
@@ -93,10 +100,14 @@ class ShallowContentResult(ShallowObject):
         published_utc = None
         if _source.get('published'):
             try:
-                published_utc = datetime.strptime(_source.get('published'), '%Y-%m-%dT%H:%M:%S.%f+00:00').replace(tzinfo=utc)
+                published_utc = datetime.strptime(
+                    _source.get('published'), '%Y-%m-%dT%H:%M:%S.%f+00:00'
+                ).replace(tzinfo=utc)
             except ValueError:
                 try:
-                    published_utc = datetime.strptime(_source.get('published'), '%Y-%m-%dT%H:%M:%S+00:00').replace(tzinfo=utc)
+                    published_utc = datetime.strptime(
+                        _source.get('published'), '%Y-%m-%dT%H:%M:%S+00:00'
+                    ).replace(tzinfo=utc)
                 except ValueError:
                     pass
 
@@ -104,8 +115,10 @@ class ShallowContentResult(ShallowObject):
             self.published = timezone.localtime(published_utc)
         else:
             self.published = None
-        
-        self.feature_type = ShallowFeatureType(_source.get('feature_type').get('name'), slug=_source.get('feature_type').get('slug'))
+
+        self.feature_type = ShallowFeatureType(
+            _source.get('feature_type').get('name'),
+            slug=_source.get('feature_type').get('slug'))
         super(ShallowContentResult, self).__init__(_source)
 
     def __unicode__(self):
@@ -122,6 +135,7 @@ class ShallowContentResult(ShallowObject):
         sorted(tags, key=lambda tag: ((tag.type != "content_tag") * 100000) + bulbs.content.TagCache.count(tag.slug))
         return tags
 
+
 class ShallowContentSearchResults(SearchResults):
 
     def set_objects(self, results):
@@ -131,6 +145,7 @@ class ShallowContentSearchResults(SearchResults):
 
     def __iter__(self):
         return self.objects.__iter__()
+
 
 class ShallowContentS(PolymorphicS):
 
