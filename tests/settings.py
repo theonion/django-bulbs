@@ -27,12 +27,12 @@ INSTALLED_APPS = (
 
     'rest_framework',
     'polymorphic',
+    'elastimorphic',
 
     'bulbs.content',
     'bulbs.images',
-    'bulbs.indexable',
 
-    'tests.testindexable'  # Just here for a couple of test models
+    'tests.testcontent'  # Just here for a couple of test models
 )
 SITE_ID = 3
 SECRET_KEY = '_(m&)4jinh6cuzjt&p37lbg8ycc3d*xd36!pl3g*n2m3is_89v'

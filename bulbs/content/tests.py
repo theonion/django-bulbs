@@ -9,7 +9,7 @@ from django.template.defaultfilters import slugify
 
 from bulbs.content.models import Content, Tag
 from bulbs.content.serializers import ContentSerializer
-from bulbs.indexable.tests import BaseIndexableTestCase
+from elastimorphic.tests.base import BaseIndexableTestCase
 
 from tests.testcontent.models import TestContentObj, TestContentObjTwo
 

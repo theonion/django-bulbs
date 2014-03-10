@@ -1,1 +1,0 @@
-# Just here so django thinks this is an app.
