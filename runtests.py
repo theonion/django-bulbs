@@ -58,9 +58,9 @@ settings.configure(
     ES_URLS = ['http://localhost:9200'],
 
     BETTY_CROPPER = {
-            'ADMIN_URL': 'http://localhost:8698/',
-            'PUBLIC_URL': 'http://localhost:8698/',
-            'DEFAULT_IMAGE': '12345'
+        'ADMIN_URL': 'http://localhost:8698',
+        'PUBLIC_URL': 'http://localhost:8698',
+        'DEFAULT_IMAGE': '12345'
     }
 )
 if django.VERSION[1] < 6:
