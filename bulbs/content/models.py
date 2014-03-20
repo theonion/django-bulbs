@@ -12,13 +12,13 @@ from django.utils.html import strip_tags
 
 from bulbs.content import TagCache
 from bulbs.images.fields import RemoteImageField
-from bulbs.indexable.indexable import (
-    PolymorphicIndexable,
-    SearchManager,
-    PolymorphicMappingType
-)
 from elasticutils import SearchResults, S, F
 from elasticutils.contrib.django import get_es
+from elastimorphic.base import (
+    PolymorphicIndexable,
+    PolymorphicMappingType,
+    SearchManager,
+)
 from polymorphic import PolymorphicModel, PolymorphicManager
 
 from .shallow import ShallowContentS, ShallowContentResult

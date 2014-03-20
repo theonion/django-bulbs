@@ -40,14 +40,13 @@ settings.configure(
 
         'rest_framework',
         'polymorphic',
+        'elastimorphic',
 
         'bulbs.content',
         'bulbs.images',
-        'bulbs.indexable',
         'bulbs.videos',
 
         # Just here for a couple of test models
-        'tests.testindexable',
         'tests.testcontent'
     ),
     SITE_ID = 3,

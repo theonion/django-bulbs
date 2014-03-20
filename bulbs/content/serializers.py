@@ -7,7 +7,7 @@ from rest_framework import serializers
 from rest_framework import relations
 
 from bulbs.images.fields import RemoteImageSerializer
-from bulbs.indexable.serializers import ContentTypeField, PolymorphicSerializerMixin
+from elastimorphic.serializers import ContentTypeField, PolymorphicSerializerMixin
 
 from .models import Content, Tag, LogEntry
 

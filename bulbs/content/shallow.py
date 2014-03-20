@@ -12,7 +12,7 @@ from django.utils import timezone
 from django.utils.timezone import utc
 import bulbs.content
 
-from bulbs.indexable.indexable import PolymorphicS, ModelSearchResults
+from elastimorphic.base import PolymorphicS, ModelSearchResults
 
 
 class ShallowFeatureType(object):
