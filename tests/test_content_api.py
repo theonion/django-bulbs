@@ -8,6 +8,7 @@ from django.utils import timezone
 
 from elastimorphic.tests.base import BaseIndexableTestCase
 from pyelasticsearch.client import JsonEncoder
+from pyelasticsearch.exceptions import ElasticHttpNotFoundError
 
 from bulbs.content.models import LogEntry, Tag, Content
 from bulbs.content.serializers import TagSerializer
@@ -219,7 +220,7 @@ class TestAddTagsAPI(BaseUpdateContentAPI):
             self.tags.append(tag)
 
         self.content = TestContentObj.objects.create(
-            title="Adam Wentz reviews \"AirWolf\" (but it's not really a review anymore, I just don't want to update these tests)",
+            title="Adam Wentz reviews \"AirWolf\" (but it's not really a review anymore)",
             description="Learn what to think about the classic Donald P. Bellisario TV series",
             foo="What a show! What a helicopter!",
         )
@@ -246,3 +247,33 @@ class TestAddTagsAPI(BaseUpdateContentAPI):
             else:
                 self.assertEqual(response_data[key], expected_data[key])
 
+
+class TestTrashContentAPI(ContentAPITestCase):
+    def test_trash(self):
+        content = TestContentObj.objects.create(
+            title="Test Article",
+            description="Testing out trash.",
+            foo="Lorem ipsum dolor, oh myyyy!"
+        )
+        self.assertTrue(content.indexed)
+        data = self.es.get(content.get_index_name(), content.get_mapping_type_name(), content.id)
+        self.assertEqual(data["_source"]["title"], "Test Article")
+
+        client = Client()
+        client.login(username="admin", password="secret")
+        content_rest_url = reverse("content-trash", kwargs={"pk": content.id})
+        response = client.post(content_rest_url, content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+
+        content = Content.objects.get(id=content.id)
+        self.assertFalse(content.indexed)
+
+        # check for a log
+        LogEntry.objects.filter(object_id=content.pk).get(change_message="Trashed")
+
+        with self.assertRaises(ElasticHttpNotFoundError):
+            self.es.get(content.get_index_name(), content.get_mapping_type_name(), content.id)
+
+        content.save()
+        with self.assertRaises(ElasticHttpNotFoundError):
+            self.es.get(content.get_index_name(), content.get_mapping_type_name(), content.id)

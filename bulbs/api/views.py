@@ -1,5 +1,6 @@
 """API Views and ViewSets"""
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
@@ -13,6 +14,9 @@ from rest_framework import (
 )
 
 from rest_framework.response import Response
+
+from elasticutils.contrib.django import get_es
+from pyelasticsearch.exceptions import ElasticHttpNotFoundError
 
 from bulbs.content.models import Content, Tag, LogEntry
 from bulbs.content.serializers import (
@@ -39,6 +43,8 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
     )
     filter_fields = ("tags", "authors", "feature_types", "published", "types")
     search_fields = ("title", "description")
+
+    # TODO: "post_save"?
 
     def get_serializer_class(self):
         klass = None
@@ -73,6 +79,32 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         content.save()
         LogEntry.objects.log(request.user, content, content.get_status())
         return Response({"status": content.get_status(), "published": content.published})
+
+    @decorators.action()
+    def trash(self, request, **kwargs):
+        content = self.get_object()
+
+        content.indexed = False
+        content.save()
+
+        es = get_es(urls=settings.ES_URLS)
+        try:
+            es.delete(content.get_index_name(), content.get_mapping_type_name(), content.id)
+            LogEntry.objects.log(request.user, content, "Trashed")
+            return Response({"status": "Trashed"})
+        except ElasticHttpNotFoundError:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+    @decorators.link()
+    def status(self, request, **kwargs):
+        """This endpoint returns a status text, currently one of:
+          - "Draft" (If no publish date is set, and no item exists in the editor queue)
+          - "Waiting for Editor" (If no publish date is set, and an item exists in the editor queue)
+          - "Published" (The published date is in the past)
+          - "Scheduled" (The published date is set in the future)
+        """
+        content = self.get_object()
+        return Response({"status": content.get_status()})
 
     # @decorators.list_route()
     def feature_types(self, request, **kwargs):
