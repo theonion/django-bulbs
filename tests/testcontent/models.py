@@ -2,12 +2,18 @@ from django.db import models
 
 from bulbs.content.models import Content
 
+
 class TestContentObj(Content):
     """Fake content here"""
     foo = models.CharField(max_length=255)
 
     def get_absolute_url(self):
         return '/detail/%s/' % self.pk
+
+    @classmethod
+    def get_serializer_class(cls):
+        from .serializers import TestContentObjSerializer
+        return TestContentObjSerializer
 
 
 class TestContentObjTwo(Content):

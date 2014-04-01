@@ -2,13 +2,18 @@
 
 from django.contrib.auth import get_user_model
 
-from rest_framework import filters
-from rest_framework import status
-from rest_framework import viewsets
+from rest_framework import (
+    decorators,
+    filters,
+    status,
+    viewsets,
+    routers
+)
+
 from rest_framework.response import Response
 
-from .models import Content, Tag, LogEntry
-from .serializers import (
+from bulbs.content.models import Content, Tag, LogEntry
+from bulbs.content.serializers import (
     LogEntrySerializer, PolymorphicContentSerializer,
     TagSerializer, UserSerializer
 )
@@ -45,6 +50,35 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
             return klass.get_serializer_class()
 
         return super(ContentViewSet, self).get_serializer_class()
+
+    # @decorators.list_route()
+    def feature_types(self, request, **kwargs):
+        query = self.model.search_objects.search(published=False)
+        if "q" in request.QUERY_PARAMS:
+            query = query.query(
+                **{
+                    "feature_type.name.autocomplete__match": request.QUERY_PARAMS["q"],
+                    "should": True
+                })
+        facet_counts = query.facet_raw(
+            feature_type={
+                "terms": {
+                    "field": "feature_type.name",
+                    "size": 40
+                }
+            }
+        ).facet_counts()
+
+        facets = facet_counts["feature_type"]
+        data = []
+        for facet in facets:
+            facet_data = {
+                "name": facet["term"],
+                "count": facet["count"]
+            }
+            data.append(facet_data)
+
+        return Response(data)
 
 
 class TagViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
@@ -93,3 +127,7 @@ class LogEntryViewSet(UncachedResponse, viewsets.ModelViewSet):
                             headers=headers)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+api_v1_router = routers.DefaultRouter()
+api_v1_router.register(r"content", ContentViewSet, base_name="content")
