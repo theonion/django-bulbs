@@ -23,6 +23,7 @@ def pytest_configure():
             "rest_framework",
             "polymorphic",
             "elastimorphic",
+            "bulbs.api",
             "bulbs.content",
             "bulbs.images",
             "tests.testcontent",),

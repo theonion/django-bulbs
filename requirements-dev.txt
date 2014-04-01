@@ -1,9 +1,6 @@
 -r requirements.txt
 Sphinx==1.2b1
-ipython==0.13.1
-unittest-xml-reporting==1.6.0
 coverage==3.6b1
-django-discover-runner==1.0
 pylint==1.0.0
 httmock==1.0.5
 psycopg2==2.5.1
