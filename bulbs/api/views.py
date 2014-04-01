@@ -1,6 +1,8 @@
 """API Views and ViewSets"""
 
 from django.contrib.auth import get_user_model
+from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 
 from rest_framework import (
     decorators,
@@ -50,6 +52,27 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
             return klass.get_serializer_class()
 
         return super(ContentViewSet, self).get_serializer_class()
+
+    @decorators.action()
+    def publish(self, request, **kwargs):
+        content = self.get_object()
+
+        if "published" in request.DATA:
+            if not request.DATA["published"]:
+                content.published = None
+            else:
+                publish_dt = parse_datetime(request.DATA["published"])
+                if publish_dt:
+                    publish_dt = publish_dt.astimezone(timezone.utc)
+                else:
+                    publish_dt = None
+                content.published = publish_dt
+        else:
+            content.published = timezone.now()
+
+        content.save()
+        LogEntry.objects.log(request.user, content, content.get_status())
+        return Response({"status": content.get_status(), "published": content.published})
 
     # @decorators.list_route()
     def feature_types(self, request, **kwargs):

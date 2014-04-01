@@ -109,6 +109,7 @@ class ContentSerializer(serializers.ModelSerializer):
     authors = AuthorField(many=True)
     image = RemoteImageSerializer(required=False)
     absolute_url = serializers.Field(source="get_absolute_url")
+    status = serializers.Field(source="get_status")
 
     class Meta:
         model = Content

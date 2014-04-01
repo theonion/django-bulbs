@@ -1,5 +1,4 @@
 import os
-import tempfile
 
 from django.conf import settings
 
@@ -15,11 +14,12 @@ def pytest_configure():
                 'NAME': ':memory:'
             }
         },
-        MEDIA_ROOT=tempfile.mkdtemp("bettycropper"),
+        USE_TZ=True,
         TEMPLATE_DIRS=(os.path.join(MODULE_ROOT, 'tests', 'templates'),),
         INSTALLED_APPS=(
             "django.contrib.auth",
             "django.contrib.contenttypes",
+            "django.contrib.sessions",
             "rest_framework",
             "polymorphic",
             "elastimorphic",
@@ -28,6 +28,22 @@ def pytest_configure():
             "bulbs.images",
             "tests.testcontent",),
         ROOT_URLCONF = 'tests.urls',
+        TEMPLATE_CONTEXT_PROCESSORS = (
+            "django.contrib.auth.context_processors.auth",
+            "django.core.context_processors.debug",
+            "django.core.context_processors.i18n",
+            "django.core.context_processors.media",
+            "django.core.context_processors.static",
+            "django.core.context_processors.tz",
+            "django.contrib.messages.context_processors.messages",
+            "django.core.context_processors.request"
+        ),
+
+        REST_FRAMEWORK = {
+            'DEFAULT_AUTHENTICATION_CLASSES': (
+                'rest_framework.authentication.SessionAuthentication',
+            )
+        },
         
         ES_DISABLED = False,
         ES_URLS = ['http://localhost:9200'],

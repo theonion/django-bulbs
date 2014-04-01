@@ -333,6 +333,20 @@ class Content(PolymorphicIndexable, PolymorphicModel):
             url = None
         return url
 
+    def get_status(self):
+        """Returns a string representing the status of this item
+
+        By default, this is one of "draft", "scheduled" or "published"."""
+
+        if self.published:
+            now = timezone.now()
+            if now >= self.published:
+                return "published"  # The published time has passed, now the content is public
+            else:
+                return "scheduled"  # The published time has been set, but is in the future
+
+        return "draft"  # No published time has been set
+
     @property
     def is_published(self):
         if self.published:
