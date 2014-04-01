@@ -2,6 +2,7 @@
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
@@ -66,6 +67,49 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         message = "Created" if created else "Saved"
         LogEntry.objects.log(self.request.user, obj, message)
         return super(ContentViewSet, self).post_save(obj, created=created)
+
+    def list(self, request, *args, **kwargs):
+        """I'm overriding this so that the listing pages can be driven from ElasticSearch"""
+
+        # check for a text query
+        search_kwargs = {"published": False}
+        search_query = request.QUERY_PARAMS.get("search", None)
+        if search_query:
+            search_kwargs["query"] = search_query
+
+        if "before" in request.QUERY_PARAMS:
+            search_kwargs["before"] = parse_datetime(request.QUERY_PARAMS["before"])
+
+        if "after" in request.QUERY_PARAMS:
+            search_kwargs["after"] = parse_datetime(request.QUERY_PARAMS["after"])
+
+        if "status" in request.QUERY_PARAMS:
+            search_kwargs["status"] = request.QUERY_PARAMS["status"]
+            del search_kwargs["published"]
+
+        # filter on specific fields using `filter_fields` on your view
+        filter_fields = getattr(self, "filter_fields", None)
+        if filter_fields:
+            for field_name in filter_fields:
+                filter_query = request.QUERY_PARAMS.getlist(field_name, None)
+                if filter_query:
+
+                    # We need to figure out how to match on a slug, not a name
+                    if field_name == "feature_types":
+                        filter_query = [slugify(f) for f in filter_query]
+
+                    search_kwargs[field_name] = filter_query
+        
+        self.object_list = self.model.search_objects.search(**search_kwargs).full()
+
+        # Switch between paginated or standard style responses
+        page = self.paginate_queryset(self.object_list)
+        if page is not None:
+            serializer = self.get_pagination_serializer(page)
+        else:
+            serializer = self.get_serializer(self.object_list, many=True)
+
+        return Response(serializer.data)
 
     @decorators.action()
     def publish(self, request, **kwargs):

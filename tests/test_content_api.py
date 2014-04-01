@@ -1,4 +1,5 @@
 import json
+import datetime
 
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
@@ -26,6 +27,50 @@ class ContentAPITestCase(BaseIndexableTestCase):
         admin.save()
 
         # reverse("content-detail")
+
+
+class TestContentListingAPI(ContentAPITestCase):
+    """Test the listing of content"""
+
+    def setUp(self):
+        super(TestContentListingAPI, self).setUp()
+        for i in range(47):
+            TestContentObj.objects.create(
+                title="Testing published content {}".format(i),
+                description="Doesn't matter what it is, AS LONG AS IT GETS CLICKZ",
+                foo="SUCK IT, NERDS.",
+                published=timezone.now() - datetime.timedelta(hours=1)
+            )
+
+        for i in range(32):
+            TestContentObj.objects.create(
+                title="Testing published content {}".format(i),
+                description="Doesn't matter what it is, AS LONG AS IT GETS CLICKZ",
+                foo="SUCK IT, NERDS.",
+                published=timezone.now() + datetime.timedelta(hours=1)
+            )
+
+        for i in range(13):
+            TestContentObj.objects.create(
+                title="Testing published content {}".format(i),
+                description="Doesn't matter what it is, AS LONG AS IT GETS CLICKZ",
+                foo="SUCK IT, NERDS."
+            )
+
+        TestContentObj.search_objects.refresh()
+
+    def test_list_published(self):
+
+        q = Content.search_objects.search(status="published")
+        self.assertEqual(q.count(), 47)
+
+        client = Client()
+        client.login(username="admin", password="secret")
+
+        response = client.get(reverse("content-list"), {"status": "published"}, content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["count"], 47)
+        self.assertEqual(len(response.data["results"]), 20)
 
 
 class TestCreateContentAPI(ContentAPITestCase):

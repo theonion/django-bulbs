@@ -258,6 +258,9 @@ class ContentManager(SearchManager):
                 now = timezone.now()
                 results = results.query(published__lte=now, must=True)
 
+        if "status" in kwargs:
+            results.query(status__match=kwargs.get("status"), must=True)
+
         f = F()
         for tag in kwargs.get("tags", []):
             if tag.startswith("-"):
@@ -423,7 +426,8 @@ class Content(PolymorphicIndexable, PolymorphicModel):
             "tags": {
                 "properties": Tag.get_mapping_properties()
             },
-            "absolute_url": {"type": "string"}
+            "absolute_url": {"type": "string"},
+            "status": {"type": "string", "index": "not_analyzed"}
         })
         return properties
 
@@ -447,7 +451,8 @@ class Content(PolymorphicIndexable, PolymorphicModel):
                 "username"  : author.username
             } for author in self.authors.all()],
             "tags": [tag.extract_document() for tag in self.ordered_tags()],
-            "absolute_url": self.get_absolute_url()
+            "absolute_url": self.get_absolute_url(),
+            "status": self.get_status()
         })
         return data
 
