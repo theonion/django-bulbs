@@ -7,9 +7,10 @@ from django.test.client import Client
 from django.utils import timezone
 
 from elastimorphic.tests.base import BaseIndexableTestCase
+from pyelasticsearch.client import JsonEncoder
 
-from bulbs.content.models import LogEntry
-
+from bulbs.content.models import LogEntry, Tag, Content
+from bulbs.content.serializers import TagSerializer
 from tests.testcontent.models import TestContentObj
 
 
@@ -145,4 +146,103 @@ class TestPublishContentAPI(ContentAPITestCase):
         self.assertEqual(article.published, None)
         # check for a log
         LogEntry.objects.filter(object_id=article.pk).get(change_message="draft")
+
+
+class BaseUpdateContentAPI(ContentAPITestCase):
+    """Base class to test updates on `Content` subclasses."""
+    def setUp(self):
+        super(BaseUpdateContentAPI, self).setUp()
+        self.create_content()
+
+    def create_content(self):
+        """Override to create your own content here."""
+        self.content = None
+        raise NotImplementedError("Your test must override `create_content`")
+
+    def updated_data(self):
+        raise NotImplementedError("Your test must override `updated_data`")
+        return {}
+
+    def check_response_data(self, response_data, expected_data):
+        for key in expected_data:
+            self.assertEqual(response_data[key], expected_data[key])
+
+    def _test_update_content(self):
+        """Fetches an existing Content object and updates that sucker."""
+        client = Client()
+        client.login(username="admin", password="secret")
+        new_data = self.updated_data()
+        # TODO: use reverse there, Von Neumann
+        content_detail_url = reverse("content-detail", kwargs={"pk": self.content.id})
+
+        response = client.get(content_detail_url)
+        self.assertEqual(response.status_code, 200)
+        # Squirt in some new data
+        content_data = response.data
+        content_data.update(new_data)
+        # PUT it up
+        data = json.dumps(content_data, cls=JsonEncoder)
+        response = client.put(content_detail_url, data=data, content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+        # Check that it returns an instance with the new data
+        # And check that the detail view is also correct
+        response = client.get(content_detail_url)
+        self.assertEqual(response.status_code, 200)
+        self.check_response_data(response.data, new_data)
+
+
+class TestUpdateContentAPI(BaseUpdateContentAPI):
+    """Tests updating an `Article`"""
+    def create_content(self):
+        self.content = TestContentObj.objects.create(
+            title="Booyah: The Cramer Story",
+            description="Learn how one man booyahed his way to the top.",
+            foo="booyah"
+        )
+
+    def updated_data(self):
+        return dict(
+            title="Cramer 2: Electric Booyah-loo",
+            foo="whatta guy....booyah indeed!"
+        )
+
+    def test_update_article(self):
+        self._test_update_content()
+
+
+class TestAddTagsAPI(BaseUpdateContentAPI):
+    """Tests adding `Tag` objects to an `Article`"""
+    def create_content(self):
+        self.tags = []
+        for tag_name in ("TV", "Helicopters", "America"):
+            tag, _ = Tag.objects.get_or_create(name=tag_name)
+            self.tags.append(tag)
+
+        self.content = TestContentObj.objects.create(
+            title="Adam Wentz reviews \"AirWolf\" (but it's not really a review anymore, I just don't want to update these tests)",
+            description="Learn what to think about the classic Donald P. Bellisario TV series",
+            foo="What a show! What a helicopter!",
+        )
+      #  self.content.tags.add(self.tags[0])
+
+    def updated_data(self):
+        serializer = TagSerializer(self.tags, many=True)
+        return dict(
+            foo="Incredible! A helicopter/wolf hybrid that will blow your pants off!",
+            tags=serializer.data
+        )
+
+    def test_update_tags(self):
+        self._test_update_content()
+
+    def check_response_data(self, response_data, expected_data):
+        for key in expected_data:
+            if key == "tags":
+                try:
+                    response_tag_ids = [tag["id"] for tag in response_data[key]]
+                except TypeError:
+                    response_tag_ids = [tag for tag in response_data[key]]
+                self.assertEqual(response_tag_ids, response_tag_ids)
+            else:
+                self.assertEqual(response_data[key], expected_data[key])
 
