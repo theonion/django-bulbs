@@ -6,3 +6,4 @@ httmock==1.0.5
 psycopg2==2.5.1
 pytest==2.5.2
 pytest-django==2.6
+celery==3.1.10

@@ -59,6 +59,14 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
 
         return super(ContentViewSet, self).get_serializer_class()
 
+    def post_save(self, obj, created=False):
+        from bulbs.content.tasks import index
+        index.delay(obj.polymorphic_ctype_id, obj.pk)
+
+        message = "Created" if created else "Saved"
+        LogEntry.objects.log(self.request.user, obj, message)
+        return super(ContentViewSet, self).post_save(obj, created=created)
+
     @decorators.action()
     def publish(self, request, **kwargs):
         content = self.get_object()
@@ -144,6 +152,36 @@ class TagViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
     search_fields = ("name",)
     paginate_by = 50
 
+    def list(self, request, *args, **kwargs):
+        """I'm overriding this so that the listing pages can be driven from ElasticSearch"""
+
+        search_query = Tag.search_objects.s()
+        if "search" in request.REQUEST:
+            search_query = search_query.query(
+                name__match_phrase=request.REQUEST["search"], should=True
+            ).query(
+                name__term=request.REQUEST["search"], should=True
+            )
+        if "types" in request.REQUEST:
+            search_query = search_query.doctypes(*request.REQUEST.getlist("types"))
+
+        # HACK ALERT. I changed the edge ngram to go from 3 to 10, so "TV" got screwed
+        if len(request.REQUEST.get("search", [])) < 3:
+            self.object_list = Tag.objects.filter(
+                name__istartswith=request.REQUEST["search"].lower()
+            )
+        else:
+            self.object_list = search_query.full()
+
+        # Switch between paginated or standard style responses
+        page = self.paginate_queryset(self.object_list)
+        if page is not None:
+            serializer = self.get_pagination_serializer(page)
+        else:
+            serializer = self.get_serializer(self.object_list, many=True)
+
+        return Response(serializer.data)
+
 
 class UserViewSet(UncachedResponse, viewsets.ModelViewSet):
     model = get_user_model()
@@ -183,6 +221,7 @@ class LogEntryViewSet(UncachedResponse, viewsets.ModelViewSet):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
 api_v1_router = routers.DefaultRouter()
 api_v1_router.register(r"content", ContentViewSet, base_name="content")
+api_v1_router.register(r"log", LogEntryViewSet, base_name="logentry")
+api_v1_router.register(r"user", UserViewSet, base_name="user")

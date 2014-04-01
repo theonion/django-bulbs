@@ -1,12 +1,14 @@
 import os
 
 from django.conf import settings
+from celery import Celery
 
 
 MODULE_ROOT = os.path.dirname(os.path.realpath(__file__))
 
 
 def pytest_configure():
+
     settings.configure(
         DATABASES={
             'default': {
@@ -39,6 +41,9 @@ def pytest_configure():
             "django.core.context_processors.request"
         ),
 
+        CELERY_ALWAYS_EAGER = True,
+        CELERY_EAGER_PROPAGATES_EXCEPTIONS = True,
+
         REST_FRAMEWORK = {
             'DEFAULT_AUTHENTICATION_CLASSES': (
                 'rest_framework.authentication.SessionAuthentication',
@@ -48,3 +53,7 @@ def pytest_configure():
         ES_DISABLED = False,
         ES_URLS = ['http://localhost:9200'],
     )
+
+    app = Celery('proj')
+    app.config_from_object(settings)
+    app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
