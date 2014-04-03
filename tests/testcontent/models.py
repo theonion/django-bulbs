@@ -1,6 +1,6 @@
 from django.db import models
 
-from bulbs.content.models import Content
+from bulbs.content.models import Content, Tag
 
 
 class TestContentObj(Content):
@@ -23,3 +23,8 @@ class TestContentObjTwo(Content):
 
     def get_absolute_url(self):
         return '/detail/%s/' % self.pk
+
+
+class TestCategory(Tag):
+
+    baz = models.CharField(max_length=255)

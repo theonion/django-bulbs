@@ -206,7 +206,9 @@ class TagViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
             ).query(
                 name__term=request.REQUEST["search"], should=True
             )
+
         if "types" in request.REQUEST:
+            print(request.REQUEST.getlist("types"))
             search_query = search_query.doctypes(*request.REQUEST.getlist("types"))
 
         # HACK ALERT. I changed the edge ngram to go from 3 to 10, so "TV" got screwed
@@ -267,5 +269,6 @@ class LogEntryViewSet(UncachedResponse, viewsets.ModelViewSet):
 
 api_v1_router = routers.DefaultRouter()
 api_v1_router.register(r"content", ContentViewSet, base_name="content")
+api_v1_router.register(r"tag", TagViewSet, base_name="tag")
 api_v1_router.register(r"log", LogEntryViewSet, base_name="logentry")
 api_v1_router.register(r"user", UserViewSet, base_name="user")
