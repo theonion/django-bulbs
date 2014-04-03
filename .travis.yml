@@ -12,4 +12,4 @@ services:
   - postgresql
 before_script:
   - psql -c 'create database bulbs;' -U postgres
-script: py.test tests/
+script: py.test --cov bulbs tests/
