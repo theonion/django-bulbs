@@ -333,10 +333,10 @@ class LogEntry(models.Model):
 
 def content_deleted(sender, instance=None, **kwargs):
     if getattr(instance, "_index", True):
-        es = get_es()
         index = instance.get_index_name()
         klass = instance.get_real_instance_class()
-        es.delete(index, klass.get_mapping_type_name(), instance.id)
+        print(index, klass.get_mapping_type_name(), instance.id)
+        klass.search_objects.es.delete(index, klass.get_mapping_type_name(), instance.id)
 
 
 models.signals.pre_delete.connect(content_deleted, Content)

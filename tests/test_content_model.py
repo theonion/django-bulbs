@@ -4,6 +4,8 @@ from django.utils import timezone
 
 from elastimorphic.tests.base import BaseIndexableTestCase
 
+from pyelasticsearch.exceptions import ElasticHttpNotFoundError
+
 from tests.testcontent.models import TestContentObj
 
 
@@ -33,3 +35,32 @@ class SerializerTestCase(BaseIndexableTestCase):
 
         content.published = timezone.now() + datetime.timedelta(hours=1)
         self.assertFalse(content.is_published)
+
+    def test_content_deletion(self):
+        content = TestContentObj.objects.create(
+            title="Some article"
+        )
+
+        TestContentObj.search_objects.refresh()
+
+        q = TestContentObj.search_objects.query(_id=content.id)
+        self.assertEqual(q.count(), 1)
+
+        c = TestContentObj.search_objects.es.get(
+            content.get_index_name(),
+            TestContentObj.get_mapping_type_name(),
+            content.id)
+        self.assertTrue(c.get("exists"), True)
+
+        content.delete()
+
+        with self.assertRaises(ElasticHttpNotFoundError):
+            TestContentObj.search_objects.es.get(
+                content.get_index_name(),
+                TestContentObj.get_mapping_type_name(),
+                content.id)
+
+        TestContentObj.search_objects.refresh()
+
+        q = TestContentObj.search_objects.query(_id=content.id)
+        self.assertEqual(q.count(), 0)
