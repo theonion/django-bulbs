@@ -221,23 +221,10 @@ class Content(PolymorphicIndexable, PolymorphicModel):
     def type(self):
         return self.get_mapping_type_name()
 
-    @property
-    def byline(self):
-        # If we have authors, just put them in a list
-        if self.authors.exists():
-            return ", ".join([user.get_full_name() for user in self.authors.all()])
-
-        # Well, shit. I guess there's no byline.
-        return None
-
     def ordered_tags(self):
         tags = list(self.tags.all())
         return sorted(
             tags, key=lambda tag: ((type(tag) != Tag) * 100000) + tag.count(), reverse=True)
-
-    @property
-    def feature_type_slug(self):
-        return slugify(self.feature_type)
 
     def build_slug(self):
         return strip_tags(self.title)

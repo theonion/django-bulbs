@@ -23,6 +23,7 @@ class PolyContentTestCase(BaseIndexableTestCase):
 
         # generate some data
         one_hour_ago = timezone.now() - datetime.timedelta(hours=1)
+        two_days_ago = timezone.now() - datetime.timedelta(days=2)
         words = ['spam', 'driver', 'dump truck', 'restaurant']
         self.num_subclasses = 2
         self.combos = list(itertools.combinations(words, 2))
@@ -47,7 +48,7 @@ class PolyContentTestCase(BaseIndexableTestCase):
                 description=' '.join(combo),
                 foo=combo[1],
                 bar=i,
-                published=one_hour_ago,
+                published=two_days_ago,
                 feature_type='Obj two'
             )
             obj2.tags.add(*tags)
@@ -71,6 +72,9 @@ class PolyContentTestCase(BaseIndexableTestCase):
         q = Content.search_objects.search()
         self.assertEqual(q.count(), 12)
 
+        q = Content.search_objects.search(query="spam")
+        self.assertEqual(q.count(), 6)
+
         q = Content.search_objects.search(tags=["spam"])
         self.assertEqual(q.count(), 6)
         for content in q.full():
@@ -83,6 +87,18 @@ class PolyContentTestCase(BaseIndexableTestCase):
 
         q = Content.search_objects.search(types=["testcontent_testcontentobj"])
         self.assertEqual(q.count(), 6)
+
+        q = Content.search_objects.search(before=timezone.now())
+        self.assertEqual(q.count(), 12)
+
+        q = Content.search_objects.search(before=timezone.now() - datetime.timedelta(hours=4))
+        self.assertEqual(q.count(), 6)
+
+        q = Content.search_objects.search(after=timezone.now() - datetime.timedelta(hours=4))
+        self.assertEqual(q.count(), 6)
+
+        q = Content.search_objects.search(after=timezone.now() - datetime.timedelta(days=40))
+        self.assertEqual(q.count(), 12)
 
         q = Content.search_objects.search(types=["testcontent_testcontentobjtwo"]).full()
         self.assertEqual(q.count(), 6)
