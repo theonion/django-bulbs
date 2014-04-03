@@ -61,13 +61,13 @@ class TestContentListingAPI(ContentAPITestCase):
 
     def test_list_published(self):
 
-        q = Content.search_objects.search(status="published")
+        q = Content.search_objects.search(status="final")
         self.assertEqual(q.count(), 47)
 
         client = Client()
         client.login(username="admin", password="secret")
 
-        response = client.get(reverse("content-list"), {"status": "published"}, content_type="application/json")
+        response = client.get(reverse("content-list"), {"status": "final"}, content_type="application/json")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["count"], 47)
         self.assertEqual(len(response.data["results"]), 20)
@@ -130,13 +130,13 @@ class TestPublishContentAPI(ContentAPITestCase):
         # ensure it was created and got an id
         self.assertEqual(response.status_code, 200)
         response_data = response.data
-        self.assertEqual(response_data["status"], "published")
+        self.assertEqual(response_data["status"], "final")
 
         # assert that we can load it up
         article = TestContentObj.objects.get(id=content.id)
         self.assertIsNotNone(article.published)
         # check for a log
-        LogEntry.objects.filter(object_id=article.pk).get(change_message="published")
+        LogEntry.objects.filter(object_id=article.pk).get(change_message="final")
 
     def test_publish_specific(self):
 
@@ -157,7 +157,7 @@ class TestPublishContentAPI(ContentAPITestCase):
         # ensure it was created and got an id
         self.assertEqual(response.status_code, 200)
         response_data = response.data
-        self.assertEqual(response_data["status"], "published")
+        self.assertEqual(response_data["status"], "final")
 
         # assert that we can load it up
         article = TestContentObj.objects.get(id=content.id)
@@ -165,7 +165,7 @@ class TestPublishContentAPI(ContentAPITestCase):
         self.assertEqual(article.published.month, 6)
         self.assertEqual(article.published.day, 9)
         # check for a log
-        LogEntry.objects.filter(object_id=article.pk).get(change_message="published")
+        LogEntry.objects.filter(object_id=article.pk).get(change_message="final")
 
     def test_unpublish(self):
         content = TestContentObj.objects.create(

@@ -342,11 +342,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
         By default, this is one of "draft", "scheduled" or "published"."""
 
         if self.published:
-            now = timezone.now()
-            if now >= self.published:
-                return "published"  # The published time has passed, now the content is public
-            else:
-                return "scheduled"  # The published time has been set, but is in the future
+            return "final"  # The published time has been set
 
         return "draft"  # No published time has been set
 
