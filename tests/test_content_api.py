@@ -28,7 +28,6 @@ class ContentAPITestCase(BaseIndexableTestCase):
 
         # reverse("content-detail")
 
-
 class TestContentListingAPI(ContentAPITestCase):
     """Test the listing of content"""
 
@@ -71,6 +70,23 @@ class TestContentListingAPI(ContentAPITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["count"], 47)
         self.assertEqual(len(response.data["results"]), 20)
+
+
+class TestContentStatusAPI(ContentAPITestCase):
+
+    def test_status_endpoint(self):
+        content = TestContentObj.objects.create(
+            title="Unpublished article"
+        )
+        client = Client()
+        client.login(username="admin", password="secret")
+        response = client.get(reverse("content-status", kwargs={"pk": content.id}), content_type="application/json")
+        self.assertEqual(response.data["status"], "draft")
+
+        content.published = timezone.now() - datetime.timedelta(hours=1)
+        content.save()
+        response = client.get(reverse("content-status", kwargs={"pk": content.id}), content_type="application/json")
+        self.assertEqual(response.data["status"], "final")
 
 
 class TestCreateContentAPI(ContentAPITestCase):
@@ -326,6 +342,14 @@ class TestTrashContentAPI(ContentAPITestCase):
     def test_trash_404(self):
         client = Client()
         client.login(username="admin", password="secret")
-        content_rest_url = reverse("content-trash", kwargs={"pk": 666})
+        content = TestContentObj.objects.create(
+            title="Test Article",
+            description="Testing out trash.",
+            foo="Lorem ipsum dolor, oh myyyy!"
+        )
+        content_rest_url = reverse("content-trash", kwargs={"pk": content.id})
+        response = client.post(content_rest_url, content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+
         response = client.post(content_rest_url, content_type="application/json")
         self.assertEqual(response.status_code, 404)
