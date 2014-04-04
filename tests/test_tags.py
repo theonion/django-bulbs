@@ -42,3 +42,6 @@ class TagTestCase(BaseIndexableTestCase):
 
         response = client.get(reverse("tag-list"), {"types": "content_tag", "search": "ble"}, content_type="application/json")
         self.assertEqual(response.data.get("count", 0), 3)
+
+        response = client.get(reverse("tag-list"), {"types": "testcontent_testcategory", "search": "bl"}, content_type="application/json")
+        self.assertEqual(response.data.get("count", 0), 1)

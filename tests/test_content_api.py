@@ -322,3 +322,10 @@ class TestTrashContentAPI(ContentAPITestCase):
         content.save()
         with self.assertRaises(ElasticHttpNotFoundError):
             self.es.get(content.get_index_name(), content.get_mapping_type_name(), content.id)
+
+    def test_trash_404(self):
+        client = Client()
+        client.login(username="admin", password="secret")
+        content_rest_url = reverse("content-trash", kwargs={"pk": 666})
+        response = client.post(content_rest_url, content_type="application/json")
+        self.assertEqual(response.status_code, 404)

@@ -16,6 +16,8 @@ from rest_framework import (
 
 from rest_framework.response import Response
 
+from elastimorphic.models import polymorphic_indexable_registry
+
 from elasticutils.contrib.django import get_es
 from pyelasticsearch.exceptions import ElasticHttpNotFoundError
 
@@ -23,10 +25,6 @@ from bulbs.content.models import Content, Tag, LogEntry
 from bulbs.content.serializers import (
     LogEntrySerializer, PolymorphicContentSerializer,
     TagSerializer, UserSerializer
-)
-from .filters import (
-    TagSearchFilter, AuthorSearchFilter,
-    DateSearchFilter, DoctypeFilter
 )
 
 from .mixins import UncachedResponse
@@ -38,14 +36,9 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
     serializer_class = PolymorphicContentSerializer
     include_base_doctype = False
     paginate_by = 20
-    filter_backends = (
-        filters.SearchFilter, filters.OrderingFilter,
-        TagSearchFilter, AuthorSearchFilter, DateSearchFilter, DoctypeFilter
-    )
+
     filter_fields = ("tags", "authors", "feature_types", "published", "types")
     search_fields = ("title", "description")
-
-    # TODO: "post_save"?
 
     def get_serializer_class(self):
         klass = None
@@ -158,41 +151,11 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         content = self.get_object()
         return Response({"status": content.get_status()})
 
-    # @decorators.list_route()
-    def feature_types(self, request, **kwargs):
-        query = self.model.search_objects.search(published=False)
-        if "q" in request.QUERY_PARAMS:
-            query = query.query(
-                **{
-                    "feature_type.name.autocomplete__match": request.QUERY_PARAMS["q"],
-                    "should": True
-                })
-        facet_counts = query.facet_raw(
-            feature_type={
-                "terms": {
-                    "field": "feature_type.name",
-                    "size": 40
-                }
-            }
-        ).facet_counts()
-
-        facets = facet_counts["feature_type"]
-        data = []
-        for facet in facets:
-            facet_data = {
-                "name": facet["term"],
-                "count": facet["count"]
-            }
-            data.append(facet_data)
-
-        return Response(data)
-
 
 class TagViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
     model = Tag
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
-    filter_backends = (filters.SearchFilter, filters.OrderingFilter)
     search_fields = ("name",)
     paginate_by = 50
 
@@ -208,7 +171,6 @@ class TagViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
             )
 
         if "types" in request.REQUEST:
-            print(request.REQUEST.getlist("types"))
             search_query = search_query.doctypes(*request.REQUEST.getlist("types"))
 
         # HACK ALERT. I changed the edge ngram to go from 3 to 10, so "TV" got screwed
@@ -216,6 +178,10 @@ class TagViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
             self.object_list = Tag.objects.filter(
                 name__istartswith=request.REQUEST["search"].lower()
             )
+            if "types" in request.REQUEST:
+                type_classes = [polymorphic_indexable_registry.all_models[type_name] for type_name in request.REQUEST.getlist("types")]
+                print(type_classes)
+                self.object_list = self.object_list.instance_of(*type_classes)
         else:
             self.object_list = search_query.full()
 
