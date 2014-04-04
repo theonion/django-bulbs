@@ -6,9 +6,9 @@ This project very much under active development, and is currently not as reusabl
 
 ## Running tests:
 
-First, you'll need an ElasticSearch server running on http://localhost:9200, then just:
+First, you'll need an ElasticSearch server running on http://localhost:9200, then install `requirements-dev.txt`, and:
 
-    > python runtests.py
+    > py.test tests/
 
 ## Building docs
 
