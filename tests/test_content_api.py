@@ -58,17 +58,17 @@ class TestContentListingAPI(ContentAPITestCase):
 
         TestContentObj.search_objects.refresh()
 
-    def test_list_published(self):
+    def test_list_final(self):
 
         q = Content.search_objects.search(status="final")
-        self.assertEqual(q.count(), 47)
+        self.assertEqual(q.count(), 79)
 
         client = Client()
         client.login(username="admin", password="secret")
 
         response = client.get(reverse("content-list"), {"status": "final"}, content_type="application/json")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data["count"], 47)
+        self.assertEqual(response.data["count"], 79)
         self.assertEqual(len(response.data["results"]), 20)
 
 

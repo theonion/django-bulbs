@@ -108,8 +108,11 @@ class PolyContentTestCase(BaseIndexableTestCase):
         self.assertEqual(q.count(), 12)
 
     def test_status_filter(self):
-        q = Content.search_objects.search(status="published")
+        q = Content.search_objects.search(status="final")
         self.assertEqual(q.count(), 12)
+
+        q = Content.search_objects.search(status="draft")
+        self.assertEqual(q.count(), 1)
 
     def test_negative_filters(self):
         q = Content.search_objects.search(tags=["-spam"])

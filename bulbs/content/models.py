@@ -117,12 +117,12 @@ class ContentManager(SearchManager):
             if "after" in kwargs:
                 results = results.query(published__gte=kwargs["after"], must=True)
         else:
-            if kwargs.get("published", True):
+            if kwargs.get("published", True) and not "status" in kwargs:  # TODO: kill this "published" param. it sucks
                 now = timezone.now()
                 results = results.query(published__lte=now, must=True)
 
         if "status" in kwargs:
-            results.query(status__match=kwargs.get("status"), must=True)
+            results = results.filter(status=kwargs.get("status"))
 
         f = F()
         for tag in kwargs.get("tags", []):
