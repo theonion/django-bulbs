@@ -31,148 +31,11 @@ except ImportError:
     CELERY_ENABLED = False
 
 
-def fetch_cached_models_by_id(model_class, model_ids, key_template='bulkcache/%s/id/%d'):
-    """Bulk loads models by first checking the cache, then db."""
-    result_map = {}
-    cache_keys = {
-        model_id: key_template % (model_class._meta.db_table, model_id)
-        for model_id in model_ids
-    }
-    # get all of the desired objects which are already cached
-    cached_results = cache.get_many(cache_keys.values())
-    for key, obj in cached_results.items():
-        result_map[obj.id] = obj
-        del cache_keys[obj.id]
-    # load up the remaining, uncached objects from the db and cache them:
-    if cache_keys:
-        db_results = model_class.objects.in_bulk(cache_keys.keys())
-        for id, obj in db_results.items():
-            result_map[id] = obj
-        cache.set_many({
-            cache_keys[id]: obj for id, obj in db_results.items()
-        })
-    # return a correctly ordered list of the objects
-    return [result_map[id] for id in model_ids]
-
-
-class PatchedS(S):
-    """Common patches for the S model."""
-    def all(self):
-        """
-        Fixes the default `S.all` method given by elasticutils.
-        `S` generally looks like django queryset but differs in
-        a few ways, one of which is `all`. Django `QuerySet` just
-        returns a clone for `all` but `S` wants to return all
-        the documents. This makes `all` at least respect slices
-        but the real fix is to probably make `S` work more like
-        `QuerySet`.
-        """
-        if self.start == 0 and self.stop is None:
-            # no slicing has occurred. let's get all of the records.
-            count = self.count()
-            return self[:count].execute()
-        return self.execute()
-
-    def model_facet_counts(self, model_class):
-        """Retrieves facet counts and interpretes the faceted field as
-        the pk of the `model_class` argument. The models are then fetched and
-        annotated with `facet_count`.
-
-        Requires that a valid facet query has already been added to
-        this S object.
-        """
-        id_facet_counts = self.facet_counts().get("id", None)
-        if id_facet_counts is None:
-            raise ValueError('No id facets found.')
-        # the facet "term" is the id. let's get a list of those.
-        ids = [fc["term"] for fc in id_facet_counts]
-        models = fetch_cached_models_by_id(model_class, ids)
-        # annotate models with facet counts
-        for model, facet_result in zip(models, id_facet_counts):
-            model.facet_count = facet_result["count"]
-        return models
-
-
-class ModelSearchResults(SearchResults):
-    """Takes the "id" list returned by a ModelS and delivers model instances."""
-    @classmethod
-    def get_model(cls):
-        raise NotImplementedError('ModelSearchResults requires a `get_model` method.')
-
-    def set_objects(self, results):
-        ids = list(int(r["_id"]) for r in results)
-        model_objects = self.get_model().objects.in_bulk(ids)
-        self.objects = [
-            model_objects[id] for id in ids if id in model_objects
-        ]
-
-    def __iter__(self):
-        return self.objects.__iter__()
-
-
-class ModelS(PatchedS):
-    """ModelS makes queries which return ids from ES and result in models."""
-    results_class = ModelSearchResults
-
-    def __init__(self, *args, **kwargs):
-        super(ModelS, self).__init__(*args, **kwargs)
-        self.steps.append(("values_list", ["_id"]))
-
-    def get_results_class(self):
-        """Returns the results class to use.
-
-        The results class should be a subclass of SearchResults.
-        """
-        return self.results_class
-
-
-class ContentSearchResults(ModelSearchResults):
-    @classmethod
-    def get_model(cls):
-        return Content
-
-
-class ContentS(ModelS):
-    results_class = ContentSearchResults
-
-
-class TagSearchResults(ModelSearchResults):
-    @classmethod
-    def get_model(cls):
-        return Tag
-
-
-class TagS(ModelS):
-    results_class = TagSearchResults
-
-
-class TagManager(PolymorphicManager):
-    def search(self, s_class=TagS, **kwargs):
-        """Search tags...profit."""
-        index = self.model.get_index_name()
-        results = s_class().es(urls=settings.ES_URLS).indexes(index)
-        name = kwargs.pop("query", '')
-        if name:
-            results = results.query(name__match=name, should=True)
-
-        types = kwargs.pop("types", [])
-        if types:
-            # only use valid subtypes
-            results = results.doctypes(*[
-                type_classname for type_classname in types \
-                if type_classname in self.model.get_mapping_type_names()
-            ])
-        else:
-            results = results.doctypes(*self.model.get_mapping_type_names())
-        return results
-
-
 class Tag(PolymorphicIndexable, PolymorphicModel):
     """Model for tagging up Content."""
     name = models.CharField(max_length=255)
     slug = models.SlugField(unique=True)
 
-    objects = TagManager()
     search_objects = SearchManager()
 
     def __unicode__(self):
@@ -254,9 +117,12 @@ class ContentManager(SearchManager):
             if "after" in kwargs:
                 results = results.query(published__gte=kwargs["after"], must=True)
         else:
-            if kwargs.get("published", True):
+            if kwargs.get("published", True) and not "status" in kwargs:  # TODO: kill this "published" param. it sucks
                 now = timezone.now()
                 results = results.query(published__lte=now, must=True)
+
+        if "status" in kwargs:
+            results = results.filter(status=kwargs.get("status"))
 
         f = F()
         for tag in kwargs.get("tags", []):
@@ -333,6 +199,16 @@ class Content(PolymorphicIndexable, PolymorphicModel):
             url = None
         return url
 
+    def get_status(self):
+        """Returns a string representing the status of this item
+
+        By default, this is one of "draft", "scheduled" or "published"."""
+
+        if self.published:
+            return "final"  # The published time has been set
+
+        return "draft"  # No published time has been set
+
     @property
     def is_published(self):
         if self.published:
@@ -345,23 +221,10 @@ class Content(PolymorphicIndexable, PolymorphicModel):
     def type(self):
         return self.get_mapping_type_name()
 
-    @property
-    def byline(self):
-        # If we have authors, just put them in a list
-        if self.authors.exists():
-            return ", ".join([user.get_full_name() for user in self.authors.all()])
-
-        # Well, shit. I guess there's no byline.
-        return None
-
     def ordered_tags(self):
         tags = list(self.tags.all())
         return sorted(
             tags, key=lambda tag: ((type(tag) != Tag) * 100000) + tag.count(), reverse=True)
-
-    @property
-    def feature_type_slug(self):
-        return slugify(self.feature_type)
 
     def build_slug(self):
         return strip_tags(self.title)
@@ -409,7 +272,8 @@ class Content(PolymorphicIndexable, PolymorphicModel):
             "tags": {
                 "properties": Tag.get_mapping_properties()
             },
-            "absolute_url": {"type": "string"}
+            "absolute_url": {"type": "string"},
+            "status": {"type": "string", "index": "not_analyzed"}
         })
         return properties
 
@@ -433,7 +297,8 @@ class Content(PolymorphicIndexable, PolymorphicModel):
                 "username"  : author.username
             } for author in self.authors.all()],
             "tags": [tag.extract_document() for tag in self.ordered_tags()],
-            "absolute_url": self.get_absolute_url()
+            "absolute_url": self.get_absolute_url(),
+            "status": self.get_status()
         })
         return data
 
@@ -468,10 +333,10 @@ class LogEntry(models.Model):
 
 def content_deleted(sender, instance=None, **kwargs):
     if getattr(instance, "_index", True):
-        es = get_es()
         index = instance.get_index_name()
         klass = instance.get_real_instance_class()
-        es.delete(index, klass.get_mapping_type_name(), instance.id)
+        print(index, klass.get_mapping_type_name(), instance.id)
+        klass.search_objects.es.delete(index, klass.get_mapping_type_name(), instance.id)
 
 
 models.signals.pre_delete.connect(content_deleted, Content)

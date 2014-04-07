@@ -1,6 +1,7 @@
 from django.db import models
 
-from bulbs.content.models import Content
+from bulbs.content.models import Content, Tag
+
 
 class TestContentObj(Content):
     """Fake content here"""
@@ -8,6 +9,11 @@ class TestContentObj(Content):
 
     def get_absolute_url(self):
         return '/detail/%s/' % self.pk
+
+    @classmethod
+    def get_serializer_class(cls):
+        from .serializers import TestContentObjSerializer
+        return TestContentObjSerializer
 
 
 class TestContentObjTwo(Content):
@@ -17,3 +23,8 @@ class TestContentObjTwo(Content):
 
     def get_absolute_url(self):
         return '/detail/%s/' % self.pk
+
+
+class TestCategory(Tag):
+
+    baz = models.CharField(max_length=255)

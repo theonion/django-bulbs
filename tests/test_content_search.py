@@ -8,70 +8,9 @@ from django.test.client import Client
 from django.template.defaultfilters import slugify
 
 from bulbs.content.models import Content, Tag
-from bulbs.content.serializers import ContentSerializer
 from elastimorphic.tests.base import BaseIndexableTestCase
 
 from tests.testcontent.models import TestContentObj, TestContentObjTwo
-
-
-class SerializerTestCase(BaseIndexableTestCase):
-
-    def test_tag_serializer(self):
-        # generate some data
-        one_hour_ago = timezone.now() - datetime.timedelta(hours=1)
-        test_obj = TestContentObj(
-            title='Testing Tag Serialization',
-            description='Serialization shouldn\'t be so hard',
-            published=one_hour_ago,
-            feature_type='Some Bullshit',
-            foo='Ugh'
-        )
-        test_obj.save(index=False)
-
-        some_tag = Tag.objects.create(name='Some Tag')
-
-        self.assertEqual(ContentSerializer(test_obj).data['tags'], [])
-        test_obj.tags.add(some_tag)
-
-        self.assertEqual(ContentSerializer(test_obj).data['tags'][0]['name'], "Some Tag")
-
-        # Now let's test updating an object via a serializer
-        data = {
-            "tags": [
-                {
-                    "id": some_tag.id,
-                    "slug": "some-tag",
-                    "name": "Some Tag"
-                },
-                {
-                    "slug": "some-other-tag",
-                    "name": "Some Other Tag"
-                }
-            ]
-        }
-        serializer = ContentSerializer(test_obj, data=data, partial=True)
-        self.assertEqual(serializer.is_valid(), True)
-        serializer.save()
-        self.assertEqual(test_obj.tags.count(), 2)
-        self.assertEqual(Tag.objects.all().count(), 2)
-
-        some_other_tag = Tag.objects.get(slug="some-other-tag")
-
-        ## Let's remove one of the tags from the object
-        data = {
-            "tags": [
-                {
-                    "id": some_other_tag.id,
-                    "slug": "some-other-tag",
-                    "name": "Some Other Tag"
-                }
-            ]
-        }
-        serializer = ContentSerializer(test_obj, data=data, partial=True)
-        self.assertEqual(serializer.is_valid(), True)
-        serializer.save()
-        self.assertEqual(test_obj.tags.count(), 1)
-        self.assertEqual(Tag.objects.all().count(), 2)
 
 
 class PolyContentTestCase(BaseIndexableTestCase):
@@ -84,6 +23,7 @@ class PolyContentTestCase(BaseIndexableTestCase):
 
         # generate some data
         one_hour_ago = timezone.now() - datetime.timedelta(hours=1)
+        two_days_ago = timezone.now() - datetime.timedelta(days=2)
         words = ['spam', 'driver', 'dump truck', 'restaurant']
         self.num_subclasses = 2
         self.combos = list(itertools.combinations(words, 2))
@@ -108,11 +48,18 @@ class PolyContentTestCase(BaseIndexableTestCase):
                 description=' '.join(combo),
                 foo=combo[1],
                 bar=i,
-                published=one_hour_ago,
+                published=two_days_ago,
                 feature_type='Obj two'
             )
             obj2.tags.add(*tags)
             obj2.index()
+
+        obj = TestContentObj.objects.create(
+            title="Unpublished draft",
+            description="Just to throw a wrench",
+            foo="bar",
+            feature_type='Obj one'
+        )
 
         # We need to let the index refresh
         TestContentObj.search_objects.refresh()
@@ -120,10 +67,13 @@ class PolyContentTestCase(BaseIndexableTestCase):
 
     def test_filter_search_content(self):
 
-        self.assertEqual(Content.objects.count(), 12)
+        self.assertEqual(Content.objects.count(), 13)   # The 12, plus the unpublished one
 
         q = Content.search_objects.search()
         self.assertEqual(q.count(), 12)
+
+        q = Content.search_objects.search(query="spam")
+        self.assertEqual(q.count(), 6)
 
         q = Content.search_objects.search(tags=["spam"])
         self.assertEqual(q.count(), 6)
@@ -138,12 +88,31 @@ class PolyContentTestCase(BaseIndexableTestCase):
         q = Content.search_objects.search(types=["testcontent_testcontentobj"])
         self.assertEqual(q.count(), 6)
 
+        q = Content.search_objects.search(before=timezone.now())
+        self.assertEqual(q.count(), 12)
+
+        q = Content.search_objects.search(before=timezone.now() - datetime.timedelta(hours=4))
+        self.assertEqual(q.count(), 6)
+
+        q = Content.search_objects.search(after=timezone.now() - datetime.timedelta(hours=4))
+        self.assertEqual(q.count(), 6)
+
+        q = Content.search_objects.search(after=timezone.now() - datetime.timedelta(days=40))
+        self.assertEqual(q.count(), 12)
+
         q = Content.search_objects.search(types=["testcontent_testcontentobjtwo"]).full()
         self.assertEqual(q.count(), 6)
 
         q = Content.search_objects.search(types=[
             "testcontent_testcontentobjtwo", "testcontent_testcontentobj"])
         self.assertEqual(q.count(), 12)
+
+    def test_status_filter(self):
+        q = Content.search_objects.search(status="final")
+        self.assertEqual(q.count(), 12)
+
+        q = Content.search_objects.search(status="draft")
+        self.assertEqual(q.count(), 1)
 
     def test_negative_filters(self):
         q = Content.search_objects.search(tags=["-spam"])
@@ -156,8 +125,8 @@ class PolyContentTestCase(BaseIndexableTestCase):
 
     def test_content_subclasses(self):
         # We created one of each subclass per combination so the following should be true:
-        self.assertEqual(Content.objects.count(), len(self.combos) * self.num_subclasses)
-        self.assertEqual(TestContentObj.objects.count(), len(self.combos))
+        self.assertEqual(Content.objects.count(), (len(self.combos) * self.num_subclasses) + 1)
+        self.assertEqual(TestContentObj.objects.count(), len(self.combos) + 1)
         self.assertEqual(TestContentObjTwo.objects.count(), len(self.combos))
 
     def test_content_list_view(self):
@@ -194,7 +163,3 @@ class PolyContentTestCase(BaseIndexableTestCase):
         subclasses = tuple(Content.__subclasses__())
         for result in results.values():
             self.assertIsInstance(result, subclasses)
-
-    def test_deserialize_none(self):
-        s = Content.get_serializer_class()(data=None)
-        s.data

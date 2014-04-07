@@ -1,7 +1,7 @@
 Django>=1.4
 Markdown==2.2.1
 South==0.8.1
--e git+https://github.com/awentzonline/django-rest-framework.git@2.4.0#egg=rest_framework
+djangorestframework==2.3.13
 django-elastimorphic==0.0.2
 django_polymorphic==0.5.1
 django-json-field==0.5.5
