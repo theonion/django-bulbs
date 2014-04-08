@@ -10,8 +10,19 @@ class ContentList(models.Model):
 
     @property
     def content(self):
-        bulk = Content.objects.in_bulk(self.content_ids)
-        return [bulk.get(pk) for pk in self.content_ids]
+        content_ids = [int(pk) for pk in self.content_ids.split(",")]
+        bulk = Content.objects.in_bulk(content_ids)
+        return [bulk.get(pk) for pk in content_ids]
+
+    @content.setter
+    def content(self, value):
+        content_ids = []
+        for obj in value:
+            if isinstance(obj, Content):
+                content_ids.append(str(obj.pk))
+            else:
+                content_ids.append(str(obj))
+        self.content_ids = ",".join(content_ids)
 
 
 class ContentListHistory(models.Model):
