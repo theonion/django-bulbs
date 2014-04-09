@@ -27,10 +27,11 @@ class InsertOperation(ContentListOperation):
             "id": self.content.pk,
             "lock": self.lock
         }
-        for i in range(self.index, len(data)):
+        for i in range(self.index, min(len(data), 100)):
             if data[i].get("lock", False):
                 continue
             next, data[i] = data[i], next  # Swap them
+        data.append(next)
         return data
 
 

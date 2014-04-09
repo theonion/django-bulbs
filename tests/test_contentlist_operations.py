@@ -11,7 +11,7 @@ class ContentListOperationsTestCase(BaseIndexableTestCase):
 
     def setUp(self):
         super(ContentListOperationsTestCase, self).setUp()
-        self.content_list = ContentList.objects.create(name="homepage")
+        self.content_list = ContentList.objects.create(name="homepage", length=10)
         data = []
         for i in range(10):
             content = TestContentObj.objects.create(
@@ -34,5 +34,6 @@ class ContentListOperationsTestCase(BaseIndexableTestCase):
             lock=True
         )
         modified_list = ContentList.objects.get("homepage")
-        self.assertEqual(len(modified_list.content), 10)
+        self.assertEqual(len(modified_list.content), 10)  # We shoudl only get 10 pieces of content
+        self.assertEqual(len(modified_list.data), 11)  # ...though the list contains 11 items
         self.assertEqual(modified_list.content[0].pk, content.pk)

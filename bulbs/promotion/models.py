@@ -6,6 +6,7 @@ from json_field import JSONField
 from bulbs.content.models import Content
 from .operations import *  # noqa
 
+
 class ContentListManager(models.Manager):
     
     def get(self, name, when=None, save=True):
@@ -30,7 +31,7 @@ class ContentListManager(models.Manager):
 
 class ContentList(models.Model):
     name = models.SlugField(unique=True)
-    length = models.IntegerField(null=True, blank=True)
+    length = models.IntegerField(default=10)
     data = JSONField(default=[])
 
     objects = ContentListManager()

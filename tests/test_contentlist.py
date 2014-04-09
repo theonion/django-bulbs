@@ -66,5 +66,5 @@ class ContentListTestCase(BaseIndexableTestCase):
             self.assertEqual(content["title"], "Content test #{}".format(9 - index))
 
         self.assertEqual(ContentListHistory.objects.count(), 1)
-        content_list = ContentList.objects.get(id=content_list.id)
+        content_list = ContentList.objects.get(name=content_list.name)
         self.assertEqual(ContentListHistory.objects.get().data, content_list.data)
