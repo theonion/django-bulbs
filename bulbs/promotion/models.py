@@ -14,7 +14,6 @@ class ContentListManager(models.Manager):
         data = content_list.data
         for operation in content_list.operations.filter(when__lte=when, applied=False):
             data = operation.apply(data)
-            operation.applied = True
 
         content_list.data = data
         return content_list

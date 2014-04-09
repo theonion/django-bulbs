@@ -42,7 +42,7 @@ class ReplaceOperation(ContentListOperation):
     lock = models.BooleanField(default=False)
 
     def apply(self, data):
-        item = {
+        replace = {
             "id": self.content.pk,
             "lock": self.lock
         }
@@ -50,7 +50,7 @@ class ReplaceOperation(ContentListOperation):
             if item["id"] == self.target.pk:
                 if item.get("lock", False):
                     raise Exception("That item is locked!")
-                data[index] = item
+                data[index] = replace
                 break
         else:
             raise Exception("No content in list!")

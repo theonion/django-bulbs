@@ -3,7 +3,8 @@ import datetime
 from django.utils import timezone
 from elastimorphic.tests.base import BaseIndexableTestCase
 
-from bulbs.promotion.models import ContentList, InsertOperation
+from bulbs.promotion.models import ContentList
+from bulbs.promotion.operations import InsertOperation, ReplaceOperation
 from tests.testcontent.models import TestContentObj
 
 
@@ -28,13 +29,29 @@ class ContentListOperationsTestCase(BaseIndexableTestCase):
         )
         InsertOperation.objects.create(
             content_list=self.content_list,
-            when=timezone.now() - datetime.timedelta(hours=1),
+            when=timezone.now() + datetime.timedelta(hours=1),
             index=0,
             content=content,
-            lock=True
+            lock=False
         )
-        modified_list = ContentList.objects.applied("homepage")
+        modified_list = ContentList.objects.preview("homepage", when=timezone.now() + datetime.timedelta(hours=2))
         self.assertEqual(len(modified_list.content), 10)  # We should only get 10 pieces of content
         self.assertEqual(len(modified_list.data), 11)  # ...though the list contains 11 items
         self.assertEqual(modified_list.content[0].pk, content.pk)
+
+    def test_replace(self):
+        content = TestContentObj.objects.create(
+            title="Content test replace"
+        )
+        target = TestContentObj.objects.get(id=self.content_list.content[3].pk)
+        ReplaceOperation.objects.create(
+            content_list=self.content_list,
+            when=timezone.now() + datetime.timedelta(hours=1),
+            content=content,
+            target=target
+        )
+        modified_list = ContentList.objects.preview("homepage", when=timezone.now() + datetime.timedelta(hours=2))
+        self.assertEqual(len(modified_list.content), 10)
+        self.assertEqual(len(modified_list.data), 10)
+        self.assertEqual(modified_list.content[3].pk, content.pk)
 
