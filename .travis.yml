@@ -13,3 +13,5 @@ services:
 before_script:
   - psql -c 'create database bulbs;' -U postgres
 script: py.test --cov bulbs tests/
+after_success:
+  - coveralls
