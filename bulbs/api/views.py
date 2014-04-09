@@ -27,7 +27,7 @@ from bulbs.content.serializers import (
     LogEntrySerializer, PolymorphicContentSerializer,
     TagSerializer, UserSerializer
 )
-from bulbs.promotion.models import ContentList
+from bulbs.promotion.models import ContentList, ContentListHistory
 from bulbs.promotion.serializers import ContentListSerializer
 
 from .mixins import UncachedResponse
@@ -210,6 +210,9 @@ class ContentListViewSet(UncachedResponse, viewsets.ModelViewSet):
     model = ContentList
     serializer_class = ContentListSerializer
     paginate_by = 20
+
+    def post_save(self, obj, created=False):
+        ContentListHistory.objects.create(content_list=obj, content=obj.content_ids)
 
 
 class LogEntryViewSet(UncachedResponse, viewsets.ModelViewSet):

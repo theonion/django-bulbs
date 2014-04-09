@@ -6,7 +6,7 @@ from django.test.client import Client
 
 from elastimorphic.tests.base import BaseIndexableTestCase
 
-from bulbs.promotion.models import ContentList
+from bulbs.promotion.models import ContentList, ContentListHistory
 
 from tests.testcontent.models import TestContentObj
 
@@ -54,9 +54,16 @@ class ContentListTestCase(BaseIndexableTestCase):
             self.assertEqual(content["title"], "Content test #{}".format(index))
 
         new_data = response.data
+        #  This sucks, but it just reverses the list
         new_data["content"] = [{"id": content["id"]} for content in response.data["content"]][::-1]
+
+        self.assertEqual(ContentListHistory.objects.count(), 0)
 
         response = client.put(endpoint, json.dumps(new_data), content_type="application/json")
         self.assertEqual(response.status_code, 200)
         for index, content in enumerate(response.data["content"]):
             self.assertEqual(content["title"], "Content test #{}".format(9 - index))
+
+        self.assertEqual(ContentListHistory.objects.count(), 1)
+        content_list = ContentList.objects.get(id=content_list.id)
+        self.assertEqual(ContentListHistory.objects.get().content, content_list.content_ids)
