@@ -33,7 +33,8 @@ class ContentListOperationsTestCase(BaseIndexableTestCase):
             content=content,
             lock=True
         )
-        modified_list = ContentList.objects.get("homepage")
-        self.assertEqual(len(modified_list.content), 10)  # We shoudl only get 10 pieces of content
+        modified_list = ContentList.objects.applied("homepage")
+        self.assertEqual(len(modified_list.content), 10)  # We should only get 10 pieces of content
         self.assertEqual(len(modified_list.data), 11)  # ...though the list contains 11 items
         self.assertEqual(modified_list.content[0].pk, content.pk)
+

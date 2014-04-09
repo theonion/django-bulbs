@@ -9,23 +9,25 @@ from .operations import *  # noqa
 
 class ContentListManager(models.Manager):
     
-    def get(self, name, when=None, save=True):
-        """Get the content list, including unapplied operations"""
-        content_list = super(ContentListManager, self).get(name=name)
-        if when is None:
-            when = timezone.now()
-        else:
-            save = False  # As a safety feature, you can't save future states
+    def preview(self, name, when):
+        content_list = self.get(name=name)
         data = content_list.data
         for operation in content_list.operations.filter(when__lte=when, applied=False):
             data = operation.apply(data)
-            if save:
-                operation.applied = True
+            operation.applied = True
 
         content_list.data = data
-        if save:
-            content_list.save()
+        return content_list
 
+    def applied(self, name):
+        content_list = self.get(name=name)
+        data = content_list.data
+        for operation in content_list.operations.filter(when__lte=timezone.now(), applied=False):
+            data = operation.apply(data)
+            operation.applied = True
+
+        content_list.data = data
+        content_list.save()
         return content_list
 
 
