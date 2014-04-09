@@ -17,6 +17,6 @@ class ContentListField(serializers.WritableField):
 class ContentListSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContentList
-        exclude = ("content_ids",)
+        exclude = ("data",)
 
     content = ContentListField(source="content")

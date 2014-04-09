@@ -15,14 +15,14 @@ class ContentListTestCase(BaseIndexableTestCase):
 
     def test_content_list(self):
         content_list = ContentList.objects.create(name="homepage")
-        content_ids = []
+        data = []
         for i in range(10):
             content = TestContentObj.objects.create(
                 title="Content test #{}".format(i),
             )
-            content_ids.append(content.pk)
+            data.append({"id": content.pk})
 
-        content_list.content = content_ids
+        content_list.data = data
         content_list.save()
 
         self.assertEqual(len(content_list.content), 10)
@@ -38,16 +38,17 @@ class ContentListTestCase(BaseIndexableTestCase):
         client.login(username="admin", password="secret")
 
         content_list = ContentList.objects.create(name="homepage")
-        content_ids = []
+        data = []
         for i in range(10):
             content = TestContentObj.objects.create(
                 title="Content test #{}".format(i),
             )
-            content_ids.append(content.pk)
-        content_list.content = content_ids
-        content_list.save()
-        endpoint = reverse("contentlist-detail", kwargs={"pk": content_list.pk})
+            data.append({"id": content.pk})
 
+        content_list.data = data
+        content_list.save()
+
+        endpoint = reverse("contentlist-detail", kwargs={"pk": content_list.pk})
         response = client.get(endpoint)
         self.assertEqual(response.status_code, 200)
         for index, content in enumerate(response.data["content"]):
@@ -66,4 +67,4 @@ class ContentListTestCase(BaseIndexableTestCase):
 
         self.assertEqual(ContentListHistory.objects.count(), 1)
         content_list = ContentList.objects.get(id=content_list.id)
-        self.assertEqual(ContentListHistory.objects.get().content, content_list.content_ids)
+        self.assertEqual(ContentListHistory.objects.get().data, content_list.data)

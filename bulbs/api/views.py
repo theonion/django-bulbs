@@ -212,7 +212,7 @@ class ContentListViewSet(UncachedResponse, viewsets.ModelViewSet):
     paginate_by = 20
 
     def post_save(self, obj, created=False):
-        ContentListHistory.objects.create(content_list=obj, content=obj.content_ids)
+        ContentListHistory.objects.create(content_list=obj, data=obj.data)
 
 
 class LogEntryViewSet(UncachedResponse, viewsets.ModelViewSet):
