@@ -1,2 +1,2 @@
 [run]
-omit = *migrations/*,bulbs/images/*
+omit = *migrations/*,bulbs/images/*,bulbs/videos/*
