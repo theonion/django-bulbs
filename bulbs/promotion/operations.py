@@ -65,7 +65,7 @@ class LockOperation(ContentListOperation):
         for index, item in enumerate(data):
             if item["id"] == self.target.pk:
                 data[index]["lock"] = True
-            break
+                break
         else:
             raise Exception("No content in list!")
         return data
@@ -79,7 +79,7 @@ class UnlockOperation(ContentListOperation):
         for index, item in enumerate(data):
             if item["id"] == self.target.pk:
                 data[index]["lock"] = False
-            break
+                break
         else:
             raise Exception("No content in list!")
         return data

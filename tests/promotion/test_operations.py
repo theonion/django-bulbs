@@ -5,7 +5,7 @@ from elastimorphic.tests.base import BaseIndexableTestCase
 from model_mommy import mommy
 
 from bulbs.promotion.models import ContentList
-from bulbs.promotion.operations import InsertOperation, ReplaceOperation
+from bulbs.promotion.operations import InsertOperation, ReplaceOperation, LockOperation
 from tests.testcontent.models import TestContentObj
 
 
@@ -30,7 +30,7 @@ class ContentListOperationsTestCase(BaseIndexableTestCase):
             content=new_content,
             lock=False
         )
-        modified_list = ContentList.objects.preview("homepage", when=timezone.now() + datetime.timedelta(hours=2))
+        modified_list = ContentList.objects.preview("homepage", when=timezone.now() + datetime.timedelta(hours=1))
         self.assertEqual(len(modified_list), 10)  # We should only get 10 pieces of content
         self.assertEqual(len(modified_list.data), 11)  # ...though the list contains 11 items
         self.assertEqual(modified_list[0].pk, new_content.pk)
@@ -44,11 +44,17 @@ class ContentListOperationsTestCase(BaseIndexableTestCase):
             content=new_content,
             target=target
         )
-        modified_list = ContentList.objects.preview("homepage", when=timezone.now() + datetime.timedelta(hours=2))
+        modified_list = ContentList.objects.preview("homepage", when=timezone.now() + datetime.timedelta(hours=1))
         self.assertEqual(len(modified_list), 10)
         self.assertEqual(len(modified_list.data), 10)
         self.assertEqual(modified_list[3].pk, new_content.pk)
 
     def test_lock(self):
-        content = TestContentObj.objects.create(title="Test lock content")
-        
+        target = TestContentObj.objects.get(id=self.content_list[3].pk)
+        LockOperation.objects.create(
+            content_list=self.content_list,
+            when=timezone.now() + datetime.timedelta(hours=1),
+            target=target
+        )
+        modified_list = ContentList.objects.preview("homepage", when=timezone.now() + datetime.timedelta(hours=1))
+        self.assertTrue(modified_list.data[3]["lock"])

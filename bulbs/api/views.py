@@ -214,6 +214,14 @@ class ContentListViewSet(UncachedResponse, viewsets.ModelViewSet):
     def post_save(self, obj, created=False):
         ContentListHistory.objects.create(content_list=obj, data=obj.data)
 
+    @decorators.link()
+    def preview(self):
+        pass
+
+    @decorators.link()
+    def futures(self):
+        pass
+
 
 class LogEntryViewSet(UncachedResponse, viewsets.ModelViewSet):
     model = LogEntry

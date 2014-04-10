@@ -75,22 +75,6 @@ class ContentList(models.Model):
                     return True
         return False
 
-    # @property
-    # def content(self):
-    #     content_ids = [item["id"] for item in self.data[:self.length]]
-    #     bulk = Content.objects.in_bulk(content_ids)
-    #     return [bulk.get(pk) for pk in content_ids]
-
-    # @content.setter
-    # def content(self, value):
-    #     data = []
-    #     for obj in value:
-    #         if isinstance(obj, Content):
-    #             data.append({"id": obj.pk})
-    #         else:
-    #             data.append({"id": obj})
-    #     self.data = data
-
 
 class ContentListHistory(models.Model):
     content_list = models.ForeignKey(ContentList, related_name="history")
