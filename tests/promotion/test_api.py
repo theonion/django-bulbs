@@ -11,23 +11,7 @@ from bulbs.promotion.models import ContentList, ContentListHistory
 from tests.testcontent.models import TestContentObj
 
 
-class ContentListTestCase(BaseIndexableTestCase):
-
-    def test_content_list(self):
-        content_list = ContentList.objects.create(name="homepage")
-        data = []
-        for i in range(10):
-            content = TestContentObj.objects.create(
-                title="Content test #{}".format(i),
-            )
-            data.append({"id": content.pk})
-
-        content_list.data = data
-        content_list.save()
-
-        self.assertEqual(len(content_list.content), 10)
-        for index, content in enumerate(content_list.content):
-            self.assertEqual(content.title, "Content test #{}".format(index))
+class PromotionApiTestCase(BaseIndexableTestCase):
 
     def test_content_list_api(self):
         User = get_user_model()

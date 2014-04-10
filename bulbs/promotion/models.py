@@ -37,21 +37,59 @@ class ContentList(models.Model):
 
     objects = ContentListManager()
 
-    @property
-    def content(self):
+    def __len__(self):
+        return self.length
+
+    def __iter__(self):
         content_ids = [item["id"] for item in self.data[:self.length]]
         bulk = Content.objects.in_bulk(content_ids)
-        return [bulk.get(pk) for pk in content_ids]
+        for pk in content_ids:
+            yield bulk.get(pk)
 
-    @content.setter
-    def content(self, value):
-        data = []
-        for obj in value:
-            if isinstance(obj, Content):
-                data.append({"id": obj.pk})
-            else:
-                data.append({"id": obj})
-        self.data = data
+    def __getitem__(self, index):
+        if index >= self.length:
+            raise IndexError("Index out of range")
+        return Content.objects.get(id=self.data[index]["id"])
+
+    def __setitem__(self, index, value):
+        if index >= self.length:
+            raise IndexError("Index out of range")
+        if isinstance(value, Content):
+            self.data[index]["id"] = value.pk
+        elif isinstance(value, int):
+            self.data[index]["id"] = value
+        else:
+            raise ValueError("ContentList items must be Content or int")
+
+    def __delitem__(self, index):
+        if index >= self.length:
+            raise IndexError("Index out of range")
+        del self.data[index]
+
+    def __contains__(self, value):
+        if isinstance(value, Content):
+            value = value.pk
+        if isinstance(value, int):
+            for item in self.data:
+                if value == item["id"]:
+                    return True
+        return False
+
+    # @property
+    # def content(self):
+    #     content_ids = [item["id"] for item in self.data[:self.length]]
+    #     bulk = Content.objects.in_bulk(content_ids)
+    #     return [bulk.get(pk) for pk in content_ids]
+
+    # @content.setter
+    # def content(self, value):
+    #     data = []
+    #     for obj in value:
+    #         if isinstance(obj, Content):
+    #             data.append({"id": obj.pk})
+    #         else:
+    #             data.append({"id": obj})
+    #     self.data = data
 
 
 class ContentListHistory(models.Model):

@@ -1,17 +1,19 @@
 from rest_framework import serializers
 from .models import ContentList
+from bulbs.content.models import Content
 
 
 class ContentListField(serializers.WritableField):
-    def to_native(self, obj):
-        content = []
-        for c in obj:
-            serializer = c.get_serializer_class()
-            content.append(serializer(instance=c).data)
-        return content
+    def field_to_native(self, obj, field_name):
+        data = []
+        for content in obj:
+            serializer = content.get_serializer_class()
+            data.append(serializer(instance=content).data)
+
+        return data
 
     def from_native(self, data):
-        return [content_data["id"] for content_data in data]
+        return [{"id": content_data["id"]} for content_data in data]
 
 
 class ContentListSerializer(serializers.ModelSerializer):
@@ -19,4 +21,4 @@ class ContentListSerializer(serializers.ModelSerializer):
         model = ContentList
         exclude = ("data",)
 
-    content = ContentListField(source="content")
+    content = ContentListField(source="data")
