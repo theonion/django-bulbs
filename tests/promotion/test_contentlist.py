@@ -1,6 +1,6 @@
 from elastimorphic.tests.base import BaseIndexableTestCase
+from model_mommy import mommy
 
-from bulbs.content.models import Content
 from bulbs.promotion.models import ContentList
 
 
@@ -36,21 +36,21 @@ class ContentListTestCase(BaseIndexableTestCase):
             self.content_list[10]
 
     def test_content_list_setitem(self):
-        new_content = Content.objects.create(title="Some dumb thing")
+        new_content = mommy.make(TestContentObj)
         self.content_list[0] = new_content
-        self.assertEqual(self.content_list[0].title, "Some dumb thing")
+        self.assertEqual(self.content_list[0].pk, new_content.pk)
 
-        newer_content = Content.objects.create(title="Some other dumb thing")
+        newer_content = mommy.make(TestContentObj)
         self.content_list[1] = newer_content.id
-        self.assertEqual(self.content_list[1].title, "Some other dumb thing")
+        self.assertEqual(self.content_list[1].pk, newer_content.pk)
 
     def test_content_list_contains(self):
-        newer_content = Content.objects.create(title="Some other dumb thing")
+        newer_content = mommy.make(TestContentObj)
         self.content_list[1] = newer_content.id
 
         self.assertTrue(newer_content.pk in self.content_list)
         self.assertTrue(newer_content in self.content_list)
 
-        invisible_content = Content.objects.create(title="Some mistake someone made")
+        invisible_content = mommy.make(TestContentObj)
         self.assertFalse(invisible_content.pk in self.content_list)
         self.assertFalse(invisible_content in self.content_list)

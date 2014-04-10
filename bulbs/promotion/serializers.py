@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from .models import ContentList
-from bulbs.content.models import Content
 
 
 class ContentListField(serializers.WritableField):
