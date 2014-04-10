@@ -35,6 +35,9 @@ class ContentListTestCase(BaseIndexableTestCase):
         with self.assertRaises(IndexError):
             self.content_list[10]
 
+    def test_contet_list_slice(self):
+        self.assertEqual(len(self.content_list[:2]), 2)
+
     def test_content_list_setitem(self):
         new_content = mommy.make(TestContentObj)
         self.content_list[0] = new_content

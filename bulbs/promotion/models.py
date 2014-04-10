@@ -38,21 +38,29 @@ class ContentList(models.Model):
     objects = ContentListManager()
 
     def __len__(self):
-        return self.length
+        return min(self.length, len(self.data))
 
     def __iter__(self):
-        content_ids = [item["id"] for item in self.data[:self.length]]
+        content_ids = [item["id"] for item in self.data[:self.__len__()]]
         bulk = Content.objects.in_bulk(content_ids)
         for pk in content_ids:
             yield bulk.get(pk)
 
     def __getitem__(self, index):
-        if index >= self.length:
-            raise IndexError("Index out of range")
-        return Content.objects.get(id=self.data[index]["id"])
+        items = self.data[:self.__len__()].__getitem__(index)
+        if isinstance(items, dict):
+            return Content.objects.get(id=self.data[index]["id"])
+        if isinstance(items, list):
+            content = []
+            content_ids = [item["id"] for item in items]
+            bulk = Content.objects.in_bulk(content_ids)
+            for pk in content_ids:
+                content.append(bulk.get(pk))
+            return content
+        raise IndexError("Index out of range")
 
     def __setitem__(self, index, value):
-        if index >= self.length:
+        if index > self.__len__():
             raise IndexError("Index out of range")
         if isinstance(value, Content):
             self.data[index]["id"] = value.pk
@@ -62,7 +70,7 @@ class ContentList(models.Model):
             raise ValueError("ContentList items must be Content or int")
 
     def __delitem__(self, index):
-        if index >= self.length:
+        if index > self.__len__():
             raise IndexError("Index out of range")
         del self.data[index]
 
@@ -74,6 +82,9 @@ class ContentList(models.Model):
                 if value == item["id"]:
                     return True
         return False
+
+    def __unicode__(self):
+        return "{}[{}]".format(self.name, self.__len__())
 
 
 class ContentListHistory(models.Model):
