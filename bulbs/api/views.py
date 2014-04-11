@@ -11,7 +11,8 @@ from rest_framework import (
     filters,
     status,
     viewsets,
-    routers
+    routers,
+    mixins
 )
 
 from rest_framework.response import Response
@@ -26,6 +27,8 @@ from bulbs.content.serializers import (
     LogEntrySerializer, PolymorphicContentSerializer,
     TagSerializer, UserSerializer
 )
+from bulbs.promotion.models import ContentList, ContentListHistory
+from bulbs.promotion.serializers import ContentListSerializer
 
 from .mixins import UncachedResponse
 
@@ -203,6 +206,23 @@ class UserViewSet(UncachedResponse, viewsets.ModelViewSet):
     paginate_by = 20
 
 
+class ContentListViewSet(UncachedResponse, viewsets.ModelViewSet):
+    model = ContentList
+    serializer_class = ContentListSerializer
+    paginate_by = 20
+
+    def post_save(self, obj, created=False):
+        ContentListHistory.objects.create(content_list=obj, data=obj.data)
+
+    @decorators.link()
+    def preview(self):
+        pass
+
+    @decorators.link()
+    def futures(self):
+        pass
+
+
 class LogEntryViewSet(UncachedResponse, viewsets.ModelViewSet):
     model = LogEntry
     serializer_class = LogEntrySerializer
@@ -235,6 +255,7 @@ class LogEntryViewSet(UncachedResponse, viewsets.ModelViewSet):
 
 api_v1_router = routers.DefaultRouter()
 api_v1_router.register(r"content", ContentViewSet, base_name="content")
+api_v1_router.register(r"contentlist", ContentListViewSet, base_name="contentlist")
 api_v1_router.register(r"tag", TagViewSet, base_name="tag")
 api_v1_router.register(r"log", LogEntryViewSet, base_name="logentry")
 api_v1_router.register(r"user", UserViewSet, base_name="user")
