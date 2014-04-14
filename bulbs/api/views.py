@@ -2,6 +2,7 @@
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.http import Http404
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
@@ -50,7 +51,10 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         if hasattr(self, "object"):
             klass = self.object.__class__
         elif "doctype" in self.request.REQUEST:
-            klass = Content.get_doctypes()[self.request.REQUEST["doctype"]]
+            try:
+                klass = Content.get_doctypes()[self.request.REQUEST["doctype"]]
+            except KeyError:
+                raise Http404
 
         if hasattr(klass, "get_serializer_class"):
             return klass.get_serializer_class()
