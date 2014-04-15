@@ -11,7 +11,6 @@ from django.utils import timezone
 from django.utils.html import strip_tags
 
 from bulbs.content import TagCache
-from bulbs.images.fields import RemoteImageField
 from elasticutils import SearchResults, S, F
 from elasticutils.contrib.django import get_es
 from elastimorphic.base import (

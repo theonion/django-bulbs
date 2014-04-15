@@ -6,7 +6,6 @@ from django.template.defaultfilters import slugify
 from rest_framework import serializers
 from rest_framework import relations
 
-from bulbs.images.fields import RemoteImageSerializer
 from elastimorphic.serializers import ContentTypeField, PolymorphicSerializerMixin
 
 from .models import Content, Tag, LogEntry
@@ -107,7 +106,7 @@ class ContentSerializer(serializers.ModelSerializer):
     polymorphic_ctype = ContentTypeField(source="polymorphic_ctype_id", read_only=True)
     tags = TagField(many=True)
     authors = AuthorField(many=True)
-    image = RemoteImageSerializer(required=False)
+    image = serializers.IntegerField(required=False, source="image.id")
     absolute_url = serializers.Field(source="get_absolute_url")
     status = serializers.Field(source="get_status")
 

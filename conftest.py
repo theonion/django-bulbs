@@ -27,7 +27,6 @@ def pytest_configure():
             "elastimorphic",
             "bulbs.api",
             "bulbs.content",
-            "bulbs.images",
             "bulbs.promotion",
             "tests.testcontent",),
         ROOT_URLCONF = 'tests.urls',
