@@ -10,6 +10,6 @@ python-dateutil==2.1
 pytz==2012h
 requests==1.1.0
 simplejson==3.3.0
-six==1.2.0
+six==1.6.1
 thrift==0.8.0
 wsgiref==0.1.2
