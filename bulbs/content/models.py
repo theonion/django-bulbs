@@ -23,6 +23,8 @@ from polymorphic import PolymorphicModel, PolymorphicManager
 
 from .shallow import ShallowContentS, ShallowContentResult
 
+from betty.cropped.fields import ImageField
+
 try:
     from bulbs.content.tasks import index as index_task  # noqa
     from bulbs.content.tasks import update as update_task  # noqa
@@ -175,7 +177,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
     title = models.CharField(max_length=512)
     slug = models.SlugField(blank=True, default='')
     description = models.TextField(max_length=1024, blank=True, default='')
-    image = RemoteImageField(max_length=512, null=True, blank=True)
+    image = ImageField(null=True, blank=True)
 
     authors = models.ManyToManyField(settings.AUTH_USER_MODEL)
     feature_type = models.CharField(max_length=255, null=True, blank=True)  # "New in Brief", "Newswire", etc.
