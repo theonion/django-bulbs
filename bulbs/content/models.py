@@ -336,7 +336,6 @@ def content_deleted(sender, instance=None, **kwargs):
     if getattr(instance, "_index", True):
         index = instance.get_index_name()
         klass = instance.get_real_instance_class()
-        print(index, klass.get_mapping_type_name(), instance.id)
         klass.search_objects.es.delete(index, klass.get_mapping_type_name(), instance.id)
 
 
