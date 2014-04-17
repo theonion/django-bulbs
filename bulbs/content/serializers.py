@@ -11,6 +11,19 @@ from elastimorphic.serializers import ContentTypeField, PolymorphicSerializerMix
 from .models import Content, Tag, LogEntry
 
 
+class ImageFieldSerializer(serializers.WritableField):
+
+    def to_native(self, obj):
+        return {
+            "id": obj.id,
+            "alt": obj.alt,
+            "caption": obj.caption
+        }        
+
+    def from_native(self, data):
+        return data.get("id")
+
+
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
@@ -106,7 +119,7 @@ class ContentSerializer(serializers.ModelSerializer):
     polymorphic_ctype = ContentTypeField(source="polymorphic_ctype_id", read_only=True)
     tags = TagField(many=True)
     authors = AuthorField(many=True)
-    image = serializers.IntegerField(required=False, source="image.id")
+    image = ImageFieldSerializer(required=False)
     absolute_url = serializers.Field(source="get_absolute_url")
     status = serializers.Field(source="get_status")
 

@@ -1,17 +1,25 @@
 language: python
 python:
-  - "2.7"
+- '2.7'
 env:
-  - DJANGO_VERSION=1.5
-  - DJANGO_VERSION=1.6
+- DJANGO_VERSION=1.5
+- DJANGO_VERSION=1.6
 install:
-  - "pip install -q Django==$DJANGO_VERSION"
-  - "pip install -r requirements-dev.txt"
+- pip install -q Django==$DJANGO_VERSION
+- pip install -r requirements-dev.txt
 services:
-  - elasticsearch
-  - postgresql
+- elasticsearch
+- postgresql
 before_script:
-  - psql -c 'create database bulbs;' -U postgres
+- psql -c 'create database bulbs;' -U postgres
 script: py.test --cov bulbs tests/
 after_success:
-  - coveralls
+- coveralls
+deploy:
+  provider: pypi
+  user: csinchok
+  password:
+    secure: KOj/PW07DMSP8aNQMjC6yjLohuhat6//GMHfg9r/XjxLqNd86/t8z1KpNgyRsIC25x2KUkPHjUxg6VC7Dbr5YBptq3kcXR7vkhGFVVud6W4A93/wHhrE6QLrwQzu1vD32Hp5dNY0qggQSwFE2AYS0dXPpbiJuxZJAwtaOfS5Hk4=
+  on:
+    tags: true
+    repo: theonion/django-bulbs

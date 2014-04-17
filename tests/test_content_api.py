@@ -98,6 +98,11 @@ class TestCreateContentAPI(ContentAPITestCase):
             "title": "Test Article",
             "description": "Testing out things with an article.",
             "foo": "Fighters",
+            "image": {
+                "id": 12345,
+                "alt": None,
+                "caption": None
+            }
         }
         client = Client()
         client.login(username="admin", password="secret")
