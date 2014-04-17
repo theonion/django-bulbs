@@ -25,5 +25,4 @@ deploy:
     secure: KOj/PW07DMSP8aNQMjC6yjLohuhat6//GMHfg9r/XjxLqNd86/t8z1KpNgyRsIC25x2KUkPHjUxg6VC7Dbr5YBptq3kcXR7vkhGFVVud6W4A93/wHhrE6QLrwQzu1vD32Hp5dNY0qggQSwFE2AYS0dXPpbiJuxZJAwtaOfS5Hk4=
   on:
     tags: true
-    repo: theonion/django-bulbs
     python: 2.7
