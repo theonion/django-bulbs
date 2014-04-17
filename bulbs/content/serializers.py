@@ -18,10 +18,13 @@ class ImageFieldSerializer(serializers.WritableField):
             "id": obj.id,
             "alt": obj.alt,
             "caption": obj.caption
-        }        
+        }
 
     def from_native(self, data):
-        return data.get("id")
+        image_id = data.get("id")
+        if image_id is not None:
+            return int(image_id)  # Just in case a string gets passed in
+        return None
 
 
 class TagSerializer(serializers.ModelSerializer):
