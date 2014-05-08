@@ -1,5 +1,4 @@
-{% load images %}
-<video id="{{ video.id }}" class="video-js vjs-default-skin" controls preload="auto" {% if width %}width="{{ width }}" height="{{ height }}"{% endif %} {% if video.poster %}poster="{% cropped_url video.poster '16x9' 320 %}"{% endif %} data-setup="" >
+<video id="{{ video.id }}" class="video-js vjs-default-skin" controls preload="auto" {% if width %}width="{{ width }}" height="{{ height }}"{% endif %} {% if video.poster_url %}poster="{{ video.poster_url }}"{% endif %} data-setup="" >
     {% for source in video.sources %}
         <source src="{{ source.src }}" type="{{ source.type }}">
     {% endfor %}
