@@ -13,6 +13,12 @@ from .models import Content, Tag, LogEntry
 
 class ImageFieldSerializer(serializers.WritableField):
 
+    def __init__(self, caption_field=None, alt_field=None, **kwargs):
+        super(ImageFieldSerializer, self).__init__(**kwargs)
+
+        self.caption_field = caption_field
+        self.alt_field = alt_field
+
     def to_native(self, obj):
         return {
             "id": obj.id,
@@ -21,10 +27,26 @@ class ImageFieldSerializer(serializers.WritableField):
         }
 
     def from_native(self, data):
+        if data is None:
+            return None
+
         image_id = data.get("id")
         if image_id is not None:
             return int(image_id)  # Just in case a string gets passed in
+
         return None
+
+    def field_from_native(self, data, files, field_name, into):
+        super(ImageFieldSerializer, self).field_from_native(data, files, field_name, into)
+        image_data = data.get(field_name, {})
+        if image_data is None:
+            return
+
+        if self.alt_field and "alt" in image_data:
+            into[self.alt_field] = image_data["alt"]
+
+        if self.caption_field and "caption" in image_data:
+            into[self.caption_field] = image_data["caption"]
 
 
 class TagSerializer(serializers.ModelSerializer):
