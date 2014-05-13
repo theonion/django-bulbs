@@ -28,6 +28,7 @@ def pytest_configure():
             "bulbs.api",
             "bulbs.content",
             "bulbs.promotion",
+            "bulbs.redirects",
             "tests.testcontent",),
         ROOT_URLCONF = 'tests.urls',
         TEMPLATE_CONTEXT_PROCESSORS = (
