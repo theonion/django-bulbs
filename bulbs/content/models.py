@@ -22,7 +22,7 @@ from polymorphic import PolymorphicModel, PolymorphicManager
 
 from .shallow import ShallowContentS, ShallowContentResult
 
-from betty.cropped.fields import ImageField
+from djbetty import ImageField
 
 try:
     from bulbs.content.tasks import index as index_task  # noqa

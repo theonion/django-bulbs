@@ -1,6 +1,6 @@
 Django>=1.4
 South==0.8.1
-betty-cropper==0.1.21
+django-betty-cropper==0.1.1
 djangorestframework==2.3.13
 django-elastimorphic==0.0.2
 django_polymorphic==0.5.1
