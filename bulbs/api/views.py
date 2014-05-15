@@ -16,6 +16,7 @@ from rest_framework import (
 )
 
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from elastimorphic.models import polymorphic_indexable_registry
 
@@ -253,9 +254,30 @@ class LogEntryViewSet(UncachedResponse, viewsets.ModelViewSet):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+class MeView(viewsets.ViewSet):
+
+    def list(self, request, format=None):
+        data = {
+            "id": request.user.id,
+            "username": request.user.get_username()
+        }
+        try:
+            data["full_name"] = request.user.get_full_name()
+        except NotImplemented:
+            pass
+        try:
+            data["short_name"] = request.user.get_short_name()
+        except NotImplemented:
+            pass
+
+        return Response(data)
+
+
 api_v1_router = routers.DefaultRouter()
 api_v1_router.register(r"content", ContentViewSet, base_name="content")
 api_v1_router.register(r"contentlist", ContentListViewSet, base_name="contentlist")
 api_v1_router.register(r"tag", TagViewSet, base_name="tag")
 api_v1_router.register(r"log", LogEntryViewSet, base_name="logentry")
 api_v1_router.register(r"user", UserViewSet, base_name="user")
+api_v1_router.register(r"me", MeView, base_name="me")

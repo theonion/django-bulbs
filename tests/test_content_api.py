@@ -28,6 +28,7 @@ class ContentAPITestCase(BaseIndexableTestCase):
 
         # reverse("content-detail")
 
+
 class TestContentListingAPI(ContentAPITestCase):
     """Test the listing of content"""
 
@@ -312,6 +313,17 @@ class TestAddTagsAPI(BaseUpdateContentAPI):
                 self.assertEqual(response_tag_ids, response_tag_ids)
             else:
                 self.assertEqual(response_data[key], expected_data[key])
+
+
+class TestMeApi(ContentAPITestCase):
+    def test_me(self):
+        client = Client()
+        client.login(username="admin", password="secret")
+        me_endpoint = reverse("me-list")
+
+        response = client.get(me_endpoint, content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data.get("username"), "admin")
 
 
 class TestTrashContentAPI(ContentAPITestCase):
