@@ -1,6 +1,6 @@
-from .models import TestContentObj, TestContentObjTwo
+from .models import TestContentObj, TestContentObjTwo, TestContentDetailImage
 
-from bulbs.content.serializers import ContentSerializer
+from bulbs.content.serializers import ContentSerializer, ImageFieldSerializer
 
 
 class TestContentObjSerializer(ContentSerializer):
@@ -15,3 +15,13 @@ class TestContentObjTwoSerializer(ContentSerializer):
 
     class Meta:
         model = TestContentObjTwo
+
+
+class TestContentDetailImageSerializer(ContentSerializer):
+    """Serializes the ExternalLink model."""
+
+    detail_image = ImageFieldSerializer(caption_field="detail_alt", alt_field="detail_alt")
+
+    class Meta:
+        model = TestContentDetailImage
+        exclude = ("detail_alt", "detail_caption")

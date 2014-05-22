@@ -20,11 +20,13 @@ class ImageFieldSerializer(serializers.WritableField):
         self.alt_field = alt_field
 
     def to_native(self, obj):
-        return {
+        data = {
             "id": obj.id,
-            "alt": obj.alt,
-            "caption": obj.caption
         }
+        if self.caption_field:
+            data["alt"] = obj.alt
+            data["caption"] = obj.caption
+        return data
 
     def from_native(self, data):
         if data is None:

@@ -13,7 +13,7 @@ from pyelasticsearch.exceptions import ElasticHttpNotFoundError
 
 from bulbs.content.models import LogEntry, Tag, Content
 from bulbs.content.serializers import TagSerializer
-from tests.testcontent.models import TestContentObj
+from tests.testcontent.models import TestContentObj, TestContentDetailImage
 
 
 class ContentAPITestCase(BaseIndexableTestCase):
@@ -100,9 +100,7 @@ class TestCreateContentAPI(ContentAPITestCase):
             "description": "Testing out things with an article.",
             "foo": "Fighters",
             "image": {
-                "id": 12345,
-                "alt": None,
-                "caption": None
+                "id": 12345
             }
         }
         client = Client()
@@ -240,7 +238,7 @@ class BaseUpdateContentAPI(ContentAPITestCase):
         client = Client()
         client.login(username="admin", password="secret")
         new_data = self.updated_data()
-        # TODO: use reverse there, Von Neumann
+
         content_detail_url = reverse("content-detail", kwargs={"pk": self.content.id})
 
         response = client.get(content_detail_url)
@@ -313,6 +311,24 @@ class TestAddTagsAPI(BaseUpdateContentAPI):
                 self.assertEqual(response_tag_ids, response_tag_ids)
             else:
                 self.assertEqual(response_data[key], expected_data[key])
+
+
+class TestImageAPI(ContentAPITestCase):
+    def test_image_serializer(self):
+        client = Client()
+        client.login(username="admin", password="secret")
+
+        content = TestContentDetailImage.objects.create(
+            title="Some Test Article",
+            description="NO IMAGES HERE"
+        )
+        content_detail_url = reverse("content-detail", kwargs={"pk": content.id})
+
+        response = client.get(content_detail_url, content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertTrue("caption" not in data["image"])
+        self.assertTrue("caption" in data["detail_image"])
 
 
 class TestMeApi(ContentAPITestCase):
