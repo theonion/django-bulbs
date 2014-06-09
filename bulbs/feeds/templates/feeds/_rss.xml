@@ -1,0 +1,27 @@
+{% load betty %}<?xml version="1.0" encoding="utf-8"?>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0">
+    <channel>
+        <title>{{ title|default:"RSS Feed"}}</title>
+        <link>{{ search_url }}</link>
+        <description>{{ description|default:"RSS Feed"}}</description>
+        <atom:link href="{{ feed_url|escape }}" rel="self"></atom:link>
+        <lastBuildDate>{{ build_date|date:"D, d M Y H:i:s O" }}</lastBuildDate>
+        {% for content in page_obj.object_list %}<item>
+            <title>{{ content.feature_type }}: {{ content.title|striptags }}</title>
+            {% if content.authors.all %}<author>{% for author in content.authors.all %}{{ author.get_full_name }}{% if not forloop.last %}, {% endif %}{% endfor%}</author>{% endif %}
+            <link>{{ content.feed_url }}</link>
+            <description>
+                <![CDATA[
+                {{ content.description|safe }}
+                ]]>
+            </description>
+            {% if full %}
+            <content:encoded>
+                {{ content.description|safe }}
+            </content:encoded>
+            {% endif %}
+            <pubDate>{{ content.published|date:"D, d M Y H:i:s O" }}</pubDate>
+            <guid>{{ content.feed_url }}</guid>
+        </item>{% endfor%}
+    </channel>
+</rss>

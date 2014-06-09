@@ -22,13 +22,18 @@ def pytest_configure():
             "django.contrib.auth",
             "django.contrib.contenttypes",
             "django.contrib.sessions",
+
+            "djbetty",
+            "elastimorphic",
             "rest_framework",
             "polymorphic",
-            "elastimorphic",
+
             "bulbs.api",
             "bulbs.content",
+            "bulbs.feeds",
             "bulbs.promotion",
             "bulbs.redirects",
+
             "tests.testcontent",),
         ROOT_URLCONF = 'tests.urls',
         TEMPLATE_CONTEXT_PROCESSORS = (
