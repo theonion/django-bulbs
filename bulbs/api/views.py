@@ -12,12 +12,10 @@ from rest_framework import (
     filters,
     status,
     viewsets,
-    routers,
-    mixins
+    routers
 )
 
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from elastimorphic.models import polymorphic_indexable_registry
 
@@ -100,7 +98,7 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
                         filter_query = [slugify(f) for f in filter_query]
 
                     search_kwargs[field_name] = filter_query
-        
+
         self.object_list = self.model.search_objects.search(**search_kwargs).full()
 
         # Switch between paginated or standard style responses
