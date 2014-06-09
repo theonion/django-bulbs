@@ -33,8 +33,8 @@ class TestCategory(Tag):
 
 class TestContentDetailImage(TestContentObj):
 
-    detail_caption = models.CharField(null=True, blank=True, max_length=255)
-    detail_alt = models.CharField(null=True, blank=True, max_length=255)
+    detail_caption = models.CharField(null=True, blank=True, max_length=255, editable=False)
+    detail_alt = models.CharField(null=True, blank=True, max_length=255, editable=False)
 
     detail_image = ImageField(null=True, blank=True, caption_field="detail_caption", alt_field="detail_alt")
 

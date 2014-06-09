@@ -24,4 +24,3 @@ class TestContentDetailImageSerializer(ContentSerializer):
 
     class Meta:
         model = TestContentDetailImage
-        exclude = ("detail_alt", "detail_caption")
