@@ -259,21 +259,21 @@ class LogEntryViewSet(UncachedResponse, viewsets.ModelViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class MeView(viewsets.ViewSet):
+class MeView(UncachedResponse, viewsets.ViewSet):
 
     def list(self, request, format=None):
-        data = {
-            "id": request.user.id,
-            "username": request.user.get_username()
-        }
-        try:
-            data["full_name"] = request.user.get_full_name()
-        except NotImplemented:
-            pass
-        try:
-            data["short_name"] = request.user.get_short_name()
-        except NotImplemented:
-            pass
+        data = {"id": request.user.id}
+
+        if request.user.is_authenticated():
+            data["username"] = request.user.get_username()
+            try:
+                data["full_name"] = request.user.get_full_name()
+            except NotImplemented:
+                pass
+            try:
+                data["short_name"] = request.user.get_short_name()
+            except NotImplemented:
+                pass
 
         return Response(data)
 
