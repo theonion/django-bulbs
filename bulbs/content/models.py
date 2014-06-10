@@ -19,6 +19,7 @@ from elastimorphic.base import (
     SearchManager,
 )
 from polymorphic import PolymorphicModel, PolymorphicManager
+from pyelasticsearch.exceptions import ElasticHttpNotFoundError
 
 from .shallow import ShallowContentS, ShallowContentResult
 
@@ -353,7 +354,9 @@ def content_deleted(sender, instance=None, **kwargs):
     if getattr(instance, "_index", True):
         index = instance.get_index_name()
         klass = instance.get_real_instance_class()
-        klass.search_objects.es.delete(index, klass.get_mapping_type_name(), instance.id)
-
+        try:
+            klass.search_objects.es.delete(index, klass.get_mapping_type_name(), instance.id)
+        except ElasticHttpNotFoundError:
+            pass
 
 models.signals.pre_delete.connect(content_deleted, Content)
