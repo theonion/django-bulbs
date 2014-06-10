@@ -99,7 +99,7 @@ class TestCreateContentAPI(ContentAPITestCase):
             "title": "Test Article",
             "description": "Testing out things with an article.",
             "foo": "Fighters",
-            "image": {
+            "thumbnail": {
                 "id": 12345
             }
         }
@@ -248,6 +248,7 @@ class BaseUpdateContentAPI(ContentAPITestCase):
         content_data.update(new_data)
         # PUT it up
         data = json.dumps(content_data, cls=JsonEncoder)
+        print(data)
         response = client.put(content_detail_url, data=data, content_type="application/json")
         self.assertEqual(response.status_code, 200)
         # Check that it returns an instance with the new data
@@ -327,8 +328,11 @@ class TestImageAPI(ContentAPITestCase):
         response = client.get(content_detail_url, content_type="application/json")
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content)
-        self.assertTrue("caption" not in data["image"])
-        self.assertTrue("caption" in data["detail_image"])
+        self.assertEqual(data["thumbnail"], None)
+        self.assertEqual(data["detail_image"], None)
+
+
+        # self.assertTrue("caption" in data["detail_image"])
 
 
 class TestMeApi(ContentAPITestCase):

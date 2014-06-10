@@ -19,6 +19,7 @@ from elastimorphic.base import (
     SearchManager,
 )
 from polymorphic import PolymorphicModel, PolymorphicManager
+from pyelasticsearch.exceptions import ElasticHttpNotFoundError
 
 from .shallow import ShallowContentS, ShallowContentResult
 
@@ -176,7 +177,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
     title = models.CharField(max_length=512)
     slug = models.SlugField(blank=True, default='')
     description = models.TextField(max_length=1024, blank=True, default='')
-    image = ImageField(null=True, blank=True)
+    _thumbnail = ImageField(null=True, blank=True, editable=False)
 
     authors = models.ManyToManyField(settings.AUTH_USER_MODEL)
     feature_type = models.CharField(max_length=255, null=True, blank=True)  # "New in Brief", "Newswire", etc.
@@ -192,6 +193,23 @@ class Content(PolymorphicIndexable, PolymorphicModel):
 
     def __unicode__(self):
         return '%s: %s' % (self.__class__.__name__, self.title)
+
+    @property
+    def thumbnail(self):
+        if self._thumbnail.id is not None:
+            return self._thumbnail
+
+        for field in self._meta.fields:
+            if isinstance(field, ImageField):
+                field_value = getattr(self, field.name)
+                if field_value.id is not None:
+                    return field_value
+
+        return self._thumbnail
+
+    @thumbnail.setter
+    def thumbnail(self, value):
+        self._thumbnail = value
 
     def get_absolute_url(self):
         try:
@@ -249,7 +267,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
             "title": {"type": "string", "analyzer": "snowball", "_boost": 2.0},
             "slug": {"type": "string"},
             "description": {"type": "string", },
-            "image": {"type": "string"},
+            "thumbnail": {"type": "integer"},
             "feature_type": {
                 "properties": {
                     "name": {
@@ -286,7 +304,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
             "title"            : self.title,
             "slug"             : self.slug,
             "description"      : self.description,
-            "image"            : self.image.id if self.image else None,
+            "thumbnail"        : self.thumbnail.id if self.thumbnail else None,
             "feature_type"     : {
                 "name": self.feature_type,
                 "slug": slugify(self.feature_type)
@@ -336,7 +354,9 @@ def content_deleted(sender, instance=None, **kwargs):
     if getattr(instance, "_index", True):
         index = instance.get_index_name()
         klass = instance.get_real_instance_class()
-        klass.search_objects.es.delete(index, klass.get_mapping_type_name(), instance.id)
-
+        try:
+            klass.search_objects.es.delete(index, klass.get_mapping_type_name(), instance.id)
+        except ElasticHttpNotFoundError:
+            pass
 
 models.signals.pre_delete.connect(content_deleted, Content)

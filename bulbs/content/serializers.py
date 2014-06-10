@@ -20,6 +20,9 @@ class ImageFieldSerializer(serializers.WritableField):
         self.alt_field = alt_field
 
     def to_native(self, obj):
+        if obj is None or obj.id is None:
+            return None
+
         data = {
             "id": obj.id,
         }
@@ -146,7 +149,7 @@ class ContentSerializer(serializers.ModelSerializer):
     polymorphic_ctype = ContentTypeField(source="polymorphic_ctype_id", read_only=True)
     tags = TagField(many=True)
     authors = AuthorField(many=True)
-    image = ImageFieldSerializer(required=False)
+    thumbnail = ImageFieldSerializer(required=False)
     absolute_url = serializers.Field(source="get_absolute_url")
     status = serializers.Field(source="get_status")
 
