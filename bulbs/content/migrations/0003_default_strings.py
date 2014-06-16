@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 import datetime
 from south.db import db
-from south.v2 import SchemaMigration
+from south.v2 import DataMigration
 from django.db import models
-
 
 # Safe User import for Django < 1.5
 try:
@@ -20,23 +19,22 @@ user_orm_label = '%s.%s' % (User._meta.app_label, User._meta.object_name)
 user_model_label = '%s.%s' % (User._meta.app_label, User._meta.module_name)
 
 
-class Migration(SchemaMigration):
+class Migration(DataMigration):
 
     def forwards(self, orm):
+        "Write your forwards methods here."
 
-        # Changing field 'Content.subhead'
-        db.alter_column(u'content_content', 'subhead', self.gf('django.db.models.fields.CharField')(max_length=255))
-
-        # Changing field 'Content.feature_type'
-        db.alter_column(u'content_content', 'feature_type', self.gf('django.db.models.fields.CharField')(max_length=255))
+        for content in orm.Content.objects.filter(models.Q(feature_type__isnull=True) | models.Q(subhead__isnull=True)):
+            content.subhead = ""
+            content.feature_type = ""
+            content.save()
 
     def backwards(self, orm):
-
-        # Changing field 'Content.subhead'
-        db.alter_column(u'content_content', 'subhead', self.gf('django.db.models.fields.CharField')(max_length=255, null=True))
-
-        # Changing field 'Content.feature_type'
-        db.alter_column(u'content_content', 'feature_type', self.gf('django.db.models.fields.CharField')(max_length=255, null=True))
+        "Write your backwards methods here."
+        for content in orm.Content.objects.filter(models.Q(feature_type__exact="") | models.Q(subhead__exact="")):
+            content.subhead = None
+            content.feature_type = None
+            content.save()
 
     models = {
         user_model_label: {
@@ -85,3 +83,4 @@ class Migration(SchemaMigration):
     }
 
     complete_apps = ['content']
+    symmetrical = True
