@@ -180,8 +180,8 @@ class Content(PolymorphicIndexable, PolymorphicModel):
     _thumbnail = ImageField(null=True, blank=True, editable=False)
 
     authors = models.ManyToManyField(settings.AUTH_USER_MODEL)
-    feature_type = models.CharField(max_length=255, null=True, blank=True)  # "New in Brief", "Newswire", etc.
-    subhead = models.CharField(max_length=255, null=True, blank=True)
+    feature_type = models.CharField(max_length=255, blank=True, default='')
+    subhead = models.CharField(max_length=255, blank=True, default='')
 
     tags = models.ManyToManyField(Tag, blank=True)
 
