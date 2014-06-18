@@ -11,6 +11,7 @@ from django.utils import timezone
 from django.utils.html import strip_tags
 
 from bulbs.content import TagCache
+import elasticsearch
 from elasticutils import SearchResults, S, F
 from elasticutils.contrib.django import get_es
 from elastimorphic.base import (
@@ -19,7 +20,6 @@ from elastimorphic.base import (
     SearchManager,
 )
 from polymorphic import PolymorphicModel, PolymorphicManager
-from pyelasticsearch.exceptions import ElasticHttpNotFoundError
 
 from .shallow import ShallowContentS, ShallowContentResult
 
@@ -356,7 +356,7 @@ def content_deleted(sender, instance=None, **kwargs):
         klass = instance.get_real_instance_class()
         try:
             klass.search_objects.es.delete(index, klass.get_mapping_type_name(), instance.id)
-        except ElasticHttpNotFoundError:
+        except elasticsearch.exceptions.NotFoundError:
             pass
 
 models.signals.pre_delete.connect(content_deleted, Content)
