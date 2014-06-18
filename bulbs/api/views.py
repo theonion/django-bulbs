@@ -7,6 +7,8 @@ from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
+import elasticsearch
+
 from rest_framework import (
     decorators,
     filters,
@@ -20,7 +22,6 @@ from rest_framework.response import Response
 from elastimorphic.models import polymorphic_indexable_registry
 
 from elasticutils.contrib.django import get_es
-from pyelasticsearch.exceptions import ElasticHttpNotFoundError
 
 from bulbs.content.models import Content, Tag, LogEntry
 from bulbs.content.serializers import (
@@ -140,10 +141,10 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
 
         es = get_es(urls=settings.ES_URLS)
         try:
-            es.delete(content.get_index_name(), content.get_mapping_type_name(), content.id)
+            es.delete(index=content.get_index_name(), doc_type=content.get_mapping_type_name(), id=content.id)
             LogEntry.objects.log(request.user, content, "Trashed")
             return Response({"status": "Trashed"})
-        except ElasticHttpNotFoundError:
+        except elasticsearch.exceptions.NotFoundError:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
     @decorators.link()

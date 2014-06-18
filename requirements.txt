@@ -2,13 +2,13 @@ Django>=1.4
 South==0.8.1
 django-betty-cropper>=0.1.4
 djangorestframework==2.3.13
-django-elastimorphic==0.0.2
+django-elastimorphic>=0.1.0
 django_polymorphic==0.5.1
 django-json-field==0.5.5
 namedentities==1.301
 python-dateutil==2.1
 pytz==2012h
-requests==1.1.0
+requests<=1.1.0
 simplejson==3.3.0
 six==1.6.1
 thrift==0.8.0

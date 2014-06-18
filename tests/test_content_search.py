@@ -151,7 +151,7 @@ class PolyContentTestCase(BaseIndexableTestCase):
 
     def test_search_exact_name_tags(self):
         Tag.objects.create(name='Beeftank')
-        self.es.refresh()
+        Tag.search_objects.refresh()
         results = Tag.search_objects.query(name__match='beeftank').full()
         self.assertTrue(len(results) > 0)
         tag_result = results[0]

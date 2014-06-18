@@ -18,7 +18,7 @@ requires = [
     "Django>=1.4",
     "South==0.8.1",
     "django-betty-cropper>=0.1.4",
-    "django-elastimorphic==0.0.2",
+    "django-elastimorphic>=0.1.0",
     "django-json-field==0.5.5",
     "django_polymorphic==0.5.1",
     "djangorestframework==2.3.13",

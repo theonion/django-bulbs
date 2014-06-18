@@ -8,12 +8,13 @@ from django.test.client import Client
 from django.utils import timezone
 
 from elastimorphic.tests.base import BaseIndexableTestCase
-from pyelasticsearch.client import JsonEncoder
-from pyelasticsearch.exceptions import ElasticHttpNotFoundError
+
+import elasticsearch
 
 from bulbs.content.models import LogEntry, Tag, Content
 from bulbs.content.serializers import TagSerializer
 from tests.testcontent.models import TestContentObj, TestContentDetailImage
+from tests.utils import JsonEncoder
 
 
 class ContentAPITestCase(BaseIndexableTestCase):
@@ -248,7 +249,6 @@ class BaseUpdateContentAPI(ContentAPITestCase):
         content_data.update(new_data)
         # PUT it up
         data = json.dumps(content_data, cls=JsonEncoder)
-        print(data)
         response = client.put(content_detail_url, data=data, content_type="application/json")
         self.assertEqual(response.status_code, 200)
         # Check that it returns an instance with the new data
@@ -354,7 +354,7 @@ class TestTrashContentAPI(ContentAPITestCase):
             foo="Lorem ipsum dolor, oh myyyy!"
         )
         self.assertTrue(content.indexed)
-        data = self.es.get(content.get_index_name(), content.get_mapping_type_name(), content.id)
+        data = self.es.get(index=content.get_index_name(), doc_type=content.get_mapping_type_name(), id=content.id)
         self.assertEqual(data["_source"]["title"], "Test Article")
 
         client = Client()
@@ -369,12 +369,12 @@ class TestTrashContentAPI(ContentAPITestCase):
         # check for a log
         LogEntry.objects.filter(object_id=content.pk).get(change_message="Trashed")
 
-        with self.assertRaises(ElasticHttpNotFoundError):
-            self.es.get(content.get_index_name(), content.get_mapping_type_name(), content.id)
+        with self.assertRaises(elasticsearch.exceptions.NotFoundError):
+            self.es.get(index=content.get_index_name(), doc_type=content.get_mapping_type_name(), id=content.id)
 
         content.save()
-        with self.assertRaises(ElasticHttpNotFoundError):
-            self.es.get(content.get_index_name(), content.get_mapping_type_name(), content.id)
+        with self.assertRaises(elasticsearch.exceptions.NotFoundError):
+            self.es.get(index=content.get_index_name(), doc_type=content.get_mapping_type_name(), id=content.id)
 
     def test_trash_404(self):
         client = Client()

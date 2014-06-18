@@ -57,7 +57,7 @@ def pytest_configure():
         },
         
         ES_DISABLED = False,
-        ES_URLS = ['http://localhost:9200'],
+        ES_URLS = ['http://localhost:9220'],
     )
 
     app = Celery('proj')
