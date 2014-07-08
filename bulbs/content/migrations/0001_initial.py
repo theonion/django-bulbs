@@ -4,6 +4,7 @@ from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
 
+
 # Safe User import for Django < 1.5
 try:
     from django.contrib.auth import get_user_model
@@ -40,9 +41,9 @@ class Migration(SchemaMigration):
             ('title', self.gf('django.db.models.fields.CharField')(max_length=512)),
             ('slug', self.gf('django.db.models.fields.SlugField')(default='', max_length=50, blank=True)),
             ('description', self.gf('django.db.models.fields.TextField')(default='', max_length=1024, blank=True)),
-            ('image', self.gf('djbetty.fields.ImageField')(default=None, null=True, blank=True)),
-            ('feature_type', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('subhead', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
+            ('_thumbnail', self.gf('djbetty.fields.ImageField')(default=None, null=True, blank=True)),
+            ('feature_type', self.gf('django.db.models.fields.CharField')(default='', max_length=255, blank=True)),
+            ('subhead', self.gf('django.db.models.fields.CharField')(default='', max_length=255, blank=True)),
             ('indexed', self.gf('django.db.models.fields.BooleanField')(default=True)),
         ))
         db.send_create_signal(u'content', ['Content'])
@@ -101,17 +102,17 @@ class Migration(SchemaMigration):
         },
         u'content.content': {
             'Meta': {'object_name': 'Content'},
+            '_thumbnail': ('djbetty.fields.ImageField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
             'authors': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['%s']" % user_orm_label, 'symmetrical': 'False'}),
             'description': ('django.db.models.fields.TextField', [], {'default': "''", 'max_length': '1024', 'blank': 'True'}),
-            'feature_type': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'feature_type': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '255', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'image': ('djbetty.fields.ImageField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
             'indexed': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'last_modified': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'auto_now': 'True', 'blank': 'True'}),
             'polymorphic_ctype': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'polymorphic_content.content_set'", 'null': 'True', 'to': u"orm['contenttypes.ContentType']"}),
             'published': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'slug': ('django.db.models.fields.SlugField', [], {'default': "''", 'max_length': '50', 'blank': 'True'}),
-            'subhead': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'subhead': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '255', 'blank': 'True'}),
             'tags': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['content.Tag']", 'symmetrical': 'False', 'blank': 'True'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '512'})
         },
