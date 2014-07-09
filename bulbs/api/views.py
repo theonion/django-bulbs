@@ -16,7 +16,7 @@ from rest_framework import (
     viewsets,
     routers
 )
-
+from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
 from elastimorphic.models import polymorphic_indexable_registry
@@ -32,6 +32,7 @@ from bulbs.promotion.models import ContentList, ContentListHistory
 from bulbs.promotion.serializers import ContentListSerializer
 
 from .mixins import UncachedResponse
+from .permissions import CanEditContent, CanPromoteContent, CanPublishContent
 
 
 class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
@@ -43,6 +44,7 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
 
     filter_fields = ("tags", "authors", "feature_types", "published", "types")
     search_fields = ("title", "description")
+    permission_classes = [IsAdminUser, CanEditContent]
 
     def get_serializer_class(self):
         klass = None
@@ -111,7 +113,7 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
 
         return Response(serializer.data)
 
-    @decorators.action()
+    @decorators.action(permission_classes=[CanPublishContent])
     def publish(self, request, **kwargs):
         content = self.get_object()
 
@@ -132,7 +134,7 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         LogEntry.objects.log(request.user, content, content.get_status())
         return Response({"status": content.get_status(), "published": content.published})
 
-    @decorators.action()
+    @decorators.action(permission_classes=[CanPublishContent])
     def trash(self, request, **kwargs):
         content = self.get_object()
 
@@ -214,6 +216,7 @@ class ContentListViewSet(UncachedResponse, viewsets.ModelViewSet):
     model = ContentList
     serializer_class = ContentListSerializer
     paginate_by = 20
+    permission_classes = [IsAdminUser, CanPromoteContent]
 
     def post_save(self, obj, created=False):
         ContentListHistory.objects.create(content_list=obj, data=obj.data)

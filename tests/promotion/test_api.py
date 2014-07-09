@@ -1,23 +1,17 @@
 import json
 
-from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.test.client import Client
 
-from elastimorphic.tests.base import BaseIndexableTestCase
-
 from bulbs.promotion.models import ContentList, ContentListHistory
 
+from tests.test_content_api import ContentAPITestCase
 from tests.testcontent.models import TestContentObj
 
 
-class PromotionApiTestCase(BaseIndexableTestCase):
+class PromotionApiTestCase(ContentAPITestCase):
 
     def test_content_list_api(self):
-        User = get_user_model()
-        admin = User.objects.create_user("admin", "tech@theonion.com", "secret")
-        admin.is_staff = True
-        admin.save()
         client = Client()
         client.login(username="admin", password="secret")
 
@@ -34,7 +28,14 @@ class PromotionApiTestCase(BaseIndexableTestCase):
 
         endpoint = reverse("contentlist-detail", kwargs={"pk": content_list.pk})
         response = client.get(endpoint)
+        # no permission, no promotion
+        self.assertEqual(response.status_code, 403)
+        # ok, have some permissions
+        self.give_permissions()
+        response = client.get(endpoint)
+        # permission allows promotion
         self.assertEqual(response.status_code, 200)
+
         for index, content in enumerate(response.data["content"]):
             self.assertEqual(content["title"], "Content test #{}".format(index))
 

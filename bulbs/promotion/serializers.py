@@ -1,4 +1,7 @@
 from rest_framework import serializers
+
+from bulbs.content.serializers import ContentSerializer
+
 from .models import ContentList
 
 
@@ -6,8 +9,7 @@ class ContentListField(serializers.WritableField):
     def field_to_native(self, obj, field_name):
         data = []
         for content in obj:
-            serializer = content.get_serializer_class()
-            data.append(serializer(instance=content).data)
+            data.append(ContentSerializer(instance=content).data)
 
         return data
 

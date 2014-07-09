@@ -199,6 +199,13 @@ class Content(PolymorphicIndexable, PolymorphicModel):
 
     search_objects = ContentManager()
 
+    class Meta:
+        permissions = (
+            ("publish_own_content", "Can publish their own content"),
+            ("publish_content", "Can publish content"),
+            ("promote_content", "Can promote content"),
+        )
+
     def __unicode__(self):
         return '%s: %s' % (self.__class__.__name__, self.title)
 

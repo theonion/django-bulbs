@@ -2,6 +2,7 @@ import json
 import datetime
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Permission
 from django.core.urlresolvers import reverse
 from django.template.defaultfilters import slugify
 from django.test.client import Client
@@ -23,11 +24,23 @@ class ContentAPITestCase(BaseIndexableTestCase):
     def setUp(self):
         super(ContentAPITestCase, self).setUp()
         User = get_user_model()
-        admin = User.objects.create_user("admin", "tech@theonion.com", "secret")
+        admin = self.admin = User.objects.create_user("admin", "tech@theonion.com", "secret")
         admin.is_staff = True
         admin.save()
-
         # reverse("content-detail")
+
+    def give_permissions(self):
+        publish_perm = Permission.objects.get(codename="publish_content")
+        change_perm = Permission.objects.get(codename="change_content")
+        promote_perm = Permission.objects.get(codename="promote_content")
+        self.admin.user_permissions.add(publish_perm, change_perm, promote_perm)
+
+    def give_author_permissions(self):
+        publish_perm = Permission.objects.get(codename="publish_own_content")
+        self.admin.user_permissions.add(publish_perm)
+
+    def remove_permissions(self):
+        admin.user_permissions.clear()
 
 
 class TestContentListingAPI(ContentAPITestCase):
@@ -148,9 +161,42 @@ class TestPublishContentAPI(ContentAPITestCase):
         client = Client()
         client.login(username="admin", password="secret")
 
+        # ensure permission to publish
         content_rest_url = reverse("content-publish", kwargs={"pk": content.id})
         response = client.post(content_rest_url, content_type="application/json")
-        # ensure it was created and got an id
+        self.assertEqual(response.status_code, 403)
+        self.give_permissions()
+        # ok now it should work
+        response = client.post(content_rest_url, content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+        response_data = response.data
+        self.assertEqual(response_data["status"], "final")
+
+        # assert that we can load it up
+        article = TestContentObj.objects.get(id=content.id)
+        self.assertIsNotNone(article.published)
+        # check for a log
+        LogEntry.objects.filter(object_id=article.pk).get(change_message="final")
+
+    def test_author_publish_permissions(self):
+
+        content = TestContentObj.objects.create(
+            title="Django Unchained: How a framework tried to run using async IO",
+            description="Spoiler alert: it didn't go great, unless you measure by the number of HN articles about it",
+            foo="SUCK IT, NERDS."
+        )
+        content.authors.add(self.admin)
+
+        client = Client()
+        client.login(username="admin", password="secret")
+
+        # ensure permission to publish
+        content_rest_url = reverse("content-publish", kwargs={"pk": content.id})
+        response = client.post(content_rest_url, content_type="application/json")
+        self.assertEqual(response.status_code, 403)
+        self.give_author_permissions()
+        # ok now it should work
+        response = client.post(content_rest_url, content_type="application/json")
         self.assertEqual(response.status_code, 200)
         response_data = response.data
         self.assertEqual(response_data["status"], "final")
@@ -176,8 +222,14 @@ class TestPublishContentAPI(ContentAPITestCase):
             content_rest_url,
             data=json.dumps({"published": "2013-06-09T00:00:00-06:00"}),
             content_type="application/json")
-
-        # ensure it was created and got an id
+        # no permissions, no publish
+        self.assertEqual(response.status_code, 403)
+        self.give_permissions()
+        # now it should work
+        response = client.post(
+            content_rest_url,
+            data=json.dumps({"published": "2013-06-09T00:00:00-06:00"}),
+            content_type="application/json")
         self.assertEqual(response.status_code, 200)
         response_data = response.data
         self.assertEqual(response_data["status"], "final")
@@ -201,6 +253,14 @@ class TestPublishContentAPI(ContentAPITestCase):
         client = Client()
         client.login(username="admin", password="secret")
         content_rest_url = reverse("content-publish", kwargs={"pk": content.id})
+        response = client.post(
+            content_rest_url,
+            data=json.dumps({"published": False}),
+            content_type="application/json")
+        # no permissions, no unpublish
+        self.assertEqual(response.status_code, 403)
+        self.give_permissions()
+        # now it should work
         response = client.post(
             content_rest_url,
             data=json.dumps({"published": False}),
@@ -252,7 +312,13 @@ class BaseUpdateContentAPI(ContentAPITestCase):
         # PUT it up
         data = json.dumps(content_data, cls=JsonEncoder)
         response = client.put(content_detail_url, data=data, content_type="application/json")
+        # no permissions, no PUTing
+        self.assertEqual(response.status_code, 403)
+        self.give_permissions()
+        # ok, PUT it now
+        response = client.put(content_detail_url, data=data, content_type="application/json")
         self.assertEqual(response.status_code, 200)
+        
         # Check that it returns an instance with the new data
         # And check that the detail view is also correct
         response = client.get(content_detail_url)
@@ -363,8 +429,12 @@ class TestTrashContentAPI(ContentAPITestCase):
         client.login(username="admin", password="secret")
         content_rest_url = reverse("content-trash", kwargs={"pk": content.id})
         response = client.post(content_rest_url, content_type="application/json")
+        # not just anyone can trash an article
+        self.assertEqual(response.status_code, 403)
+        self.give_permissions()
+        # now you can trash
+        response = client.post(content_rest_url, content_type="application/json")
         self.assertEqual(response.status_code, 200)
-
         content = Content.objects.get(id=content.id)
         self.assertFalse(content.indexed)
 
@@ -388,7 +458,11 @@ class TestTrashContentAPI(ContentAPITestCase):
         )
         content_rest_url = reverse("content-trash", kwargs={"pk": content.id})
         response = client.post(content_rest_url, content_type="application/json")
+        # no permissions, no trashing
+        self.assertEqual(response.status_code, 403)
+        self.give_permissions()
+        # now you can trash
+        response = client.post(content_rest_url, content_type="application/json")
         self.assertEqual(response.status_code, 200)
-
         response = client.post(content_rest_url, content_type="application/json")
         self.assertEqual(response.status_code, 404)
