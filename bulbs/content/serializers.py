@@ -8,7 +8,7 @@ from rest_framework import relations
 
 from elastimorphic.serializers import ContentTypeField, PolymorphicSerializerMixin
 
-from .models import Content, Tag, LogEntry
+from .models import Content, Tag, LogEntry, FeatureType
 
 
 class ImageFieldSerializer(serializers.WritableField):
@@ -101,6 +101,32 @@ class TagField(relations.RelatedField):
         return tag
 
 
+class FeatureTypeField(relations.RelatedField):
+    """This is a relational field that handles the addition of feature_types to
+    content objects. This field also allows the user to create feature_types in
+    the db if they don't already exist."""
+
+    read_only = False
+
+    def to_native(self, obj):
+        return obj.name
+
+    def from_native(self, value):
+        """Basically, each tag dict must include a full dict with id,
+        name and slug--or else you need to pass in a dict with just a name,
+        which indicated that the Tag doesn't exist, and should be added."""
+        if value == "":
+            return None
+
+        slug = slugify(value)
+        try:
+            feature_type = FeatureType.objects.get(slug=slug)
+        except FeatureType.DoesNotExist:
+            feature_type = FeatureType.objects.create(slug=slug, name=value)
+
+        return feature_type
+
+
 class UserSerializer(serializers.ModelSerializer):
     """"Returns basic User fields"""
     class Meta:
@@ -148,6 +174,7 @@ class AuthorField(relations.RelatedField):
 class ContentSerializer(serializers.ModelSerializer):
     polymorphic_ctype = ContentTypeField(source="polymorphic_ctype_id", read_only=True)
     tags = TagField(many=True)
+    feature_type = FeatureTypeField(required=False)
     authors = AuthorField(many=True)
     thumbnail = ImageFieldSerializer(required=False)
     absolute_url = serializers.Field(source="get_absolute_url")

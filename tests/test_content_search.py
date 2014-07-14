@@ -7,7 +7,7 @@ from django.utils import timezone
 from django.test.client import Client
 from django.template.defaultfilters import slugify
 
-from bulbs.content.models import Content, Tag
+from bulbs.content.models import Content, Tag, FeatureType
 from elastimorphic.tests.base import BaseIndexableTestCase
 
 from tests.testcontent.models import TestContentObj, TestContentObjTwo
@@ -28,6 +28,8 @@ class PolyContentTestCase(BaseIndexableTestCase):
         self.num_subclasses = 2
         self.combos = list(itertools.combinations(words, 2))
         self.all_tags = []
+        ft_one = FeatureType.objects.create(name="Obj one", slug="obj-one")
+        ft_two = FeatureType.objects.create(name="Obj two", slug="obj-two")
         for i, combo in enumerate(self.combos):
             tags = []
             for atom in combo:
@@ -39,7 +41,7 @@ class PolyContentTestCase(BaseIndexableTestCase):
                 description=' '.join(reversed(combo)),
                 foo=combo[0],
                 published=one_hour_ago,
-                feature_type='Obj one'
+                feature_type=ft_one
             )
             obj.tags.add(*tags)
             obj.index()
@@ -49,7 +51,7 @@ class PolyContentTestCase(BaseIndexableTestCase):
                 foo=combo[1],
                 bar=i,
                 published=two_days_ago,
-                feature_type='Obj two'
+                feature_type=ft_two
             )
             obj2.tags.add(*tags)
             obj2.index()
@@ -58,7 +60,7 @@ class PolyContentTestCase(BaseIndexableTestCase):
             title="Unpublished draft",
             description="Just to throw a wrench",
             foo="bar",
-            feature_type='Obj one'
+            feature_type=ft_one
         )
 
         # We need to let the index refresh
@@ -83,7 +85,7 @@ class PolyContentTestCase(BaseIndexableTestCase):
         q = Content.search_objects.search(feature_types=["obj-one"])
         self.assertEqual(q.count(), 6)
         for content in q.full():
-            self.assertEqual("Obj one", content.feature_type)
+            self.assertEqual("Obj one", content.feature_type.name)
 
         q = Content.search_objects.search(types=["testcontent_testcontentobj"])
         self.assertEqual(q.count(), 6)
@@ -121,7 +123,7 @@ class PolyContentTestCase(BaseIndexableTestCase):
         q = Content.search_objects.search(feature_types=["-obj-one"])
         self.assertEqual(q.count(), 6)
         for content in q.full():
-            self.assertNotEqual("Obj one", content.feature_type)
+            self.assertNotEqual("Obj one", content.feature_type.name)
 
     def test_content_subclasses(self):
         # We created one of each subclass per combination so the following should be true:

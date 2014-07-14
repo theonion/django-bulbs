@@ -75,6 +75,14 @@ class Tag(PolymorphicIndexable, PolymorphicModel):
         return TagSerializer
 
 
+class FeatureType(models.Model):
+    name = models.CharField(max_length=255)
+    slug = models.SlugField(unique=True)
+
+    def __unicode__(self):
+        return self.name
+
+
 class ContentManager(SearchManager):
 
     def s(self):
@@ -180,7 +188,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
     _thumbnail = ImageField(null=True, blank=True, editable=False)
 
     authors = models.ManyToManyField(settings.AUTH_USER_MODEL)
-    feature_type = models.CharField(max_length=255, blank=True, default="")
+    feature_type = models.ForeignKey(FeatureType, null=True, blank=True)
     subhead = models.CharField(max_length=255, blank=True, default="")
 
     tags = models.ManyToManyField(Tag, blank=True)
@@ -305,10 +313,6 @@ class Content(PolymorphicIndexable, PolymorphicModel):
             "slug"             : self.slug,
             "description"      : self.description,
             "thumbnail"        : self.thumbnail.id if self.thumbnail else None,
-            "feature_type"     : {
-                "name": self.feature_type,
-                "slug": slugify(self.feature_type)
-            },
             "authors": [{
                 "first_name": author.first_name,
                 "id"        : author.id,
@@ -319,6 +323,11 @@ class Content(PolymorphicIndexable, PolymorphicModel):
             "absolute_url": self.get_absolute_url(),
             "status": self.get_status()
         })
+        if self.feature_type:
+            data["feature_type"] = {
+                "name": self.feature_type.name,
+                "slug": self.feature_type.slug
+            }
         return data
 
     @classmethod

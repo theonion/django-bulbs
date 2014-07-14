@@ -4,7 +4,7 @@ import datetime
 
 from django.utils import timezone
 
-from bulbs.content.models import Content, Tag
+from bulbs.content.models import Content, Tag, FeatureType
 from bulbs.content.serializers import ContentSerializer
 from tests.testcontent.models import TestContentObj
 from elastimorphic.tests.base import BaseIndexableTestCase
@@ -15,11 +15,12 @@ class SerializerTestCase(BaseIndexableTestCase):
     def test_tag_serializer(self):
         # generate some data
         one_hour_ago = timezone.now() - datetime.timedelta(hours=1)
+        some_bullshit = FeatureType.objects.create(name="Some Bullshit", slug="some-bullshit")
         test_obj = TestContentObj(
             title='Testing Tag Serialization',
             description='Serialization shouldn\'t be so hard',
             published=one_hour_ago,
-            feature_type='Some Bullshit',
+            feature_type=some_bullshit,
             foo='Ugh'
         )
         test_obj.save(index=False)
