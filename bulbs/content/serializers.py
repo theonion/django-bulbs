@@ -119,11 +119,10 @@ class FeatureTypeField(relations.RelatedField):
             return None
 
         slug = slugify(value)
-        try:
-            feature_type = FeatureType.objects.get(slug=slug)
-        except FeatureType.DoesNotExist:
-            feature_type = FeatureType.objects.create(slug=slug, name=value)
-
+        feature_type, created = FeatureType.objects.get_or_create(
+            slug=slug,
+            defaults={"name": value}
+        )
         return feature_type
 
 
