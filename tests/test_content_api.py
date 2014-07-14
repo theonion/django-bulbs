@@ -102,7 +102,8 @@ class TestCreateContentAPI(ContentAPITestCase):
             "foo": "Fighters",
             "thumbnail": {
                 "id": 12345
-            }
+            },
+            "feature_type": "Some Super Long String Probably"
         }
         client = Client()
         client.login(username="admin", password="secret")
@@ -119,6 +120,7 @@ class TestCreateContentAPI(ContentAPITestCase):
         # assert that we can load it up
         article = TestContentObj.objects.get(id=response_data["id"])
         self.assertEqual(article.slug, slugify(data["title"]))
+        self.assertEqual(article.feature_type.name, data["feature_type"])
 
         # check for a log
         # LogEntry.objects.filter(object_id=article.pk).get(change_message="Created")
