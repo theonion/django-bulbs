@@ -33,6 +33,7 @@ class Migration(SchemaMigration):
         db.add_column(u'content_content', 'feature_type',
                       self.gf('django.db.models.fields.related.ForeignKey')(to=orm['content.FeatureType'], null=True, blank=True),
                       keep_default=False)
+        db.alter_column('content_content', 'feature_type', models.CharField(max_length=255, null=True, blank=True))
 
 
     def backwards(self, orm):
