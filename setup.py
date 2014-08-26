@@ -22,14 +22,11 @@ requires = [
     "django-json-field==0.5.5",
     "django_polymorphic==0.5.1",
     "djangorestframework==2.3.13",
-    "namedentities==1.301",
     "python-dateutil==2.1",
     "pytz==2012h",
     "requests>=1.1.0",
     "simplejson==3.3.0",
     "six==1.6.1",
-    "thrift==0.8.0",
-    "wsgiref==0.1.2",
 ]
 
 
