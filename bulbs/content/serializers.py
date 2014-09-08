@@ -2,6 +2,9 @@ from django.contrib import auth
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.template.defaultfilters import slugify
+from firebase_token_generator import create_token
+from django.conf import settings
+
 
 from rest_framework import serializers
 from rest_framework import relations
@@ -133,12 +136,22 @@ class UserSerializer(serializers.ModelSerializer):
 
     def to_native(self, obj):
 
+        # use firebase auth to provide auth variables to firebase security api
+        firebase_auth_payload = {
+            'id': obj.pk,
+            'username': obj.username,
+            'email': obj.email,
+            'is_staff': obj.is_staff
+        }
+        firebase_token = create_token(settings.FIREBASE_SECRET, firebase_auth_payload)
+
         return {
             "id": obj.pk,
             "username": obj.username,
             "email": obj.email,
             "first_name": obj.first_name,
-            "last_name": obj.last_name
+            "last_name": obj.last_name,
+            "firebase_token": firebase_token
         }
 
 
