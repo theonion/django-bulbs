@@ -136,23 +136,27 @@ class UserSerializer(serializers.ModelSerializer):
 
     def to_native(self, obj):
 
-        # use firebase auth to provide auth variables to firebase security api
-        firebase_auth_payload = {
-            'id': obj.pk,
-            'username': obj.username,
-            'email': obj.email,
-            'is_staff': obj.is_staff
-        }
-        firebase_token = create_token(settings.FIREBASE_SECRET, firebase_auth_payload)
-
-        return {
+        json = {
             "id": obj.pk,
             "username": obj.username,
             "email": obj.email,
             "first_name": obj.first_name,
-            "last_name": obj.last_name,
-            "firebase_token": firebase_token
+            "last_name": obj.last_name
         }
+
+        # ensure this variable exists
+        secret = getattr(settings, 'FIREBASE_SECRET', None)
+        if secret:
+            # use firebase auth to provide auth variables to firebase security api
+            firebase_auth_payload = {
+                'id': obj.pk,
+                'username': obj.username,
+                'email': obj.email,
+                'is_staff': obj.is_staff
+            }
+            json['firebase_token'] = create_token(secret, firebase_auth_payload)
+
+        return json
 
 
 class AuthorField(relations.RelatedField):
