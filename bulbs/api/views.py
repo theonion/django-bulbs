@@ -35,6 +35,9 @@ from .mixins import UncachedResponse
 from .permissions import CanEditContent, CanPromoteContent, CanPublishContent
 
 
+User = get_user_model()
+
+
 class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
     model = Content
     queryset = Content.objects.select_related("tags").all()
@@ -261,22 +264,11 @@ class LogEntryViewSet(UncachedResponse, viewsets.ModelViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class MeView(UncachedResponse, viewsets.ViewSet):
+class MeViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
 
-    def list(self, request, format=None):
-        data = {"id": request.user.id}
+    def retrieve(self, request, *args, **kwargs):
 
-        if request.user.is_authenticated():
-            data["username"] = request.user.get_username()
-            try:
-                data["full_name"] = request.user.get_full_name()
-            except NotImplemented:
-                pass
-            try:
-                data["short_name"] = request.user.get_short_name()
-            except NotImplemented:
-                pass
-
+        data = UserSerializer().to_native(request.user)
         return Response(data)
 
 
@@ -286,4 +278,3 @@ api_v1_router.register(r"contentlist", ContentListViewSet, base_name="contentlis
 api_v1_router.register(r"tag", TagViewSet, base_name="tag")
 api_v1_router.register(r"log", LogEntryViewSet, base_name="logentry")
 api_v1_router.register(r"user", UserViewSet, base_name="user")
-api_v1_router.register(r"me", MeView, base_name="me")
