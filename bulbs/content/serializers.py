@@ -130,7 +130,8 @@ class FeatureTypeField(relations.RelatedField):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    """"Returns basic User fields"""
+    """Returns basic User fields"""
+
     class Meta:
         model = auth.get_user_model()
 
@@ -141,7 +142,9 @@ class UserSerializer(serializers.ModelSerializer):
             "username": obj.username,
             "email": obj.email,
             "first_name": obj.first_name,
-            "last_name": obj.last_name
+            "last_name": obj.last_name,
+            "full_name": obj.get_full_name(),
+            "short_name": obj.get_short_name()
         }
 
         # ensure this variable exists

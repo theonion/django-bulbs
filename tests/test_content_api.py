@@ -407,7 +407,7 @@ class TestMeApi(ContentAPITestCase):
     def test_me(self):
         client = Client()
         client.login(username="admin", password="secret")
-        me_endpoint = reverse("me-list")
+        me_endpoint = reverse("me")
 
         response = client.get(me_endpoint, content_type="application/json")
         self.assertEqual(response.status_code, 200)
