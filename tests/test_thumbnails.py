@@ -12,10 +12,14 @@ from tests.testcontent.models import TestContentDetailImage
 from tests.utils import JsonEncoder
 
 
+User = get_user_model()
+
+
 class TestThumbnailing(BaseIndexableTestCase):
     """Test image/thumbnail fallbacks, etc"""
 
     def test_thumbnail_property(self):
+        """Test that the thumbnail property works as intended."""
 
         content = TestContentDetailImage.objects.create(
             title="Test Content With Some Image",
@@ -28,16 +32,20 @@ class TestThumbnailing(BaseIndexableTestCase):
         content.detail_image.id = 666
         self.assertEqual(content.thumbnail.id, 666)
         self.assertEqual(content.detail_image.id, 666)
-        self.assertEqual(content._thumbnail.id, None)
+        self.assertEqual(content.thumbnail_override.id, None)
 
-        content.thumbnail = 6666
+        content.thumbnail_override = 6666
         self.assertEqual(content.thumbnail.id, 6666)
         self.assertEqual(content.detail_image.id, 666)
-        self.assertEqual(content._thumbnail.id, 6666)
+        self.assertEqual(content.thumbnail_override.id, 6666)
+
+        # test that the thumbnail property is readonly
+        with self.assertRaises(AttributeError):
+            content.thumbnail = 6666
 
     def test_thumbail_override_api(self):
+        """Test thumbnail override field can be used properly."""
 
-        User = get_user_model()
         admin = self.admin = User.objects.create_user("admin", "tech@theonion.com", "secret")
         admin.is_staff = True
         admin.save()
@@ -72,7 +80,11 @@ class TestThumbnailing(BaseIndexableTestCase):
         content_data["detail_image"]["id"] = 1
 
         # Let's POST an update
-        response = client.put(content_detail_url, data=json.dumps(content_data, cls=JsonEncoder), content_type="application/json")
+        response = client.put(
+            content_detail_url,
+            data=json.dumps(content_data, cls=JsonEncoder),
+            content_type="application/json"
+        )
         self.assertEqual(response.status_code, 200)
 
         # Refresh the content object from the db
@@ -84,5 +96,5 @@ class TestThumbnailing(BaseIndexableTestCase):
         # The thumbnail property should return the new value
         self.assertEqual(content.thumbnail.id, 1)
 
-        # The thubnail override field should still be null, since we didn't *really* set it
-        self.assertEqual(content._thumbnail.id, None)
+        # The thumbnail override field should still be null, since we didn't *really* set it
+        self.assertEqual(content.thumbnail_override.id, None)

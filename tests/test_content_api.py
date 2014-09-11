@@ -113,9 +113,6 @@ class TestCreateContentAPI(ContentAPITestCase):
             "title": "Test Article",
             "description": "Testing out things with an article.",
             "foo": "Fighters",
-            "thumbnail": {
-                "id": 12345
-            },
             "feature_type": "Some Super Long String Probably"
         }
         client = Client()
