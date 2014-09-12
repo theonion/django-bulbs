@@ -404,6 +404,7 @@ class TestImageAPI(ContentAPITestCase):
 
 
 class TestMeApi(ContentAPITestCase):
+
     def test_me(self):
         client = Client()
         client.login(username="admin", password="secret")
@@ -412,6 +413,23 @@ class TestMeApi(ContentAPITestCase):
         response = client.get(me_endpoint, content_type="application/json")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data.get("username"), "admin")
+
+    def test_me_has_firebase_token(self):
+        """Test that firebase token is put into me view if settings contains a FIREBASE_SECRET variable."""
+
+        # login user
+        client = Client()
+        client.login(username="admin", password="secret")
+        me_endpoint = reverse("me")
+
+        # set the firebase secret needed to get the firebase_token property in the me view
+        from django.conf import settings as mock_settings
+        mock_settings.FIREBASE_SECRET = 'abc'
+
+        # check that me view has the firebase token
+        response = client.get(me_endpoint, content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue("firebase_token" in response.data)
 
 
 class TestTrashContentAPI(ContentAPITestCase):
