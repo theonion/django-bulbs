@@ -1,11 +1,12 @@
 """API Views and ViewSets"""
 
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.http import Http404
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
+from firebase_token_generator import create_token
+from django.conf import settings
 
 import elasticsearch
 
@@ -269,6 +270,19 @@ class MeViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
     def retrieve(self, request, *args, **kwargs):
 
         data = UserSerializer().to_native(request.user)
+
+        # attempt to add a firebase token if we have a firebase secret
+        secret = getattr(settings, 'FIREBASE_SECRET', None)
+        if secret:
+            # use firebase auth to provide auth variables to firebase security api
+            firebase_auth_payload = {
+                'id': request.user.pk,
+                'username': request.user.username,
+                'email': request.user.email,
+                'is_staff': request.user.is_staff
+            }
+            data['firebase_token'] = create_token(secret, firebase_auth_payload)
+
         return Response(data)
 
 
@@ -278,3 +292,4 @@ api_v1_router.register(r"contentlist", ContentListViewSet, base_name="contentlis
 api_v1_router.register(r"tag", TagViewSet, base_name="tag")
 api_v1_router.register(r"log", LogEntryViewSet, base_name="logentry")
 api_v1_router.register(r"user", UserViewSet, base_name="user")
+# note: me view is registered in urls.py
