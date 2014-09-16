@@ -219,6 +219,18 @@ class Content(PolymorphicIndexable, PolymorphicModel):
         if self.thumbnail_override.id is not None:
             return self.thumbnail_override
 
+        # otherwise, just try to grab the first image
+        first_image = self.first_image
+        if first_image is not None:
+            return first_image
+
+        # no override for thumbnail and no non-none image field, just return override, which is a blank image field
+        return self.thumbnail_override
+
+    @property
+    def first_image(self):
+        """Ready-only attribute that provides the value of the first non-none image."""
+
         # loop through image fields and grab the first non-none one
         for field in self._meta.fields:
             if isinstance(field, ImageField):
@@ -226,8 +238,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
                 if field_value.id is not None:
                     return field_value
 
-        # no override for thumbnail and no non-none image field, just return override, which is None
-        return self.thumbnail_override
+        return None
 
     def get_absolute_url(self):
         try:

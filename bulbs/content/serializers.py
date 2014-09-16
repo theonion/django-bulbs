@@ -181,6 +181,7 @@ class ContentSerializer(serializers.ModelSerializer):
     feature_type = FeatureTypeField(required=False)
     authors = AuthorField(many=True)
     thumbnail = ImageFieldSerializer(required=False, read_only=True)
+    first_image = ImageFieldSerializer(required=False, read_only=True)
     thumbnail_override = ImageFieldSerializer(required=False)
     absolute_url = serializers.Field(source="get_absolute_url")
     status = serializers.Field(source="get_status")
