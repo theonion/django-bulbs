@@ -235,7 +235,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
         # loop through image fields and grab the first non-none one
         for field in self._meta.fields:
             if isinstance(field, ImageField):
-                if field is not self.thumbnail_override:
+                if field.name is not 'thumbnail_override':
                     field_value = getattr(self, field.name)
                     if field_value.id is not None:
                         return field_value
