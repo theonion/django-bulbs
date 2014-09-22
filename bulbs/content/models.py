@@ -185,7 +185,9 @@ class Content(PolymorphicIndexable, PolymorphicModel):
     title = models.CharField(max_length=512)
     slug = models.SlugField(blank=True, default='')
     description = models.TextField(max_length=1024, blank=True, default="")
-    _thumbnail = ImageField(null=True, blank=True, editable=False)
+
+    # field used if thumbnail has been manually overridden
+    thumbnail_override = ImageField(null=True, blank=True, editable=False)
 
     authors = models.ManyToManyField(settings.AUTH_USER_MODEL)
     feature_type = models.ForeignKey(FeatureType, null=True, blank=True)
@@ -211,20 +213,35 @@ class Content(PolymorphicIndexable, PolymorphicModel):
 
     @property
     def thumbnail(self):
-        if self._thumbnail.id is not None:
-            return self._thumbnail
+        """Read-only attribute that provides the value of the thumbnail to display."""
 
+        # check if there is a valid thumbnail override
+        if self.thumbnail_override.id is not None:
+            return self.thumbnail_override
+
+        # otherwise, just try to grab the first image
+        first_image = self.first_image
+        if first_image is not None:
+            return first_image
+
+        # no override for thumbnail and no non-none image field, just return override, which is a blank image field
+        return self.thumbnail_override
+
+    @property
+    def first_image(self):
+        """Ready-only attribute that provides the value of the first non-none image that's not the thumbnail override
+        field."""
+
+        # loop through image fields and grab the first non-none one
         for field in self._meta.fields:
             if isinstance(field, ImageField):
-                field_value = getattr(self, field.name)
-                if field_value.id is not None:
-                    return field_value
+                if field.name is not 'thumbnail_override':
+                    field_value = getattr(self, field.name)
+                    if field_value.id is not None:
+                        return field_value
 
-        return self._thumbnail
-
-    @thumbnail.setter
-    def thumbnail(self, value):
-        self._thumbnail = value
+        # no non-none images, return None
+        return None
 
     def get_absolute_url(self):
         try:

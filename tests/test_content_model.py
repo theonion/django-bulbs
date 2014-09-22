@@ -63,3 +63,14 @@ class SerializerTestCase(BaseIndexableTestCase):
 
         q = TestContentObj.search_objects.query(_id=content.id)
         self.assertEqual(q.count(), 0)
+
+    def test_first_image_none(self):
+
+        content = TestContentObj.objects.create(
+            title="Some article"
+        )
+
+        content.thumbnail_override = 666
+
+        self.assertNotEqual(content.first_image, content.thumbnail_override)
+
