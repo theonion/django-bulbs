@@ -5,11 +5,11 @@ from django.test.client import Client
 
 from bulbs.promotion.models import ContentList, ContentListHistory
 
-from tests.test_content_api import ContentAPITestCase
+from tests.utils import BaseAPITestCase
 from tests.testcontent.models import TestContentObj
 
 
-class PromotionApiTestCase(ContentAPITestCase):
+class PromotionApiTestCase(BaseAPITestCase):
 
     def test_content_list_api(self):
         client = Client()

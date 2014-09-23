@@ -1,49 +1,20 @@
 import json
 import datetime
 
-from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Permission
 from django.core.urlresolvers import reverse
 from django.template.defaultfilters import slugify
 from django.test.client import Client
 from django.utils import timezone
-
-from elastimorphic.tests.base import BaseIndexableTestCase
 
 import elasticsearch
 
 from bulbs.content.models import LogEntry, Tag, Content
 from bulbs.content.serializers import TagSerializer
 from tests.testcontent.models import TestContentObj, TestContentDetailImage
-from tests.utils import JsonEncoder
+from tests.utils import JsonEncoder, BaseAPITestCase
 
 
-class ContentAPITestCase(BaseIndexableTestCase):
-    """A base test case, allowing tearDown and setUp of the ES index"""
-
-    def setUp(self):
-        super(ContentAPITestCase, self).setUp()
-        User = get_user_model()
-        admin = self.admin = User.objects.create_user("admin", "tech@theonion.com", "secret")
-        admin.is_staff = True
-        admin.save()
-        # reverse("content-detail")
-
-    def give_permissions(self):
-        publish_perm = Permission.objects.get(codename="publish_content")
-        change_perm = Permission.objects.get(codename="change_content")
-        promote_perm = Permission.objects.get(codename="promote_content")
-        self.admin.user_permissions.add(publish_perm, change_perm, promote_perm)
-
-    def give_author_permissions(self):
-        publish_perm = Permission.objects.get(codename="publish_own_content")
-        self.admin.user_permissions.add(publish_perm)
-
-    def remove_permissions(self):
-        admin.user_permissions.clear()
-
-
-class TestContentListingAPI(ContentAPITestCase):
+class TestContentListingAPI(BaseAPITestCase):
     """Test the listing of content"""
 
     def setUp(self):
@@ -87,7 +58,7 @@ class TestContentListingAPI(ContentAPITestCase):
         self.assertEqual(len(response.data["results"]), 20)
 
 
-class TestContentStatusAPI(ContentAPITestCase):
+class TestContentStatusAPI(BaseAPITestCase):
 
     def test_status_endpoint(self):
         content = TestContentObj.objects.create(
@@ -104,7 +75,7 @@ class TestContentStatusAPI(ContentAPITestCase):
         self.assertEqual(response.data["status"], "final")
 
 
-class TestCreateContentAPI(ContentAPITestCase):
+class TestCreateContentAPI(BaseAPITestCase):
     """Test the creation of content strictly throught he API endpoint, ensuring
     that it ends up searchable"""
 
@@ -144,7 +115,7 @@ class TestCreateContentAPI(ContentAPITestCase):
         self.assertEqual(response.data["count"], 1)
 
 
-class TestPublishContentAPI(ContentAPITestCase):
+class TestPublishContentAPI(BaseAPITestCase):
     """Base class to test updates on `Content` subclasses."""
 
     def test_publish_now(self):
@@ -274,7 +245,7 @@ class TestPublishContentAPI(ContentAPITestCase):
         LogEntry.objects.filter(object_id=article.pk).get(change_message="draft")
 
 
-class BaseUpdateContentAPI(ContentAPITestCase):
+class BaseUpdateContentAPI(BaseAPITestCase):
     """Base class to test updates on `Content` subclasses."""
     def setUp(self):
         super(BaseUpdateContentAPI, self).setUp()
@@ -379,7 +350,7 @@ class TestAddTagsAPI(BaseUpdateContentAPI):
                 self.assertEqual(response_data[key], expected_data[key])
 
 
-class TestImageAPI(ContentAPITestCase):
+class TestImageAPI(BaseAPITestCase):
     def test_image_serializer(self):
         client = Client()
         client.login(username="admin", password="secret")
@@ -400,7 +371,7 @@ class TestImageAPI(ContentAPITestCase):
         # self.assertTrue("caption" in data["detail_image"])
 
 
-class TestMeApi(ContentAPITestCase):
+class TestMeApi(BaseAPITestCase):
 
     def test_me(self):
         client = Client()
@@ -429,7 +400,7 @@ class TestMeApi(ContentAPITestCase):
         self.assertTrue("firebase_token" in response.data)
 
 
-class TestTrashContentAPI(ContentAPITestCase):
+class TestTrashContentAPI(BaseAPITestCase):
     def test_trash(self):
         content = TestContentObj.objects.create(
             title="Test Article",
