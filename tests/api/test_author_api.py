@@ -45,3 +45,9 @@ class AuthorApiTestCase(BaseIndexableTestCase):
         author_endpoint = reverse("author-list")
         response = client.get(author_endpoint, content_type="application/json")
         self.assertEqual(len(response.data), 5)
+
+        response = client.get(author_endpoint, {"search": "chris"}, content_type="application/json")
+        self.assertEqual(len(response.data), 1)
+
+        response = client.get(author_endpoint, {"search": "ok"}, content_type="application/json")
+        self.assertEqual(len(response.data), 2)

@@ -270,6 +270,8 @@ class AuthorViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
 
     serializer_class = UserSerializer
     model = User
+    filter_backends = (filters.SearchFilter, filters.OrderingFilter)
+    search_fields = ("first_name", "last_name", "username")
 
     def get_queryset(self):
         author_filter = getattr(settings, "BULBS_AUTHOR_FILTER", Q(is_staff=True))
