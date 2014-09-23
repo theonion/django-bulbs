@@ -67,6 +67,18 @@ class TagSerializer(serializers.ModelSerializer):
         }
 
 
+class FeatureTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FeatureType
+
+    def to_native(self, obj):
+        return {
+            "id": obj.pk,
+            "name": obj.name,
+            "slug": obj.slug,
+        }
+
+
 class TagField(relations.RelatedField):
     """This is a relational field that handles the addition of tags to content
     objects. This field also allows the user to create tags in the db if they

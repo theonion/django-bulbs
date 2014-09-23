@@ -1,6 +1,7 @@
 """API Views and ViewSets"""
 
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 from django.http import Http404
 from django.template.defaultfilters import slugify
 from django.utils import timezone
@@ -24,10 +25,10 @@ from elastimorphic.models import polymorphic_indexable_registry
 
 from elasticutils.contrib.django import get_es
 
-from bulbs.content.models import Content, Tag, LogEntry
+from bulbs.content.models import Content, Tag, LogEntry, FeatureType
 from bulbs.content.serializers import (
     LogEntrySerializer, PolymorphicContentSerializer,
-    TagSerializer, UserSerializer
+    TagSerializer, UserSerializer, FeatureTypeSerializer
 )
 from bulbs.promotion.models import ContentList, ContentListHistory
 from bulbs.promotion.serializers import ContentListSerializer
@@ -265,6 +266,26 @@ class LogEntryViewSet(UncachedResponse, viewsets.ModelViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class AuthorViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
+
+    serializer_class = UserSerializer
+    model = User
+
+    def get_queryset(self):
+        author_filter = getattr(settings, "BULBS_AUTHOR_FILTER", Q(is_staff=True))
+        queryset = self.model.objects.filter(author_filter)
+
+        return queryset
+
+
+class FeatureTypeViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
+
+    serializer_class = FeatureTypeSerializer
+    model = FeatureType
+    filter_backends = (filters.SearchFilter, filters.OrderingFilter)
+    search_fields = ("name", )
+
+
 class MeViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
@@ -291,5 +312,7 @@ api_v1_router.register(r"content", ContentViewSet, base_name="content")
 api_v1_router.register(r"contentlist", ContentListViewSet, base_name="contentlist")
 api_v1_router.register(r"tag", TagViewSet, base_name="tag")
 api_v1_router.register(r"log", LogEntryViewSet, base_name="logentry")
+api_v1_router.register(r"author", AuthorViewSet, base_name="author")
+api_v1_router.register(r"feature-type", FeatureTypeViewSet, base_name="feature-type")
 api_v1_router.register(r"user", UserViewSet, base_name="user")
 # note: me view is registered in urls.py
