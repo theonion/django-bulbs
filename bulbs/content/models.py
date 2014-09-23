@@ -3,7 +3,6 @@ that we want any piece of content to have."""
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.core.cache import cache
 from django.core.urlresolvers import NoReverseMatch, reverse
 from django.db import models
 from django.template.defaultfilters import slugify
@@ -12,14 +11,13 @@ from django.utils.html import strip_tags
 
 from bulbs.content import TagCache
 import elasticsearch
-from elasticutils import SearchResults, S, F
-from elasticutils.contrib.django import get_es
+from elasticutils import F
 from elastimorphic.base import (
     PolymorphicIndexable,
     PolymorphicMappingType,
     SearchManager,
 )
-from polymorphic import PolymorphicModel, PolymorphicManager
+from polymorphic import PolymorphicModel
 
 from .shallow import ShallowContentS, ShallowContentResult
 
@@ -81,6 +79,11 @@ class FeatureType(models.Model):
 
     def __unicode__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        if self.slug is None or self.slug == "":
+            self.slug = slugify(self.name)
+        return super(FeatureType, self).save(*args, **kwargs)
 
 
 class ContentManager(SearchManager):
