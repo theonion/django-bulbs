@@ -14,5 +14,6 @@ class CmsNotificationsViewSet(viewsets.ModelViewSet):
 notifications_view = CmsNotificationsViewSet.as_view({
     'get': 'list',
     'post': 'create',
-    'put': 'update'
+    'put': 'update',
+    'delete': 'destroy'
 })

@@ -1,5 +1,6 @@
 import json
 import datetime
+from bulbs.cms_notifications.models import CmsNotification
 
 from django.core.urlresolvers import reverse
 from django.test import Client
@@ -72,6 +73,36 @@ class TestAPI(BaseIndexableTestCase):
         self.assertEqual(len(up_resp_cms_notification), 1)
         self.assertEqual(up_cms_notification["title"], up_resp_cms_notification[0]["title"])
 
+    def test_delete(self):
+        """Test DELETEing a record."""
+
+        self.client.login(username=self.superuser.username, password=self.superuser_pass)
+
+        time_now = datetime.datetime.now()
+
+        data_cms_notification = {
+            "title": "We've Made an Update!",
+            "body": "Some updates were made on the site. Enjoy them while they last.",
+            "post_date": time_now.isoformat(),
+            "notify_end_date": (time_now + datetime.timedelta(days=3)).isoformat()
+        }
+
+        # post new listing
+        self.client.post(
+            reverse("notifications"),
+            json.dumps(data_cms_notification, cls=JsonEncoder),
+            content_type="application/json"
+        )
+
+        self.assertEqual(CmsNotification.objects.count(), 1)
+
+        # delete listing
+        delete_response = self.client.delete(reverse("notifications",
+                                                     kwargs={"pk": CmsNotification.objects.all()[0].id}))
+
+        self.assertEqual(delete_response.status_code, 204)
+        self.assertEqual(CmsNotification.objects.count(), 0)
+
     def test_validation(self):
         """Test serializer validation."""
 
@@ -109,10 +140,12 @@ class TestAPI(BaseIndexableTestCase):
         post_response = self.client.post(reverse("notifications"))
         put_response = self.client.put(reverse("notifications"))
         get_response = self.client.get(reverse("notifications"))
+        delete_response = self.client.delete(reverse("notifications"))
 
         self.assertEqual(post_response.status_code, 403)
         self.assertEqual(put_response.status_code, 403)
         self.assertEqual(get_response.status_code, 200)
+        self.assertEqual(delete_response.status_code, 403)
 
         # now test a superuser
         self.client.login(username=self.superuser.username, password=self.superuser_pass)
@@ -132,8 +165,9 @@ class TestAPI(BaseIndexableTestCase):
                                        json_data,
                                        content_type="application/json")
         get_response = self.client.get(reverse("notifications"))
+        delete_response = self.client.delete(reverse("notifications", kwargs={"pk": 0}))
 
         self.assertEqual(post_response.status_code, 201)
         self.assertEqual(put_response.status_code, 201)
         self.assertEqual(get_response.status_code, 200)
-
+        self.assertEqual(delete_response.status_code, 204)

@@ -50,7 +50,7 @@ class CanEditCmsNotifications(permissions.BasePermission):
         has_permission = False
 
         if request.method == "GET" \
-                or request.method in ["PUT", "POST"] and request.user and request.user.is_superuser:
+                or request.method in ["PUT", "POST", "DELETE"] and request.user and request.user.is_superuser:
             has_permission = True
 
         return has_permission
