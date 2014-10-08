@@ -8,7 +8,6 @@ class CmsNotification(models.Model):
     body = models.TextField(blank=True)
     post_date = models.DateTimeField()
     notify_end_date = models.DateTimeField()
-    editable = models.BooleanField()
 
     class Meta:
         ordering = ['-id']

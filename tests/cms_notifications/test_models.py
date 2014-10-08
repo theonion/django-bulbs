@@ -15,16 +15,14 @@ class TestModels(BaseIndexableTestCase):
             title="We've Made an Update!",
             body="Some updates were made on the site. Enjoy them while they last.",
             post_date=time_now,
-            notify_end_date=time_now + datetime.timedelta(days=3),
-            editable=False
+            notify_end_date=time_now + datetime.timedelta(days=3)
         )
 
         cms_notification_2 = CmsNotification.objects.create(
             title="Another One!",
             body="Some updates were made on the site. Enjoy them while they last.",
             post_date=time_now,
-            notify_end_date=time_now + datetime.timedelta(days=3),
-            editable=False
+            notify_end_date=time_now + datetime.timedelta(days=3)
         )
 
         db_cms_notifications = CmsNotification.objects.all()
