@@ -17,7 +17,7 @@ class TestAPI(BaseIndexableTestCase):
     def setUp(self):
         super(TestAPI, self).setUp()
 
-        # create superuser for testing editable property
+        # create a superuser and regular user
         self.superuser_pass = "password"
         self.regular_user_pass = "abc123"
         self.superuser = User.objects.create_superuser("superuser", "superuser@theonion.com", self.superuser_pass)

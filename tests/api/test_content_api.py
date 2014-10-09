@@ -1,17 +1,19 @@
 import json
 import datetime
 
+import elasticsearch
 from django.core.urlresolvers import reverse
 from django.template.defaultfilters import slugify
 from django.test.client import Client
 from django.utils import timezone
-
-import elasticsearch
-
 from bulbs.content.models import LogEntry, Tag, Content
 from bulbs.content.serializers import TagSerializer
 from tests.testcontent.models import TestContentObj, TestContentDetailImage
 from tests.utils import JsonEncoder, BaseAPITestCase
+from django.contrib.auth import get_user_model
+
+
+User = get_user_model()
 
 
 class TestContentListingAPI(BaseAPITestCase):
@@ -398,6 +400,24 @@ class TestMeApi(BaseAPITestCase):
         response = client.get(me_endpoint, content_type="application/json")
         self.assertEqual(response.status_code, 200)
         self.assertTrue("firebase_token" in response.data)
+
+    def test_me_as_superuser(self):
+        """Test that super users get an addtional is_superuser property and regular users do not."""
+
+        # login and test regular user
+        client = Client()
+        User.objects.create_user("regularuser", "regularguy@aol.com", "passward")
+        client.login(username="regularuser", password="passward")
+        response = client.get(reverse("me"), content_type="application/json")
+
+        self.assertTrue("is_superuser" not in response.data)
+
+        # login and test a superuser
+        User.objects.create_superuser("superuser", "su@theonion.com", "password")
+        client.login(username="superuser", password="password")
+        response = client.get(reverse("me"), content_type="application/json")
+
+        self.assertTrue(response.data["is_superuser"])
 
 
 class TestTrashContentAPI(BaseAPITestCase):
