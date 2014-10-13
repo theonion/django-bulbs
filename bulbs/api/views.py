@@ -54,7 +54,7 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
     def get_serializer_class(self):
         klass = None
 
-        if hasattr(self, "object"):
+        if getattr(self, "object", None):
             klass = self.object.__class__
         elif "doctype" in self.request.REQUEST:
             try:
