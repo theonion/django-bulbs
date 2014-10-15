@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import auth
 from django.core.exceptions import ValidationError
 from django.db import transaction
@@ -138,7 +139,7 @@ class FeatureTypeField(relations.RelatedField):
         return feature_type
 
 
-class UserSerializer(serializers.ModelSerializer):
+class DefaultUserSerializer(serializers.ModelSerializer):
     """Returns basic User fields"""
 
     class Meta:
@@ -158,40 +159,26 @@ class UserSerializer(serializers.ModelSerializer):
 
         return json
 
-
-class AuthorField(relations.RelatedField):
-    """This field manages the authors on a piece of content, and allows a "fatter"
-    endpoint then would normally be possible with a RelatedField"""
-
-    read_only = False
-
-    def to_native(self, obj):
-        return {
-            "id": obj.pk,
-            "first_name": obj.first_name,
-            "last_name": obj.last_name,
-            "username": obj.username
-        }
-
-    def from_native(self, value):
+    def from_native(self, data, files):
         """Basically, each author dict must include either a username or id."""
         model = auth.get_user_model()
 
-        if "id" in value:
-            author = model.objects.get(id=value["id"])
+        if "id" in data:
+            author = model.objects.get(id=data["id"])
         else:
-            if "username" not in value:
+            if "username" not in data:
                 raise ValidationError("Authors must include an ID or a username.")
-            username = value["username"]
+            username = data["username"]
             author = model.objects.get(username=username)
         return author
+UserSerializer = getattr(settings, "BULBS_USER_SERIALIZER", DefaultUserSerializer)
 
 
 class ContentSerializer(serializers.ModelSerializer):
     polymorphic_ctype = ContentTypeField(source="polymorphic_ctype_id", read_only=True)
     tags = TagField(many=True)
     feature_type = FeatureTypeField(required=False)
-    authors = AuthorField(many=True)
+    authors = UserSerializer(many=True, required=False, allow_add_remove=True, read_only=False)
     thumbnail = ImageFieldSerializer(required=False, read_only=True)
     first_image = ImageFieldSerializer(required=False, read_only=True)
     thumbnail_override = ImageFieldSerializer(required=False)

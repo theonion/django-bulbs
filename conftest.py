@@ -30,6 +30,7 @@ def pytest_configure():
 
             "bulbs.api",
             "bulbs.content",
+            "bulbs.contributions",
             "bulbs.feeds",
             "bulbs.promotion",
             "bulbs.redirects",

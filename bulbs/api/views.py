@@ -1,13 +1,13 @@
 """API Views and ViewSets"""
 
 from django.contrib.auth import get_user_model
-from django.db.models import Q
 from django.http import Http404
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from firebase_token_generator import create_token
 from django.conf import settings
+from django.db.models import get_models
 
 import elasticsearch
 
@@ -18,6 +18,7 @@ from rest_framework import (
     viewsets,
     routers
 )
+from rest_framework.decorators import detail_route
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
@@ -30,6 +31,9 @@ from bulbs.content.serializers import (
     LogEntrySerializer, PolymorphicContentSerializer,
     TagSerializer, UserSerializer, FeatureTypeSerializer
 )
+from bulbs.contributions.serializers import ContributionSerializer
+from bulbs.contributions.models import Contribution
+
 from bulbs.promotion.models import ContentList, ContentListHistory
 from bulbs.promotion.serializers import ContentListSerializer
 
@@ -165,6 +169,26 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         content = self.get_object()
         return Response({"status": content.get_status()})
 
+    @detail_route(methods=["post", "get"])
+    def contributions(self, request, **kwargs):
+        # Check if the contribution app is installed
+        if Contribution not in get_models():
+            return Response([])
+        queryset = Contribution.objects.filter(content=self.get_object())
+        if request.method == "POST":
+            serializer = ContributionSerializer(
+                queryset,
+                data=request.DATA,
+                many=True,
+                allow_add_remove=True)
+            if not serializer.is_valid():
+                return Response(serializer.errors)
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            serializer = ContributionSerializer(queryset, many=True)
+            return Response(serializer.data)
+
 
 class TagViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
     model = Tag
@@ -274,8 +298,8 @@ class AuthorViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
     search_fields = ("first_name", "last_name", "username")
 
     def get_queryset(self):
-        author_filter = getattr(settings, "BULBS_AUTHOR_FILTER", Q(is_staff=True))
-        queryset = self.model.objects.filter(author_filter)
+        author_filter = getattr(settings, "BULBS_AUTHOR_FILTER", {"is_staff": True})
+        queryset = self.model.objects.filter(**author_filter)
 
         return queryset
 

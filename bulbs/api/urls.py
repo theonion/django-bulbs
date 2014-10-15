@@ -1,4 +1,5 @@
 from django.conf.urls import url, include
+from django.conf import settings
 
 from .views import api_v1_router, MeViewSet
 
@@ -7,3 +8,8 @@ urlpatterns = (
     url(r'^me/?$', MeViewSet.as_view({'get': 'retrieve'}), name='me'),
     url(r"^", include(api_v1_router.urls))       # noqa
 )
+
+if "bulbs.contributions" in settings.INSTALLED_APPS:
+    urlpatterns += (
+        url(r"^contributions/", include('bulbs.contributions.urls')),
+    )
