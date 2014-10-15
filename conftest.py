@@ -34,6 +34,7 @@ def pytest_configure():
             "bulbs.feeds",
             "bulbs.promotion",
             "bulbs.redirects",
+            "bulbs.cms_notifications",
 
             "tests.testcontent",),
         ROOT_URLCONF = 'tests.urls',

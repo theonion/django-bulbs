@@ -318,6 +318,11 @@ class MeViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
 
         data = UserSerializer().to_native(request.user)
 
+        # add superuser flag only if user is a superuser, putting it here so users can only tell if they are themselves
+        #   superusers
+        if request.user.is_superuser:
+            data['is_superuser'] = True
+
         # attempt to add a firebase token if we have a firebase secret
         secret = getattr(settings, 'FIREBASE_SECRET', None)
         if secret:
