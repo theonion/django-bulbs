@@ -2,6 +2,7 @@ import json
 import datetime
 
 import elasticsearch
+from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.template.defaultfilters import slugify
 from django.test.client import Client
@@ -11,7 +12,6 @@ from bulbs.content.serializers import TagSerializer
 from tests.testcontent.models import TestContentObj, TestContentDetailImage
 from tests.utils import JsonEncoder, BaseAPITestCase
 from django.contrib.auth import get_user_model
-
 
 User = get_user_model()
 
@@ -82,11 +82,26 @@ class TestCreateContentAPI(BaseAPITestCase):
     that it ends up searchable"""
 
     def test_create_article(self):
+
+        author = User.objects.create(
+            username="csinchok",
+            first_name="Chris",
+            last_name="Sinchok"
+        )
         data = {
             "title": "Test Article",
             "description": "Testing out things with an article.",
             "foo": "Fighters",
-            "feature_type": "Some Super Long String Probably"
+            "feature_type": "Some Super Long String Probably",
+            "authors": [{
+                "id": author.id,
+                "username": author.username,
+                "email": "",
+                "full_name": "Chris Sinchok",
+                "short_name": "Chris",
+                "first_name": "Chris",
+                "last_name": "Sinchok"
+            }]
         }
         client = Client()
         client.login(username="admin", password="secret")
@@ -287,6 +302,8 @@ class BaseUpdateContentAPI(BaseAPITestCase):
         self.give_permissions()
         # ok, PUT it now
         response = client.put(content_detail_url, data=data, content_type="application/json")
+        if response.status_code != 200:
+            print(response.content)
         self.assertEqual(response.status_code, 200)
         
         # Check that it returns an instance with the new data
@@ -309,6 +326,39 @@ class TestUpdateContentAPI(BaseUpdateContentAPI):
         return dict(
             title="Cramer 2: Electric Booyah-loo",
             foo="whatta guy....booyah indeed!"
+        )
+
+    def test_update_article(self):
+        self._test_update_content()
+
+
+class TestUpdateAuthorsAPI(BaseUpdateContentAPI):
+    """Tests updating an `Article`"""
+    def create_content(self):
+        self.author = User.objects.create(
+            username="csinchok",
+            first_name="Chris",
+            last_name="Sinchok"
+        )
+        self.content = TestContentObj.objects.create(
+            title="Booyah: The Cramer Story",
+            description="Learn how one man booyahed his way to the top.",
+            foo="booyah"
+        )
+
+    def updated_data(self):
+        return dict(
+            title="Cramer 2: Electric Booyah-loo",
+            foo="whatta guy....booyah indeed!",
+            authors=[{
+                "id": self.author.id,
+                "username": self.author.username,
+                "email": "",
+                "full_name": "Chris Sinchok",
+                "short_name": "Chris",
+                "first_name": "Chris",
+                "last_name": "Sinchok"
+            }]
         )
 
     def test_update_article(self):

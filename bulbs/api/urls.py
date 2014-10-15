@@ -1,6 +1,7 @@
 from bulbs.cms_notifications.api import notifications_view
 from django.conf import settings
 from django.conf.urls import url, include
+from django.conf import settings
 
 from .views import api_v1_router, MeViewSet
 
@@ -13,4 +14,9 @@ urlpatterns = (
 if "bulbs.cms_notifications" in settings.INSTALLED_APPS:
     urlpatterns += (
         url(r"^notifications/(?P<pk>\d+)?", notifications_view, name="notifications"),
+    )
+
+if "bulbs.contributions" in settings.INSTALLED_APPS:
+    urlpatterns += (
+        url(r"^contributions/", include('bulbs.contributions.urls')),
     )
