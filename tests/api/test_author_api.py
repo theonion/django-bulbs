@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.test.client import Client
 
@@ -15,6 +16,30 @@ class AuthorApiTestCase(BaseIndexableTestCase):
         admin = User.objects.create_user("admin", "tech@theonion.com", "secret")
         admin.is_staff = True
         admin.save()
+
+    def test_author_filter_detail(self):
+        """Make sure author api works with BULBS_AUTHOR_FILTER values that
+        could match the same user multiple times in a single queryset.
+        """
+        user = User.objects.create(
+            username="Choo Choo The Herky-Jerky Dancer",
+            first_name="Choo",
+            last_name="Choo",
+            is_staff=True
+        )
+        group_names = ("admin", "author")
+        for name in group_names:
+            group = Group.objects.create(name=name)
+            user.groups.add(group)
+
+        with self.settings(BULBS_AUTHOR_FILTER={
+            "groups__name__in": group_names
+        }):
+            client = Client()
+            client.login(username="admin", password="secret")
+            author_detail_endpoint = reverse("author-detail", kwargs=dict(pk=user.pk))
+            response = client.get(author_detail_endpoint, content_type="application/json")
+            self.assertTrue(response.status_code, 200)
 
     def test_author_search(self):
 

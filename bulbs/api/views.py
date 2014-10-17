@@ -299,7 +299,7 @@ class AuthorViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         author_filter = getattr(settings, "BULBS_AUTHOR_FILTER", {"is_staff": True})
-        queryset = self.model.objects.filter(**author_filter)
+        queryset = self.model.objects.filter(**author_filter).distinct()
 
         return queryset
 
