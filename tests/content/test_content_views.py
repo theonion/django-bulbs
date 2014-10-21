@@ -1,8 +1,9 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.test import Client
+from django.utils import timezone
 
 from elastimorphic.tests.base import BaseIndexableTestCase
 
@@ -25,19 +26,29 @@ class TestContentViews(BaseIndexableTestCase):
     def test_unpublished_article(self):
 
         content = TestContentObj.objects.create(title="Testing Content")
-        response = self.client.get(reverse("content-detail", kwargs={"pk": content.id}))
+        print(reverse("published", kwargs={"pk": content.id}))
+        response = self.client.get(reverse("published", kwargs={"pk": content.id}))
+        print(response["Location"])
         self.assertEqual(response.status_code, 302)
 
         # But this should work when we login
         self.client.login(username="admin", password="secret")
-        response = self.client.get(reverse("content-detail", kwargs={"pk": content.id}))
+        response = self.client.get(reverse("published", kwargs={"pk": content.id}))
+        self.assertEqual(response.status_code, 200)
+
+    def published_article(self):
+        content = TestContentObj.objects.create(
+            title="Testing Content",
+            published=timezone.now() - timedelta(hours=2)
+        )
+        response = self.client.get(reverse("published", kwargs={"pk": content.id}))
         self.assertEqual(response.status_code, 200)
 
     def test_base_content_detail_view_tokenized_url(self):
         """Test that we can get an article via a /unpublished/<token> style url."""
 
         # create test content and token
-        create_date = datetime.now()
+        create_date = timezone.now()
         expire_date = create_date + timedelta(days=3)
         content = TestContentObj.objects.create()
         obfuscated_url_info = ObfuscatedUrlInfo.objects.create(
@@ -58,7 +69,7 @@ class TestContentViews(BaseIndexableTestCase):
         """Test that dates work for /unpublished/<token> style urls."""
 
         # create test content and token
-        create_date = datetime.now() + timedelta(days=3)
+        create_date = timezone.now() + timedelta(days=3)
         expire_date = create_date + timedelta(days=3)
         content = TestContentObj.objects.create()
         obfuscated_url_info = ObfuscatedUrlInfo.objects.create(
@@ -78,7 +89,7 @@ class TestContentViews(BaseIndexableTestCase):
         """Test that we get a 404 when token is invalid."""
 
         # create test content and token
-        create_date = datetime.now()
+        create_date = timezone.now()
         expire_date = create_date + timedelta(days=3)
         ObfuscatedUrlInfo.objects.create(
             content=TestContentObj.objects.create(),

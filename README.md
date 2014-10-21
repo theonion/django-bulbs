@@ -1,4 +1,7 @@
-# Django Bulbs [![Build Status](https://travis-ci.org/theonion/django-bulbs.svg?branch=promotions)](https://travis-ci.org/theonion/django-bulbs) [![Coverage Status](https://coveralls.io/repos/theonion/django-bulbs/badge.png)](https://coveralls.io/r/theonion/django-bulbs)
+# Django Bulbs [![Build Status](https://travis-ci.org/theonion/django-bulbs.svg?branch=promotions)](https://travis-ci.org/theonion/django-bulbs) [![Coverage Status](https://img.shields.io/coveralls/theonion/django-bulbs.svg)](https://coveralls.io/r/theonion/django-bulbs?branch=master)
+
+
+
 
 django-bulbs is a set of apps used to power content at [The Onion](http://www.theonion.com).
 
