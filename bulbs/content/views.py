@@ -5,7 +5,7 @@ from bulbs.content.models import Content, ObfuscatedUrlInfo
 from django.conf import settings
 from django.http import Http404, HttpResponsePermanentRedirect, HttpResponseRedirect
 from django.utils import timezone
-from django.utils.cache import add_never_cache_headers, patch_response_headers
+from django.utils.cache import add_never_cache_headers
 from django.views.generic import ListView, DetailView
 
 logger = logging.getLogger(__name__)
