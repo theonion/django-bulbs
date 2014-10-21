@@ -11,9 +11,9 @@ urlpatterns = patterns("",
 
     # testing unpublished links
     url(r"^unpublished/(?P<token>\w+)$", TestContentDetailView.as_view(), name="unpublished"),
-    url(r"^published/(?P<pk>\d+)$",
+    url(r"^detail/(?P<pk>\d+)/$",
         TestContentDetailView.as_view(template_name="testapp/testcontentobj_detail.html"),
-        name="published"),
+        name="content-detail"),
 
     url(r"^r/", include("bulbs.redirects.urls")),
     url(r"^feeds", include("bulbs.feeds.urls"))

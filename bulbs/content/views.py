@@ -2,8 +2,10 @@ import logging
 
 from bulbs.content.models import Content, ObfuscatedUrlInfo
 
-from django.http import Http404
+from django.conf import settings
+from django.http import Http404, HttpResponsePermanentRedirect, HttpResponseRedirect
 from django.utils import timezone
+from django.utils.cache import add_never_cache_headers, patch_response_headers
 from django.views.generic import ListView, DetailView
 
 logger = logging.getLogger(__name__)
@@ -84,6 +86,7 @@ class BaseContentDetailView(DetailView):
 
     model = Content
     context_object_name = "content"
+    redirect_correct_path = True  # By default, we'll redirect the user to the proper URL
 
     def token_from_kwargs(self, request_kwargs):
         """Normalized way to retrieve token from request kwargs. Use this in custom GET
@@ -94,12 +97,37 @@ class BaseContentDetailView(DetailView):
         """Override default get function to use token if there is one to retrieve object. If a
         subclass should use their own GET implementation, token_from_kwargs should be called if
         that detail view should be accessible via token."""
-
+        
         # check if we have a token argument from incoming url, assign it so self.get_object can use
         #   the token to retrieve the proper object. Has to be done this way, otherwise DetailView
         #   expects a slug and/or pk to be provided by url pattern.
         self.token_from_kwargs(kwargs)
-        return super(BaseContentDetailView, self).get(request, args, kwargs)
+        
+        self.object = self.get_object()
+
+        # We only want to redirect is that setting is true, and we don't have a token
+        if self.redirect_correct_path and self.token is None:
+
+            # Also we obviously only want to redirect if the URL is wrong
+            if self.request.path != self.object.get_absolute_url():
+                return HttpResponsePermanentRedirect(self.object.get_absolute_url())
+
+        context = self.get_context_data(object=self.object)
+        response = self.render_to_response(context)
+
+        if self.object.published is None or self.object.published > timezone.now():
+            if not request.user.is_staff and self.token is None:
+                redirect_unpublished = getattr(settings, "REDIRECT_UNPUBLISHED_TO_LOGIN", True)
+                if not request.user.is_authenticated() and redirect_unpublished:
+                    next_url = self.object.get_absolute_url()
+                    response = HttpResponseRedirect("{}?next={}".format(settings.LOGIN_URL, next_url))
+                else:
+                    raise Http404
+            add_never_cache_headers(response)
+        else:
+            response["Vary"] = "Accept-Encoding"
+
+        return response
 
     def get_object(self, queryset=None):
         """Override default get_object to retrieve object from token if available."""
@@ -116,13 +144,11 @@ class BaseContentDetailView(DetailView):
                     return info.content
                 else:
                     # date doesn't match, don't let user access
-                    raise Http404("No content found matching url uuid.".format(
-                        ObfuscatedUrlInfo.__class__.__name__))
+                    raise Http404("No content found matching UUID")
 
             except ObfuscatedUrlInfo.DoesNotExist:
                 # could not find any url info matching provided uuid, 404
-                raise Http404("No content found matching url uuid.".format(
-                    ObfuscatedUrlInfo.__class__.__name__))
+                raise Http404("No content found matching UUID")
 
         # no token was provided, use get_object() as normal
         return super(BaseContentDetailView, self).get_object()

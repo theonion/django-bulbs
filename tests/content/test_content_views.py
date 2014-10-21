@@ -1,30 +1,37 @@
 from datetime import datetime, timedelta
 
+from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.test import Client
+
 from elastimorphic.tests.base import BaseIndexableTestCase
 
-from bulbs.content.models import Content, ObfuscatedUrlInfo
+from bulbs.content.models import ObfuscatedUrlInfo
+
+from tests.testcontent.models import TestContentObj
 
 
 class TestContentViews(BaseIndexableTestCase):
 
     def setUp(self):
         super(TestContentViews, self).setUp()
-
         self.client = Client()
+        
+        User = get_user_model()
+        admin = self.admin = User.objects.create_user("admin", "tech@theonion.com", "secret")
+        admin.is_staff = True
+        admin.save()
+
+    def test_unpublished_article(self):
+
+        content = TestContentObj.objects.create(title="Testing Content")
+        response = self.client.get(reverse("content-detail", kwargs={"pk": content.id}))
+        self.assertEqual(response.status_code, 302)
+
+        # But this should work when we login
         self.client.login(username="admin", password="secret")
-
-    def test_base_content_detail_view(self):
-        """Test basic functionality of base content view, no tokens."""
-
-        # do a "normal" request for a content object through test view using base view
-        content = Content.objects.create()
-        response = self.client.get(reverse("published", kwargs={"pk": content.id}))
-
-        # test response is valid
-        self.assertTrue(response.status_code, 200)
-        self.assertTrue(int(response.content), content.id)
+        response = self.client.get(reverse("content-detail", kwargs={"pk": content.id}))
+        self.assertEqual(response.status_code, 200)
 
     def test_base_content_detail_view_tokenized_url(self):
         """Test that we can get an article via a /unpublished/<token> style url."""
@@ -32,7 +39,7 @@ class TestContentViews(BaseIndexableTestCase):
         # create test content and token
         create_date = datetime.now()
         expire_date = create_date + timedelta(days=3)
-        content = Content.objects.create()
+        content = TestContentObj.objects.create()
         obfuscated_url_info = ObfuscatedUrlInfo.objects.create(
             content=content,
             create_date=create_date.isoformat(),
@@ -45,7 +52,7 @@ class TestContentViews(BaseIndexableTestCase):
 
         # check that everything went well and we got the content id back from the view
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(int(response.content), content.id)
+        self.assertEqual(response.context["content"].id, content.id)
 
     def test_base_content_detail_view_tokenized_url_outside_date_window(self):
         """Test that dates work for /unpublished/<token> style urls."""
@@ -53,7 +60,7 @@ class TestContentViews(BaseIndexableTestCase):
         # create test content and token
         create_date = datetime.now() + timedelta(days=3)
         expire_date = create_date + timedelta(days=3)
-        content = Content.objects.create()
+        content = TestContentObj.objects.create()
         obfuscated_url_info = ObfuscatedUrlInfo.objects.create(
             content=content,
             create_date=create_date.isoformat(),
@@ -74,7 +81,7 @@ class TestContentViews(BaseIndexableTestCase):
         create_date = datetime.now()
         expire_date = create_date + timedelta(days=3)
         ObfuscatedUrlInfo.objects.create(
-            content=Content.objects.create(),
+            content=TestContentObj.objects.create(),
             create_date=create_date.isoformat(),
             expire_date=expire_date.isoformat()
         )
@@ -84,3 +91,4 @@ class TestContentViews(BaseIndexableTestCase):
 
         # expect that we got a 404
         self.assertEqual(response.status_code, 404)
+
