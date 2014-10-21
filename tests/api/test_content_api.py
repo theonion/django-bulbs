@@ -123,7 +123,7 @@ class TestCreateContentAPI(BaseAPITestCase):
 
         # check for a log
         # LogEntry.objects.filter(object_id=article.pk).get(change_message="Created")
-        
+
         # Make sure the article got refreshed
         TestContentObj.search_objects.refresh()
 
@@ -563,18 +563,23 @@ class TestTokenAPI(BaseAPITestCase):
 
         # create some test content
         content = Content.objects.create()
+        content_2 = Content.objects.create()
         create_date = datetime.now()
         expire_date = create_date + timedelta(days=3)
         info_1 = ObfuscatedUrlInfo.objects.create(
             content=content,
             create_date=create_date.isoformat(),
             expire_date=expire_date.isoformat())
-        ObfuscatedUrlInfo.objects.create(
+        info_2 = ObfuscatedUrlInfo.objects.create(
+            content=content,
+            create_date=create_date.isoformat(),
+            expire_date=expire_date.isoformat())
+        info_3 = ObfuscatedUrlInfo.objects.create(
             content=content,
             create_date=create_date.isoformat(),
             expire_date=expire_date.isoformat())
         ObfuscatedUrlInfo.objects.create(
-            content=content,
+            content=content_2,
             create_date=create_date.isoformat(),
             expire_date=expire_date.isoformat())
 
@@ -586,3 +591,6 @@ class TestTokenAPI(BaseAPITestCase):
         self.assertEqual(len(json_response), 3)
         self.assertEqual(json_response[0]["id"], info_1.id)
         self.assertEqual(json_response[0]["url_uuid"], info_1.url_uuid)
+        self.assertEqual(json_response[1]["id"], info_2.id)
+        self.assertEqual(json_response[2]["id"], info_3.id)
+
