@@ -26,10 +26,11 @@ from elastimorphic.models import polymorphic_indexable_registry
 
 from elasticutils.contrib.django import get_es
 
-from bulbs.content.models import Content, Tag, LogEntry, FeatureType
+from bulbs.content.models import Content, Tag, LogEntry, FeatureType, ObfuscatedUrlInfo
 from bulbs.content.serializers import (
     LogEntrySerializer, PolymorphicContentSerializer,
-    TagSerializer, UserSerializer, FeatureTypeSerializer
+    TagSerializer, UserSerializer, FeatureTypeSerializer,
+    ObfuscatedUrlInfoSerializer
 )
 from bulbs.contributions.serializers import ContributionSerializer
 from bulbs.contributions.models import Contribution
@@ -188,6 +189,27 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         else:
             serializer = ContributionSerializer(queryset, many=True)
             return Response(serializer.data)
+
+    @detail_route(methods=["post"], permission_classes=[CanEditContent])
+    def create_token(self, request, **kwargs):
+        """Create a new obfuscated url info to use for accessing unpublished content."""
+
+        data = ObfuscatedUrlInfoSerializer(ObfuscatedUrlInfo.objects.create(
+            content=self.get_object(),
+            create_date=request.DATA["create_date"],
+            expire_date=request.DATA["expire_date"]
+        )).data
+
+        return Response(data, status=status.HTTP_200_OK, content_type="application/json")
+
+    @detail_route(methods=["get"], permission_classes=[CanEditContent])
+    def list_tokens(self, request, **kwargs):
+        """List all tokens for this content instance."""
+
+        # no date checking is done here to make it more obvious if there's an issue with the
+        #   number of records. Date filtering will be done on the frontend.
+        infos = [ObfuscatedUrlInfoSerializer(info).data for info in ObfuscatedUrlInfo.objects.all()]
+        return Response(infos, status=status.HTTP_200_OK, content_type="application/json")
 
 
 class TagViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):

@@ -1,13 +1,12 @@
 from bulbs.cms_notifications.api import notifications_view
 from django.conf import settings
 from django.conf.urls import url, include
-from django.conf import settings
 
 from .views import api_v1_router, MeViewSet
 
 urlpatterns = (
     url(r"^me/logout/?$", "django.contrib.auth.views.logout", name="logout"),
-    url(r'^me/?$', MeViewSet.as_view({'get': 'retrieve'}), name='me'),
+    url(r"^me/?$", MeViewSet.as_view({"get": "retrieve"}), name="me"),
     url(r"^", include(api_v1_router.urls))       # noqa
 )
 

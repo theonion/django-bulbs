@@ -13,7 +13,7 @@ class TestLogoutApi(BaseIndexableTestCase):
     def test_logout(self):
 
         # create and get a test user
-        user = User.objects.create_user('onions', 'wh@atever.com', 'password')
+        user = User.objects.create_user('onions', 'wh@tever.com', 'password')
         user.is_staff = True
         user.save()
 

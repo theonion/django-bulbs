@@ -1,14 +1,15 @@
 """Base models for "Content", including the indexing and search features
 that we want any piece of content to have."""
+import uuid
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import NoReverseMatch, reverse
 from django.db import models
+from django.db.models import Model
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django.utils.html import strip_tags
-
 from bulbs.content import TagCache
 import elasticsearch
 from elasticutils import F
@@ -18,9 +19,7 @@ from elastimorphic.base import (
     SearchManager,
 )
 from polymorphic import PolymorphicModel
-
 from .shallow import ShallowContentS, ShallowContentResult
-
 from djbetty import ImageField
 
 try:
@@ -384,6 +383,24 @@ class LogEntry(models.Model):
 
     class Meta:
         ordering = ("-action_time",)
+
+
+class ObfuscatedUrlInfo(Model):
+    """Stores info used for obfuscated urls of unpublished content."""
+
+    content = models.ForeignKey(Content)
+    create_date = models.DateTimeField()
+    expire_date = models.DateTimeField()
+    url_uuid = models.CharField(max_length=32, unique=True, editable=False)
+
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+
+        if not self.id:
+            # this is a totally new instance, create uuid value
+            self.url_uuid = str(uuid.uuid4()).replace("-", "")
+
+        super(ObfuscatedUrlInfo, self).save()
 
 
 def content_deleted(sender, instance=None, **kwargs):

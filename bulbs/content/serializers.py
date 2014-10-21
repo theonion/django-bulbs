@@ -9,7 +9,7 @@ from rest_framework import relations
 
 from elastimorphic.serializers import ContentTypeField, PolymorphicSerializerMixin
 
-from .models import Content, Tag, LogEntry, FeatureType
+from .models import Content, Tag, LogEntry, FeatureType, ObfuscatedUrlInfo
 
 
 class ImageFieldSerializer(serializers.WritableField):
@@ -202,3 +202,19 @@ class LogEntrySerializer(serializers.ModelSerializer):
 
 class PolymorphicContentSerializer(PolymorphicSerializerMixin, ContentSerializer):
     pass
+
+
+class ObfuscatedUrlInfoSerializer(serializers.ModelSerializer):
+
+    expire_date = serializers.DateTimeField()
+    create_date = serializers.DateTimeField()
+    url_uuid = serializers.CharField(min_length=32, max_length=32)
+
+    def validate(self, attrs):
+
+        if attrs["expire_date"] < attrs["create_date"]:
+            raise serializers.ValidationError(
+                "Start date must occur before expiration date.")
+
+    class Meta:
+        model = ObfuscatedUrlInfo

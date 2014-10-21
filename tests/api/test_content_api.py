@@ -1,5 +1,6 @@
 import json
-import datetime
+
+from datetime import datetime, timedelta
 
 import elasticsearch
 from django.contrib.auth import get_user_model
@@ -7,11 +8,11 @@ from django.core.urlresolvers import reverse
 from django.template.defaultfilters import slugify
 from django.test.client import Client
 from django.utils import timezone
-from bulbs.content.models import LogEntry, Tag, Content
+from bulbs.content.models import LogEntry, Tag, Content, ObfuscatedUrlInfo
 from bulbs.content.serializers import TagSerializer
 from tests.testcontent.models import TestContentObj, TestContentDetailImage
 from tests.utils import JsonEncoder, BaseAPITestCase
-from django.contrib.auth import get_user_model
+
 
 User = get_user_model()
 
@@ -26,7 +27,7 @@ class TestContentListingAPI(BaseAPITestCase):
                 title="Testing published content {}".format(i),
                 description="Doesn't matter what it is, AS LONG AS IT GETS CLICKZ",
                 foo="SUCK IT, NERDS.",
-                published=timezone.now() - datetime.timedelta(hours=1)
+                published=timezone.now() - timedelta(hours=1)
             )
 
         for i in range(32):
@@ -34,7 +35,7 @@ class TestContentListingAPI(BaseAPITestCase):
                 title="Testing published content {}".format(i),
                 description="Doesn't matter what it is, AS LONG AS IT GETS CLICKZ",
                 foo="SUCK IT, NERDS.",
-                published=timezone.now() + datetime.timedelta(hours=1)
+                published=timezone.now() + timedelta(hours=1)
             )
 
         for i in range(13):
@@ -71,7 +72,7 @@ class TestContentStatusAPI(BaseAPITestCase):
         response = client.get(reverse("content-status", kwargs={"pk": content.id}), content_type="application/json")
         self.assertEqual(response.data["status"], "draft")
 
-        content.published = timezone.now() - datetime.timedelta(hours=1)
+        content.published = timezone.now() - timedelta(hours=1)
         content.save()
         response = client.get(reverse("content-status", kwargs={"pk": content.id}), content_type="application/json")
         self.assertEqual(response.data["status"], "final")
@@ -305,7 +306,7 @@ class BaseUpdateContentAPI(BaseAPITestCase):
         if response.status_code != 200:
             print(response.content)
         self.assertEqual(response.status_code, 200)
-        
+
         # Check that it returns an instance with the new data
         # And check that the detail view is also correct
         response = client.get(content_detail_url)
@@ -522,3 +523,66 @@ class TestTrashContentAPI(BaseAPITestCase):
         self.assertEqual(response.status_code, 200)
         response = client.post(content_rest_url, content_type="application/json")
         self.assertEqual(response.status_code, 404)
+
+
+class TestTokenAPI(BaseAPITestCase):
+
+    def setUp(self):
+        super(TestTokenAPI, self).setUp()
+
+        self.client = Client()
+        self.client.login(username="admin", password="secret")
+
+    def test_create_token(self):
+        """Test token creation."""
+
+        # create a test piece of content
+        content = Content.objects.create()
+
+        # do request
+        create_date = datetime.now()
+        expire_date = create_date + timedelta(days=3)
+        response = self.client.post(
+            reverse("content-create-token", kwargs={"pk": content.id}),
+            json.dumps({
+                "create_date": create_date.isoformat(),
+                "expire_date": expire_date.isoformat()
+            }),
+            content_type="application/json"
+        )
+
+        # test that what we expect to happen happened
+        json_response = json.loads(response.content)
+        self.assertEquals(len(json_response["url_uuid"]), 32)
+        self.assertEquals(json_response["content"], 1)
+        self.assertEquals(ObfuscatedUrlInfo.objects.count(), 1)
+        self.assertEquals(ObfuscatedUrlInfo.objects.all()[0].content.id, 1)
+
+    def test_list_tokens(self):
+        """Test token listing."""
+
+        # create some test content
+        content = Content.objects.create()
+        create_date = datetime.now()
+        expire_date = create_date + timedelta(days=3)
+        info_1 = ObfuscatedUrlInfo.objects.create(
+            content=content,
+            create_date=create_date.isoformat(),
+            expire_date=expire_date.isoformat())
+        ObfuscatedUrlInfo.objects.create(
+            content=content,
+            create_date=create_date.isoformat(),
+            expire_date=expire_date.isoformat())
+        ObfuscatedUrlInfo.objects.create(
+            content=content,
+            create_date=create_date.isoformat(),
+            expire_date=expire_date.isoformat())
+
+        # attempt to get tokens
+        response = self.client.get(reverse("content-list-tokens", kwargs={"pk": content.id}))
+
+        # check out stuff
+        json_response = json.loads(response.content)
+        self.assertEqual(len(json_response), 3)
+        self.assertEqual(json_response[0]["id"], info_1.id)
+        self.assertEqual(json_response[0]["url_uuid"], info_1.url_uuid)
