@@ -3,10 +3,12 @@ import logging
 from bulbs.content.models import Content, ObfuscatedUrlInfo
 
 from django.conf import settings
+from django.core.urlresolvers import resolve, Resolver404
 from django.http import Http404, HttpResponsePermanentRedirect, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.cache import add_never_cache_headers
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, View
 
 logger = logging.getLogger(__name__)
 
@@ -88,25 +90,17 @@ class BaseContentDetailView(DetailView):
     context_object_name = "content"
     redirect_correct_path = True  # By default, we'll redirect the user to the proper URL
 
-    def token_from_kwargs(self, request_kwargs):
-        """Normalized way to retrieve token from request kwargs. Use this in custom GET
-        implementations if this detail view should be accessible via token."""
-        self.token = request_kwargs.get("token", None)
-
     def get(self, request, *args, **kwargs):
         """Override default get function to use token if there is one to retrieve object. If a
         subclass should use their own GET implementation, token_from_kwargs should be called if
         that detail view should be accessible via token."""
         
-        # check if we have a token argument from incoming url, assign it so self.get_object can use
-        #   the token to retrieve the proper object. Has to be done this way, otherwise DetailView
-        #   expects a slug and/or pk to be provided by url pattern.
-        self.token_from_kwargs(kwargs)
-        
         self.object = self.get_object()
 
-        # We only want to redirect is that setting is true, and we don't have a token
-        if self.redirect_correct_path and self.token is None:
+        allow_anonymous = kwargs.get("allow_anonymous", False)
+
+        # We only want to redirect is that setting is true, and we're not allowing anonymous users
+        if self.redirect_correct_path and not allow_anonymous:
 
             # Also we obviously only want to redirect if the URL is wrong
             if self.request.path != self.object.get_absolute_url():
@@ -115,42 +109,50 @@ class BaseContentDetailView(DetailView):
         context = self.get_context_data(object=self.object)
         response = self.render_to_response(context)
 
+        # If we have an unpublished article....
         if self.object.published is None or self.object.published > timezone.now():
-            if not request.user.is_staff and self.token is None:
+
+            # And the user doesn't have permission to view this
+            if not request.user.is_staff and not allow_anonymous:
                 redirect_unpublished = getattr(settings, "REDIRECT_UNPUBLISHED_TO_LOGIN", True)
                 if not request.user.is_authenticated() and redirect_unpublished:
                     next_url = self.object.get_absolute_url()
                     response = HttpResponseRedirect("{}?next={}".format(settings.LOGIN_URL, next_url))
                 else:
                     raise Http404
+
+            # Never cache unpublished articles
             add_never_cache_headers(response)
         else:
             response["Vary"] = "Accept-Encoding"
 
         return response
 
-    def get_object(self, queryset=None):
-        """Override default get_object to retrieve object from token if available."""
 
-        # check if we have a token assigned (should be assigned by get function)
-        if self.token is not None:
-            try:
-                # we have a token here, attempt to use it to retrieve object it references
-                info = ObfuscatedUrlInfo.objects.get(url_uuid=self.token)
+class UnpublishedContentView(View):
 
-                now = timezone.now()
-                if info.create_date <= now and now < info.expire_date:
-                    # we are in the provided date window, return referenced content
-                    return info.content
-                else:
-                    # date doesn't match, don't let user access
-                    raise Http404("No content found matching UUID")
+    def dispatch(self, request, *args, **kwargs):
+        
+        token = kwargs.get("token", None)
+        info = get_object_or_404(ObfuscatedUrlInfo, url_uuid=token)
 
-            except ObfuscatedUrlInfo.DoesNotExist:
-                # could not find any url info matching provided uuid, 404
-                raise Http404("No content found matching UUID")
+        now = timezone.now()
+        if info.create_date >= now or now > info.expire_date:
+            # date doesn't match, don't let user access
+            raise Http404("No content found matching UUID")
 
-        # no token was provided, use get_object() as normal
-        return super(BaseContentDetailView, self).get_object()
+        try:
+            view, args, kwargs = resolve(info.content.get_absolute_url())
+        except Resolver404:
+            raise Http404("No content found matching UUID")
 
+        kwargs["request"] = request
+        kwargs["allow_anonymous"] = True
+        return view(*args, **kwargs)
+
+
+unpublished = UnpublishedContentView.as_view()
 content_list = ContentListView.as_view()
+
+
+            
