@@ -130,6 +130,14 @@ class ShallowContentResult(ShallowObject):
     def get_absolute_url(self):
         return getattr(self, 'absolute_url', None)
 
+    @property
+    def is_published(self):
+        if self.published:
+            now = timezone.now()
+            if now >= self.published:
+                return True
+        return False
+
     def ordered_tags(self):
         tags = list(self.tags.all())
         sorted(tags, key=lambda tag: ((tag.type != "content_tag") * 100000) + bulbs.content.TagCache.count(tag.slug))
