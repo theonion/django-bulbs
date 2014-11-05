@@ -5,7 +5,7 @@ from django.utils import timezone
 from elastimorphic.tests.base import BaseIndexableTestCase
 import elasticsearch
 
-from tests.testcontent.models import TestContentObj
+from bulbs.content.models import Content
 
 from tests.utils import make_content
 
@@ -24,9 +24,7 @@ class SerializerTestCase(BaseIndexableTestCase):
         self.assertEqual(content.get_status(), "final")
 
     def test_is_published(self):
-        content = TestContentObj.objects.create(
-            title="Unpublished article"
-        )
+        content = make_content(published=None)
         self.assertFalse(content.is_published)
 
         content.published = timezone.now() - datetime.timedelta(hours=1)
@@ -36,39 +34,35 @@ class SerializerTestCase(BaseIndexableTestCase):
         self.assertFalse(content.is_published)
 
     def test_content_deletion(self):
-        content = TestContentObj.objects.create(
-            title="Some article"
-        )
+        content = make_content(published=None)
 
-        TestContentObj.search_objects.refresh()
+        Content.search_objects.refresh()
 
-        q = TestContentObj.search_objects.query(_id=content.id)
+        q = Content.search_objects.query(_id=content.id)
         self.assertEqual(q.count(), 1)
 
-        c = TestContentObj.search_objects.es.get(
+        c = Content.search_objects.es.get(
             index=content.get_index_name(),
-            doc_type=TestContentObj.get_mapping_type_name(),
+            doc_type=content.get_mapping_type_name(),
             id=content.id)
         self.assertTrue(c.get("found"), True)
 
         content.delete()
 
         with self.assertRaises(elasticsearch.exceptions.NotFoundError):
-            TestContentObj.search_objects.es.get(
+            Content.search_objects.es.get(
                 index=content.get_index_name(),
-                doc_type=TestContentObj.get_mapping_type_name(),
+                doc_type=content.get_mapping_type_name(),
                 id=content.id)
 
-        TestContentObj.search_objects.refresh()
+        Content.search_objects.refresh()
 
-        q = TestContentObj.search_objects.query(_id=content.id)
+        q = Content.search_objects.query(_id=content.id)
         self.assertEqual(q.count(), 0)
 
     def test_first_image_none(self):
 
-        content = TestContentObj.objects.create(
-            title="Some article"
-        )
+        content = make_content(published=None)
 
         content.thumbnail_override = 666
 
