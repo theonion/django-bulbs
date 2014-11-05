@@ -7,14 +7,14 @@ import elasticsearch
 
 from tests.testcontent.models import TestContentObj
 
+from tests.utils import make_content
+
 
 class SerializerTestCase(BaseIndexableTestCase):
 
     def test_content_status(self):
 
-        content = TestContentObj.objects.create(
-            title="Unpublished article"
-        )
+        content = make_content(published=None)
         self.assertEqual(content.get_status(), "draft")
 
         content.published = timezone.now() - datetime.timedelta(hours=1)
