@@ -8,10 +8,12 @@ from django.core.urlresolvers import reverse
 from django.template.defaultfilters import slugify
 from django.test.client import Client
 from django.utils import timezone
+
 from bulbs.content.models import LogEntry, Tag, Content, ObfuscatedUrlInfo
 from bulbs.content.serializers import TagSerializer
+
 from tests.testcontent.models import TestContentObj, TestContentDetailImage
-from tests.utils import JsonEncoder, BaseAPITestCase
+from tests.utils import JsonEncoder, BaseAPITestCase, make_content
 
 
 User = get_user_model()
@@ -23,29 +25,15 @@ class TestContentListingAPI(BaseAPITestCase):
     def setUp(self):
         super(TestContentListingAPI, self).setUp()
         for i in range(47):
-            TestContentObj.objects.create(
-                title="Testing published content {}".format(i),
-                description="Doesn't matter what it is, AS LONG AS IT GETS CLICKZ",
-                foo="SUCK IT, NERDS.",
-                published=timezone.now() - timedelta(hours=1)
-            )
+            make_content(published=timezone.now() - timedelta(hours=1))
 
         for i in range(32):
-            TestContentObj.objects.create(
-                title="Testing published content {}".format(i),
-                description="Doesn't matter what it is, AS LONG AS IT GETS CLICKZ",
-                foo="SUCK IT, NERDS.",
-                published=timezone.now() + timedelta(hours=1)
-            )
+            make_content(published=timezone.now() + timedelta(hours=1))
 
         for i in range(13):
-            TestContentObj.objects.create(
-                title="Testing published content {}".format(i),
-                description="Doesn't matter what it is, AS LONG AS IT GETS CLICKZ",
-                foo="SUCK IT, NERDS."
-            )
+            make_content(published=None)
 
-        TestContentObj.search_objects.refresh()
+        Content.search_objects.refresh()
 
     def test_list_final(self):
 
@@ -64,9 +52,7 @@ class TestContentListingAPI(BaseAPITestCase):
 class TestContentStatusAPI(BaseAPITestCase):
 
     def test_status_endpoint(self):
-        content = TestContentObj.objects.create(
-            title="Unpublished article"
-        )
+        content = make_content(published=None)
         client = Client()
         client.login(username="admin", password="secret")
         response = client.get(reverse("content-status", kwargs={"pk": content.id}), content_type="application/json")
@@ -138,10 +124,11 @@ class TestPublishContentAPI(BaseAPITestCase):
 
     def test_publish_now(self):
 
-        content = TestContentObj.objects.create(
+        content = make_content(
             title="Django Unchained: How a framework tried to run using async IO",
             description="Spoiler alert: it didn't go great, unless you measure by the number of HN articles about it",
-            foo="SUCK IT, NERDS."
+            foo="SUCK IT, NERDS.",
+            published=None
         )
 
         client = Client()
@@ -159,18 +146,14 @@ class TestPublishContentAPI(BaseAPITestCase):
         self.assertEqual(response_data["status"], "final")
 
         # assert that we can load it up
-        article = TestContentObj.objects.get(id=content.id)
+        article = Content.objects.get(id=content.id)
         self.assertIsNotNone(article.published)
         # check for a log
         LogEntry.objects.filter(object_id=article.pk).get(change_message="final")
 
     def test_author_publish_permissions(self):
 
-        content = TestContentObj.objects.create(
-            title="Django Unchained: How a framework tried to run using async IO",
-            description="Spoiler alert: it didn't go great, unless you measure by the number of HN articles about it",
-            foo="SUCK IT, NERDS."
-        )
+        content = make_content(published=None)
         content.authors.add(self.admin)
 
         client = Client()
@@ -188,18 +171,14 @@ class TestPublishContentAPI(BaseAPITestCase):
         self.assertEqual(response_data["status"], "final")
 
         # assert that we can load it up
-        article = TestContentObj.objects.get(id=content.id)
+        article = Content.objects.get(id=content.id)
         self.assertIsNotNone(article.published)
         # check for a log
         LogEntry.objects.filter(object_id=article.pk).get(change_message="final")
 
     def test_publish_specific(self):
 
-        content = TestContentObj.objects.create(
-            title="Django Unchained: How a framework tried to run using async IO",
-            description="Spoiler alert: it didn't go great, unless you measure by the number of HN articles about it",
-            foo="SUCK IT, NERDS."
-        )
+        content = make_content(published=None)
 
         client = Client()
         client.login(username="admin", password="secret")
@@ -221,7 +200,7 @@ class TestPublishContentAPI(BaseAPITestCase):
         self.assertEqual(response_data["status"], "final")
 
         # assert that we can load it up
-        article = TestContentObj.objects.get(id=content.id)
+        article = Content.objects.get(id=content.id)
         self.assertEqual(article.published.year, 2013)
         self.assertEqual(article.published.month, 6)
         self.assertEqual(article.published.day, 9)
@@ -229,12 +208,7 @@ class TestPublishContentAPI(BaseAPITestCase):
         LogEntry.objects.filter(object_id=article.pk).get(change_message="final")
 
     def test_unpublish(self):
-        content = TestContentObj.objects.create(
-            title="Django Unchained: How a framework tried to run using async IO",
-            description="Spoiler alert: it didn't go great, unless you measure by the number of HN articles about it",
-            foo="SUCK IT, NERDS.",
-            published=timezone.now()
-        )
+        content = make_content(published=timezone.now())
 
         client = Client()
         client.login(username="admin", password="secret")
@@ -257,7 +231,7 @@ class TestPublishContentAPI(BaseAPITestCase):
         self.assertEqual(response_data["status"], "draft")
 
         # assert that we can load it up
-        article = TestContentObj.objects.get(id=content.id)
+        article = Content.objects.get(id=content.id)
         self.assertEqual(article.published, None)
         # check for a log
         LogEntry.objects.filter(object_id=article.pk).get(change_message="draft")
@@ -317,11 +291,7 @@ class BaseUpdateContentAPI(BaseAPITestCase):
 class TestUpdateContentAPI(BaseUpdateContentAPI):
     """Tests updating an `Article`"""
     def create_content(self):
-        self.content = TestContentObj.objects.create(
-            title="Booyah: The Cramer Story",
-            description="Learn how one man booyahed his way to the top.",
-            foo="booyah"
-        )
+        self.content = make_content(TestContentObj, title="Booyah: The Cramer Story", foo="booyah")
 
     def updated_data(self):
         return dict(
@@ -341,11 +311,7 @@ class TestUpdateAuthorsAPI(BaseUpdateContentAPI):
             first_name="Chris",
             last_name="Sinchok"
         )
-        self.content = TestContentObj.objects.create(
-            title="Booyah: The Cramer Story",
-            description="Learn how one man booyahed his way to the top.",
-            foo="booyah"
-        )
+        self.content = make_content(TestContentObj, foo="booyah")
 
     def updated_data(self):
         return dict(
@@ -408,9 +374,9 @@ class TestImageAPI(BaseAPITestCase):
         client = Client()
         client.login(username="admin", password="secret")
 
-        content = TestContentDetailImage.objects.create(
-            title="Some Test Article",
-            description="NO IMAGES HERE"
+        content = make_content(
+            TestContentDetailImage,
+            detail_image=None
         )
         content_detail_url = reverse("content-detail", kwargs={"pk": content.id})
 
@@ -473,14 +439,10 @@ class TestMeApi(BaseAPITestCase):
 
 class TestTrashContentAPI(BaseAPITestCase):
     def test_trash(self):
-        content = TestContentObj.objects.create(
-            title="Test Article",
-            description="Testing out trash.",
-            foo="Lorem ipsum dolor, oh myyyy!"
-        )
+        content = make_content()
         self.assertTrue(content.indexed)
         data = self.es.get(index=content.get_index_name(), doc_type=content.get_mapping_type_name(), id=content.id)
-        self.assertEqual(data["_source"]["title"], "Test Article")
+        self.assertEqual(data["_source"]["title"], content.title)
 
         client = Client()
         client.login(username="admin", password="secret")
@@ -508,11 +470,7 @@ class TestTrashContentAPI(BaseAPITestCase):
     def test_trash_404(self):
         client = Client()
         client.login(username="admin", password="secret")
-        content = TestContentObj.objects.create(
-            title="Test Article",
-            description="Testing out trash.",
-            foo="Lorem ipsum dolor, oh myyyy!"
-        )
+        content = make_content()
         content_rest_url = reverse("content-trash", kwargs={"pk": content.id})
         response = client.post(content_rest_url, content_type="application/json")
         # no permissions, no trashing
@@ -562,8 +520,8 @@ class TestTokenAPI(BaseAPITestCase):
         """Test token listing."""
 
         # create some test content
-        content = Content.objects.create()
-        content_2 = Content.objects.create()
+        content = make_content()
+        content_2 = make_content()
         create_date = datetime.now()
         expire_date = create_date + timedelta(days=3)
         info_1 = ObfuscatedUrlInfo.objects.create(
