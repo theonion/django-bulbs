@@ -8,7 +8,7 @@ from django.utils import timezone
 
 from bulbs.contributions.models import Contribution, ContributorRole
 
-from tests.utils import BaseAPITestCase
+from tests.utils import BaseAPITestCase, make_content
 from tests.testcontent.models import TestContentObj
 
 from django.contrib.auth.models import User
@@ -35,12 +35,8 @@ class ContributionReportingTestCase(BaseAPITestCase):
 
     def test_reporting_api(self):
 
-        content_one = TestContentObj.objects.create(
-            title="I'm just an article",
-            published=timezone.now() - datetime.timedelta(days=1))
-        content_two = TestContentObj.objects.create(
-            title="I'm just an article",
-            published=timezone.now() - datetime.timedelta(days=3))
+        content_one = make_content(published=timezone.now() - datetime.timedelta(days=1))
+        content_two = make_content(published=timezone.now() - datetime.timedelta(days=3))
         for content in content_one, content_two:
             Contribution.objects.create(
                 content=content,

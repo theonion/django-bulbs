@@ -374,9 +374,9 @@ class TestImageAPI(BaseAPITestCase):
         client = Client()
         client.login(username="admin", password="secret")
 
-        content = TestContentDetailImage.objects.create(
-            title="Some Test Article",
-            description="NO IMAGES HERE"
+        content = make_content(
+            TestContentDetailImage,
+            detail_image=None
         )
         content_detail_url = reverse("content-detail", kwargs={"pk": content.id})
 
@@ -439,14 +439,10 @@ class TestMeApi(BaseAPITestCase):
 
 class TestTrashContentAPI(BaseAPITestCase):
     def test_trash(self):
-        content = TestContentObj.objects.create(
-            title="Test Article",
-            description="Testing out trash.",
-            foo="Lorem ipsum dolor, oh myyyy!"
-        )
+        content = make_content()
         self.assertTrue(content.indexed)
         data = self.es.get(index=content.get_index_name(), doc_type=content.get_mapping_type_name(), id=content.id)
-        self.assertEqual(data["_source"]["title"], "Test Article")
+        self.assertEqual(data["_source"]["title"], content.title)
 
         client = Client()
         client.login(username="admin", password="secret")
@@ -474,11 +470,7 @@ class TestTrashContentAPI(BaseAPITestCase):
     def test_trash_404(self):
         client = Client()
         client.login(username="admin", password="secret")
-        content = TestContentObj.objects.create(
-            title="Test Article",
-            description="Testing out trash.",
-            foo="Lorem ipsum dolor, oh myyyy!"
-        )
+        content = make_content()
         content_rest_url = reverse("content-trash", kwargs={"pk": content.id})
         response = client.post(content_rest_url, content_type="application/json")
         # no permissions, no trashing
@@ -528,8 +520,8 @@ class TestTokenAPI(BaseAPITestCase):
         """Test token listing."""
 
         # create some test content
-        content = Content.objects.create()
-        content_2 = Content.objects.create()
+        content = make_content()
+        content_2 = make_content()
         create_date = datetime.now()
         expire_date = create_date + timedelta(days=3)
         info_1 = ObfuscatedUrlInfo.objects.create(
