@@ -3,7 +3,7 @@ import json
 from datetime import datetime, timedelta
 
 import elasticsearch
-from django.contrib.auth import get_user_model
+# from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.template.defaultfilters import slugify
 from django.test.client import Client
@@ -14,7 +14,10 @@ from tests.testcontent.models import TestContentObj, TestContentDetailImage
 from tests.utils import JsonEncoder, BaseAPITestCase
 
 
-User = get_user_model()
+# User = get_user_model()
+from django.conf import settings
+from django.db.models.loading import get_model
+User = get_model(*settings.AUTH_USER_MODEL.split("."))
 
 
 class TestContentListingAPI(BaseAPITestCase):

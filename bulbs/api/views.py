@@ -1,13 +1,14 @@
 """API Views and ViewSets"""
 
-from django.contrib.auth import get_user_model
+from django.conf import settings
+# from django.contrib.auth import get_user_model
+# from django.db.models import get_models
+from django.db.models.loading import get_model, get_models
 from django.http import Http404
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from firebase_token_generator import create_token
-from django.conf import settings
-from django.db.models import get_models
 
 import elasticsearch
 
@@ -42,7 +43,8 @@ from .mixins import UncachedResponse
 from .permissions import CanEditContent, CanPromoteContent, CanPublishContent
 
 
-User = get_user_model()
+# User = get_user_model()
+User = get_model(*settings.AUTH_USER_MODEL.split("."))
 
 
 class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
@@ -257,7 +259,8 @@ class TagViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
 
 
 class UserViewSet(UncachedResponse, viewsets.ModelViewSet):
-    model = get_user_model()
+    # model = get_user_model()
+    model = User
     serializer_class = UserSerializer
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
     search_fields = ("first_name", "last_name", "username")

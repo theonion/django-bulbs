@@ -1,7 +1,7 @@
 import json
 from elastimorphic.tests.base import BaseIndexableTestCase
 
-from django.contrib.auth import get_user_model
+# from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.test.client import Client
 from django.contrib.auth.models import Permission
@@ -12,7 +12,10 @@ from tests.testcontent.models import TestContentDetailImage
 from tests.utils import JsonEncoder
 
 
-User = get_user_model()
+# User = get_user_model()
+from django.conf import settings
+from django.db.models.loading import get_model
+User = get_model(*settings.AUTH_USER_MODEL.split("."))
 
 
 class TestThumbnailing(BaseIndexableTestCase):

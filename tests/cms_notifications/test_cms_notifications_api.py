@@ -6,10 +6,13 @@ from django.core.urlresolvers import reverse
 from django.test import Client
 from elastimorphic.tests.base import BaseIndexableTestCase
 from tests.utils import JsonEncoder
-from django.contrib.auth import get_user_model
+# from django.contrib.auth import get_user_model
 
 
-User = get_user_model()
+# User = get_user_model()
+from django.conf import settings
+from django.db.models.loading import get_model
+User = get_model(*settings.AUTH_USER_MODEL.split("."))
 
 
 class TestAPI(BaseIndexableTestCase):
