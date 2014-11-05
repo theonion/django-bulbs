@@ -16,8 +16,11 @@ def pytest_configure():
                 'NAME': ':memory:'
             }
         },
+
         USE_TZ=True,
+
         TEMPLATE_DIRS=(os.path.join(MODULE_ROOT, 'tests', 'templates'),),
+
         INSTALLED_APPS=(
             "django.contrib.auth",
             "django.contrib.contenttypes",
@@ -36,8 +39,11 @@ def pytest_configure():
             "bulbs.redirects",
             "bulbs.cms_notifications",
 
-            "tests.testcontent",),
+            "tests.testcontent",
+        ),
+
         ROOT_URLCONF = 'tests.urls',
+
         TEMPLATE_CONTEXT_PROCESSORS = (
             "django.contrib.auth.context_processors.auth",
             "django.core.context_processors.debug",
@@ -49,7 +55,17 @@ def pytest_configure():
             "django.core.context_processors.request"
         ),
 
+        MIDDLEWARE_CLASSES = (
+            'django.contrib.sessions.middleware.SessionMiddleware',
+            'django.middleware.common.CommonMiddleware',
+            'django.middleware.csrf.CsrfViewMiddleware',
+            'django.contrib.auth.middleware.AuthenticationMiddleware',
+            'django.contrib.messages.middleware.MessageMiddleware',
+            'django.middleware.clickjacking.XFrameOptionsMiddleware',
+        ),
+
         CELERY_ALWAYS_EAGER = True,
+
         CELERY_EAGER_PROPAGATES_EXCEPTIONS = True,
 
         REST_FRAMEWORK = {
@@ -59,6 +75,7 @@ def pytest_configure():
         },
         
         ES_DISABLED = False,
+
         ES_URLS = ['http://localhost:9200'],
     )
 
