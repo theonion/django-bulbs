@@ -2,11 +2,11 @@ import datetime
 
 from django.utils import timezone
 from elastimorphic.tests.base import BaseIndexableTestCase
-from model_mommy import mommy
 
+from bulbs.content.models import Content
 from bulbs.promotion.models import ContentList
 from bulbs.promotion.operations import InsertOperation, ReplaceOperation, LockOperation
-from tests.testcontent.models import TestContentObj
+from tests.utils import make_content
 
 
 class ContentListOperationsTestCase(BaseIndexableTestCase):
@@ -16,13 +16,13 @@ class ContentListOperationsTestCase(BaseIndexableTestCase):
         self.content_list = ContentList.objects.create(name="homepage", length=10)
         data = []
         for i in range(10):
-            data.append({"id": mommy.make(TestContentObj).pk})
+            data.append({"id": make_content().pk})
 
         self.content_list.data = data
         self.content_list.save()
 
     def test_insert(self):
-        new_content = mommy.make(TestContentObj)
+        new_content = make_content()
         InsertOperation.objects.create(
             content_list=self.content_list,
             when=timezone.now() + datetime.timedelta(hours=1),
@@ -36,8 +36,8 @@ class ContentListOperationsTestCase(BaseIndexableTestCase):
         self.assertEqual(modified_list[0].pk, new_content.pk)
 
     def test_replace(self):
-        new_content = mommy.make(TestContentObj)
-        target = TestContentObj.objects.get(id=self.content_list[3].pk)
+        new_content = make_content()
+        target = Content.objects.get(id=self.content_list[3].pk)
         ReplaceOperation.objects.create(
             content_list=self.content_list,
             when=timezone.now() + datetime.timedelta(hours=1),
@@ -50,7 +50,7 @@ class ContentListOperationsTestCase(BaseIndexableTestCase):
         self.assertEqual(modified_list[3].pk, new_content.pk)
 
     def test_lock(self):
-        target = TestContentObj.objects.get(id=self.content_list[3].pk)
+        target = Content.objects.get(id=self.content_list[3].pk)
         LockOperation.objects.create(
             content_list=self.content_list,
             when=timezone.now() + datetime.timedelta(hours=1),

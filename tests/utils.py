@@ -1,9 +1,31 @@
 import json
+import random
 from six import PY3
 from elastimorphic.tests.base import BaseIndexableTestCase
+from elastimorphic.models import polymorphic_indexable_registry
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
+
+from model_mommy import mommy
+
+from bulbs.content.models import Content
+
+
+def make_content(*args, **kwargs):
+    if "make_m2m" not in kwargs:
+        kwargs["make_m2m"] = True
+
+    if len(args) == 1:
+        klass = args[0]
+    else:
+        models = polymorphic_indexable_registry.families[Content]
+        model_keys = [key for key in models.keys() if key != "content_content"]
+        key = random.choice(model_keys)
+        klass = polymorphic_indexable_registry.all_models[key]
+
+    content = mommy.make(klass, **kwargs)
+    return content
 
 
 class JsonEncoder(json.JSONEncoder):
