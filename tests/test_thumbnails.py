@@ -8,8 +8,10 @@ from django.contrib.auth.models import Permission
 
 from djbetty.fields import ImageFieldFile
 
+from bulbs.content.models import Content
+
 from tests.testcontent.models import TestContentDetailImage
-from tests.utils import JsonEncoder
+from tests.utils import JsonEncoder, make_content
 
 
 User = get_user_model()
@@ -21,10 +23,7 @@ class TestThumbnailing(BaseIndexableTestCase):
     def test_thumbnail_property(self):
         """Test that the thumbnail property works as intended."""
 
-        content = TestContentDetailImage.objects.create(
-            title="Test Content With Some Image",
-            description="I wish these Image req's weren't so insane"
-        )
+        content = make_content(TestContentDetailImage)
 
         self.assertTrue(isinstance(content.thumbnail, ImageFieldFile))
         self.assertEqual(content.thumbnail.id, None)
@@ -58,12 +57,7 @@ class TestThumbnailing(BaseIndexableTestCase):
         client = Client()
         client.login(username="admin", password="secret")
 
-        content = TestContentDetailImage.objects.create(
-            title="Test Content With Some Image",
-            foo="Fighters",
-            description="I wish these Image req's weren't so insane",
-            detail_image=666
-        )
+        content = make_content(TestContentDetailImage, detail_image=666)
 
         content_detail_url = reverse("content-detail", kwargs={"pk": content.id})
         response = client.get(content_detail_url)
@@ -88,7 +82,7 @@ class TestThumbnailing(BaseIndexableTestCase):
         self.assertEqual(response.status_code, 200)
 
         # Refresh the content object from the db
-        content = TestContentDetailImage.objects.get(id=content.id)
+        content = Content.objects.get(id=content.id)
 
         # Detail image should have an id of 1
         self.assertEqual(content.detail_image.id, 1)
