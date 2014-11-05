@@ -25,7 +25,6 @@ def make_content(*args, **kwargs):
         klass = polymorphic_indexable_registry.all_models[key]
 
     content = mommy.make(klass, **kwargs)
-    content.index()
     return content
 
 
