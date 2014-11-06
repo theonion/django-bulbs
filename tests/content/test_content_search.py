@@ -6,11 +6,11 @@ import datetime
 from django.utils import timezone
 from django.test.client import Client
 from django.template.defaultfilters import slugify
-
-from bulbs.content.models import Content, Tag, FeatureType
 from elastimorphic.tests.base import BaseIndexableTestCase
 
+from bulbs.content.models import Content, Tag, FeatureType
 from tests.testcontent.models import TestContentObj, TestContentObjTwo
+from tests.utils import make_content
 
 
 class PolyContentTestCase(BaseIndexableTestCase):
@@ -36,23 +36,12 @@ class PolyContentTestCase(BaseIndexableTestCase):
                 tag, created = Tag.objects.get_or_create(name=atom, slug=slugify(atom))
                 tags.append(tag)
                 self.all_tags.append(tag)
-            obj = TestContentObj.objects.create(
-                title=' '.join(combo),
-                description=' '.join(reversed(combo)),
-                foo=combo[0],
-                published=one_hour_ago,
-                feature_type=ft_one
-            )
+
+            obj = make_content(TestContentObj, published=one_hour_ago, feature_type=ft_one)
             obj.tags.add(*tags)
             obj.index()
-            obj2 = TestContentObjTwo.objects.create(
-                title=' '.join(reversed(combo)),
-                description=' '.join(combo),
-                foo=combo[1],
-                bar=i,
-                published=two_days_ago,
-                feature_type=ft_two
-            )
+
+            obj2 = make_content(TestContentObjTwo, published=two_days_ago, feature_type=ft_two)
             obj2.tags.add(*tags)
             obj2.index()
 
@@ -69,7 +58,7 @@ class PolyContentTestCase(BaseIndexableTestCase):
 
     def test_filter_search_content(self):
 
-        self.assertEqual(Content.objects.count(), 13)   # The 12, plus the unpublished one
+        self.assertEqual(Content.objects.count(), 13)  # The 12, plus the unpublished one
 
         q = Content.search_objects.search()
         self.assertEqual(q.count(), 12)

@@ -4,21 +4,14 @@ from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.test import Client
 from django.utils import timezone
-
 from elastimorphic.tests.base import BaseIndexableTestCase
 
 from bulbs.content.models import ObfuscatedUrlInfo
-
 from tests.testcontent.models import TestContentObj
-
-
-# from django.conf import settings
-# from django.db.models.loading import get_model
-# User = get_model(*settings.AUTH_USER_MODEL.split("."))
+from tests.utils import make_content
 
 
 class TestContentViews(BaseIndexableTestCase):
-
     def setUp(self):
         super(TestContentViews, self).setUp()
         User = get_user_model()
@@ -29,7 +22,6 @@ class TestContentViews(BaseIndexableTestCase):
         admin.save()
 
     def test_unpublished_article(self):
-
         content = TestContentObj.objects.create(title="Testing Content")
         print(reverse("published", kwargs={"pk": content.id}))
         response = self.client.get(reverse("published", kwargs={"pk": content.id}))
@@ -42,10 +34,7 @@ class TestContentViews(BaseIndexableTestCase):
         self.assertEqual(response.status_code, 200)
 
     def published_article(self):
-        content = TestContentObj.objects.create(
-            title="Testing Content",
-            published=timezone.now() - timedelta(hours=2)
-        )
+        content = make_content(published=timezone.now() - timedelta(hours=2))
         response = self.client.get(reverse("published", kwargs={"pk": content.id}))
         self.assertEqual(response.status_code, 200)
 
@@ -55,7 +44,7 @@ class TestContentViews(BaseIndexableTestCase):
         # create test content and token
         create_date = timezone.now()
         expire_date = create_date + timedelta(days=3)
-        content = TestContentObj.objects.create()
+        content = make_content(published=None)
         obfuscated_url_info = ObfuscatedUrlInfo.objects.create(
             content=content,
             create_date=create_date.isoformat(),
@@ -76,7 +65,7 @@ class TestContentViews(BaseIndexableTestCase):
         # create test content and token
         create_date = timezone.now() + timedelta(days=3)
         expire_date = create_date + timedelta(days=3)
-        content = TestContentObj.objects.create()
+        content = make_content(published=None)
         obfuscated_url_info = ObfuscatedUrlInfo.objects.create(
             content=content,
             create_date=create_date.isoformat(),
@@ -97,7 +86,7 @@ class TestContentViews(BaseIndexableTestCase):
         create_date = timezone.now()
         expire_date = create_date + timedelta(days=3)
         ObfuscatedUrlInfo.objects.create(
-            content=TestContentObj.objects.create(),
+            content=make_content(),
             create_date=create_date.isoformat(),
             expire_date=expire_date.isoformat()
         )
@@ -107,4 +96,3 @@ class TestContentViews(BaseIndexableTestCase):
 
         # expect that we got a 404
         self.assertEqual(response.status_code, 404)
-

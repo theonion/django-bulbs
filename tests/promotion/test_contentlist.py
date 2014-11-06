@@ -1,22 +1,17 @@
 from elastimorphic.tests.base import BaseIndexableTestCase
-from model_mommy import mommy
 
 from bulbs.promotion.models import ContentList
-
-
 from tests.testcontent.models import TestContentObj
+from tests.utils import make_content
 
 
 class ContentListTestCase(BaseIndexableTestCase):
-
     def setUp(self):
         super(ContentListTestCase, self).setUp()
         self.content_list = ContentList.objects.create(name="homepage")
         data = []
         for i in range(11):
-            content = TestContentObj.objects.create(
-                title="Content test #{}".format(i),
-            )
+            content = make_content(title="Content test #{}".format(i), )
             data.append({"id": content.pk})
 
         self.content_list.data = data
@@ -39,21 +34,21 @@ class ContentListTestCase(BaseIndexableTestCase):
         self.assertEqual(len(self.content_list[:2]), 2)
 
     def test_content_list_setitem(self):
-        new_content = mommy.make(TestContentObj)
+        new_content = make_content(TestContentObj)
         self.content_list[0] = new_content
         self.assertEqual(self.content_list[0].pk, new_content.pk)
 
-        newer_content = mommy.make(TestContentObj)
+        newer_content = make_content(TestContentObj)
         self.content_list[1] = newer_content.id
         self.assertEqual(self.content_list[1].pk, newer_content.pk)
 
     def test_content_list_contains(self):
-        newer_content = mommy.make(TestContentObj)
+        newer_content = make_content(TestContentObj)
         self.content_list[1] = newer_content.id
 
         self.assertTrue(newer_content.pk in self.content_list)
         self.assertTrue(newer_content in self.content_list)
 
-        invisible_content = mommy.make(TestContentObj)
+        invisible_content = make_content(TestContentObj)
         self.assertFalse(invisible_content.pk in self.content_list)
         self.assertFalse(invisible_content in self.content_list)

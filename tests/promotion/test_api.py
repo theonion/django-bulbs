@@ -4,13 +4,10 @@ from django.core.urlresolvers import reverse
 from django.test.client import Client
 
 from bulbs.promotion.models import ContentList, ContentListHistory
-
-from tests.utils import BaseAPITestCase
-from tests.testcontent.models import TestContentObj
+from tests.utils import BaseAPITestCase, make_content
 
 
 class PromotionApiTestCase(BaseAPITestCase):
-
     def test_content_list_api(self):
         client = Client()
         client.login(username="admin", password="secret")
@@ -18,9 +15,7 @@ class PromotionApiTestCase(BaseAPITestCase):
         content_list = ContentList.objects.create(name="homepage")
         data = []
         for i in range(10):
-            content = TestContentObj.objects.create(
-                title="Content test #{}".format(i),
-            )
+            content = make_content(title="Content test #{}".format(i))
             data.append({"id": content.pk})
 
         content_list.data = data
@@ -40,7 +35,7 @@ class PromotionApiTestCase(BaseAPITestCase):
             self.assertEqual(content["title"], "Content test #{}".format(index))
 
         new_data = response.data
-        #  This sucks, but it just reverses the list
+        # This sucks, but it just reverses the list
         new_data["content"] = [{"id": content["id"]} for content in response.data["content"]][::-1]
 
         self.assertEqual(ContentListHistory.objects.count(), 0)
