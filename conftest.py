@@ -35,12 +35,13 @@ def pytest_configure():
             "polymorphic",
             # local apps
             "bulbs.api",
-            "bulbs.content",
-            "bulbs.contributions",
             "bulbs.feeds",
-            "bulbs.promotion",
             "bulbs.redirects",
             "bulbs.cms_notifications",
+            "bulbs.videos",
+            "bulbs.content",
+            "bulbs.contributions",
+            "bulbs.promotion",
             # local testing apps
             "tests.testcontent",
         ),
@@ -77,7 +78,7 @@ def pytest_configure():
                 'rest_framework.authentication.SessionAuthentication',
             )
         },
-        
+
         ES_DISABLED=False,
 
         ES_URLS=['http://localhost:9200'],
