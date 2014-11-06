@@ -1,12 +1,11 @@
 import json
 import random
+
 from six import PY3
 from elastimorphic.tests.base import BaseIndexableTestCase
 from elastimorphic.models import polymorphic_indexable_registry
-
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
-
 from model_mommy import mommy
 
 from bulbs.content.models import Content

@@ -1,19 +1,15 @@
 import datetime
 
 from django.utils import timezone
-
 from elastimorphic.tests.base import BaseIndexableTestCase
 import elasticsearch
 
 from bulbs.content.models import Content
-
 from tests.utils import make_content
 
 
 class SerializerTestCase(BaseIndexableTestCase):
-
     def test_content_status(self):
-
         content = make_content(published=None)
         self.assertEqual(content.get_status(), "draft")
 
@@ -61,7 +57,6 @@ class SerializerTestCase(BaseIndexableTestCase):
         self.assertEqual(q.count(), 0)
 
     def test_first_image_none(self):
-
         content = make_content(published=None)
 
         content.thumbnail_override = 666

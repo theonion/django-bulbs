@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 import datetime
 from south.db import db
-from south.v2 import SchemaMigration
+from south.v2 import DataMigration
 from django.db import models
-
+from django.utils.text import slugify
 
 # Safe User import for Django < 1.5
 try:
@@ -12,6 +12,9 @@ except ImportError:
     from django.contrib.auth.models import User
 else:
     User = get_user_model()
+# from django.conf import settings
+# from django.db.models.loading import get_model
+# User = get_model(*settings.AUTH_USER_MODEL.split("."))
 
 
 # With the default User model these will be 'auth.User' and 'auth.user'
@@ -20,34 +23,38 @@ user_orm_label = '%s.%s' % (User._meta.app_label, User._meta.object_name)
 user_model_label = '%s.%s' % (User._meta.app_label, User._meta.module_name)
 
 
-class Migration(SchemaMigration):
+class Migration(DataMigration):
 
     def forwards(self, orm):
-        db.rename_column('content_content', '_thumbnail', 'thumbnail_override')
+        "Write your forwards methods here."
+
+        rows = db.execute("select distinct feature_type from content_content")
+        for row in rows:
+            feature_type = row[0]
+            try:
+                ft = orm.FeatureType.objects.get(slug=slugify(feature_type))
+            except orm.FeatureType.DoesNotExist:
+                ft = orm.FeatureType.objects.create(
+                    name=feature_type,
+                    slug=slugify(feature_type)
+                )
+            db.execute("update content_content set feature_type_id = %s where feature_type = %s", [ft.id, feature_type])
+
+        # Note: Don't use "from appname.models import ModelName". 
+        # Use orm.ModelName to refer to models in this application,
+        # and orm['appname.ModelName'] for models in other applications.
 
     def backwards(self, orm):
-        db.rename_column('content_content', 'thumbnail_override', '_thumbnail')
+        "Write your backwards methods here."
 
     models = {
-        u'auth.group': {
-            'Meta': {'object_name': 'Group'},
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '80'}),
-            'permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'})
-        },
-        u'auth.permission': {
-            'Meta': {'ordering': "(u'content_type__app_label', u'content_type__model', u'codename')", 'unique_together': "((u'content_type', u'codename'),)", 'object_name': 'Permission'},
-            'codename': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['contenttypes.ContentType']"}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
-        },
         user_model_label: {
             'Meta': {'object_name': User.__name__, 'db_table': "'%s'" % User._meta.db_table},
             User._meta.pk.attname: ('django.db.models.fields.AutoField', [], {'primary_key': 'True', 'db_column': "'%s'" % User._meta.pk.column}),
         },
         u'content.content': {
             'Meta': {'object_name': 'Content'},
+            '_thumbnail': ('djbetty.fields.ImageField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
             'authors': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['%s']" % user_orm_label, 'symmetrical': 'False'}),
             'description': ('django.db.models.fields.TextField', [], {'default': "''", 'max_length': '1024', 'blank': 'True'}),
             'feature_type': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['content.FeatureType']", 'null': 'True', 'blank': 'True'}),
@@ -59,7 +66,6 @@ class Migration(SchemaMigration):
             'slug': ('django.db.models.fields.SlugField', [], {'default': "''", 'max_length': '50', 'blank': 'True'}),
             'subhead': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '255', 'blank': 'True'}),
             'tags': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['content.Tag']", 'symmetrical': 'False', 'blank': 'True'}),
-            'thumbnail_override': ('djbetty.fields.ImageField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '512'})
         },
         u'content.featuretype': {
@@ -94,3 +100,4 @@ class Migration(SchemaMigration):
     }
 
     complete_apps = ['content']
+    symmetrical = True

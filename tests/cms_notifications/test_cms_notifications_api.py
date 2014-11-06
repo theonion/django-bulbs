@@ -9,13 +9,17 @@ from tests.utils import JsonEncoder
 from django.contrib.auth import get_user_model
 
 
-User = get_user_model()
+# User = get_user_model()
+# from django.conf import settings
+# from django.db.models.loading import get_model
+# User = get_model(*settings.AUTH_USER_MODEL.split("."))
 
 
 class TestAPI(BaseIndexableTestCase):
 
     def setUp(self):
         super(TestAPI, self).setUp()
+        User = get_user_model()
 
         # create a superuser and regular user
         self.superuser_pass = "password"

@@ -4,7 +4,6 @@ from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
 
-
 # Safe User import for Django < 1.5
 try:
     from django.contrib.auth import get_user_model
@@ -12,6 +11,9 @@ except ImportError:
     from django.contrib.auth.models import User
 else:
     User = get_user_model()
+# from django.conf import settings
+# from django.db.models.loading import get_model
+# User = get_model(*settings.AUTH_USER_MODEL.split("."))
 
 
 # With the default User model these will be 'auth.User' and 'auth.user'
@@ -23,23 +25,76 @@ user_model_label = '%s.%s' % (User._meta.app_label, User._meta.module_name)
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        db.create_table(u'content_featuretype', (
+        # Adding model 'Tag'
+        db.create_table(u'content_tag', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('polymorphic_ctype', self.gf('django.db.models.fields.related.ForeignKey')(related_name=u'polymorphic_content.tag_set', null=True, to=orm['contenttypes.ContentType'])),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=255)),
             ('slug', self.gf('django.db.models.fields.SlugField')(unique=True, max_length=50)),
         ))
-        db.send_create_signal(u'content', ['FeatureType'])
-        # Adding field 'Content.feature_type'
-        db.add_column(u'content_content', 'feature_type',
-                      self.gf('django.db.models.fields.related.ForeignKey')(to=orm['content.FeatureType'], null=True, blank=True),
-                      keep_default=False)
-        db.alter_column('content_content', 'feature_type', models.CharField(max_length=255, null=True, blank=True))
+        db.send_create_signal(u'content', ['Tag'])
+
+        # Adding model 'Content'
+        db.create_table(u'content_content', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('polymorphic_ctype', self.gf('django.db.models.fields.related.ForeignKey')(related_name=u'polymorphic_content.content_set', null=True, to=orm['contenttypes.ContentType'])),
+            ('published', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
+            ('last_modified', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now, auto_now=True, blank=True)),
+            ('title', self.gf('django.db.models.fields.CharField')(max_length=512)),
+            ('slug', self.gf('django.db.models.fields.SlugField')(default='', max_length=50, blank=True)),
+            ('description', self.gf('django.db.models.fields.TextField')(default='', max_length=1024, blank=True)),
+            ('_thumbnail', self.gf('djbetty.fields.ImageField')(default=None, null=True, blank=True)),
+            ('feature_type', self.gf('django.db.models.fields.CharField')(default='', max_length=255, blank=True)),
+            ('subhead', self.gf('django.db.models.fields.CharField')(default='', max_length=255, blank=True)),
+            ('indexed', self.gf('django.db.models.fields.BooleanField')(default=True)),
+        ))
+        db.send_create_signal(u'content', ['Content'])
+
+        # Adding M2M table for field authors on 'Content'
+        m2m_table_name = db.shorten_name(u'content_content_authors')
+        db.create_table(m2m_table_name, (
+            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
+            ('content', models.ForeignKey(orm[u'content.content'], null=False)),
+            ('user', models.ForeignKey(orm[user_model_label], null=False))
+        ))
+        db.create_unique(m2m_table_name, ['content_id', 'user_id'])
+
+        # Adding M2M table for field tags on 'Content'
+        m2m_table_name = db.shorten_name(u'content_content_tags')
+        db.create_table(m2m_table_name, (
+            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
+            ('content', models.ForeignKey(orm[u'content.content'], null=False)),
+            ('tag', models.ForeignKey(orm[u'content.tag'], null=False))
+        ))
+        db.create_unique(m2m_table_name, ['content_id', 'tag_id'])
+
+        # Adding model 'LogEntry'
+        db.create_table(u'content_logentry', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('action_time', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
+            ('content_type', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='change_logs', null=True, to=orm['contenttypes.ContentType'])),
+            ('object_id', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='change_logs', null=True, to=orm[user_orm_label])),
+            ('change_message', self.gf('django.db.models.fields.TextField')(blank=True)),
+        ))
+        db.send_create_signal(u'content', ['LogEntry'])
 
 
     def backwards(self, orm):
-        # Deleting field 'Content.feature_type'
-        db.delete_column(u'content_content', 'feature_type_id')
-        db.delete_table(u'content_featuretype')
+        # Deleting model 'Tag'
+        db.delete_table(u'content_tag')
+
+        # Deleting model 'Content'
+        db.delete_table(u'content_content')
+
+        # Removing M2M table for field authors on 'Content'
+        db.delete_table(db.shorten_name(u'content_content_authors'))
+
+        # Removing M2M table for field tags on 'Content'
+        db.delete_table(db.shorten_name(u'content_content_tags'))
+
+        # Deleting model 'LogEntry'
+        db.delete_table(u'content_logentry')
 
 
     models = {
@@ -52,7 +107,7 @@ class Migration(SchemaMigration):
             '_thumbnail': ('djbetty.fields.ImageField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
             'authors': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['%s']" % user_orm_label, 'symmetrical': 'False'}),
             'description': ('django.db.models.fields.TextField', [], {'default': "''", 'max_length': '1024', 'blank': 'True'}),
-            'feature_type': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['content.FeatureType']", 'null': 'True', 'blank': 'True'}),
+            'feature_type': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '255', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'indexed': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'last_modified': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'auto_now': 'True', 'blank': 'True'}),
@@ -62,12 +117,6 @@ class Migration(SchemaMigration):
             'subhead': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '255', 'blank': 'True'}),
             'tags': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['content.Tag']", 'symmetrical': 'False', 'blank': 'True'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '512'})
-        },
-        u'content.featuretype': {
-            'Meta': {'object_name': 'FeatureType'},
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'slug': ('django.db.models.fields.SlugField', [], {'unique': 'True', 'max_length': '50'})
         },
         u'content.logentry': {
             'Meta': {'ordering': "('-action_time',)", 'object_name': 'LogEntry'},

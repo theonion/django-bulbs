@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.contrib import auth
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.template.defaultfilters import slugify
@@ -13,17 +13,25 @@ from .models import Content, Tag, LogEntry, FeatureType, ObfuscatedUrlInfo
 
 
 class ImageFieldSerializer(serializers.WritableField):
+    """
+    serializer field type for images
+    """
 
     def __init__(self, caption_field=None, alt_field=None, **kwargs):
-        super(ImageFieldSerializer, self).__init__(**kwargs)
+        """instantiates object
 
+        :param caption_field: caption
+        :param alt_field: alt value
+        :param kwargs: keyword arguments (optional)
+        :return: `serializers.WriteableField`
+        """
+        super(ImageFieldSerializer, self).__init__(**kwargs)
         self.caption_field = caption_field
         self.alt_field = alt_field
 
     def to_native(self, obj):
         if obj is None or obj.id is None:
             return None
-
         data = {
             "id": obj.id,
         }
@@ -35,11 +43,10 @@ class ImageFieldSerializer(serializers.WritableField):
     def from_native(self, data):
         if data is None:
             return None
-
         image_id = data.get("id")
+        # Just in case a string gets passed in
         if image_id is not None:
-            return int(image_id)  # Just in case a string gets passed in
-
+            return int(image_id)
         return None
 
     def field_from_native(self, data, files, field_name, into):
@@ -56,6 +63,7 @@ class ImageFieldSerializer(serializers.WritableField):
 
 
 class TagSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Tag
 
@@ -69,6 +77,7 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class FeatureTypeSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = FeatureType
 
@@ -143,7 +152,8 @@ class DefaultUserSerializer(serializers.ModelSerializer):
     """Returns basic User fields"""
 
     class Meta:
-        model = auth.get_user_model()
+        model = get_user_model()
+        # model = settings.AUTH_USER_MODEL
 
     def to_native(self, obj):
 
@@ -161,7 +171,8 @@ class DefaultUserSerializer(serializers.ModelSerializer):
 
     def from_native(self, data, files):
         """Basically, each author dict must include either a username or id."""
-        model = auth.get_user_model()
+        # model = get_user_model()
+        model = self.Meta.model
 
         if "id" in data:
             author = model.objects.get(id=data["id"])
@@ -171,10 +182,13 @@ class DefaultUserSerializer(serializers.ModelSerializer):
             username = data["username"]
             author = model.objects.get(username=username)
         return author
+
+
 UserSerializer = getattr(settings, "BULBS_USER_SERIALIZER", DefaultUserSerializer)
 
 
 class ContentSerializer(serializers.ModelSerializer):
+
     polymorphic_ctype = ContentTypeField(source="polymorphic_ctype_id", read_only=True)
     tags = TagField(many=True)
     feature_type = FeatureTypeField(required=False)
@@ -196,6 +210,7 @@ class ContentSerializer(serializers.ModelSerializer):
 
 
 class LogEntrySerializer(serializers.ModelSerializer):
+
     class Meta:
         model = LogEntry
 
@@ -211,7 +226,6 @@ class ObfuscatedUrlInfoSerializer(serializers.ModelSerializer):
     url_uuid = serializers.CharField(min_length=32, max_length=32)
 
     def validate(self, attrs):
-
         if attrs["expire_date"] < attrs["create_date"]:
             raise serializers.ValidationError(
                 "Start date must occur before expiration date.")

@@ -4,28 +4,24 @@ from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.test import Client
 from django.utils import timezone
-
 from elastimorphic.tests.base import BaseIndexableTestCase
 
 from bulbs.content.models import ObfuscatedUrlInfo
-
 from tests.testcontent.models import TestContentObj
 from tests.utils import make_content
 
 
 class TestContentViews(BaseIndexableTestCase):
-
     def setUp(self):
         super(TestContentViews, self).setUp()
-        self.client = Client()
-        
         User = get_user_model()
+        self.client = Client()
+
         admin = self.admin = User.objects.create_user("admin", "tech@theonion.com", "secret")
         admin.is_staff = True
         admin.save()
 
     def test_unpublished_article(self):
-
         content = TestContentObj.objects.create(title="Testing Content")
         print(reverse("published", kwargs={"pk": content.id}))
         response = self.client.get(reverse("published", kwargs={"pk": content.id}))
@@ -100,4 +96,3 @@ class TestContentViews(BaseIndexableTestCase):
 
         # expect that we got a 404
         self.assertEqual(response.status_code, 404)
-

@@ -10,7 +10,6 @@ from tests.utils import make_content
 
 
 class ContentListOperationsTestCase(BaseIndexableTestCase):
-
     def setUp(self):
         super(ContentListOperationsTestCase, self).setUp()
         self.content_list = ContentList.objects.create(name="homepage", length=10)
@@ -30,7 +29,9 @@ class ContentListOperationsTestCase(BaseIndexableTestCase):
             content=new_content,
             lock=False
         )
-        modified_list = ContentList.objects.preview("homepage", when=timezone.now() + datetime.timedelta(hours=1))
+        modified_list = ContentList.objects.preview("homepage",
+                                                    when=timezone.now() + datetime.timedelta(
+                                                        hours=1))
         self.assertEqual(len(modified_list), 10)  # We should only get 10 pieces of content
         self.assertEqual(len(modified_list.data), 11)  # ...though the list contains 11 items
         self.assertEqual(modified_list[0].pk, new_content.pk)
@@ -44,7 +45,9 @@ class ContentListOperationsTestCase(BaseIndexableTestCase):
             content=new_content,
             target=target
         )
-        modified_list = ContentList.objects.preview("homepage", when=timezone.now() + datetime.timedelta(hours=1))
+        modified_list = ContentList.objects.preview("homepage",
+                                                    when=timezone.now() + datetime.timedelta(
+                                                        hours=1))
         self.assertEqual(len(modified_list), 10)
         self.assertEqual(len(modified_list.data), 10)
         self.assertEqual(modified_list[3].pk, new_content.pk)
@@ -56,5 +59,7 @@ class ContentListOperationsTestCase(BaseIndexableTestCase):
             when=timezone.now() + datetime.timedelta(hours=1),
             target=target
         )
-        modified_list = ContentList.objects.preview("homepage", when=timezone.now() + datetime.timedelta(hours=1))
+        modified_list = ContentList.objects.preview("homepage",
+                                                    when=timezone.now() + datetime.timedelta(
+                                                        hours=1))
         self.assertTrue(modified_list.data[3]["lock"])

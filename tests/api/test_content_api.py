@@ -1,5 +1,4 @@
 import json
-
 from datetime import datetime, timedelta
 
 import elasticsearch
@@ -10,13 +9,8 @@ from django.test.client import Client
 from django.utils import timezone
 
 from bulbs.content.models import LogEntry, Tag, Content, ObfuscatedUrlInfo
-from bulbs.content.serializers import TagSerializer
-
 from tests.testcontent.models import TestContentObj, TestContentDetailImage
 from tests.utils import JsonEncoder, BaseAPITestCase, make_content
-
-
-User = get_user_model()
 
 
 class TestContentListingAPI(BaseAPITestCase):
@@ -43,24 +37,26 @@ class TestContentListingAPI(BaseAPITestCase):
         client = Client()
         client.login(username="admin", password="secret")
 
-        response = client.get(reverse("content-list"), {"status": "final"}, content_type="application/json")
+        response = client.get(reverse("content-list"), {"status": "final"},
+                              content_type="application/json")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["count"], 79)
         self.assertEqual(len(response.data["results"]), 20)
 
 
 class TestContentStatusAPI(BaseAPITestCase):
-
     def test_status_endpoint(self):
         content = make_content(published=None)
         client = Client()
         client.login(username="admin", password="secret")
-        response = client.get(reverse("content-status", kwargs={"pk": content.id}), content_type="application/json")
+        response = client.get(reverse("content-status", kwargs={"pk": content.id}),
+                              content_type="application/json")
         self.assertEqual(response.data["status"], "draft")
 
         content.published = timezone.now() - timedelta(hours=1)
         content.save()
-        response = client.get(reverse("content-status", kwargs={"pk": content.id}), content_type="application/json")
+        response = client.get(reverse("content-status", kwargs={"pk": content.id}),
+                              content_type="application/json")
         self.assertEqual(response.data["status"], "final")
 
 
@@ -69,6 +65,7 @@ class TestCreateContentAPI(BaseAPITestCase):
     that it ends up searchable"""
 
     def test_create_article(self):
+        User = get_user_model()
 
         author = User.objects.create(
             username="csinchok",
@@ -81,14 +78,14 @@ class TestCreateContentAPI(BaseAPITestCase):
             "foo": "Fighters",
             "feature_type": "Some Super Long String Probably",
             "authors": [{
-                "id": author.id,
-                "username": author.username,
-                "email": "",
-                "full_name": "Chris Sinchok",
-                "short_name": "Chris",
-                "first_name": "Chris",
-                "last_name": "Sinchok"
-            }]
+                            "id": author.id,
+                            "username": author.username,
+                            "email": "",
+                            "full_name": "Chris Sinchok",
+                            "short_name": "Chris",
+                            "first_name": "Chris",
+                            "last_name": "Sinchok"
+                        }]
         }
         client = Client()
         client.login(username="admin", password="secret")
@@ -123,7 +120,6 @@ class TestPublishContentAPI(BaseAPITestCase):
     """Base class to test updates on `Content` subclasses."""
 
     def test_publish_now(self):
-
         content = make_content(
             title="Django Unchained: How a framework tried to run using async IO",
             description="Spoiler alert: it didn't go great, unless you measure by the number of HN articles about it",
@@ -152,7 +148,6 @@ class TestPublishContentAPI(BaseAPITestCase):
         LogEntry.objects.filter(object_id=article.pk).get(change_message="final")
 
     def test_author_publish_permissions(self):
-
         content = make_content(published=None)
         content.authors.add(self.admin)
 
@@ -177,7 +172,6 @@ class TestPublishContentAPI(BaseAPITestCase):
         LogEntry.objects.filter(object_id=article.pk).get(change_message="final")
 
     def test_publish_specific(self):
-
         content = make_content(published=None)
 
         client = Client()
@@ -239,6 +233,7 @@ class TestPublishContentAPI(BaseAPITestCase):
 
 class BaseUpdateContentAPI(BaseAPITestCase):
     """Base class to test updates on `Content` subclasses."""
+
     def setUp(self):
         super(BaseUpdateContentAPI, self).setUp()
         self.create_content()
@@ -290,6 +285,7 @@ class BaseUpdateContentAPI(BaseAPITestCase):
 
 class TestUpdateContentAPI(BaseUpdateContentAPI):
     """Tests updating an `Article`"""
+
     def create_content(self):
         self.content = make_content(TestContentObj, title="Booyah: The Cramer Story", foo="booyah")
 
@@ -305,7 +301,9 @@ class TestUpdateContentAPI(BaseUpdateContentAPI):
 
 class TestUpdateAuthorsAPI(BaseUpdateContentAPI):
     """Tests updating an `Article`"""
+
     def create_content(self):
+        User = get_user_model()
         self.author = User.objects.create(
             username="csinchok",
             first_name="Chris",
@@ -318,14 +316,14 @@ class TestUpdateAuthorsAPI(BaseUpdateContentAPI):
             title="Cramer 2: Electric Booyah-loo",
             foo="whatta guy....booyah indeed!",
             authors=[{
-                "id": self.author.id,
-                "username": self.author.username,
-                "email": "",
-                "full_name": "Chris Sinchok",
-                "short_name": "Chris",
-                "first_name": "Chris",
-                "last_name": "Sinchok"
-            }]
+                         "id": self.author.id,
+                         "username": self.author.username,
+                         "email": "",
+                         "full_name": "Chris Sinchok",
+                         "short_name": "Chris",
+                         "first_name": "Chris",
+                         "last_name": "Sinchok"
+                     }]
         )
 
     def test_update_article(self):
@@ -334,6 +332,7 @@ class TestUpdateAuthorsAPI(BaseUpdateContentAPI):
 
 class TestAddTagsAPI(BaseUpdateContentAPI):
     """Tests adding `Tag` objects to an `Article`"""
+
     def create_content(self):
         self.tags = []
         for tag_name in ("TV", "Helicopters", "America"):
@@ -345,9 +344,12 @@ class TestAddTagsAPI(BaseUpdateContentAPI):
             description="Learn what to think about the classic Donald P. Bellisario TV series",
             foo="What a show! What a helicopter!",
         )
-      #  self.content.tags.add(self.tags[0])
+        # self.content.tags.add(self.tags[0])
 
     def updated_data(self):
+        # avoid the app register hell - serializers need to get user model
+        from bulbs.content.serializers import TagSerializer
+
         serializer = TagSerializer(self.tags, many=True)
         return dict(
             foo="Incredible! A helicopter/wolf hybrid that will blow your pants off!",
@@ -391,7 +393,6 @@ class TestImageAPI(BaseAPITestCase):
 
 
 class TestMeApi(BaseAPITestCase):
-
     def test_me(self):
         client = Client()
         client.login(username="admin", password="secret")
@@ -411,6 +412,7 @@ class TestMeApi(BaseAPITestCase):
 
         # set the firebase secret needed to get the firebase_token property in the me view
         from django.conf import settings as mock_settings
+
         mock_settings.FIREBASE_SECRET = 'abc'
 
         # check that me view has the firebase token
@@ -421,6 +423,7 @@ class TestMeApi(BaseAPITestCase):
     def test_me_as_superuser(self):
         """Test that super users get an addtional is_superuser property and regular users do not."""
 
+        User = get_user_model()
         # login and test regular user
         client = Client()
         User.objects.create_user("regularuser", "regularguy@aol.com", "passward")
@@ -441,7 +444,8 @@ class TestTrashContentAPI(BaseAPITestCase):
     def test_trash(self):
         content = make_content()
         self.assertTrue(content.indexed)
-        data = self.es.get(index=content.get_index_name(), doc_type=content.get_mapping_type_name(), id=content.id)
+        data = self.es.get(index=content.get_index_name(), doc_type=content.get_mapping_type_name(),
+                           id=content.id)
         self.assertEqual(data["_source"]["title"], content.title)
 
         client = Client()
@@ -461,11 +465,13 @@ class TestTrashContentAPI(BaseAPITestCase):
         LogEntry.objects.filter(object_id=content.pk).get(change_message="Trashed")
 
         with self.assertRaises(elasticsearch.exceptions.NotFoundError):
-            self.es.get(index=content.get_index_name(), doc_type=content.get_mapping_type_name(), id=content.id)
+            self.es.get(index=content.get_index_name(), doc_type=content.get_mapping_type_name(),
+                        id=content.id)
 
         content.save()
         with self.assertRaises(elasticsearch.exceptions.NotFoundError):
-            self.es.get(index=content.get_index_name(), doc_type=content.get_mapping_type_name(), id=content.id)
+            self.es.get(index=content.get_index_name(), doc_type=content.get_mapping_type_name(),
+                        id=content.id)
 
     def test_trash_404(self):
         client = Client()
@@ -484,7 +490,6 @@ class TestTrashContentAPI(BaseAPITestCase):
 
 
 class TestTokenAPI(BaseAPITestCase):
-
     def setUp(self):
         super(TestTokenAPI, self).setUp()
 
@@ -551,4 +556,3 @@ class TestTokenAPI(BaseAPITestCase):
         self.assertEqual(json_response[0]["url_uuid"], info_1.url_uuid)
         self.assertEqual(json_response[1]["id"], info_2.id)
         self.assertEqual(json_response[2]["id"], info_3.id)
-

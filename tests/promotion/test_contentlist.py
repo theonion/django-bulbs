@@ -1,19 +1,17 @@
 from elastimorphic.tests.base import BaseIndexableTestCase
 
 from bulbs.promotion.models import ContentList
-
 from tests.testcontent.models import TestContentObj
 from tests.utils import make_content
 
 
 class ContentListTestCase(BaseIndexableTestCase):
-
     def setUp(self):
         super(ContentListTestCase, self).setUp()
         self.content_list = ContentList.objects.create(name="homepage")
         data = []
         for i in range(11):
-            content = make_content(title="Content test #{}".format(i),)
+            content = make_content(title="Content test #{}".format(i), )
             data.append({"id": content.pk})
 
         self.content_list.data = data

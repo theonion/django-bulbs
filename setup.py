@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from setuptools import setup
-import re
 import os
+import re
 import sys
 
 
@@ -15,20 +15,19 @@ author = "Chris Sinchok"
 author_email = "csinchok@theonion.com"
 license = "BSD"
 requires = [
-    "Django>=1.4,<1.7",
+    "Django>=1.7",
     "South==0.8.1",
     "django-betty-cropper>=0.1.4",
-    "django-elastimorphic>=0.1.0",
-    "django-json-field==0.5.5",
-    "django_polymorphic==0.5.1",
     "djangorestframework==2.4.3",
+    "django-elastimorphic>=0.1.6",
+    "django-json-field==0.5.5",
     "djangorestframework-csv==1.3.3",
     "python-dateutil==2.1",
     "pytz==2012h",
     "requests>=1.1.0",
     "simplejson==3.3.0",
     "six==1.6.1",
-    "firebase-token-generator==1.3.2"
+    "firebase-token-generator==1.3.2",
 ]
 
 

@@ -5,17 +5,13 @@ import StringIO
 from django.core.urlresolvers import reverse
 from django.test.client import Client
 from django.utils import timezone
+from django.contrib.auth.models import User
 
 from bulbs.contributions.models import Contribution, ContributorRole
-
 from tests.utils import BaseAPITestCase, make_content
-from tests.testcontent.models import TestContentObj
-
-from django.contrib.auth.models import User
 
 
 class ContributionReportingTestCase(BaseAPITestCase):
-
     def setUp(self):
         super(ContributionReportingTestCase, self).setUp()
         self.roles = {
@@ -60,7 +56,8 @@ class ContributionReportingTestCase(BaseAPITestCase):
         self.assertEqual(len(response.data), 4)
 
         # Now lets order by something else
-        response = client.get(endpoint, data={"start": start_date.strftime("%Y-%m-%d"), "ordering": "user"})
+        response = client.get(endpoint,
+                              data={"start": start_date.strftime("%Y-%m-%d"), "ordering": "user"})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 4)
 
@@ -72,7 +69,8 @@ class ContributionReportingTestCase(BaseAPITestCase):
 
         # Now let's check the CSV output
         start_date = timezone.now() - datetime.timedelta(days=4)
-        response = client.get(endpoint, data={"start": start_date.strftime("%Y-%m-%d"), "format": "csv"})
+        response = client.get(endpoint,
+                              data={"start": start_date.strftime("%Y-%m-%d"), "format": "csv"})
         self.assertEqual(response.status_code, 200)
         csvreader = csv.DictReader(StringIO.StringIO(response.content))
         self.assertEqual(len(csvreader.fieldnames), 12)

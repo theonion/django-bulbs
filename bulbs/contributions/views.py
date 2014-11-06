@@ -2,7 +2,7 @@
 
 import datetime
 
-from django.contrib.auth import get_user_model
+# from django.contrib.auth import get_user_model
 from django.utils import dateparse, timezone
 
 from rest_framework import viewsets, routers, mixins
@@ -14,7 +14,7 @@ from .models import ContributorRole, Contribution
 from .serializers import ContributorRoleSerializer, ContributionReportingSerializer
 from bulbs.content.models import Content
 
-User = get_user_model()
+# User = get_user_model()
 
 
 class ContributorRoleViewSet(viewsets.ModelViewSet):
@@ -57,4 +57,3 @@ class ReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 api_v1_router = routers.DefaultRouter()
 api_v1_router.register(r"role", ContributorRoleViewSet, base_name="contributorrole")
 api_v1_router.register(r"reporting", ReportingViewSet, base_name="contributionreporting")
-
