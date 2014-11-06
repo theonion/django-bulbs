@@ -2,15 +2,13 @@
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.db.models.loading import get_model, get_models
+from django.db.models.loading import get_models
 from django.http import Http404
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from firebase_token_generator import create_token
-
 import elasticsearch
-
 from rest_framework import (
     decorators,
     filters,
@@ -21,9 +19,7 @@ from rest_framework import (
 from rest_framework.decorators import detail_route
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
-
 from elastimorphic.models import polymorphic_indexable_registry
-
 from elasticutils.contrib.django import get_es
 
 from bulbs.content.models import Content, Tag, LogEntry, FeatureType, ObfuscatedUrlInfo
@@ -34,30 +30,31 @@ from bulbs.content.serializers import (
 )
 from bulbs.contributions.serializers import ContributionSerializer
 from bulbs.contributions.models import Contribution
-
 from bulbs.promotion.models import ContentList, ContentListHistory
 from bulbs.promotion.serializers import ContentListSerializer
-
 from .mixins import UncachedResponse
 from .permissions import CanEditContent, CanPromoteContent, CanPublishContent
 
 
-# User = get_user_model()
-# User = get_model(*settings.AUTH_USER_MODEL.split("."))
-
-
 class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
+    """
+    uncached viewset for the `bulbs.content.Content` model
+    """
+
     model = Content
     queryset = Content.objects.select_related("tags").all()
     serializer_class = PolymorphicContentSerializer
     include_base_doctype = False
     paginate_by = 20
-
     filter_fields = ("tags", "authors", "feature_types", "published", "types")
     search_fields = ("title", "description")
     permission_classes = [IsAdminUser, CanEditContent]
 
     def get_serializer_class(self):
+        """gets the class type of the serializer
+
+        :return: `rest_framework.Serializer`
+        """
         klass = None
 
         if getattr(self, "object", None):
@@ -71,10 +68,18 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         if hasattr(klass, "get_serializer_class"):
             return klass.get_serializer_class()
 
+        # TODO: fix deprecation warning here -- `get_serializer_class` is going away soon!
         return super(ContentViewSet, self).get_serializer_class()
 
     def post_save(self, obj, created=False):
+        """indexes the object to ElasticSearch after any save function (POST/PUT)
+
+        :param obj: instance of the saved object
+        :param created: boolean expressing if object is newly created (`False` if updated)
+        :return: `rest_framework.viewset.ModelViewSet.post_save`
+        """
         from bulbs.content.tasks import index
+
         index.delay(obj.polymorphic_ctype_id, obj.pk)
 
         message = "Created" if created else "Saved"
@@ -82,7 +87,13 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         return super(ContentViewSet, self).post_save(obj, created=created)
 
     def list(self, request, *args, **kwargs):
-        """I'm overriding this so that the listing pages can be driven from ElasticSearch"""
+        """I'm overriding this so that the listing pages can be driven from ElasticSearch
+
+        :param request: a WSGI request object
+        :param args: inline arguments (optional)
+        :param kwargs: keyword arguments (optional)
+        :return: `rest_framework.response.Response`
+        """
 
         # check for a text query
         search_kwargs = {"published": False}
@@ -126,6 +137,12 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
 
     @decorators.action(permission_classes=[CanPublishContent])
     def publish(self, request, **kwargs):
+        """sets the `published` value of the `Content`
+
+        :param request: a WSGI request object
+        :param kwargs: keyword arguments (optional)
+        :return: `rest_framework.response.Response`
+        """
         content = self.get_object()
 
         if "published" in request.DATA:
@@ -147,6 +164,13 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
 
     @decorators.action(permission_classes=[CanPublishContent])
     def trash(self, request, **kwargs):
+        """destroys a `Content` instance and removes it from the ElasticSearch index
+
+        :param request: a WSGI request object
+        :param kwargs: keyword arguments (optional)
+        :return: `rest_framework.response.Response`
+        :raise: 404
+        """
         content = self.get_object()
 
         content.indexed = False
@@ -154,7 +178,8 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
 
         es = get_es(urls=settings.ES_URLS)
         try:
-            es.delete(index=content.get_index_name(), doc_type=content.get_mapping_type_name(), id=content.id)
+            es.delete(index=content.get_index_name(), doc_type=content.get_mapping_type_name(),
+                      id=content.id)
             LogEntry.objects.log(request.user, content, "Trashed")
             return Response({"status": "Trashed"})
         except elasticsearch.exceptions.NotFoundError:
@@ -167,12 +192,22 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
           - "Waiting for Editor" (If no publish date is set, and an item exists in the editor queue)
           - "Published" (The published date is in the past)
           - "Scheduled" (The published date is set in the future)
+
+        :param request: a WSGI request object
+        :param kwargs: keyword arguments (optional)
+        :return: `rest_framework.response.Response`
         """
         content = self.get_object()
         return Response({"status": content.get_status()})
 
     @detail_route(methods=["post", "get"])
     def contributions(self, request, **kwargs):
+        """gets or adds contributions
+
+        :param request: a WSGI request object
+        :param kwargs: keyword arguments (optional)
+        :return: `rest_framework.response.Response`
+        """
         # Check if the contribution app is installed
         if Contribution not in get_models():
             return Response([])
@@ -193,7 +228,12 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
 
     @detail_route(methods=["post"], permission_classes=[CanEditContent])
     def create_token(self, request, **kwargs):
-        """Create a new obfuscated url info to use for accessing unpublished content."""
+        """Create a new obfuscated url info to use for accessing unpublished content.
+
+        :param request: a WSGI request object
+        :param kwargs: keyword arguments (optional)
+        :return: `rest_framework.response.Response`
+        """
 
         data = ObfuscatedUrlInfoSerializer(ObfuscatedUrlInfo.objects.create(
             content=self.get_object(),
@@ -205,16 +245,25 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
 
     @detail_route(methods=["get"], permission_classes=[CanEditContent])
     def list_tokens(self, request, **kwargs):
-        """List all tokens for this content instance."""
+        """List all tokens for this content instance.
+
+        :param request: a WSGI request object
+        :param kwargs: keyword arguments (optional)
+        :return: `rest_framework.response.Response`
+        """
 
         # no date checking is done here to make it more obvious if there's an issue with the
-        #   number of records. Date filtering will be done on the frontend.
+        # number of records. Date filtering will be done on the frontend.
         infos = [ObfuscatedUrlInfoSerializer(info).data
                  for info in ObfuscatedUrlInfo.objects.filter(content=self.get_object())]
         return Response(infos, status=status.HTTP_200_OK, content_type="application/json")
 
 
 class TagViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
+    """
+    uncached viewset for the `bulbs.content.Tag` model
+    """
+
     model = Tag
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
@@ -222,7 +271,13 @@ class TagViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
     paginate_by = 50
 
     def list(self, request, *args, **kwargs):
-        """I'm overriding this so that the listing pages can be driven from ElasticSearch"""
+        """I'm overriding this so that the listing pages can be driven from ElasticSearch
+
+        :param request: a WSGI request object
+        :param args: inline arguments (optional)
+        :param kwargs: keyword arguments (optional)
+        :return: `rest_framework.response.Response`
+        """
 
         search_query = Tag.search_objects.s()
         if "search" in request.REQUEST:
@@ -241,7 +296,8 @@ class TagViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
                 name__istartswith=request.REQUEST["search"].lower()
             )
             if "types" in request.REQUEST:
-                type_classes = [polymorphic_indexable_registry.all_models[type_name] for type_name in request.REQUEST.getlist("types")]
+                type_classes = [polymorphic_indexable_registry.all_models[type_name] for type_name
+                                in request.REQUEST.getlist("types")]
                 print(type_classes)
                 self.object_list = self.object_list.instance_of(*type_classes)
         else:
@@ -258,8 +314,12 @@ class TagViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
 
 
 class UserViewSet(UncachedResponse, viewsets.ModelViewSet):
+    """
+    uncached viewset for the User model -- User can be whatever is defined as the default system
+    user model (`auth.User` or any other custom model)
+    """
+
     model = get_user_model()
-    # model = User
     serializer_class = UserSerializer
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
     search_fields = ("first_name", "last_name", "username")
@@ -267,12 +327,21 @@ class UserViewSet(UncachedResponse, viewsets.ModelViewSet):
 
 
 class ContentListViewSet(UncachedResponse, viewsets.ModelViewSet):
+    """
+    uncached viewset for `bulbs.promotions.ContentList` model
+    """
+
     model = ContentList
     serializer_class = ContentListSerializer
     paginate_by = 20
     permission_classes = [IsAdminUser, CanPromoteContent]
 
     def post_save(self, obj, created=False):
+        """creates a record in the `bulbs.promotion.ContentListHistory`
+
+        :param obj: the instance saved
+        :param created: boolean expressing if the object was newly created (`False` if updated)
+        """
         ContentListHistory.objects.create(content_list=obj, data=obj.data)
 
     @decorators.link()
@@ -285,20 +354,34 @@ class ContentListViewSet(UncachedResponse, viewsets.ModelViewSet):
 
 
 class LogEntryViewSet(UncachedResponse, viewsets.ModelViewSet):
+    """
+    uncached viewset for `bulbs.content.LogEntry` model
+    """
+
     model = LogEntry
     serializer_class = LogEntrySerializer
 
     def get_queryset(self):
+        """creates the base queryset object for the serializer
+
+        :return: an instance of `django.db.models.QuerySet`
+        """
         qs = super(LogEntryViewSet, self).get_queryset()
         content_id = self.request.QUERY_PARAMS.get("content", None)
         if content_id:
             qs = qs.filter(object_id=content_id)
         return qs
 
-    def create(self, request):
+    def create(self, request, *args, **kwargs):
         """
         Grabbing the user from request.user, and the rest of the method
         is the same as ModelViewSet.create().
+
+        :param request: a WSGI request object
+        :param args: inline arguments (optional)
+        :param kwargs: keyword arguments (optional)
+        :return: `rest_framework.response.Response`
+        :raise: 400
         """
         data = request.DATA.copy()
         data["user"] = request.user.id
@@ -316,6 +399,9 @@ class LogEntryViewSet(UncachedResponse, viewsets.ModelViewSet):
 
 
 class AuthorViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
+    """
+    uncached readonly viewset for the system user model limited to author groups and permissions
+    """
 
     model = get_user_model()
     serializer_class = UserSerializer
@@ -323,28 +409,44 @@ class AuthorViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
     search_fields = ("first_name", "last_name", "username")
 
     def get_queryset(self):
+        """created the base queryset object for the serializer limited to users within the authors
+        groups and having `is_staff`
+
+        :return: `django.db.models.QuerySet`
+        """
         author_filter = getattr(settings, "BULBS_AUTHOR_FILTER", {"is_staff": True})
         queryset = self.model.objects.filter(**author_filter).distinct()
-
         return queryset
 
 
 class FeatureTypeViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
+    """
+    uncached readonly viewset for the `bulbs.content.FeatureType` model
+    """
 
-    serializer_class = FeatureTypeSerializer
     model = FeatureType
+    serializer_class = FeatureTypeSerializer
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
     search_fields = ("name", )
 
 
 class MeViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
+    """
+    uncached readonly viewset for users to get information about themselves
+    """
 
     def retrieve(self, request, *args, **kwargs):
+        """gets basic information about the user
 
+        :param request: a WSGI request object
+        :param args: inline arguments (optional)
+        :param kwargs: keyword arguments (optional)
+        :return: `rest_framework.response.Response`
+        """
         data = UserSerializer().to_native(request.user)
 
-        # add superuser flag only if user is a superuser, putting it here so users can only tell if they are themselves
-        #   superusers
+        # add superuser flag only if user is a superuser, putting it here so users can only
+        # tell if they are themselves superusers
         if request.user.is_superuser:
             data['is_superuser'] = True
 
@@ -363,6 +465,8 @@ class MeViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
         return Response(data)
 
 
+# api router for aforementioned/defined viewsets
+# note: me view is registered in urls.py
 api_v1_router = routers.DefaultRouter()
 api_v1_router.register(r"content", ContentViewSet, base_name="content")
 api_v1_router.register(r"contentlist", ContentListViewSet, base_name="contentlist")
@@ -371,4 +475,3 @@ api_v1_router.register(r"log", LogEntryViewSet, base_name="logentry")
 api_v1_router.register(r"author", AuthorViewSet, base_name="author")
 api_v1_router.register(r"feature-type", FeatureTypeViewSet, base_name="feature-type")
 api_v1_router.register(r"user", UserViewSet, base_name="user")
-# note: me view is registered in urls.py

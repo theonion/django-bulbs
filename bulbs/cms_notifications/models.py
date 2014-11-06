@@ -2,7 +2,8 @@ from django.db import models
 
 
 class CmsNotification(models.Model):
-    """A CMS notification."""
+    """A CMS notification.
+    """
 
     title = models.CharField(max_length=110)
     body = models.TextField(blank=True)

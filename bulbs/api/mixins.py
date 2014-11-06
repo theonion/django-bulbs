@@ -1,6 +1,4 @@
-
 class UncachedResponse(object):
-
     @property
     def default_response_headers(self):
         return {
