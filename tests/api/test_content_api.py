@@ -3,21 +3,19 @@ import json
 from datetime import datetime, timedelta
 
 import elasticsearch
-# from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.template.defaultfilters import slugify
 from django.test.client import Client
 from django.utils import timezone
 from bulbs.content.models import LogEntry, Tag, Content, ObfuscatedUrlInfo
-from bulbs.content.serializers import TagSerializer
 from tests.testcontent.models import TestContentObj, TestContentDetailImage
 from tests.utils import JsonEncoder, BaseAPITestCase
 
 
-# User = get_user_model()
-from django.conf import settings
-from django.db.models.loading import get_model
-User = get_model(*settings.AUTH_USER_MODEL.split("."))
+# from django.conf import settings
+# from django.db.models.loading import get_model
+# User = get_model(*settings.AUTH_USER_MODEL.split("."))
 
 
 class TestContentListingAPI(BaseAPITestCase):
@@ -86,6 +84,7 @@ class TestCreateContentAPI(BaseAPITestCase):
     that it ends up searchable"""
 
     def test_create_article(self):
+        User = get_user_model()
 
         author = User.objects.create(
             username="csinchok",
@@ -339,6 +338,7 @@ class TestUpdateContentAPI(BaseUpdateContentAPI):
 class TestUpdateAuthorsAPI(BaseUpdateContentAPI):
     """Tests updating an `Article`"""
     def create_content(self):
+        User = get_user_model()
         self.author = User.objects.create(
             username="csinchok",
             first_name="Chris",
@@ -385,6 +385,8 @@ class TestAddTagsAPI(BaseUpdateContentAPI):
       #  self.content.tags.add(self.tags[0])
 
     def updated_data(self):
+        # avoid the app register hell - serializers need to get user model
+        from bulbs.content.serializers import TagSerializer
         serializer = TagSerializer(self.tags, many=True)
         return dict(
             foo="Incredible! A helicopter/wolf hybrid that will blow your pants off!",
@@ -458,6 +460,7 @@ class TestMeApi(BaseAPITestCase):
     def test_me_as_superuser(self):
         """Test that super users get an addtional is_superuser property and regular users do not."""
 
+        User = get_user_model()
         # login and test regular user
         client = Client()
         User.objects.create_user("regularuser", "regularguy@aol.com", "passward")

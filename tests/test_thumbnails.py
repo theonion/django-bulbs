@@ -1,7 +1,7 @@
 import json
 from elastimorphic.tests.base import BaseIndexableTestCase
 
-# from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.test.client import Client
 from django.contrib.auth.models import Permission
@@ -13,9 +13,9 @@ from tests.utils import JsonEncoder
 
 
 # User = get_user_model()
-from django.conf import settings
-from django.db.models.loading import get_model
-User = get_model(*settings.AUTH_USER_MODEL.split("."))
+# from django.conf import settings
+# from django.db.models.loading import get_model
+# User = get_model(*settings.AUTH_USER_MODEL.split("."))
 
 
 class TestThumbnailing(BaseIndexableTestCase):
@@ -48,7 +48,7 @@ class TestThumbnailing(BaseIndexableTestCase):
 
     def test_thumbail_override_api(self):
         """Test thumbnail override field can be used properly."""
-
+        User = get_user_model()
         admin = self.admin = User.objects.create_user("admin", "tech@theonion.com", "secret")
         admin.is_staff = True
         admin.save()

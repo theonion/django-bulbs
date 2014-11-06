@@ -5,17 +5,16 @@ from south.v2 import SchemaMigration
 from django.db import models
 
 
-## DROPPING <1.5 SUPPORT!
 # Safe User import for Django < 1.5
-# try:
-#     from django.contrib.auth import get_user_model
-# except ImportError:
-#     from django.contrib.auth.models import User
-# else:
-#     User = get_user_model()
-from django.conf import settings
-from django.db.models.loading import get_model
-User = get_model(*settings.AUTH_USER_MODEL.split("."))
+try:
+    from django.contrib.auth import get_user_model
+except ImportError:
+    from django.contrib.auth.models import User
+else:
+    User = get_user_model()
+# from django.conf import settings
+# from django.db.models.loading import get_model
+# User = get_model(*settings.AUTH_USER_MODEL.split("."))
 
 
 # With the default User model these will be 'auth.User' and 'auth.user'

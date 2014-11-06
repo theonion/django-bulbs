@@ -1,8 +1,8 @@
 import json
 
-# from django.contrib.auth import get_user_model
-from django.conf import settings
-from django.db.models.loading import get_model
+from django.contrib.auth import get_user_model
+# from django.conf import settings
+# from django.db.models.loading import get_model
 from django.test import TestCase
 from django.test.client import Client
 
@@ -10,8 +10,8 @@ from django.test.client import Client
 class VideoAPICase(TestCase):
 
     def setUp(self):
-        # User = get_user_model()
-        User = get_model(*settings.AUTH_USER_MODEL.split("."))
+        User = get_user_model()
+        # User = get_model(*settings.AUTH_USER_MODEL.split("."))
         admin = User.objects.create_user("admin", "tech@theonion.com", "secret")
         admin.is_staff = True
         admin.save()

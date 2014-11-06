@@ -1,8 +1,8 @@
 from django.conf import settings
-# from django.contrib import auth
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.db.models.loading import get_model
+# from django.db.models.loading import get_model
 from django.template.defaultfilters import slugify
 
 from rest_framework import serializers
@@ -13,7 +13,7 @@ from elastimorphic.serializers import ContentTypeField, PolymorphicSerializerMix
 from .models import Content, Tag, LogEntry, FeatureType, ObfuscatedUrlInfo
 
 
-User = get_model(*settings.AUTH_USER_MODEL.split("."))
+# User = get_model(*settings.AUTH_USER_MODEL.split("."))
 
 
 class ImageFieldSerializer(serializers.WritableField):
@@ -147,8 +147,8 @@ class DefaultUserSerializer(serializers.ModelSerializer):
     """Returns basic User fields"""
 
     class Meta:
-        # model = auth.get_user_model()
-        model = User
+        model = get_user_model()
+        # model = settings.AUTH_USER_MODEL
 
     def to_native(self, obj):
 
@@ -166,8 +166,8 @@ class DefaultUserSerializer(serializers.ModelSerializer):
 
     def from_native(self, data, files):
         """Basically, each author dict must include either a username or id."""
-        # model = auth.get_user_model()
-        model = User
+        # model = get_user_model()
+        model = self.Meta.model
 
         if "id" in data:
             author = model.objects.get(id=data["id"])

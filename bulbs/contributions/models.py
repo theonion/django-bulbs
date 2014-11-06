@@ -2,11 +2,11 @@
 from bulbs.content.models import Content
 from django.conf import settings
 from django.db import models
-from django.db.models.loading import get_model
+# from django.db.models.loading import get_model
 
 
 # User = get_user_model()
-User = get_model(*settings.AUTH_USER_MODEL.split("."))
+# User = get_model(*settings.AUTH_USER_MODEL.split("."))
 
 
 class ContributorRole(models.Model):
@@ -16,6 +16,6 @@ class ContributorRole(models.Model):
 
 class Contribution(models.Model):
     role = models.ForeignKey(ContributorRole)
-    contributor = models.ForeignKey(User)
+    contributor = models.ForeignKey(settings.AUTH_USER_MODEL)
     content = models.ForeignKey(Content)
     notes = models.TextField(null=True, blank=True)

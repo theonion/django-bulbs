@@ -1,19 +1,20 @@
-# from django.contrib.auth import get_user_model
-from django.conf import settings
+from django.contrib.auth import get_user_model
+# from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.db.models.loading import get_model
+# from django.db.models.loading import get_model
 from django.test import Client
 from elastimorphic.tests.base import BaseIndexableTestCase
 
 
 # User = get_user_model()
-User = get_model(*settings.AUTH_USER_MODEL.split("."))
+# User = get_model(*settings.AUTH_USER_MODEL.split("."))
 
 
 class TestLogoutApi(BaseIndexableTestCase):
     """Test logout API endpoint."""
 
     def test_logout(self):
+        User = get_user_model()
 
         # create and get a test user
         user = User.objects.create_user('onions', 'wh@tever.com', 'password')

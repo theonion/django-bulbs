@@ -1,20 +1,20 @@
-# from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.test.client import Client
 
 from elastimorphic.tests.base import BaseIndexableTestCase
 
-# User = get_user_model()
-from django.conf import settings
-from django.db.models.loading import get_model
-User = get_model(*settings.AUTH_USER_MODEL.split("."))
+# from django.conf import settings
+# from django.db.models.loading import get_model
+# User = get_model(*settings.AUTH_USER_MODEL.split("."))
 
 
 class AuthorApiTestCase(BaseIndexableTestCase):
     """A base test case, allowing tearDown and setUp of the ES index"""
 
     def setUp(self):
+        User = get_user_model()
         super(AuthorApiTestCase, self).setUp()
         admin = User.objects.create_user("admin", "tech@theonion.com", "secret")
         admin.is_staff = True
@@ -24,6 +24,7 @@ class AuthorApiTestCase(BaseIndexableTestCase):
         """Make sure author api works with BULBS_AUTHOR_FILTER values that
         could match the same user multiple times in a single queryset.
         """
+        User = get_user_model()
         user = User.objects.create(
             username="Choo Choo The Herky-Jerky Dancer",
             first_name="Choo",
@@ -45,6 +46,7 @@ class AuthorApiTestCase(BaseIndexableTestCase):
             self.assertTrue(response.status_code, 200)
 
     def test_author_search(self):
+        User = get_user_model()
 
         test_names = (
             ("Chris", "Sinchok"),
