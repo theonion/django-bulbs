@@ -1,13 +1,14 @@
 from datetime import timedelta
 
 from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.test import Client
 from django.utils import timezone
 from elastimorphic.tests.base import BaseIndexableTestCase
 
-from bulbs.content.models import ObfuscatedUrlInfo
-from tests.testcontent.models import TestContentObj
+from bulbs.content.models import FeatureType, ObfuscatedUrlInfo
+from tests.testcontent.models import TestContentObj, TestContentObjTwo
 from tests.utils import make_content
 
 
@@ -37,6 +38,24 @@ class TestContentViews(BaseIndexableTestCase):
         content = make_content(published=timezone.now() - timedelta(hours=2))
         response = self.client.get(reverse("published", kwargs={"pk": content.id}))
         self.assertEqual(response.status_code, 200)
+
+    def test_content_list_views(self):
+        ft = FeatureType.objects.create(name="Feature", slug="feature")
+        content = make_content(TestContentObj, feature_type=ft, published=timezone.now() - timedelta(hours=2))
+        content_two = make_content(TestContentObjTwo, feature_type=ft, published=timezone.now() - timedelta(hours=2))
+        # make sure we get all content with this list
+        TestContentObj.search_objects.refresh()
+        TestContentObjTwo.search_objects.refresh()
+        r = self.client.get(reverse("tests.testcontent.views.test_all_content_list"))
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(2, len(r.context_data["content_list"]))
+        # make sure we only get TestContentTwoObjs from this other list
+        r = self.client.get(reverse("tests.testcontent.views.test_content_two_list"))
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(1, len(r.context_data["content_list"]))
+        item = r.context_data["content_list"][0]
+        ctype = ContentType.objects.get_for_id(item.polymorphic_ctype)
+        self.assertIs(ctype.model_class(), TestContentObjTwo)
 
     def test_base_content_detail_view_tokenized_url(self):
         """Test that we can get an article via a /unpublished/<token> style url."""

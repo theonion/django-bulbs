@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class ContentListView(ListView):
+    model = Content
 
     feature_types = None
     tags = None
@@ -80,7 +81,7 @@ class ContentListView(ListView):
         if 'q' in self.request.GET:
             search_kwargs['query'] = self.request.GET['q']
 
-        return Content.search_objects.search(**search_kwargs)
+        return self.model.search_objects.search(**search_kwargs)
 
 
 class BaseContentDetailView(DetailView):
@@ -153,6 +154,3 @@ class UnpublishedContentView(View):
 
 unpublished = UnpublishedContentView.as_view()
 content_list = ContentListView.as_view()
-
-
-            
