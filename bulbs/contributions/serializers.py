@@ -2,6 +2,7 @@ from collections import OrderedDict
 
 from django.utils import timezone
 
+from bulbs.content.models import Content
 from bulbs.content.serializers import UserSerializer
 
 from rest_framework import serializers
@@ -52,4 +53,21 @@ class ContributionReportingSerializer(serializers.ModelSerializer):
 
     def get_role(self, obj):
         return obj.role.name
+
+
+class ContentComplianceSerializer(serializers.ModelSerializer):
+
+    content_type = serializers.SerializerMethodField("get_content_type")
+    published = serializers.SerializerMethodField("get_published")
+    url = serializers.URLField(source="get_absolute_url")
+
+    class Meta:
+        model = Content
+        fields = ("id", "title", "url", "content_type", "feature_type", "published")
+
+    def get_content_type(self, obj):
+        return obj.__class__.__name__
+
+    def get_published(self, obj):
+        return timezone.localtime(obj.published)
 
