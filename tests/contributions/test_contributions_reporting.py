@@ -78,27 +78,41 @@ class ContributionReportingTestCase(BaseAPITestCase):
             pass
         self.assertEqual(csvreader.line_num, 5)  # Header + 4 items
 
-    def test_compliance_reporting(self):
+    def test_content_reporting(self):
 
         content_one = make_content(published=timezone.now() - datetime.timedelta(days=1))
-        content_two = make_content(published=timezone.now() - datetime.timedelta(days=3))
 
         client = Client()
         client.login(username="admin", password="secret")
 
         # Let's look at all the items
-        endpoint = reverse("contentcompliance-list")
+        endpoint = reverse("contentreporting-list")
         start_date = timezone.now() - datetime.timedelta(days=4)
         response = client.get(endpoint, data={"start": start_date.strftime("%Y-%m-%d")})
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(len(response.data), 1)
+
+        self.assertEqual(response.data[0]["editor"], "")
 
         Contribution.objects.create(
             content=content_one,
             contributor=self.chris,
             role=self.roles["editor"]
         )
+        Contribution.objects.create(
+            content=content_one,
+            contributor=self.mike,
+            role=self.roles["editor"]
+        )
+        Contribution.objects.create(
+            content=content_one,
+            contributor=self.mike,
+            role=self.roles["writer"]
+        )
 
         response = client.get(endpoint, data={"start": start_date.strftime("%Y-%m-%d")})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
+
+        self.assertEqual(response.data[0]["editor"], "Chris Sinchok,Mike Wnuk")
+        self.assertEqual(response.data[0]["writer"], "Mike Wnuk")

@@ -55,7 +55,21 @@ class ContributionReportingSerializer(serializers.ModelSerializer):
         return obj.role.name
 
 
-class ContentComplianceSerializer(serializers.ModelSerializer):
+class ContributorRoleField(serializers.Field):
+    """This is fucking stupid, but it's basically a field that returns the the
+    names of people who have contributed to this content under a certain role."""
+
+    def __init__(self, role, *args, **kwargs):
+        super(ContributorRoleField, self).__init__(*args, **kwargs)
+        self.role = role
+        self.source = "*"
+
+    def to_native(self, obj):
+        qs = Contribution.objects.filter(content=obj, role=self.role).select_related("user")
+        return ",".join([contribution.contributor.get_full_name() for contribution in qs])
+
+
+class ContentReportingSerializer(serializers.ModelSerializer):
 
     content_type = serializers.SerializerMethodField("get_content_type")
     published = serializers.SerializerMethodField("get_published")
@@ -64,6 +78,19 @@ class ContentComplianceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Content
         fields = ("id", "title", "url", "content_type", "feature_type", "published")
+
+    def get_fields(self):
+
+        fields = super(ContentReportingSerializer, self).get_fields()
+
+        self._roles = {}
+        for role in ContributorRole.objects.all():
+            fields[role.name.lower()] = ContributorRoleField(role)
+
+        return fields
+
+    def get_contributors(self, obj, rolename):
+        pass
 
     def get_content_type(self, obj):
         return obj.__class__.__name__
