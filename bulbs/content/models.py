@@ -55,7 +55,7 @@ class Tag(PolymorphicIndexable, PolymorphicModel):
         :param kwargs: keyword arguments (optional)
         :return: `super.save()`
         """
-        self.slug = slugify(self.name)
+        self.slug = slugify(self.name)[:50]
         return super(Tag, self).save(*args, **kwargs)
 
     def count(self):

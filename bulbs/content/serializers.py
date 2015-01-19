@@ -63,6 +63,7 @@ class ImageFieldSerializer(serializers.WritableField):
 
 
 class TagSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(max_length=50)  # this is actually limited by the slug
 
     class Meta:
         model = Tag
@@ -114,6 +115,9 @@ class TagField(relations.RelatedField):
         else:
             if "name" not in value:
                 raise ValidationError("Tags must include an ID or a name.")
+            if len(slugify(value["name"])) > 50:
+                raise ValidationError("Maximum tag length is 50 characters.")
+
             name = value["name"]
             slug = value.get("slug", slugify(name))
             try:
