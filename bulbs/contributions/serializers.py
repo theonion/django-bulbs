@@ -23,12 +23,6 @@ class ContributionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contribution
 
-    def validate_role(self, value, source):
-        print(source)
-        if value is None:
-            raise serializers.ValidationError("You must supply a role!")
-        return value
-
 
 class ContributionReportingSerializer(serializers.ModelSerializer):
 
