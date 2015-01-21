@@ -33,7 +33,7 @@ class AuthorApiTestCase(BaseIndexableTestCase):
         )
         group_names = ("admin", "author")
         for name in group_names:
-            group = Group.objects.create(name=name)
+            group, _ = Group.objects.get_or_create(name=name)
             user.groups.add(group)
 
         with self.settings(BULBS_AUTHOR_FILTER={
