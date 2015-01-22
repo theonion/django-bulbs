@@ -1,85 +1,93 @@
+import logging
+
 from django.db import models
 
 from polymorphic import PolymorphicModel
 
+logger = logging.getLogger(__name__)
 
-class ContentListOperation(PolymorphicModel):
 
-    class Meta:
-        ordering = ["-when"]
+class PZoneOperation(PolymorphicModel):
 
-    content_list = models.ForeignKey("promotion.ContentList", related_name="operations")
+    pzone = models.ForeignKey("promotion.PZone", related_name="operations")
     when = models.DateTimeField()
     applied = models.BooleanField(default=False)
+    content = models.ForeignKey("content.Content", related_name="+")
 
     def apply(self, data):
         raise NotImplemented()
 
+    class Meta:
+        ordering = ["when", "id"]
 
-class InsertOperation(ContentListOperation):
+
+class InsertOperation(PZoneOperation):
 
     index = models.IntegerField(default=0)
-    content = models.ForeignKey("content.Content", related_name="+")
-    lock = models.BooleanField(default=False)
-    
+
     def apply(self, data):
-        next = {
-            "id": self.content.pk,
-            "lock": self.lock
-        }
-        for i in range(self.index, min(len(data), 100)):
-            if data[i].get("lock", False):
-                continue
-            next, data[i] = data[i], next  # Swap them
-        data.append(next)
+
+        if self.content.published and self.when >= self.content.published:
+            # content has a published date, and that date is before when this
+            data.insert(0, {
+                "id": self.content.pk
+            })
+            data = data[:100]
+        else:
+            # warn that we failed to perform an operation on this content
+            logger.warning(
+                "Failed to perform insert operation on unpublished content (id: %i) %s in %s!",
+                self.content.pk,
+                self.content.title,
+                self.pzone.name)
+
         return data
 
 
-class ReplaceOperation(ContentListOperation):
+class ReplaceOperation(PZoneOperation):
 
-    content = models.ForeignKey("content.Content", related_name="+")
-    target = models.ForeignKey("content.Content", related_name="+")
-    lock = models.BooleanField(default=False)
+    index = models.IntegerField(default=0)
 
     def apply(self, data):
-        replace = {
-            "id": self.content.pk,
-            "lock": self.lock
-        }
-        for index, item in enumerate(data):
-            if item["id"] == self.target.pk:
-                if item.get("lock", False):
-                    raise Exception("That item is locked!")
-                data[index] = replace
-                break
+
+        if self.content.published and self.when >= self.content.published:
+            # content has a published date, and that date is before when this
+            #   operation is occurring
+            try:
+                data[self.index] = {
+                    "id": self.content.pk
+                }
+            except IndexError:
+                logger.warning(
+                    "Failed to perform replace operation on content (id: %i) %s in %s at index %i!",
+                    self.content.pk,
+                    self.content.title,
+                    self.pzone.name,
+                    self.index)
         else:
-            raise Exception("No content in list!")
+            # warn that we failed to perform an operation on this content
+            logger.warning(
+                "Failed to perform replace operation on unpublished content (id: %i) %s in %s!",
+                self.content.pk,
+                self.content.title,
+                self.pzone.name)
+
         return data
 
 
-class LockOperation(ContentListOperation):
-
-    target = models.ForeignKey("content.Content", related_name="+")
-
-    def apply(self, data):
-        for index, item in enumerate(data):
-            if item["id"] == self.target.pk:
-                data[index]["lock"] = True
-                break
-        else:
-            raise Exception("No content in list!")
-        return data
-
-
-class UnlockOperation(ContentListOperation):
-
-    target = models.ForeignKey("content.Content", related_name="+")
+class DeleteOperation(PZoneOperation):
+    """Delete a piece of content from the list, assumes only one instance of a
+    piece of content is in the list."""
 
     def apply(self, data):
         for index, item in enumerate(data):
-            if item["id"] == self.target.pk:
-                data[index]["lock"] = False
+            if item["id"] == self.content.pk:
+                del(data[index])
                 break
         else:
-            raise Exception("No content in list!")
+            logger.warning(
+                "Failed to perform delete operation on content (id: %i) %s in %s!",
+                self.content.pk,
+                self.content.title,
+                self.pzone.name)
         return data

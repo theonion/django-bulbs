@@ -30,10 +30,8 @@ from bulbs.content.serializers import (
 )
 from bulbs.contributions.serializers import ContributionSerializer
 from bulbs.contributions.models import Contribution
-from bulbs.promotion.models import ContentList, ContentListHistory
-from bulbs.promotion.serializers import ContentListSerializer
 from .mixins import UncachedResponse
-from .permissions import CanEditContent, CanPromoteContent, CanPublishContent
+from .permissions import CanEditContent, CanPublishContent
 
 
 class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
@@ -326,33 +324,6 @@ class UserViewSet(UncachedResponse, viewsets.ModelViewSet):
     paginate_by = 20
 
 
-class ContentListViewSet(UncachedResponse, viewsets.ModelViewSet):
-    """
-    uncached viewset for `bulbs.promotions.ContentList` model
-    """
-
-    model = ContentList
-    serializer_class = ContentListSerializer
-    paginate_by = 20
-    permission_classes = [IsAdminUser, CanPromoteContent]
-
-    def post_save(self, obj, created=False):
-        """creates a record in the `bulbs.promotion.ContentListHistory`
-
-        :param obj: the instance saved
-        :param created: boolean expressing if the object was newly created (`False` if updated)
-        """
-        ContentListHistory.objects.create(content_list=obj, data=obj.data)
-
-    @decorators.link()
-    def preview(self):
-        pass
-
-    @decorators.link()
-    def futures(self):
-        pass
-
-
 class LogEntryViewSet(UncachedResponse, viewsets.ModelViewSet):
     """
     uncached viewset for `bulbs.content.LogEntry` model
@@ -469,7 +440,6 @@ class MeViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
 # note: me view is registered in urls.py
 api_v1_router = routers.DefaultRouter()
 api_v1_router.register(r"content", ContentViewSet, base_name="content")
-api_v1_router.register(r"contentlist", ContentListViewSet, base_name="contentlist")
 api_v1_router.register(r"tag", TagViewSet, base_name="tag")
 api_v1_router.register(r"log", LogEntryViewSet, base_name="logentry")
 api_v1_router.register(r"author", AuthorViewSet, base_name="author")

@@ -3,7 +3,7 @@ South==0.8.1
 django-betty-cropper>=0.1.4
 djangorestframework==2.4.3
 django-elastimorphic>=0.1.0
-django_polymorphic==0.5.1
+django_polymorphic==0.6.1
 django-json-field==0.5.5
 djangorestframework-csv==1.3.3
 python-dateutil==2.1

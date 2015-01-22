@@ -1,3 +1,6 @@
+from celery.task import task
+
+from django.core.cache import cache
 from django.db import models
 from django.utils import timezone
 
@@ -7,38 +10,93 @@ from bulbs.content.models import Content
 from .operations import *  # noqa
 
 
-class ContentListManager(models.Manager):
-    
-    def preview(self, name, when):
-        content_list = self.get(name=name)
-        data = content_list.data
-        for operation in content_list.operations.filter(when__lte=when, applied=False):
-            data = operation.apply(data)
+@task
+def update_pzone(**kwargs):
+    """Update pzone data in the DB"""
 
-        content_list.data = data
-        return content_list
+    pzone = PZone.objects.get(**kwargs)
 
-    def applied(self, name):
-        content_list = self.get(name=name)
-        data = content_list.data
-        for operation in content_list.operations.filter(when__lte=timezone.now(), applied=False):
-            data = operation.apply(data)
-            operation.applied = True
+    # get the data and loop through operate_on, applying them if necessary
+    when = timezone.now()
+    data = pzone.data
+    for operation in pzone.operations.filter(when__lte=when, applied=False):
+        data = operation.apply(data)
+        operation.applied = True
+        operation.save()
+    pzone.data = data
 
-        content_list.data = data
-        content_list.save()
-        return content_list
+    # create a history entry
+    pzone.history.create(data=pzone.data)
+
+    # save modified pzone, making transactions permanent
+    pzone.save()
 
 
-class ContentList(models.Model):
+class PZoneManager(models.Manager):
+
+    def operate_on(self, when=None, apply=False, **kwargs):
+        """Do something with operate_on. If apply is True, all transactions will
+        be applied and saved via celery task."""
+
+        # get pzone based on id
+        pzone = self.get(**kwargs)
+
+        # cache the current time
+        now = timezone.now()
+
+        # ensure we have some value for when
+        if when is None:
+            when = now
+
+        if when < now:
+            histories = pzone.history.filter(date__lte=when)
+            if histories.exists():
+                # we have some history, use its data
+                pzone.data = histories[0].data
+
+        else:
+            # only apply operations if cache is expired or empty, or we're looking at the future
+            data = pzone.data
+
+            # Get the cached time of the next expiration
+            next_operation_time = cache.get('pzone-operation-expiry-' + pzone.name)
+            if next_operation_time is None or next_operation_time < when:
+                print(next_operation_time)
+                # start applying operations
+                pending_operations = pzone.operations.filter(when__lte=when, applied=False)
+                for operation in pending_operations:
+                    data = operation.apply(data)
+
+                # reassign data
+                pzone.data = data
+
+                if apply and pending_operations.exists():
+                    # there are operations to apply, do celery task
+                    update_pzone.delay(**kwargs)
+
+        # return pzone, modified if apply was True
+        return pzone
+
+    def preview(self, when=timezone.now(), **kwargs):
+        """Preview transactions, but don't actually save changes to list."""
+
+        return self.operate_on(when=when, apply=False, **kwargs)
+
+    def applied(self, **kwargs):
+        """Apply transactions via a background task, return preview to user."""
+
+        return self.operate_on(apply=True, **kwargs)
+
+
+class PZone(models.Model):
     name = models.SlugField(unique=True)
-    length = models.IntegerField(default=10)
+    zone_length = models.IntegerField(default=10)
     data = JSONField(default=[])
 
-    objects = ContentListManager()
+    objects = PZoneManager()
 
     def __len__(self):
-        return min(self.length, len(self.data))
+        return min(self.zone_length, len(self.data))
 
     def __iter__(self):
         content_ids = [item["id"] for item in self.data[:self.__len__()]]
@@ -67,7 +125,7 @@ class ContentList(models.Model):
         elif isinstance(value, int):
             self.data[index]["id"] = value
         else:
-            raise ValueError("ContentList items must be Content or int")
+            raise ValueError("PZone items must be Content or int")
 
     def __delitem__(self, index):
         if index > self.__len__():
@@ -86,8 +144,15 @@ class ContentList(models.Model):
     def __unicode__(self):
         return "{}[{}]".format(self.name, self.__len__())
 
+    class Meta:
+        ordering = ["name"]
 
-class ContentListHistory(models.Model):
-    content_list = models.ForeignKey(ContentList, related_name="history")
+
+class PZoneHistory(models.Model):
+    pzone = models.ForeignKey(PZone, related_name="history")
     data = JSONField(default=[])
     date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        # we want the most recently created to come out first
+        ordering = ["-date"]

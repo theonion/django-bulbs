@@ -11,6 +11,11 @@ urlpatterns = (
     url(r"^", include(api_v1_router.urls))  # noqa
 )
 
+if "bulbs.promotion" in settings.INSTALLED_APPS:
+    urlpatterns += (
+        url(r"^", include("bulbs.promotion.urls")),
+    )
+
 if "bulbs.cms_notifications" in settings.INSTALLED_APPS:
     urlpatterns += (
         url(r"^notifications/(?P<pk>\d+)?", notifications_view, name="notifications"),
@@ -18,5 +23,5 @@ if "bulbs.cms_notifications" in settings.INSTALLED_APPS:
 
 if "bulbs.contributions" in settings.INSTALLED_APPS:
     urlpatterns += (
-        url(r"^contributions/", include('bulbs.contributions.urls')),
+        url(r"^contributions/", include("bulbs.contributions.urls")),
     )

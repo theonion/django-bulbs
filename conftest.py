@@ -21,6 +21,12 @@ def pytest_configure():
         },
         USE_TZ=True,
 
+        CACHES={
+            'default': {
+                'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+            }
+        },
+
         TEMPLATE_DIRS=(os.path.join(MODULE_ROOT, 'tests', 'templates'),),
 
         INSTALLED_APPS=(
@@ -67,6 +73,7 @@ def pytest_configure():
             'django.contrib.auth.middleware.AuthenticationMiddleware',
             'django.contrib.messages.middleware.MessageMiddleware',
             'django.middleware.clickjacking.XFrameOptionsMiddleware',
+            'bulbs.promotion.middleware.PromotionMiddleware'
         ),
 
         CELERY_ALWAYS_EAGER=True,
