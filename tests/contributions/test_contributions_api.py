@@ -71,14 +71,26 @@ class ContributionApiTestCase(BaseAPITestCase):
         endpoint = reverse("content-contributions", kwargs={"pk": content.pk})
 
         data = [{
-                    "contributor": {
-                        "username": self.admin.username,
-                        "id": self.admin.id
-                    },
-                    "role": self.roles["writer"].id,
-                    "content": content.id
-                }]
+            "contributor": {
+                "username": self.admin.username,
+                "id": self.admin.id
+                },
+            "content": content.id
+        }]
+        response = client.post(endpoint, json.dumps(data), content_type="application/json")
+        print(response.content)
+        self.assertEqual(response.status_code, 400)
 
+        self.assertEqual(Contribution.objects.filter(content=content).count(), 0)
+
+        data = [{
+            "contributor": {
+                "username": self.admin.username,
+                "id": self.admin.id
+                },
+            "role": self.roles["writer"].id,
+            "content": content.id
+        }]
         response = client.post(endpoint, json.dumps(data), content_type="application/json")
         self.assertEqual(response.status_code, 200)
 
