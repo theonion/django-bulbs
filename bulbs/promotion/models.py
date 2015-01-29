@@ -61,7 +61,7 @@ class PZoneManager(models.Manager):
             # Get the cached time of the next expiration
             next_operation_time = cache.get('pzone-operation-expiry-' + pzone.name)
             if next_operation_time is None or next_operation_time < when:
-                print(next_operation_time)
+
                 # start applying operations
                 pending_operations = pzone.operations.filter(when__lte=when, applied=False)
                 for operation in pending_operations:
