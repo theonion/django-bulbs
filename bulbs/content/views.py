@@ -8,6 +8,7 @@ from django.utils import timezone
 from django.utils.cache import add_never_cache_headers
 from django.views.generic import ListView, DetailView, View
 
+from bulbs.content.custom_search import custom_search_model
 from bulbs.content.models import Content, ObfuscatedUrlInfo
 
 logger = logging.getLogger(__name__)
@@ -98,6 +99,26 @@ class ContentListView(ListView):
         return self.model.search_objects.search(**search_kwargs)
 
 
+class ContentCustomSearchListView(ListView):
+    model = Content
+    paginate_by = 20
+    context_object_name = "content_list"
+    is_preview = False
+    is_published = True
+
+    def get_queryset(self):
+        query = self.get_search_query()
+        return self.get_custom_search_queryset(query)
+
+    def get_search_query(self):
+        return {}
+
+    def get_custom_search_queryset(self, query):
+        qs = custom_search_model(
+            self.model, query, preview=self.is_preview, published=self.is_published)
+        return qs
+
+
 class BaseContentDetailView(DetailView):
     """Should be used as the base for all content detail views."""
 
@@ -167,3 +188,4 @@ class UnpublishedContentView(View):
 
 unpublished = UnpublishedContentView.as_view()
 content_list = ContentListView.as_view()
+content_custom_search_list = ContentCustomSearchListView.as_view()

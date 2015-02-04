@@ -1,0 +1,142 @@
+"""Custom ES filter builder
+
+    Query format:
+    {
+        groups: [
+            {
+                conditions: [
+                    field: "es.field.name",
+                    type: <"all"|"any"|"none">,
+                    values: [
+                        {
+                            label: "For humans",
+                            value: "for-the-computers"
+                        },
+                        ...
+                    ]
+                ],
+                time: 'X days' 
+            },
+            ...
+        ],
+        included_ids: [],
+        excluded_ids: [],
+        pinned_ids: []
+    }
+    bool(groups) = bool(group0) OR ... OR bool(groupN)
+    bool(group) = bool(field0, op0, values0) AND ... AND bool(fieldN, opN, valuesN)
+    bool(field, "all", values) = field contains all of these values
+    bool(field, "any", values) = field contains at least one of these values
+    bool(field, "none", values) = field contains none of these values
+"""
+from datetime import timedelta
+
+from django.utils import timezone
+from elasticutils import F
+
+
+def custom_search_model(
+    model, query, preview=False, published=False, id_field="id", time_field="published",
+    sort_pinned=True):
+    """Filter a model with the given filter."""
+    if preview:
+        func = preview_filter_from_query
+    else:
+        func = filter_from_query
+    f = func(query, id_field=id_field, time_field=time_field)
+    qs = model.search_objects.s().full().filter(f)
+    # filter by published
+    if published:
+        now = timezone.now()
+        qs = qs.filter(**{time_field + "__lte": now})
+    # set up pinned ids
+    pinned_ids = query.get("pinned_ids")
+    if pinned_ids and sort_pinned:
+        qs = qs.query_raw({
+            "function_score": {
+                "functions": [
+                    {
+                        "filter": {
+                            "ids": {
+                                "values": pinned_ids
+                            }
+                        },
+                        "boost_factor": 2
+                    },   
+                ],
+                "score_mode": "sum"
+            },
+        }).order_by("-_score", "-published")
+    else:
+        qs = qs.order_by("-published")
+    return qs
+
+
+def preview_filter_from_query(query, id_field="id", time_field="published"):
+    """This filter includes the "excluded_ids" so they still show up in the editor."""
+    f = groups_filter_from_query(query, time_field=time_field)
+    # NOTE: we don't exclude the excluded ids here so they show up in the editor
+    # include these, please
+    included_ids = query.get("included_ids")
+    if included_ids:
+        f |= F(**{id_field + "__in": included_ids})
+    pinned_ids = query.get("pinned_ids")
+    return f
+
+
+def filter_from_query(query, id_field="id", time_field="published"):
+    """This returns a filter which actually filters out everything, unlike the
+    preview filter which includes excluded_ids for UI purposes.
+    """
+    f = groups_filter_from_query(query, time_field=time_field)
+    excluded_ids = query.get("excluded_ids")
+    included_ids = query.get("included_ids")
+    if excluded_ids:  # exclude these
+        f &= ~F(**{id_field + "__in": excluded_ids})
+    if included_ids:  # include these, please
+        f |= F(**{id_field + "__in": included_ids})
+    pinned_ids = query.get("pinned_ids")
+    return f
+
+
+def groups_filter_from_query(query, time_field="published"):
+    """Creates an F object for the groups of a search query."""
+    f = F()
+    # filter groups
+    for group in query.get("groups", []):
+        group_f = F()
+        for condition in group.get("conditions", []):
+            field_name = condition["field"]
+            operation = condition["type"]
+            values = condition["values"]
+            if values:
+                values = [v["value"] for v in values]
+                if operation == "all":
+                    group_f &= F(**{field_name: values})
+                elif operation == "any":
+                    group_f &= F(**{field_name + "__in": values})
+                elif operation == "none":
+                    group_f &= ~F(**{field_name + "__in": values})
+        date_range = group.get("time")
+        if date_range:
+            group_f &= date_range_filter(date_range, time_field)
+        f |= group_f
+    return f
+
+
+def date_range_filter(range_name, field_name):
+    """Create a filter from a named date range."""
+    ranges = {
+        "1 day": 1,
+        "1 week": 7,
+        "2 weeks": 14,
+        "1 month": 31,
+        "6 months": 31 * 6,  # ugh
+        "1 year": 365,
+    }
+    num_days = ranges.get(range_name)
+    if num_days:
+        dt = timedelta(num_days)
+        start_time = timezone.now() - dt
+        return F(**{field_name + "__gte": start_time})
+    return F()

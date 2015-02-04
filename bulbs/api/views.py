@@ -16,15 +16,16 @@ from rest_framework import (
     viewsets,
     routers
 )
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import detail_route, list_route
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from elastimorphic.models import polymorphic_indexable_registry
 from elasticutils.contrib.django import get_es
 
+from bulbs.content.custom_search import custom_search_model
 from bulbs.content.models import Content, Tag, LogEntry, FeatureType, ObfuscatedUrlInfo
 from bulbs.content.serializers import (
-    LogEntrySerializer, PolymorphicContentSerializer,
+    ContentSerializer, LogEntrySerializer, PolymorphicContentSerializer,
     TagSerializer, UserSerializer, FeatureTypeSerializer,
     ObfuscatedUrlInfoSerializer
 )
@@ -456,10 +457,64 @@ class DoctypeViewSet(viewsets.ViewSet):
         return Response(dict(results=results))
 
 
+class CustomFilterContentViewSet(viewsets.GenericViewSet):
+    """This is for searching with a custom search filter."""
+    model = Content
+    queryset = Content.objects.select_related("tags").all()
+    serializer_class = ContentSerializer
+    paginate_by = 20
+    permission_classes = [IsAdminUser, CanEditContent]
+
+    @list_route(methods=["get", "post"])
+    def items(self, request, *args, **kwargs):
+        """Filter Content with a custom search.
+        {
+            "query": SEARCH_QUERY
+            "preview": true
+        }
+        "preview" is optional and, when true, will include
+        items that would normally be removed due to "excluded_ids".
+        """
+        self.object_list = self.get_filtered_queryset(request.DATA)
+        # Switch between paginated or standard style responses
+        page = self.paginate_queryset(self.object_list)
+        if page is not None:
+            serializer = self.get_pagination_serializer(page)
+        else:
+            serializer = self.get_serializer(self.object_list, many=True)
+
+        return Response(serializer.data)
+
+    def get_filtered_queryset(self, params, sort_pinned=True):
+        query = params.get("query", {})
+        is_preview = params.get("preview", True)
+        qs = custom_search_model(
+            self.model, query, preview=is_preview, sort_pinned=sort_pinned)
+        return qs
+
+    @list_route(methods=["get", "post"])
+    def count(self, request, **kwargs):
+        qs = self.get_filtered_queryset(request.DATA, sort_pinned=False)
+        return Response(dict(count=qs.count()))
+
+    @list_route(methods=["get", "post"])
+    def group_count(self, request, **kwargs):
+        params = dict(
+            query=dict(
+                groups=[
+                    dict(request.DATA)
+                ]
+            )
+        )
+        qs = self.get_filtered_queryset(params, sort_pinned=False)
+        return Response(dict(count=qs.count()))
+
+
 # api router for aforementioned/defined viewsets
 # note: me view is registered in urls.py
 api_v1_router = routers.DefaultRouter()
 api_v1_router.register(r"content", ContentViewSet, base_name="content")
+api_v1_router.register(r"content-custom-filter", CustomFilterContentViewSet, base_name="content-custom-filter")
 api_v1_router.register(r"doctype", DoctypeViewSet, base_name="doctype")
 api_v1_router.register(r"tag", TagViewSet, base_name="tag")
 api_v1_router.register(r"log", LogEntryViewSet, base_name="logentry")
