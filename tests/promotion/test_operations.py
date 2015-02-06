@@ -64,6 +64,7 @@ class PZoneOperationsTestCase(BaseIndexableTestCase):
             index=3,
             content=test_two
         )
+
         modified_list = PZone.objects.preview(pk=self.pzone.id, when=one_hour + datetime.timedelta(hours=3))
         self.assertEqual(len(self.pzone), 10)
         self.assertEqual(len(modified_list), 10)
