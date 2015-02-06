@@ -53,23 +53,24 @@ class PZoneOperationsTestCase(BaseIndexableTestCase):
         InsertOperation.objects.create(
             pzone=self.pzone,
             when=one_hour + datetime.timedelta(hours=1),
-            index=0,
+            index=2,
             content=test_one
         )
 
         test_two = make_content(published=one_hour)
         InsertOperation.objects.create(
             pzone=self.pzone,
-            when=one_hour + datetime.timedelta(hours=2),
-            index=0,
+            when=one_hour + datetime.timedelta(hours=1),
+            index=3,
             content=test_two
         )
+
         modified_list = PZone.objects.preview(pk=self.pzone.id, when=one_hour + datetime.timedelta(hours=3))
         self.assertEqual(len(self.pzone), 10)
         self.assertEqual(len(modified_list), 10)
         self.assertEqual(len(modified_list.data), 12)
-        self.assertEqual(modified_list[0].pk, test_two.pk)
-        self.assertEqual(modified_list[1].pk, test_one.pk)
+        self.assertEqual(modified_list[2].pk, test_one.pk)
+        self.assertEqual(modified_list[3].pk, test_two.pk)
 
     def test_replace_preview(self):
         """Test that a replace can be previewed."""

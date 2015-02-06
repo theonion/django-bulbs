@@ -33,7 +33,7 @@ class InsertOperation(PZoneOperation):
             filtered = filter(lambda content: content["id"] == self.content.pk, data)
             if len(filtered) == 0:
                 # content doesn't already exist in list
-                data.insert(0, {
+                data.insert(self.index, {
                     "id": self.content.pk
                 })
                 data = data[:100]
