@@ -29,7 +29,7 @@ class InsertOperation(PZoneOperation):
 
         if self.content.published and self.when >= self.content.published:
             # content has a published date, and that date is before when this
-            data.insert(0, {
+            data.insert(self.index, {
                 "id": self.content.pk
             })
             data = data[:100]
