@@ -35,7 +35,7 @@ class PZoneOperationsTestCase(BaseIndexableTestCase):
             index=0,
             content=new_content
         )
-        #apply operations in preview mode
+        # apply operations in preview mode
         modified_list = PZone.objects.preview(pk=self.pzone.id, when=test_time)
         # check that the original content hasn't changed
         self.assertEqual(len(self.pzone), 10)
@@ -135,6 +135,7 @@ class PZoneOperationsTestCase(BaseIndexableTestCase):
 
         # check that an item was added
         self.assertEqual(self.pzone[0].id, new_content.id)
+        self.assertEqual(len(self.pzone.data), 11)
 
     def test_apply_with_background_task(self):
         """Test that applied function calls background task."""
@@ -264,3 +265,65 @@ class PZoneOperationsTestCase(BaseIndexableTestCase):
 
         # make sure the pzone has not been modified
         self.assertEqual(old_id, self.pzone[index].id)
+
+    def test_prevent_insert_of_article_already_in_pzone(self):
+        """Insert operations should not allow an article to be inserted that already
+        exists in the pzone."""
+
+        new_content = make_content(
+            published=timezone.now() - datetime.timedelta(hours=2)
+        )
+
+        # do first operation
+        InsertOperation.objects.create(
+            pzone=self.pzone,
+            when=timezone.now() - datetime.timedelta(hours=1),
+            index=0,
+            content=new_content
+        )
+
+        # do another insert operation
+        InsertOperation.objects.create(
+            pzone=self.pzone,
+            when=timezone.now() - datetime.timedelta(hours=1),
+            index=1,
+            content=new_content
+        )
+
+        # get pzone again
+        self.pzone = PZone.objects.applied(id=self.pzone.id)
+
+        # check that state is correct
+        self.assertEqual(self.pzone[0].pk, new_content.pk)
+        self.assertNotEqual(self.pzone[1].pk, new_content.pk)
+
+    def test_prevent_replace_of_article_already_in_pzone(self):
+        """Replace operations should not allow an article to be inserted that already
+        exists in the pzone."""
+
+        new_content = make_content(
+            published=timezone.now() - datetime.timedelta(hours=2)
+        )
+
+        # do first operation
+        InsertOperation.objects.create(
+            pzone=self.pzone,
+            when=timezone.now() - datetime.timedelta(hours=1),
+            index=0,
+            content=new_content
+        )
+
+        # do another insert operation
+        ReplaceOperation.objects.create(
+            pzone=self.pzone,
+            when=timezone.now() - datetime.timedelta(hours=1),
+            index=1,
+            content=new_content
+        )
+
+        # get pzone again
+        self.pzone = PZone.objects.applied(id=self.pzone.id)
+
+        # check that state is correct
+        self.assertEqual(self.pzone[0].pk, new_content.pk)
+        self.assertNotEqual(self.pzone[1].pk, new_content.pk)

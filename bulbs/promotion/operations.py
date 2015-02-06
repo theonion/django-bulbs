@@ -29,10 +29,22 @@ class InsertOperation(PZoneOperation):
 
         if self.content.published and self.when >= self.content.published:
             # content has a published date, and that date is before when this
-            data.insert(self.index, {
-                "id": self.content.pk
-            })
-            data = data[:100]
+
+            filtered = filter(lambda content: content["id"] == self.content.pk, data)
+            if len(filtered) == 0:
+                # content doesn't already exist in list
+                data.insert(self.index, {
+                    "id": self.content.pk
+                })
+                data = data[:100]
+            else:
+                # content already in list, don't insert, log a warning
+                logger.warning(
+                    "Failed to perform insert operation because content (id: %i) %s is already in %s!",
+                    self.content.pk,
+                    self.content.title,
+                    self.pzone.name)
+
         else:
             # warn that we failed to perform an operation on this content
             logger.warning(
@@ -54,9 +66,19 @@ class ReplaceOperation(PZoneOperation):
             # content has a published date, and that date is before when this
             #   operation is occurring
             try:
-                data[self.index] = {
-                    "id": self.content.pk
-                }
+                filtered = filter(lambda content: content["id"] == self.content.pk, data)
+                if len(filtered) == 0:
+                    # content doesn't already exist in list
+                    data[self.index] = {
+                        "id": self.content.pk
+                    }
+                else:
+                    # content already in list, don't insert, log a warning
+                    logger.warning(
+                        "Failed to perform replace operation because content (id: %i) %s is already in %s!",
+                        self.content.pk,
+                        self.content.title,
+                        self.pzone.name)
             except IndexError:
                 logger.warning(
                     "Failed to perform replace operation on content (id: %i) %s in %s at index %i!",
