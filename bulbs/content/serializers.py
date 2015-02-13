@@ -206,7 +206,7 @@ class ContentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Content
 
-    @transaction.commit_on_success
+    @transaction.atomic
     def save(self, *args, **kwargs):
         if not "index" in kwargs:
             kwargs["index"] = False
