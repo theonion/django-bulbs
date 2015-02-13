@@ -436,10 +436,31 @@ class MeViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
         return Response(data)
 
 
+class DoctypeViewSet(viewsets.ViewSet):
+    """Searches doctypes of a model."""
+    model = Content
+
+    def list(self, request):
+        """Search the doctypes for this model."""
+        query = request.QUERY_PARAMS.get("search", "")
+        results = []
+        doctypes = self.model.get_doctypes()
+        for doctype, klass in doctypes.items():
+            name = klass._meta.verbose_name
+            if query.lower() in name.lower():
+                results.append(dict(
+                    name=name,
+                    doctype=doctype
+                ))
+        results.sort(key=lambda x: x["name"])
+        return Response(dict(results=results))
+
+
 # api router for aforementioned/defined viewsets
 # note: me view is registered in urls.py
 api_v1_router = routers.DefaultRouter()
 api_v1_router.register(r"content", ContentViewSet, base_name="content")
+api_v1_router.register(r"doctype", DoctypeViewSet, base_name="doctype")
 api_v1_router.register(r"tag", TagViewSet, base_name="tag")
 api_v1_router.register(r"log", LogEntryViewSet, base_name="logentry")
 api_v1_router.register(r"author", AuthorViewSet, base_name="author")

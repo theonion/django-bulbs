@@ -7,6 +7,7 @@ from elastimorphic.models import polymorphic_indexable_registry
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
 from model_mommy import mommy
+from rest_framework.test import APIClient
 
 from bulbs.content.models import Content
 
@@ -62,6 +63,8 @@ class BaseAPITestCase(BaseIndexableTestCase):
         admin = self.admin = User.objects.create_user("admin", "tech@theonion.com", "secret")
         admin.is_staff = True
         admin.save()
+        self.api_client = APIClient()
+        self.api_client.force_authenticate(user=admin)
         # reverse("content-detail")
 
     def give_permissions(self):
