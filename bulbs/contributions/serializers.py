@@ -73,6 +73,7 @@ class ContentReportingSerializer(serializers.ModelSerializer):
 
     content_type = serializers.SerializerMethodField("get_content_type")
     published = serializers.SerializerMethodField("get_published")
+    feature_type = serializers.SerializerMethodField("get_feature_type")
     url = serializers.URLField(source="get_absolute_url")
 
     class Meta:
@@ -94,6 +95,9 @@ class ContentReportingSerializer(serializers.ModelSerializer):
 
     def get_content_type(self, obj):
         return obj.__class__.__name__
+
+    def get_feature_type(self, obj):
+        return getattr(obj.feature_type, "name", None)
 
     def get_published(self, obj):
         return timezone.localtime(obj.published)
