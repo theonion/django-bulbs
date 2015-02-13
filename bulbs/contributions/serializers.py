@@ -40,7 +40,7 @@ class ContributionReportingSerializer(serializers.ModelSerializer):
             ("title", obj.content.title),
             ("url", obj.content.get_absolute_url()),
             ("content_type", obj.content.__class__.__name__),
-            ("feature_type", obj.content.feature_type),
+            ("feature_type", getattr(obj.content.feature_type, "name", None)),
             ("published", timezone.localtime(obj.content.published))
         ])
 
@@ -97,4 +97,3 @@ class ContentReportingSerializer(serializers.ModelSerializer):
 
     def get_published(self, obj):
         return timezone.localtime(obj.published)
-
