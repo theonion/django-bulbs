@@ -556,3 +556,20 @@ class TestTokenAPI(BaseAPITestCase):
         self.assertEqual(json_response[0]["url_uuid"], info_1.url_uuid)
         self.assertEqual(json_response[1]["id"], info_2.id)
         self.assertEqual(json_response[2]["id"], info_3.id)
+
+
+class TestDoctypeSearchAPI(BaseAPITestCase):
+    def test_search(self):
+        url = reverse("doctype-list")
+        # TestContentObj
+        r = self.api_client.get(url, dict(search="two"), format="json")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(len(r.data["results"]), 1)
+        # Content, TestContentObj, TestContentObjTwo, TestContentDetailImage
+        r = self.api_client.get(url, dict(search="conte"), format="json")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(len(r.data["results"]), 4)
+        # no query gives us all types
+        r = self.api_client.get(url, format="json")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(len(r.data["results"]), 4)
