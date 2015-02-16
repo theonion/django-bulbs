@@ -33,7 +33,7 @@ class OperationsViewSet(APIView):
             return self.get_serializer_class(operation_model)
         except (ValueError, ContentType.DoesNotExist):
             # invalid type name
-            raise Exception("Provided type_name is invalid.")
+            raise ContentType.DoesNotExist("Provided type_name is invalid.")
 
     def get_serializer_class(self, obj_class):
         serializer_class = None
@@ -79,33 +79,36 @@ class OperationsViewSet(APIView):
         except PZone.DoesNotExist:
             raise Http404("Cannot find given pzone.")
 
-        json_obj = None
+        json_obj = []
         http_status = 500
 
-        # get requested data, and serialize it
-        try:
-            # load json into an object
-            json_op = json.loads(request.body)
+        json_op = json.loads(request.body)
+        if not isinstance(json_op, list):
+            json_op = [json_op]
 
-            # serialize json object into actual
-            serializer = self.get_serializer_class_by_name(json_op["type_name"])
-            serialized = serializer(data=json_op)
+        for data in json_op:
+            try:
+                serializer = self.get_serializer_class_by_name(data["type_name"])
+            except ContentType.DoesNotExist as e:
+                json_obj = {"errors": [str(e)]}
+                http_status = 400
+                break
+            serialized = serializer(data=data)
 
             if serialized.is_valid():
                 # object is valid, save it
                 serialized.object.save()
 
                 # set response data
-                json_obj = serialized.data
+                json_obj.append(serialized.data)
                 http_status = 200
             else:
                 # object is not valid, return errors in a 400 response
                 json_obj = serialized.errors
                 http_status = 400
-        except Exception as e:
-            # some error happened, return it
-            json_obj = {"errors": [str(e)]}
-            http_status = 400
+
+        if http_status == 200 and len(json_obj) == 1:
+            json_obj = json_obj[0]
 
         # cache the time in seconds until the next operation occurs
         next_ops = PZoneOperation.objects.filter(when__lte=timezone.now())
