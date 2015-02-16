@@ -93,8 +93,8 @@ class OperationsViewSet(APIView):
                 json_obj = {"errors": [str(e)]}
                 http_status = 400
                 break
-            serialized = serializer(data=data)
 
+            serialized = serializer(data=data)
             if serialized.is_valid():
                 # object is valid, save it
                 serialized.object.save()
@@ -106,6 +106,7 @@ class OperationsViewSet(APIView):
                 # object is not valid, return errors in a 400 response
                 json_obj = serialized.errors
                 http_status = 400
+                break
 
         if http_status == 200 and len(json_obj) == 1:
             json_obj = json_obj[0]
