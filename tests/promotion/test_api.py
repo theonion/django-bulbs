@@ -178,6 +178,62 @@ class PromotionApiTestCase(BaseAPITestCase):
         operations = response.data
         self.assertEqual(len(operations), 0)
 
+    def test_post_operations(self):
+        """Test that a new operation can be added to a pzone operations."""
+
+        # test objects
+        test_time = (timezone.now() + datetime.timedelta(hours=1)).replace(microsecond=0)
+
+        test_content_1 = make_content(published=timezone.now())
+        test_content_2 = make_content(published=timezone.now())
+
+        # setup and query endpoint
+        endpoint = reverse("pzone_operations", kwargs={
+            "pzone_pk": self.pzone.pk
+        })
+        response = self.client.post(
+            endpoint,
+            json.dumps([
+                {
+                    "type_name": "promotion_replaceoperation",
+                    "pzone": self.pzone.pk,
+                    "when": test_time.isoformat(),
+                    "index": 1,
+                    "content": test_content_1.id
+                },
+                {
+                    "type_name": "promotion_replaceoperation",
+                    "pzone": self.pzone.pk,
+                    "when": test_time.isoformat(),
+                    "index": 2,
+                    "content": test_content_2.id
+                },
+            ]),
+            content_type="application/json"
+        )
+
+        # check that we got an OK response
+        self.assertEqual(response.status_code, 200, msg=response.data)
+
+        # check that operations made it into the db
+        self.assertEqual(PZoneOperation.objects.count(), 2)
+
+        # check response data data
+        operations = response.data
+        self.assertNotEqual(operations[0]["id"], None)
+        self.assertEqual(operations[0]["type_name"], "promotion_replaceoperation")
+        self.assertEqual(operations[0]["pzone"], self.pzone.pk)
+        self.assertEqual(operations[0]["when"], test_time)
+        self.assertEqual(operations[0]["index"], 1)
+        self.assertEqual(operations[0]["content"], test_content_1.id)
+
+        assert operations[1]["id"] > operations[0]["id"]
+        self.assertEqual(operations[1]["type_name"], "promotion_replaceoperation")
+        self.assertEqual(operations[1]["pzone"], self.pzone.pk)
+        self.assertEqual(operations[1]["when"], test_time)
+        self.assertEqual(operations[1]["index"], 2)
+        self.assertEqual(operations[1]["content"], test_content_2.id)
+
     def test_post_operation(self):
         """Test that a new operation can be added to a pzone operations."""
 
