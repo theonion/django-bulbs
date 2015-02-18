@@ -1,6 +1,9 @@
 """Base models for "Content", including the indexing and search features
 that we want any piece of content to have."""
 
+import datetime
+import dateutil.parser
+import dateutil.tz
 import uuid
 
 from django.conf import settings
@@ -20,6 +23,7 @@ from elastimorphic.base import (
 )
 from polymorphic import PolymorphicModel
 from djbetty import ImageField
+from six import string_types
 
 from bulbs.content import TagCache
 from .shallow import ShallowContentS, ShallowContentResult
@@ -32,6 +36,22 @@ except ImportError:
     index_task = lambda *x: x
     update_task = lambda *x: x
     CELERY_ENABLED = False
+
+
+def parse_datetime(value):
+    if isinstance(value, string_types):
+        value = dateutil.parser.parse(value)
+        value.replace(tzinfo=dateutil.tz.tzutc())
+        return value
+    elif isinstance(value, datetime.datetime):
+        value.replace(tzinfo=dateutil.tz.tzutc())
+        return value
+    elif isinstance(value, datetime.date):
+        value = datetime.datetime(value.year, value.month, value.day)
+        value.replace(tzinfo=dateutil.tz.tzutc())
+        return value
+    else:
+        raise ValueError('Value must be parsable to datetime object')
 
 
 class Tag(PolymorphicIndexable, PolymorphicModel):
@@ -168,13 +188,20 @@ class ContentManager(SearchManager):
         # and "published" (a boolean). Should simplify this in the future.
         if "before" in kwargs or "after" in kwargs:
             if "before" in kwargs and "after" in kwargs:
-                results = results.query(published__lte=kwargs["before"], published__gte=kwargs["after"], must=True)
+                before = parse_datetime(kwargs["before"])
+                after = parse_datetime(kwargs["after"])
+                # raise Exception((before, after))
+                results = results.query(published__lte=before, published__gte=after, must=True)
 
             elif "before" in kwargs:
-                results = results.query(published__lte=kwargs["before"], must=True)
+                before = parse_datetime(kwargs["before"])
+                # raise Exception(before)
+                results = results.query(published__lte=before, must=True)
 
             elif "after" in kwargs:
-                results = results.query(published__gte=kwargs["after"], must=True)
+                after = parse_datetime(kwargs["after"])
+                # raise Exception(after)
+                results = results.query(published__gte=after, must=True)
         else:
             # TODO: kill this "published" param. it sucks
             if kwargs.get("published", True) and "status" not in kwargs:

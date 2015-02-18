@@ -79,37 +79,67 @@ class PolyContentTestCase(BaseIndexableTestCase):
         q = Content.search_objects.search(types=["testcontent_testcontentobj"])
         self.assertEqual(q.count(), 6)
 
-        q = Content.search_objects.search(before=timezone.now())
+        # date before
+        before = timezone.now()
+        q = Content.search_objects.search(before=before)
+        self.assertEqual(q.count(), 12)
+        q = Content.search_objects.search(before=before.strftime("%Y-%m-%d %H:%M:%S"))
         self.assertEqual(q.count(), 12)
 
-        q = Content.search_objects.search(before=timezone.now() - datetime.timedelta(hours=4))
+        before = timezone.now() - datetime.timedelta(hours=4)
+        q = Content.search_objects.search(before=before)
+        self.assertEqual(q.count(), 6)
+        q = Content.search_objects.search(before=before.strftime("%Y-%m-%d %H:%M:%S"))
         self.assertEqual(q.count(), 6)
 
-        q = Content.search_objects.search(after=timezone.now() - datetime.timedelta(hours=4))
+        # date after
+        after = timezone.now() - datetime.timedelta(hours=4)
+        q = Content.search_objects.search(after=after)
+        self.assertEqual(q.count(), 6)
+        q = Content.search_objects.search(after=after.strftime("%Y-%m-%d %H:%M:%S"))
         self.assertEqual(q.count(), 6)
 
-        q = Content.search_objects.search(after=timezone.now() - datetime.timedelta(days=40))
+        after = timezone.now() - datetime.timedelta(days=40)
+        q = Content.search_objects.search(after=after)
+        self.assertEqual(q.count(), 12)
+        q = Content.search_objects.search(after=after.strftime("%Y-%m-%d %H:%M:%S"))
         self.assertEqual(q.count(), 12)
 
-        # date range filtering
-        q = Content.search_objects.search(
-            before=timezone.now() - datetime.timedelta(seconds=1),
-            after=timezone.now() - datetime.timedelta(seconds=20)
-        )
-        self.assertEqual(q.count(), 0)
-
-        q = Content.search_objects.search(
-            before=timezone.now() - datetime.timedelta(hours=1),
-            after=timezone.now() - datetime.timedelta(days=7)
-        )
+        # assorted date types - datetime.date, datetime.datetime.strftime, iso string
+        after = timezone.now() - datetime.timedelta(days=40)
+        date_after = datetime.date(after.year, after.month, after.day)
+        q = Content.search_objects.search(after=date_after)
+        self.assertEqual(q.count(), 12)
+        q = Content.search_objects.search(after=after.strftime("%Y-%m-%d"))
+        self.assertEqual(q.count(), 12)
+        q = Content.search_objects.search(after="1970-01-01T01:01:01.123456+03:00")
         self.assertEqual(q.count(), 12)
 
-        q = Content.search_objects.search(
-            before=timezone.now() - datetime.timedelta(days=7),
-            after=timezone.now() - datetime.timedelta(days=14)
-        )
+        # date range tests
+        before = timezone.now() - datetime.timedelta(seconds=1)
+        after = timezone.now() - datetime.timedelta(seconds=20)
+        q = Content.search_objects.search(before=before, after=after)
         self.assertEqual(q.count(), 0)
-        # /date range filtering
+        q = Content.search_objects.search(
+            before=before.strftime("%Y-%m-%d %H:%M:%S"), after=after.strftime("%Y-%m-%d %H:%M:%S"))
+        self.assertEqual(q.count(), 0)
+
+        before = timezone.now() - datetime.timedelta(hours=1)
+        after = timezone.now() - datetime.timedelta(days=7)
+        q = Content.search_objects.search(before=before, after=after)
+        self.assertEqual(q.count(), 12)
+        q = Content.search_objects.search(
+            before=before.strftime("%Y-%m-%d %H:%M:%S"), after=after.strftime("%Y-%m-%d %H:%M:%S"))
+        self.assertEqual(q.count(), 12)
+
+        before = timezone.now() - datetime.timedelta(days=7)
+        after = timezone.now() - datetime.timedelta(days=14)
+        q = Content.search_objects.search(before=before, after=after)
+        self.assertEqual(q.count(), 0)
+        q = Content.search_objects.search(
+            before=before.strftime("%Y-%m-%d %H:%M:%S"), after=after.strftime("%Y-%m-%d %H:%M:%S"))
+        self.assertEqual(q.count(), 0)
+        # /date range tests
 
         q = Content.search_objects.search(types=["testcontent_testcontentobjtwo"]).full()
         self.assertEqual(q.count(), 6)
