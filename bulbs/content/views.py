@@ -1,7 +1,5 @@
 import logging
 
-from bulbs.content.models import Content, ObfuscatedUrlInfo
-
 from django.conf import settings
 from django.core.urlresolvers import resolve, Resolver404
 from django.http import Http404, HttpResponsePermanentRedirect, HttpResponseRedirect
@@ -9,6 +7,9 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.cache import add_never_cache_headers
 from django.views.generic import ListView, DetailView, View
+
+from bulbs.content.models import Content, ObfuscatedUrlInfo
+
 
 logger = logging.getLogger(__name__)
 
@@ -21,65 +22,79 @@ class ContentListView(ListView):
     types = None
     published = None
     authors = None
+    before = None
+    after = None
 
     allow_empty = True
     paginate_by = 20
-    context_object_name = 'content_list'
+    context_object_name = "content_list"
     template_name = None
 
     def get_queryset(self):
         search_kwargs = {}
-        if 'tags' in self.request.GET:
-            search_kwargs['tags'] = self.request.GET.getlist('tags', [])
-        elif 'tag' in self.request.GET:
-            search_kwargs['tags'] = self.request.GET.getlist('tag', [])
+        if "tags" in self.request.GET:
+            search_kwargs["tags"] = self.request.GET.getlist("tags", [])
+        elif "tag" in self.request.GET:
+            search_kwargs["tags"] = self.request.GET.getlist("tag", [])
 
-        if 'tags' in self.kwargs:
-            tags = self.kwargs['tags']
+        if "tags" in self.kwargs:
+            tags = self.kwargs["tags"]
             if not isinstance(tags, list):
                 tags = [tags]
-            search_kwargs['tags'] = tags
+            search_kwargs["tags"] = tags
         if self.tags > 0:
-            search_kwargs['tags'] = self.tags
+            search_kwargs["tags"] = self.tags
 
-        if 'types' in self.request.GET:
-            search_kwargs['types'] = self.request.GET.getlist('types', [])
-        elif 'type' in self.request.GET:
-            search_kwargs['types'] = self.request.GET.getlist('type', [])
+        if "types" in self.request.GET:
+            search_kwargs["types"] = self.request.GET.getlist("types", [])
+        elif "type" in self.request.GET:
+            search_kwargs["types"] = self.request.GET.getlist("type", [])
 
-        if 'types' in self.kwargs:
-            search_kwargs['types'] = self.kwargs['types']
+        if "types" in self.kwargs:
+            search_kwargs["types"] = self.kwargs["types"]
         if self.types > 0:
-            search_kwargs['types'] = self.types
+            search_kwargs["types"] = self.types
 
-        if 'feature_types' in self.request.GET:
-            search_kwargs['feature_types'] = self.request.GET.getlist(
-                'feature_types', [])
-        elif 'feature_type' in self.request.GET:
-            search_kwargs['feature_types'] = self.request.GET.getlist(
-                'feature_type', [])
+        if "feature_types" in self.request.GET:
+            search_kwargs["feature_types"] = self.request.GET.getlist("feature_types", [])
+        elif "feature_type" in self.request.GET:
+            search_kwargs["feature_types"] = self.request.GET.getlist("feature_type", [])
 
-        if 'feature_types' in self.kwargs:
-            search_kwargs['feature_types'] = self.kwargs['feature_types']
+        if "feature_types" in self.kwargs:
+            search_kwargs["feature_types"] = self.kwargs["feature_types"]
         if self.feature_types > 0:
-            search_kwargs['feature_types'] = self.feature_types
+            search_kwargs["feature_types"] = self.feature_types
 
-        if 'published' in self.kwargs:
-            search_kwargs['published'] = self.kwargs['published']
+        if "published" in self.kwargs:
+            search_kwargs["published"] = self.kwargs["published"]
         if self.published:
-            search_kwargs['published'] = self.published
+            search_kwargs["published"] = self.published
 
-        if 'authors' in self.request.GET:
-            search_kwargs['authors'] = self.request.GET.getlist('authors', [])
-        elif 'author' in self.request.GET:
-            search_kwargs['authors'] = self.request.GET.getlist('author', [])
-        if 'authors' in self.kwargs:
-            search_kwargs['authors'] = self.kwargs['authors']
+        if "authors" in self.request.GET:
+            search_kwargs["authors"] = self.request.GET.getlist("authors", [])
+        elif "author" in self.request.GET:
+            search_kwargs["authors"] = self.request.GET.getlist("author", [])
+        if "authors" in self.kwargs:
+            search_kwargs["authors"] = self.kwargs["authors"]
         if self.authors:
-            search_kwargs['authors'] = self.authors
+            search_kwargs["authors"] = self.authors
+        
+        if "before" in self.request.GET:
+            search_kwargs["before"] = self.request.GET.getlist("before", [])
+        if "before" in self.kwargs:
+            search_kwargs["before"] = self.kwargs["before"]
+        if self.before:
+            search_kwargs["before"] = self.before
+        
+        if "after" in self.request.GET:
+            search_kwargs["after"] = self.request.GET.getlist("after", [])
+        if "after" in self.kwargs:
+            search_kwargs["after"] = self.kwargs["after"]
+        if self.after:
+            search_kwargs["after"] = self.after
 
-        if 'q' in self.request.GET:
-            search_kwargs['query'] = self.request.GET['q']
+        if "q" in self.request.GET:
+            search_kwargs["query"] = self.request.GET["q"]
 
         return self.model.search_objects.search(**search_kwargs)
 
@@ -95,7 +110,7 @@ class BaseContentDetailView(DetailView):
         """Override default get function to use token if there is one to retrieve object. If a
         subclass should use their own GET implementation, token_from_kwargs should be called if
         that detail view should be accessible via token."""
-        
+
         self.object = self.get_object()
 
         allow_anonymous = kwargs.get("allow_anonymous", False)
@@ -131,9 +146,8 @@ class BaseContentDetailView(DetailView):
 
 
 class UnpublishedContentView(View):
-
     def dispatch(self, request, *args, **kwargs):
-        
+
         token = kwargs.get("token", None)
         info = get_object_or_404(ObfuscatedUrlInfo, url_uuid=token)
 

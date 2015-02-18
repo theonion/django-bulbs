@@ -24,6 +24,7 @@ class PolyContentTestCase(BaseIndexableTestCase):
         # generate some data
         one_hour_ago = timezone.now() - datetime.timedelta(hours=1)
         two_days_ago = timezone.now() - datetime.timedelta(days=2)
+        five_seconds_ago = timezone.now() - datetime.timedelta(seconds=5)
         words = ['spam', 'driver', 'dump truck', 'restaurant']
         self.num_subclasses = 2
         self.combos = list(itertools.combinations(words, 2))
@@ -90,6 +91,26 @@ class PolyContentTestCase(BaseIndexableTestCase):
 
         q = Content.search_objects.search(after=timezone.now() - datetime.timedelta(days=40))
         self.assertEqual(q.count(), 12)
+
+        # date range filtering
+        q = Content.search_objects.search(
+            before=timezone.now() - datetime.timedelta(seconds=1),
+            after=timezone.now() - datetime.timedelta(seconds=20)
+        )
+        self.assertEqual(q.count(), 0)
+
+        q = Content.search_objects.search(
+            before=timezone.now() - datetime.timedelta(hours=1),
+            after=timezone.now() - datetime.timedelta(days=7)
+        )
+        self.assertEqual(q.count(), 12)
+
+        q = Content.search_objects.search(
+            before=timezone.now() - datetime.timedelta(days=7),
+            after=timezone.now() - datetime.timedelta(days=14)
+        )
+        self.assertEqual(q.count(), 0)
+        # /date range filtering
 
         q = Content.search_objects.search(types=["testcontent_testcontentobjtwo"]).full()
         self.assertEqual(q.count(), 6)

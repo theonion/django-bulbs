@@ -167,14 +167,17 @@ class ContentManager(SearchManager):
         # Right now we have "Before", "After" (datetimes),
         # and "published" (a boolean). Should simplify this in the future.
         if "before" in kwargs or "after" in kwargs:
-            if "before" in kwargs:
+            if "before" in kwargs and "after" in kwargs:
+                results = results.query(published__lte=kwargs["before"], published__gte=kwargs["after"], must=True)
+
+            elif "before" in kwargs:
                 results = results.query(published__lte=kwargs["before"], must=True)
 
-            if "after" in kwargs:
+            elif "after" in kwargs:
                 results = results.query(published__gte=kwargs["after"], must=True)
         else:
             # TODO: kill this "published" param. it sucks
-            if kwargs.get("published", True) and not "status" in kwargs:
+            if kwargs.get("published", True) and "status" not in kwargs:
                 now = timezone.now()
                 results = results.query(published__lte=now, must=True)
 
