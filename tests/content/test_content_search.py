@@ -24,7 +24,6 @@ class PolyContentTestCase(BaseIndexableTestCase):
         # generate some data
         one_hour_ago = timezone.now() - datetime.timedelta(hours=1)
         two_days_ago = timezone.now() - datetime.timedelta(days=2)
-        five_seconds_ago = timezone.now() - datetime.timedelta(seconds=5)
         words = ['spam', 'driver', 'dump truck', 'restaurant']
         self.num_subclasses = 2
         self.combos = list(itertools.combinations(words, 2))

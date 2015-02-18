@@ -10,7 +10,6 @@ from django.views.generic import ListView, DetailView, View
 
 from bulbs.content.models import Content, ObfuscatedUrlInfo
 
-
 logger = logging.getLogger(__name__)
 
 
