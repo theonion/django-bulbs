@@ -79,14 +79,14 @@ class ContentListView(ListView):
             search_kwargs["authors"] = self.authors
         
         if "before" in self.request.GET:
-            search_kwargs["before"] = self.request.GET.getlist("before", [])
+            search_kwargs["before"] = self.request.GET["before"]
         if "before" in self.kwargs:
             search_kwargs["before"] = self.kwargs["before"]
         if self.before:
             search_kwargs["before"] = self.before
         
         if "after" in self.request.GET:
-            search_kwargs["after"] = self.request.GET.getlist("after", [])
+            search_kwargs["after"] = self.request.GET["after"]
         if "after" in self.kwargs:
             search_kwargs["after"] = self.kwargs["after"]
         if self.after:

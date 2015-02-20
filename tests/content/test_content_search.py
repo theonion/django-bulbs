@@ -114,6 +114,8 @@ class PolyContentTestCase(BaseIndexableTestCase):
         self.assertEqual(q.count(), 12)
         q = Content.search_objects.search(after="1970-01-01T01:01:01.123456+03:00")
         self.assertEqual(q.count(), 12)
+        q = Content.search_objects.search(after="1970-1-1T01:01:01.123456+03:00")
+        self.assertEqual(q.count(), 12)
 
         # date range tests
         before = timezone.now() - datetime.timedelta(seconds=1)

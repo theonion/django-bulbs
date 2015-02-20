@@ -23,7 +23,7 @@ from elastimorphic.base import (
 )
 from polymorphic import PolymorphicModel
 from djbetty import ImageField
-from six import string_types
+from six import string_types, text_type, binary_type
 
 from bulbs.content import TagCache
 from .shallow import ShallowContentS, ShallowContentResult
@@ -39,7 +39,7 @@ except ImportError:
 
 
 def parse_datetime(value):
-    if isinstance(value, string_types):
+    if isinstance(value, (string_types, text_type, binary_type)):
         value = dateutil.parser.parse(value)
         value.replace(tzinfo=dateutil.tz.tzutc())
         return value
@@ -51,7 +51,7 @@ def parse_datetime(value):
         value.replace(tzinfo=dateutil.tz.tzutc())
         return value
     else:
-        raise ValueError('Value must be parsable to datetime object')
+        raise ValueError('Value must be parsable to datetime object. Got `{}`'.format(type(value)))
 
 
 class Tag(PolymorphicIndexable, PolymorphicModel):
