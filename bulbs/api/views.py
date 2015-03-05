@@ -520,7 +520,7 @@ class CustomSearchContentViewSet(viewsets.GenericViewSet):
 # note: me view is registered in urls.py
 api_v1_router = routers.DefaultRouter()
 api_v1_router.register(r"content", ContentViewSet, base_name="content")
-api_v1_router.register(r"content-custom-search", CustomSearchContentViewSet, base_name="content-custom-search")
+api_v1_router.register(r"custom-search-content", CustomSearchContentViewSet, base_name="custom-search-content")
 api_v1_router.register(r"doctype", DoctypeViewSet, base_name="doctype")
 api_v1_router.register(r"tag", TagViewSet, base_name="tag")
 api_v1_router.register(r"log", LogEntryViewSet, base_name="logentry")

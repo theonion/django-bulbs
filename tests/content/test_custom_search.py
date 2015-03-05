@@ -421,7 +421,7 @@ class ResultsApiTests(BaseCustomSearchApiTests):
             self.check_api_counts(s["query"], count)
 
     def check_api_counts(self, query, expected_count):
-        endpoint_url = reverse("content-custom-search-list")
+        endpoint_url = reverse("custom-search-content-list")
         r = self.api_client.post(endpoint_url, {"query": query, "preview": False}, format="json")
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r.data["count"], expected_count)
@@ -431,7 +431,7 @@ class ResultsApiTests(BaseCustomSearchApiTests):
             self.check_api_preview_counts(s["query"], expected_count)
 
     def check_api_preview_counts(self, query, expected_count):
-        endpoint_url = reverse("content-custom-search-list")
+        endpoint_url = reverse("custom-search-content-list")
         r = self.api_client.post(endpoint_url, {"query": query}, format="json")
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r.data["count"], expected_count)
@@ -444,7 +444,7 @@ class CountsApiTests(BaseCustomSearchApiTests):
             self.check_api_counts(s["query"], count)
 
     def check_api_counts(self, query, expected_count):
-        endpoint_url = reverse("content-custom-search-count")
+        endpoint_url = reverse("custom-search-content-count")
         r = self.api_client.post(endpoint_url, {"query": query, "preview": False}, format="json")
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r.data["count"], expected_count)
@@ -454,7 +454,7 @@ class CountsApiTests(BaseCustomSearchApiTests):
             self.check_api_preview_counts(s["query"], count)
 
     def check_api_preview_counts(self, query, expected_count):
-        endpoint_url = reverse("content-custom-search-count")
+        endpoint_url = reverse("custom-search-content-count")
         r = self.api_client.post(endpoint_url, {"query": query}, format="json")
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r.data["count"], expected_count)
@@ -468,7 +468,7 @@ class CountsApiTests(BaseCustomSearchApiTests):
         if not groups:
             return
         group = groups[0]
-        endpoint_url = reverse("content-custom-search-group-count")
+        endpoint_url = reverse("custom-search-content-group-count")
         r = self.api_client.post(endpoint_url, group, format="json")
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r.data["count"], expected_count)
