@@ -105,6 +105,11 @@ class ContentCustomSearchListView(ListView):
     context_object_name = "content_list"
     is_preview = False
     is_published = True
+    field_map = {
+        "feature-type": "feature_type.slug",
+        "tag": "tags.slug",
+        "content-type": "_type"
+    } 
 
     def get_queryset(self):
         query = self.get_search_query()
@@ -115,7 +120,9 @@ class ContentCustomSearchListView(ListView):
 
     def get_custom_search_queryset(self, query):
         qs = custom_search_model(
-            self.model, query, preview=self.is_preview, published=self.is_published)
+            self.model, query, preview=self.is_preview,
+            published=self.is_published, field_map=self.field_map
+        )
         return qs
 
 

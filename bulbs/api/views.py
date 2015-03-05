@@ -464,6 +464,11 @@ class CustomSearchContentViewSet(viewsets.GenericViewSet):
     serializer_class = ContentSerializer
     paginate_by = 20
     permission_classes = [IsAdminUser, CanEditContent]
+    field_map = {
+        "feature-type": "feature_type.slug",
+        "tag": "tags.slug",
+        "content-type": "_type"
+    }
 
     def list(self, request, *args, **kwargs):
         """Filter Content with a custom search.
@@ -495,7 +500,9 @@ class CustomSearchContentViewSet(viewsets.GenericViewSet):
         query = params
         is_preview = params.get("preview", True)
         qs = custom_search_model(
-            self.model, query, preview=is_preview, sort_pinned=sort_pinned)
+            self.model, query, preview=is_preview,
+            sort_pinned=sort_pinned, field_map=self.field_map
+        )
         return qs
 
     @list_route(methods=["get", "post"])

@@ -99,7 +99,7 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
             query=dict(
                 groups=makeGroups([
                     [
-                        ("tags.slug", "all", [self.tags[1].slug]),
+                        ("tag", "all", [self.tags[1].slug]),
                     ],
                 ])
             )
@@ -109,7 +109,7 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
             query=dict(
                 groups=makeGroups([
                     [
-                        ("tags.slug", "all", [self.tags[0].slug]),
+                        ("tag", "all", [self.tags[0].slug]),
                     ],
                 ])
             )
@@ -120,7 +120,7 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
             query=dict(
                 groups=makeGroups([
                     [
-                        ("tags.slug", "all", [
+                        ("tag", "all", [
                             self.tags[0].slug,
                             self.tags[1].slug
                         ]),
@@ -134,7 +134,7 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
             query=dict(
                 groups=makeGroups([
                     [
-                        ("tags.slug", "any", [
+                        ("tag", "any", [
                             self.tags[0].slug,
                             self.tags[1].slug
                         ]),
@@ -148,10 +148,10 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
             query=dict(
                 groups=makeGroups([
                     [
-                        ("tags.slug", "all", [
+                        ("tag", "all", [
                             self.tags[0].slug,  # obama
                         ]),
-                        ("tags.slug", "none", [
+                        ("tag", "none", [
                             self.tags[4].slug,  # politics
                         ]),
                     ],
@@ -164,12 +164,12 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
             query=dict(
                 groups=makeGroups([
                     [
-                        ("tags.slug", "any", [
+                        ("tag", "any", [
                             self.tags[3].slug  # funny tags
                         ]),
                     ],
                     [
-                        ("feature_type.slug", "any", [
+                        ("feature-type", "any", [
                             self.feature_types[1].slug  # slideshow
                         ]),
                     ],
@@ -182,7 +182,7 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
             query=dict(
                 groups=makeGroups([
                     [
-                        ("tags.slug", "all", [
+                        ("tag", "all", [
                             self.tags[2].slug  # funny tags
                         ]),
                     ],
@@ -195,7 +195,7 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
             query=dict(
                 groups=makeGroups([
                     [
-                        ("_type", "all", [
+                        ("content-type", "all", [
                             TestContentObjTwo.get_mapping_type_name()
                         ])
                     ]
@@ -265,7 +265,7 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
             query=dict(
                 groups=makeGroups([
                     [
-                        ("tags.slug", "any", [
+                        ("tag", "any", [
                             self.tags[0].slug,
                             self.tags[1].slug,
                             self.tags[2].slug,
@@ -378,12 +378,18 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
 
 class CustomSearchFilterTests(BaseCustomSearchFilterTests):
     """Test the F() generating functions."""
+    field_map = {
+        "feature-type": "feature_type.slug",
+        "tag": "tags.slug",
+        "content-type": "_type"
+    }
+
     def test_counts_correct(self):
         for s, count in self.search_expectations:
             self.check_filtered_count(s["query"], count)
 
     def check_filtered_count(self, query, expected_count):
-        qs = custom_search_model(Content, query)
+        qs = custom_search_model(Content, query, field_map=self.field_map)
         self.assertEqual(qs.count(), expected_count)
 
     def test_preview_counts_correct(self):
@@ -391,7 +397,7 @@ class CustomSearchFilterTests(BaseCustomSearchFilterTests):
             self.check_preview_filter_count(s["query"], count)
 
     def check_preview_filter_count(self, query, expected_count):
-        qs = custom_search_model(Content, query, preview=True)
+        qs = custom_search_model(Content, query, preview=True, field_map=self.field_map)
         self.assertEqual(qs.count(), expected_count)
 
     def test_ordering(self):
@@ -403,7 +409,7 @@ class CustomSearchFilterTests(BaseCustomSearchFilterTests):
             self.check_ordering(s["query"], ids)
         
     def check_ordering(self, query, ids):
-        qs = custom_search_model(Content, query)
+        qs = custom_search_model(Content, query, field_map=self.field_map)
         self.assertSequenceEqual([c.id for c in qs[:len(ids)]], ids)
 
 

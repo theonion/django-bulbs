@@ -37,13 +37,13 @@ from elasticutils import F
 
 def custom_search_model(
     model, query, preview=False, published=False, id_field="id", time_field="published",
-    sort_pinned=True):
+    sort_pinned=True, field_map={}):
     """Filter a model with the given filter."""
     if preview:
         func = preview_filter_from_query
     else:
         func = filter_from_query
-    f = func(query, id_field=id_field, time_field=time_field)
+    f = func(query, id_field=id_field, time_field=time_field, field_map=field_map)
     qs = model.search_objects.s().full().filter(f)
     # filter by published
     if published:
@@ -72,9 +72,9 @@ def custom_search_model(
     return qs
 
 
-def preview_filter_from_query(query, id_field="id", time_field="published"):
+def preview_filter_from_query(query, id_field="id", time_field="published", field_map={}):
     """This filter includes the "excluded_ids" so they still show up in the editor."""
-    f = groups_filter_from_query(query, time_field=time_field)
+    f = groups_filter_from_query(query, time_field=time_field, field_map=field_map)
     # NOTE: we don't exclude the excluded ids here so they show up in the editor
     # include these, please
     included_ids = query.get("included_ids")
@@ -84,11 +84,11 @@ def preview_filter_from_query(query, id_field="id", time_field="published"):
     return f
 
 
-def filter_from_query(query, id_field="id", time_field="published"):
+def filter_from_query(query, id_field="id", time_field="published", field_map={}):
     """This returns a filter which actually filters out everything, unlike the
     preview filter which includes excluded_ids for UI purposes.
     """
-    f = groups_filter_from_query(query, time_field=time_field)
+    f = groups_filter_from_query(query, time_field=time_field, field_map=field_map)
     excluded_ids = query.get("excluded_ids")
     included_ids = query.get("included_ids")
     if excluded_ids:  # exclude these
@@ -99,7 +99,7 @@ def filter_from_query(query, id_field="id", time_field="published"):
     return f
 
 
-def groups_filter_from_query(query, time_field="published"):
+def groups_filter_from_query(query, time_field="published", field_map={}):
     """Creates an F object for the groups of a search query."""
     f = F()
     # filter groups
@@ -107,6 +107,7 @@ def groups_filter_from_query(query, time_field="published"):
         group_f = F()
         for condition in group.get("conditions", []):
             field_name = condition["field"]
+            field_name = field_map.get(field_name, field_name)
             operation = condition["type"]
             values = condition["values"]
             if values:
