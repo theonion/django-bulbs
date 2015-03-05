@@ -558,9 +558,9 @@ class TestTokenAPI(BaseAPITestCase):
         self.assertEqual(json_response[2]["id"], info_3.id)
 
 
-class TestDoctypeSearchAPI(BaseAPITestCase):
+class TestContentTypeSearchAPI(BaseAPITestCase):
     def test_search(self):
-        url = reverse("doctype-list")
+        url = reverse("content-type-list")
         # TestContentObj
         r = self.api_client.get(url, dict(search="two"), format="json")
         self.assertEqual(r.status_code, 200)
