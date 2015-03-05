@@ -457,7 +457,7 @@ class DoctypeViewSet(viewsets.ViewSet):
         return Response(dict(results=results))
 
 
-class CustomFilterContentViewSet(viewsets.GenericViewSet):
+class CustomSearchContentViewSet(viewsets.GenericViewSet):
     """This is for searching with a custom search filter."""
     model = Content
     queryset = Content.objects.select_related("tags").all()
@@ -465,8 +465,7 @@ class CustomFilterContentViewSet(viewsets.GenericViewSet):
     paginate_by = 20
     permission_classes = [IsAdminUser, CanEditContent]
 
-    @list_route(methods=["get", "post"])
-    def items(self, request, *args, **kwargs):
+    def list(self, request, *args, **kwargs):
         """Filter Content with a custom search.
         {
             "query": SEARCH_QUERY
@@ -484,6 +483,13 @@ class CustomFilterContentViewSet(viewsets.GenericViewSet):
             serializer = self.get_serializer(self.object_list, many=True)
 
         return Response(serializer.data)
+
+    def create(self, request, *args, **kwargs):
+        """HACK: couldn't get POST to the list endpoint without
+        messing up POST for the other list_routes so I'm doing this.
+        Maybe something to do with the router?
+        """
+        return self.list(request, *args, **kwargs)
 
     def get_filtered_queryset(self, params, sort_pinned=True):
         query = params.get("query", {})
@@ -514,7 +520,7 @@ class CustomFilterContentViewSet(viewsets.GenericViewSet):
 # note: me view is registered in urls.py
 api_v1_router = routers.DefaultRouter()
 api_v1_router.register(r"content", ContentViewSet, base_name="content")
-api_v1_router.register(r"content-custom-filter", CustomFilterContentViewSet, base_name="content-custom-filter")
+api_v1_router.register(r"content-custom-search", CustomSearchContentViewSet, base_name="content-custom-search")
 api_v1_router.register(r"doctype", DoctypeViewSet, base_name="doctype")
 api_v1_router.register(r"tag", TagViewSet, base_name="tag")
 api_v1_router.register(r"log", LogEntryViewSet, base_name="logentry")
