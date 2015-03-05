@@ -437,7 +437,7 @@ class MeViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
         return Response(data)
 
 
-class DoctypeViewSet(viewsets.ViewSet):
+class ContentTypeViewSet(viewsets.ViewSet):
     """Searches doctypes of a model."""
     model = Content
 
@@ -526,7 +526,7 @@ class CustomSearchContentViewSet(viewsets.GenericViewSet):
 api_v1_router = routers.DefaultRouter()
 api_v1_router.register(r"content", ContentViewSet, base_name="content")
 api_v1_router.register(r"custom-search-content", CustomSearchContentViewSet, base_name="custom-search-content")
-api_v1_router.register(r"doctype", DoctypeViewSet, base_name="doctype")
+api_v1_router.register(r"content-type", ContentTypeViewSet, base_name="content-type")
 api_v1_router.register(r"tag", TagViewSet, base_name="tag")
 api_v1_router.register(r"log", LogEntryViewSet, base_name="logentry")
 api_v1_router.register(r"author", AuthorViewSet, base_name="author")
