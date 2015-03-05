@@ -447,7 +447,7 @@ class ContentTypeViewSet(viewsets.ViewSet):
         results = []
         doctypes = self.model.get_doctypes()
         for doctype, klass in doctypes.items():
-            name = klass._meta.verbose_name
+            name = klass._meta.verbose_name.title()
             if query.lower() in name.lower():
                 results.append(dict(
                     name=name,
