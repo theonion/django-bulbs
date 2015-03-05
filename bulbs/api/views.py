@@ -492,7 +492,7 @@ class CustomSearchContentViewSet(viewsets.GenericViewSet):
         return self.list(request, *args, **kwargs)
 
     def get_filtered_queryset(self, params, sort_pinned=True):
-        query = params.get("query", {})
+        query = params
         is_preview = params.get("preview", True)
         qs = custom_search_model(
             self.model, query, preview=is_preview, sort_pinned=sort_pinned)
@@ -506,11 +506,9 @@ class CustomSearchContentViewSet(viewsets.GenericViewSet):
     @list_route(methods=["get", "post"])
     def group_count(self, request, **kwargs):
         params = dict(
-            query=dict(
-                groups=[
-                    dict(request.DATA)
-                ]
-            )
+            groups=[
+                dict(request.DATA)
+            ]
         )
         qs = self.get_filtered_queryset(params, sort_pinned=False)
         return Response(dict(count=qs.count()))

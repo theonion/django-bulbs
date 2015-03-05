@@ -1,3 +1,4 @@
+import copy
 import json
 from datetime import timedelta
 
@@ -422,7 +423,9 @@ class ResultsApiTests(BaseCustomSearchApiTests):
 
     def check_api_counts(self, query, expected_count):
         endpoint_url = reverse("custom-search-content-list")
-        r = self.api_client.post(endpoint_url, {"query": query, "preview": False}, format="json")
+        payload = copy.deepcopy(query)
+        payload["preview"] = False
+        r = self.api_client.post(endpoint_url, payload, format="json")
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r.data["count"], expected_count)
 
@@ -432,7 +435,7 @@ class ResultsApiTests(BaseCustomSearchApiTests):
 
     def check_api_preview_counts(self, query, expected_count):
         endpoint_url = reverse("custom-search-content-list")
-        r = self.api_client.post(endpoint_url, {"query": query}, format="json")
+        r = self.api_client.post(endpoint_url, query, format="json")
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r.data["count"], expected_count)
 
@@ -445,7 +448,9 @@ class CountsApiTests(BaseCustomSearchApiTests):
 
     def check_api_counts(self, query, expected_count):
         endpoint_url = reverse("custom-search-content-count")
-        r = self.api_client.post(endpoint_url, {"query": query, "preview": False}, format="json")
+        payload = copy.deepcopy(query)
+        payload["preview"] = False
+        r = self.api_client.post(endpoint_url, payload, format="json")
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r.data["count"], expected_count)
 
@@ -455,7 +460,7 @@ class CountsApiTests(BaseCustomSearchApiTests):
 
     def check_api_preview_counts(self, query, expected_count):
         endpoint_url = reverse("custom-search-content-count")
-        r = self.api_client.post(endpoint_url, {"query": query}, format="json")
+        r = self.api_client.post(endpoint_url, query, format="json")
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r.data["count"], expected_count)
 
