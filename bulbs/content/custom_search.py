@@ -113,7 +113,9 @@ def groups_filter_from_query(query, time_field="published", field_map={}):
             if values:
                 values = [v["value"] for v in values]
                 if operation == "all":
-                    group_f &= F(**{field_name: values})
+                    # NOTE: is there a better way to express this?
+                    for value in values:
+                        group_f &= F(**{field_name: value})
                 elif operation == "any":
                     group_f &= F(**{field_name + "__in": values})
                 elif operation == "none":

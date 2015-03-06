@@ -57,6 +57,11 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
                 feature_type=3,
                 tags=[3, 2]
             ),
+            dict(
+                title="Both Obama and Biden in One Article",
+                feature_type=3,
+                tags=[0, 1, 2]
+            ),
         )
         time_step = timedelta(hours=12)
         pubtime = timezone.now() + time_step
@@ -282,11 +287,11 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
         )
         # saved search and the expected result count
         self.search_expectations = (
-            (s_biden, 1),
-            (s_obama, 3),
+            (s_biden, 2),
+            (s_obama, 4),
             (s_b_and_b, 1),
-            (s_b_or_b, 4),
-            (s_lite_obama, 1),
+            (s_b_or_b, 5),
+            (s_lite_obama, 2),
             (s_funny_and_slideshows, 2),
             (s_wow, len(self.content_list)),
             (s_one_article, 1),
@@ -299,11 +304,11 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
             (s_doctype, TestContentObjTwo.objects.count()),
         )
         self.preview_expectations = (
-            (s_biden, 1),
-            (s_obama, 3),
+            (s_biden, 2),
+            (s_obama, 4),
             (s_b_and_b, 1),
-            (s_b_or_b, 4),
-            (s_lite_obama, 1),
+            (s_b_or_b, 5),
+            (s_lite_obama, 2),
             (s_funny_and_slideshows, 2),
             (s_wow, len(self.content_list)),
             (s_one_article, 1),
@@ -313,10 +318,9 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
             (s_doctype, TestContentObjTwo.objects.count()),
         )
         self.group_preview_expectations = (
-            (s_biden, 1),
-            (s_obama, 3),
+            (s_biden, 2),
+            (s_obama, 4),
             (s_b_and_b, 1),
-            (s_b_or_b, 4),
             (s_wow, len(self.content_list)),
             (s_one_article, 1),
             (s_two_articles, 2),
@@ -324,11 +328,11 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
         )
         # is not published and not is_preview
         self.unpublished_expectations = (
-            (s_biden, 1),
-            (s_obama, 3),
+            (s_biden, 2),
+            (s_obama, 4),
             (s_b_and_b, 1),
-            (s_b_or_b, 4),
-            (s_lite_obama, 1),
+            (s_b_or_b, 5),
+            (s_lite_obama, 2),
             (s_funny_and_slideshows, 2),
             (s_wow, len(self.content_list)),
             (s_one_article, 1),
@@ -341,11 +345,11 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
         )
         # is published and not is_preview
         self.published_expectations = (
-            (s_biden, 1),
-            (s_obama, 2),
+            (s_biden, 2),
+            (s_obama, 3),
             (s_b_and_b, 1),
-            (s_b_or_b, 4 - 1),
-            (s_lite_obama, 1),
+            (s_b_or_b, 5 - 1),
+            (s_lite_obama, 2),
             (s_funny_and_slideshows, 2),
             (s_wow, len(self.content_list) - 1),
             (s_one_article, 1 - 1),
