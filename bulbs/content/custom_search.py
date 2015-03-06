@@ -47,6 +47,8 @@ def custom_search_model(model, query, preview=False, published=False,
         func = filter_from_query
     f = func(query, id_field=id_field, time_field=time_field, field_map=field_map)
     qs = model.search_objects.s().full().filter(f)
+    if query.get("query"):
+        qs = qs.query(_all__match=query["query"], must=True)
     # filter by published
     if published:
         now = timezone.now()

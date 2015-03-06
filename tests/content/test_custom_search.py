@@ -285,6 +285,13 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
                 ]
             )
         )
+        # text query
+        s_text_query = dict(
+            label="Text query",
+            query=dict(
+                query="article"
+            )
+        )
         # saved search and the expected result count
         self.search_expectations = (
             (s_biden, 2),
@@ -302,6 +309,7 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
             (s_pinned_2, len(self.content_list)),
             (s_pinned_2_groups, len(self.content_list)),
             (s_doctype, TestContentObjTwo.objects.count()),
+            (s_text_query, 1),
         )
         self.preview_expectations = (
             (s_biden, 2),
