@@ -35,10 +35,12 @@ from django.utils import timezone
 from elasticutils import F
 
 
-def custom_search_model(
-    model, query, preview=False, published=False, id_field="id", time_field="published",
-    sort_pinned=True, field_map={}):
-    """Filter a model with the given filter."""
+def custom_search_model(model, query, preview=False, published=False,
+    id_field="id", time_field="published", sort_pinned=True, field_map={}):
+    """Filter a model with the given filter.
+
+    `field_map` translates incoming field names to the appropriate ES names.
+    """
     if preview:
         func = preview_filter_from_query
     else:
