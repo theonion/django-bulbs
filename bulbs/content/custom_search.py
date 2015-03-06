@@ -84,7 +84,6 @@ def preview_filter_from_query(query, id_field="id", time_field="published", fiel
     included_ids = query.get("included_ids")
     if included_ids:
         f |= F(**{id_field + "__in": included_ids})
-    pinned_ids = query.get("pinned_ids")
     return f
 
 
@@ -99,7 +98,6 @@ def filter_from_query(query, id_field="id", time_field="published", field_map={}
         f &= ~F(**{id_field + "__in": excluded_ids})
     if included_ids:  # include these, please
         f |= F(**{id_field + "__in": included_ids})
-    pinned_ids = query.get("pinned_ids")
     return f
 
 
