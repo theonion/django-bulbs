@@ -47,8 +47,6 @@ def custom_search_model(model, query, preview=False, published=False,
         func = filter_from_query
     f = func(query, id_field=id_field, time_field=time_field, field_map=field_map)
     qs = model.search_objects.s().full().filter(f)
-    if query.get("query"):
-        qs = qs.query(_all__match=query["query"], must=True)
     # filter by published
     if published:
         now = timezone.now()
@@ -56,7 +54,7 @@ def custom_search_model(model, query, preview=False, published=False,
     # set up pinned ids
     pinned_ids = query.get("pinned_ids")
     if pinned_ids and sort_pinned:
-        qs = qs.query_raw({
+        args = {
             "function_score": {
                 "functions": [
                     {
@@ -70,8 +68,15 @@ def custom_search_model(model, query, preview=False, published=False,
                 ],
                 "score_mode": "sum"
             },
-        }).order_by("-_score", "-published")
+        }
+        # possibly include text query
+        if query.get("query"):
+            args["match"] = {"_all": query["query"]}
+        qs = qs.query_raw(args).order_by("-_score", "-published")
     else:
+        # possibly include text query
+        if query.get("query"):
+            qs = qs.query(_all__match=query["query"], must=True)
         qs = qs.order_by("-published")
     return qs
 
