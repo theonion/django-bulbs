@@ -147,6 +147,16 @@ class FeatureType(models.Model):
         return super(FeatureType, self).save(*args, **kwargs)
 
 
+class TemplateType(models.Model):
+    """
+    Template type for Content.
+    """
+
+    name = models.CharField(max_length=255)
+    slug = models.SlugField(unique=True)
+    content_type = models.ForeignKey(ContentType)
+
+
 class ContentManager(SearchManager):
     """
     a specialized version of `elastimorphic.base.SearchManager` for `bulbs.content.Content`
@@ -270,6 +280,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
     last_modified = models.DateTimeField(auto_now=True, default=timezone.now)
     title = models.CharField(max_length=512)
     slug = models.SlugField(blank=True, default='')
+    template_type = models.ForeignKey(TemplateType, blank=True, null=True)
     description = models.TextField(max_length=1024, blank=True, default="")
     # field used if thumbnail has been manually overridden
     thumbnail_override = ImageField(null=True, blank=True, editable=False)

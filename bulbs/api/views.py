@@ -22,11 +22,11 @@ from rest_framework.response import Response
 from elastimorphic.models import polymorphic_indexable_registry
 from elasticutils.contrib.django import get_es
 
-from bulbs.content.models import Content, Tag, LogEntry, FeatureType, ObfuscatedUrlInfo
+from bulbs.content.models import Content, Tag, LogEntry, FeatureType, ObfuscatedUrlInfo, TemplateType
 from bulbs.content.serializers import (
     LogEntrySerializer, PolymorphicContentSerializer,
     TagSerializer, UserSerializer, FeatureTypeSerializer,
-    ObfuscatedUrlInfoSerializer
+    ObfuscatedUrlInfoSerializer, TemplateTypeSerializer
 )
 from bulbs.contributions.serializers import ContributionSerializer
 from bulbs.contributions.models import Contribution
