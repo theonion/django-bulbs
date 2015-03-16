@@ -15,7 +15,7 @@
                         ...
                     ]
                 ],
-                time: 'X days' 
+                time: 'X days'
             },
             ...
         ],
@@ -46,39 +46,54 @@ def custom_search_model(model, query, preview=False, published=False,
     else:
         func = filter_from_query
     f = func(query, id_field=id_field, time_field=time_field, field_map=field_map)
-    qs = model.search_objects.s().full().filter(f)
     # filter by published
     if published:
         now = timezone.now()
-        qs = qs.filter(**{time_field + "__lte": now})
+        f &= F(**{time_field + "__lte": now})
+    qs = model.search_objects.s().filter(f)
+    # possibly include a text query
+    if query.get("query"):
+        qs = qs.query(_all__match=query["query"], must=True)
     # set up pinned ids
     pinned_ids = query.get("pinned_ids")
     if pinned_ids and sort_pinned:
-        args = {
+        # we need to work around elasticutils to build a
+        # filtered query containing a function score query
+        # which bubbles up the pinned items
+        must_queries = [{
             "function_score": {
-                "functions": [
-                    {
-                        "filter": {
-                            "ids": {
-                                "values": pinned_ids
-                            }
-                        },
-                        "boost_factor": 2
-                    },   
-                ],
+                "functions": [{
+                    "filter": {
+                        "ids": {
+                            "values": pinned_ids
+                        }
+                    },
+                    "boost_factor": 2
+                }],
                 "score_mode": "sum"
-            },
+            }
+        }]
+        # re-add the original query
+        original_q = qs.build_search()
+        if original_q.get("query"):
+            must_queries.append(original_q.get("query"))
+        # build up the raw es query
+        raw = {
+            "filtered": {
+                "query": {
+                    "bool": {
+                        "must": must_queries
+                    }
+                }
+            }
         }
-        # possibly include text query
-        if query.get("query"):
-            args["match"] = {"_all": query["query"]}
-        qs = qs.query_raw(args).order_by("-_score", "-published")
+        # include the original filters, if present
+        if "filter" in original_q:
+            raw["filtered"]["filter"] = original_q.get("filter")
+        qs = model.search_objects.s().full().query_raw(raw).order_by("-_score", "-published")
     else:
-        # possibly include text query
-        if query.get("query"):
-            qs = qs.query(_all__match=query["query"], must=True)
         qs = qs.order_by("-published")
-    return qs
+    return qs.full()
 
 
 def preview_filter_from_query(query, id_field="id", time_field="published", field_map={}):
