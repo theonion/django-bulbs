@@ -32,9 +32,9 @@ class SpecialCoverageApiTestCase(BaseAPITestCase):
 
     def test_special_coverage_api(self):
 
-        endpoint = reverse("content-list")
+        endpoint = reverse("special-coverage-list")
         print(endpoint)
-        endpoint = "/api/v1/special-coverage/"
+        # endpoint = "/api/v1/special-coverage/"
         response = self.client.get(endpoint)
 
         print(response.data)

@@ -16,4 +16,4 @@ class SpecialCoverage(models.Model):
         return super(SpecialCoverage, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse("special-coverage", kwargs=dict(slug=self.slug))
+        return ""
