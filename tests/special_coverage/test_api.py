@@ -38,6 +38,7 @@ class SpecialCoverageApiTestCase(BaseAPITestCase):
         response = self.client.get(endpoint)
 
         print(response.data)
+        raise Exception()
 
 
 
