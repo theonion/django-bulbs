@@ -27,7 +27,7 @@ from bulbs.content.models import Content, Tag, LogEntry, FeatureType, Obfuscated
 from bulbs.content.serializers import (
     ContentSerializer, LogEntrySerializer, PolymorphicContentSerializer,
     TagSerializer, UserSerializer, FeatureTypeSerializer,
-    ObfuscatedUrlInfoSerializer
+    ObfuscatedUrlInfoSerializer, TemplateTypeSerializer
 )
 from bulbs.contributions.serializers import ContributionSerializer
 from bulbs.contributions.models import Contribution

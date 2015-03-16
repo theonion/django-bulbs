@@ -9,7 +9,7 @@ from rest_framework import relations
 
 from elastimorphic.serializers import ContentTypeField, PolymorphicSerializerMixin
 
-from .models import Content, Tag, LogEntry, FeatureType, ObfuscatedUrlInfo
+from .models import Content, Tag, LogEntry, FeatureType, TemplateType, ObfuscatedUrlInfo
 
 
 class ImageFieldSerializer(serializers.WritableField):
@@ -87,6 +87,20 @@ class FeatureTypeSerializer(serializers.ModelSerializer):
             "id": obj.pk,
             "name": obj.name,
             "slug": obj.slug,
+        }
+
+
+class TemplateTypeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TemplateType
+
+    def to_natve(self, obj):
+        return {
+            "id": obj.pk,
+            "name": obj.name,
+            "slug": obj.slug,
+            "content_type": obj.content_type
         }
 
 
@@ -202,6 +216,7 @@ class ContentSerializer(serializers.ModelSerializer):
     thumbnail_override = ImageFieldSerializer(required=False)
     absolute_url = serializers.Field(source="get_absolute_url")
     status = serializers.Field(source="get_status")
+    template_type = serializers.SlugRelatedField(slug_field="slug", required=False)
 
     class Meta:
         model = Content
