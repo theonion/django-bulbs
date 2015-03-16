@@ -16,6 +16,11 @@ if "bulbs.promotion" in settings.INSTALLED_APPS:
         url(r"^", include("bulbs.promotion.urls")),
     )
 
+if "bulbs.special_coverage" in settings.INSTALLED_APPS:
+    urlpatterns += (
+        url(r"^", include("bulbs.special_coverage.urls")),
+    )
+
 if "bulbs.cms_notifications" in settings.INSTALLED_APPS:
     urlpatterns += (
         url(r"^notifications/(?P<pk>\d+)?", notifications_view, name="notifications"),

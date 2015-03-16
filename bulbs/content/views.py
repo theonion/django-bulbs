@@ -78,14 +78,14 @@ class ContentListView(ListView):
             search_kwargs["authors"] = self.kwargs["authors"]
         if self.authors:
             search_kwargs["authors"] = self.authors
-        
+
         if "before" in self.request.GET:
             search_kwargs["before"] = self.request.GET["before"]
         if "before" in self.kwargs:
             search_kwargs["before"] = self.kwargs["before"]
         if self.before:
             search_kwargs["before"] = self.before
-        
+
         if "after" in self.request.GET:
             search_kwargs["after"] = self.request.GET["after"]
         if "after" in self.kwargs:
@@ -99,6 +99,24 @@ class ContentListView(ListView):
         return self.model.search_objects.search(**search_kwargs)
 
 
+class PaginatedMixin(object):
+
+    def get_context_data(self, **kwargs):
+        context = super(PaginatedMixin, self).get_context_data(**kwargs)
+
+        params = self.request.GET.copy()
+        page = context.get("page_obj")
+        if page:
+            if page.has_next():
+                params["page"] = page.next_page_number()
+                context["next_url"] = u"{0}?{1}".format(self.request.path, params.urlencode())
+            if page.has_previous():
+                params["page"] = page.previous_page_number()
+                context["previous_url"] = u"{0}?{1}".format(self.request.path, params.urlencode())
+
+        return context
+
+
 class ContentCustomSearchListView(ListView):
     model = Content
     paginate_by = 20
@@ -109,7 +127,7 @@ class ContentCustomSearchListView(ListView):
         "feature-type": "feature_type.slug",
         "tag": "tags.slug",
         "content-type": "_type"
-    } 
+    }
 
     def get_queryset(self):
         query = self.get_search_query()
