@@ -1,4 +1,3 @@
-from django.core.urlresolvers import reverse
 from django.db import models
 from django.template.defaultfilters import slugify
 from json_field import JSONField
@@ -14,6 +13,3 @@ class SpecialCoverage(models.Model):
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
         return super(SpecialCoverage, self).save(*args, **kwargs)
-
-    def get_absolute_url(self):
-        return ""
