@@ -144,6 +144,33 @@ class ContentCustomSearchListView(ListView):
         return qs
 
 
+class ContentCustomSearchListView(ListView):
+    model = Content
+    paginate_by = 20
+    context_object_name = "content_list"
+    is_preview = False
+    is_published = True
+    field_map = {
+        "feature-type": "feature_type.slug",
+        "tag": "tags.slug",
+        "content-type": "_type"
+    } 
+
+    def get_queryset(self):
+        query = self.get_search_query()
+        return self.get_custom_search_queryset(query)
+
+    def get_search_query(self):
+        return {}
+
+    def get_custom_search_queryset(self, query):
+        qs = custom_search_model(
+            self.model, query, preview=self.is_preview,
+            published=self.is_published, field_map=self.field_map
+        )
+        return qs
+
+
 class BaseContentDetailView(DetailView):
     """Should be used as the base for all content detail views."""
 

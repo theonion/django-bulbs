@@ -15,7 +15,7 @@
                         ...
                     ]
                 ],
-                time: 'X days'
+                time: 'X days' 
             },
             ...
         ],
@@ -84,7 +84,7 @@ def custom_search_model(model, query, preview=False, published=False,
                     "bool": {
                         "must": must_queries
                     }
-                }
+                } 
             }
         }
         # include the original filters, if present

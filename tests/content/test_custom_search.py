@@ -43,7 +43,7 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
                 tags=[1, 2, 4]
             ),
             dict(
-                title="Obama In Slides",
+                title="Obama In Slides Is Flawless",
                 feature_type=1,
                 tags=[0, 2, 4]
             ),
@@ -53,7 +53,7 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
                 tags=[0, 2]
             ),
             dict(
-                title="Real funny video here",
+                title="Flawless video here",
                 feature_type=3,
                 tags=[3, 2]
             ),
@@ -289,7 +289,20 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
         s_text_query = dict(
             label="Text query",
             query=dict(
-                query="article"
+                query="again"
+            )
+        )
+        # text query with pinned ids
+        s_text_query_pinned = dict(
+            label="Text query",
+            query=dict(
+                groups=makeGroups([
+                    [
+                        ("tag", "any", [self.tags[2].slug]),
+                    ]
+                ]),
+                pinned_ids=[self.content_list[4].id],
+                query="Flawless"
             )
         )
         # saved search and the expected result count
@@ -309,7 +322,8 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
             (s_pinned_2, len(self.content_list)),
             (s_pinned_2_groups, len(self.content_list)),
             (s_doctype, TestContentObjTwo.objects.count()),
-            (s_text_query, 1),
+            (s_text_query, 2),
+            (s_text_query_pinned, 2),
         )
         self.preview_expectations = (
             (s_biden, 2),
@@ -324,6 +338,8 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
             (s_all_but_one_article, len(self.content_list)), # excluded
             (s_last_day, 3),
             (s_doctype, TestContentObjTwo.objects.count()),
+            (s_text_query, 2),
+            (s_text_query_pinned, 2),
         )
         self.group_preview_expectations = (
             (s_biden, 2),
@@ -350,6 +366,8 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
             (s_pinned, len(self.content_list)),
             (s_pinned_2, len(self.content_list)),
             (s_pinned_2_groups, len(self.content_list)),
+            (s_text_query, 2),
+            (s_text_query_pinned, 2),
         )
         # is published and not is_preview
         self.published_expectations = (
@@ -367,10 +385,13 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
             (s_pinned, len(self.content_list) - 1),
             (s_pinned_2, len(self.content_list) - 1),
             (s_pinned_2_groups, len(self.content_list) - 1),
+            (s_text_query, 1),
+            (s_text_query_pinned, 2),
         )
         # (search filter, (list, of, ids, in, order)),
         self.ordered_expectations = (
             (s_all_but_one_article, (2, 3, 4)),
+            (s_text_query_pinned, (content_list[4].id, content_list[2].id)),
         )
         self.pinned_expectations = (
             (s_pinned, (
@@ -508,7 +529,7 @@ class ContentCustomSearchListViewTestCase(BaseCustomSearchFilterTests):
             
     def test_unpublished_list_view(self):
         url = reverse("tests.testcontent.views.test_unpublished_content_custom_search_list")
-        for s, expected_count in self.unpublished_expectations:
+        for s, expected_count in self.search_expectations:
             r = self.client.post(url, json.dumps(dict(query=s["query"])), content_type="application/json")
             self.assertEqual(r.status_code, 200)
             self.assertEqual(r.context_data["paginator"].count, expected_count)
