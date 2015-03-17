@@ -10,7 +10,7 @@ cache:
   directories:
     - $HOME/.pip-cache/
 install:
-  - wget -O - https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.0.3.tar.gz | tar xz --directory=$ES_DIRECTORY --strip-components=1
+  - wget --no-check-certificate -O - https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.0.3.tar.gz | tar xz --directory=$ES_DIRECTORY --strip-components=1
   - pushd ${ES_DIRECTORY}
   - bin/elasticsearch -d -D es.path.data=/tmp -D es.gateway.type=none -D es.index.store.type=memory -D es.discovery.zen.ping.multicast.enabled=false
   - popd 
