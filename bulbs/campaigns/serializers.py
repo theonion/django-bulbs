@@ -5,21 +5,21 @@ from bulbs.content.serializers import ImageFieldSerializer
 from .models import Campaign, CampaignPixel
 
 
-class CampaignTypeField(serializers.WritableField):
+class PixelTypeField(serializers.WritableField):
     """
-    Campaign 'type' objects serialized to/from label/identifier
+    Pixel 'type' objects serialized to/from label/identifier
     """
     def to_native(self, obj):
-        return dict(CampaignPixel.CHOICES)[obj]
+        return dict(CampaignPixel.PIXEL_TYPES)[obj]
 
     def from_native(self, data):
         return dict((label, value)
-                    for value, label in CampaignPixel.CHOICES)[data]
+                    for value, label in CampaignPixel.PIXEL_TYPES)[data]
 
 
 class CampaignPixelSerializer(serializers.ModelSerializer):
 
-    campaign_type = CampaignTypeField()
+    pixel_type = PixelTypeField()
 
     class Meta:
         model = CampaignPixel

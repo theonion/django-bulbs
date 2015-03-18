@@ -17,10 +17,10 @@ class Campaign(models.Model):
 class CampaignPixel(models.Model):
 
     LOGO = 0
-    CHOICES = (
+    PIXEL_TYPES = (
         (LOGO, 'Logo'),
     )
 
     campaign = models.ForeignKey(Campaign, related_name='pixels')
     url = models.URLField()
-    pixel_type = models.IntegerField(choices=CHOICES, default=LOGO)
+    pixel_type = models.IntegerField(choices=PIXEL_TYPES, default=LOGO)

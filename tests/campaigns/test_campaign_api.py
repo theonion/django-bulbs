@@ -21,7 +21,7 @@ class CampaignApiCase(TestCase):
                                            campaign_label="Label")
         pixel = CampaignPixel.objects.create(url='http://example.com/1',
                                              campaign=campaign,
-                                             campaign_type=CampaignPixel.LOGO)
+                                             pixel_type=CampaignPixel.LOGO)
         client = Client()
         client.login(username="admin", password="secret")
         campaign_detail_endpoint = reverse("campaign-detail", kwargs=dict(pk=campaign.pk))
@@ -35,5 +35,5 @@ class CampaignApiCase(TestCase):
         self.assertEqual(data['pixels'][0],
                          {'id': pixel.id,
                           'url': 'http://example.com/1',
-                          'campaign_type': 'Logo'},
+                          'pixel_type': 'Logo'},
                          )
