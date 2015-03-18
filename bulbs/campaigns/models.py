@@ -23,4 +23,4 @@ class CampaignPixel(models.Model):
 
     campaign = models.ForeignKey(Campaign, related_name='pixels')
     url = models.URLField()
-    campaign_type = models.IntegerField(choices=CHOICES, default=LOGO)
+    pixel_type = models.IntegerField(choices=CHOICES, default=LOGO)
