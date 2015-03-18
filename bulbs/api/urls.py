@@ -28,5 +28,5 @@ if "bulbs.contributions" in settings.INSTALLED_APPS:
 
 if "bulbs.campaigns" in settings.INSTALLED_APPS:
     urlpatterns += (
-        url(r"^campaigns/", include("bulbs.campaigns.urls")),
+        url(r"^", include("bulbs.campaigns.urls")),
     )
