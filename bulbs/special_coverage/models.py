@@ -9,6 +9,8 @@ class SpecialCoverage(models.Model):
     description = models.TextField(default="", blank=True)
     query = JSONField(default={}, blank=True)
     videos = JSONField(default=[], blank=True)
+    active = models.BooleanField(default=False)
+    promoted = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
