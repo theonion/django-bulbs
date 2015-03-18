@@ -1,6 +1,7 @@
 from django.db import models
 from django.template.defaultfilters import slugify
 from json_field import JSONField
+from bulbs.campaigns.models import Campaign
 
 
 class SpecialCoverage(models.Model):
@@ -11,6 +12,7 @@ class SpecialCoverage(models.Model):
     videos = JSONField(default=[], blank=True)
     active = models.BooleanField(default=False)
     promoted = models.BooleanField(default=False)
+    campaign = models.ForeignKey(Campaign, null=True, default=None, blank=True)
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
