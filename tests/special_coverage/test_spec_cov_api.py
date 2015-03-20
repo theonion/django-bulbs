@@ -1,10 +1,12 @@
+import json
+
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.test.client import Client
 
 from bulbs.special_coverage.models import SpecialCoverage
 
-from tests.utils import BaseAPITestCase
+from tests.utils import BaseAPITestCase, JsonEncoder
 
 
 class SpecialCoverageApiTestCase(BaseAPITestCase):
@@ -36,8 +38,6 @@ class SpecialCoverageApiTestCase(BaseAPITestCase):
             kwargs={"pk": self.special_coverage.id})
         response = self.client.get(endpoint)
 
-        print(response.data["id"])
-
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["id"], self.special_coverage.id)
 
@@ -61,5 +61,37 @@ class SpecialCoverageApiTestCase(BaseAPITestCase):
 
         self.assertEqual(response.status_code, 403)
 
+    def test_query_string_resolves_to_json_object_when_retrieving(self):
+        """Check that query string does not resolve to a string when received by
+        the frontend."""
 
-# TODO : test permissions for putting, posting, etc.
+        self.special_coverage.query = '{"included_ids": [1,2,3]}'
+        self.special_coverage.save()
+
+        endpoint = reverse(
+            "special-coverage-detail",
+            kwargs={"pk": self.special_coverage.id})
+        response = self.client.get(endpoint)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIsInstance(response.data["query"], dict)
+
+    def test_query_string_resolves_to_string_when_saving(self):
+        """Check that query string resolves back into a string when returned to the
+        backend."""
+
+        data_special_coverage = {
+            "name": "something",
+            "query": {
+                "included_ids": [1, 2, 3]
+            }
+        }
+
+        # post new listing
+        self.client.post(
+            reverse("special-coverage-list"),
+            json.dumps(data_special_coverage, cls=JsonEncoder),
+            content_type="application/json"
+        )
+
+        self.assertIsInstance(SpecialCoverage.objects.all()[0].query, basestring)

@@ -16,18 +16,7 @@ from rest_framework.response import Response
 
 from .models import Video
 from bulbs.content.models import LogEntry
-
-
-class JSONField(serializers.WritableField):
-    def to_native(self, obj):
-        if obj is None:
-            return self.default
-        return obj
-
-    def from_native(self, data):
-        if data is None:
-            return self.default
-        return data
+from bulbs.utils.serializers import JSONField
 
 
 class VideoSerializer(serializers.ModelSerializer):
