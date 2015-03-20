@@ -38,8 +38,6 @@ class SpecialCoverageApiTestCase(BaseAPITestCase):
             kwargs={"pk": self.special_coverage.id})
         response = self.client.get(endpoint)
 
-        print(response.data["id"])
-
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["id"], self.special_coverage.id)
 
@@ -64,10 +62,8 @@ class SpecialCoverageApiTestCase(BaseAPITestCase):
         self.assertEqual(response.status_code, 403)
 
 
-# TODO : test permissions for putting, posting, etc.
-
-
 class SpecialCoverageQueryTests(BaseCustomSearchFilterTests):
+
     def setUp(self):
         super(SpecialCoverageQueryTests, self).setUp()
 
@@ -81,35 +77,41 @@ class SpecialCoverageQueryTests(BaseCustomSearchFilterTests):
         )
         res = sc.get_content()
         for content in res:
-            assert isinstance(content, Content)
+            self.assertIsInstance(content, Content)
 
     def test_has_pinned_content(self):
         """tests that the .has_pinned_content accurately returns True or False"""
+
         query = self.search_expectations[0][0]
         sc = SpecialCoverage.objects.create(
             name="All Biden, Baby",
             description="All Biden, Baby",
             query=query
         )
-        assert hasattr(sc, "has_pinned_content")
-        assert sc.has_pinned_content is False
+
+        self.assertTrue(hasattr(sc, "has_pinned_content"))
+        self.assertFalse(sc.has_pinned_content)
+
         query = self.search_expectations[-1][0]
         sc = SpecialCoverage.objects.create(
             name="Text query",
             description="Text query",
             query=query
         )
-        assert hasattr(sc, "has_pinned_content")
-        assert sc.has_pinned_content is True
+
+        self.assertTrue(hasattr(sc, "has_pinned_content"))
+        self.assertTrue(sc.has_pinned_content)
 
     def test_contents(self):
         """tests that the .contents accurately returns Content objects"""
+
         query = self.search_expectations[2][0]
         sc = SpecialCoverage.objects.create(
             name="Obama and Biden, together",
             description="Obama and Biden, together",
             query=query
         )
-        assert hasattr(sc, "contents")
+
+        self.assertTrue(hasattr(sc, "contents"))
         for content in sc.contents:
-            assert isinstance(content, Content)
+            self.assertIsInstance(content, Content)
