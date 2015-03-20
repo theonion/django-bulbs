@@ -1,12 +1,12 @@
+import json
+
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.test.client import Client
 
-from bulbs.content.models import Content
 from bulbs.special_coverage.models import SpecialCoverage
 
-from tests.content.test_custom_search import BaseCustomSearchFilterTests
-from tests.utils import BaseAPITestCase
+from tests.utils import BaseAPITestCase, JsonEncoder
 
 
 class SpecialCoverageApiTestCase(BaseAPITestCase):
@@ -61,57 +61,37 @@ class SpecialCoverageApiTestCase(BaseAPITestCase):
 
         self.assertEqual(response.status_code, 403)
 
+    def test_query_string_resolves_to_json_object_when_retrieving(self):
+        """Check that query string does not resolve to a string when received by
+        the frontend."""
 
-class SpecialCoverageQueryTests(BaseCustomSearchFilterTests):
+        self.special_coverage.query = '{"included_ids": [1,2,3]}'
+        self.special_coverage.save()
 
-    def setUp(self):
-        super(SpecialCoverageQueryTests, self).setUp()
+        endpoint = reverse(
+            "special-coverage-detail",
+            kwargs={"pk": self.special_coverage.id})
+        response = self.client.get(endpoint)
 
-    def test_get_content(self):
-        """tests the search results are instances of Content"""
-        query = self.search_expectations[1][0]
-        sc = SpecialCoverage.objects.create(
-            name="All Obama, Baby",
-            description="All Obama, Baby",
-            query=query
-        )
-        res = sc.get_content()
-        for content in res:
-            self.assertIsInstance(content, Content)
+        self.assertEqual(response.status_code, 200)
+        self.assertIsInstance(response.data["query"], dict)
 
-    def test_has_pinned_content(self):
-        """tests that the .has_pinned_content accurately returns True or False"""
+    def test_query_string_resolves_to_string_when_saving(self):
+        """Check that query string resolves back into a string when returned to the
+        backend."""
 
-        query = self.search_expectations[0][0]
-        sc = SpecialCoverage.objects.create(
-            name="All Biden, Baby",
-            description="All Biden, Baby",
-            query=query
-        )
+        data_special_coverage = {
+            "name": "something",
+            "query": {
+                "included_ids": [1, 2, 3]
+            }
+        }
 
-        self.assertTrue(hasattr(sc, "has_pinned_content"))
-        self.assertFalse(sc.has_pinned_content)
-
-        query = self.search_expectations[-1][0]
-        sc = SpecialCoverage.objects.create(
-            name="Text query",
-            description="Text query",
-            query=query
+        # post new listing
+        self.client.post(
+            reverse("special-coverage-list"),
+            json.dumps(data_special_coverage, cls=JsonEncoder),
+            content_type="application/json"
         )
 
-        self.assertTrue(hasattr(sc, "has_pinned_content"))
-        self.assertTrue(sc.has_pinned_content)
-
-    def test_contents(self):
-        """tests that the .contents accurately returns Content objects"""
-
-        query = self.search_expectations[2][0]
-        sc = SpecialCoverage.objects.create(
-            name="Obama and Biden, together",
-            description="Obama and Biden, together",
-            query=query
-        )
-
-        self.assertTrue(hasattr(sc, "contents"))
-        for content in sc.contents:
-            self.assertIsInstance(content, Content)
+        self.assertIsInstance(SpecialCoverage.objects.all()[0].query, basestring)
