@@ -18,7 +18,10 @@ class SpecialCoverage(models.Model):
     campaign = models.ForeignKey(Campaign, null=True, default=None, blank=True)
 
     def save(self, *args, **kwargs):
-        self.slug = slugify(self.name)
+        """Saving ensures that the slug, if not set, is set to the slugified name."""
+
+        if not self.slug:
+            self.slug = slugify(self.name)
         return super(SpecialCoverage, self).save(*args, **kwargs)
 
     def get_content(self):
