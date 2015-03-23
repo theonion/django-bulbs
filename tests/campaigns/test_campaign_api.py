@@ -172,3 +172,47 @@ class CampaignApiCase(TestCase):
                           "pixels": [],
                           },
                          response.data)
+
+    def test_search_campaign_by_campaign(self):
+        """Test that searching campaigns by their label works."""
+
+        # matching campaign
+        campaign_label = "O-1337 Honda"
+        campaign = Campaign.objects.create(sponsor_name="Original Name",
+                                           campaign_label=campaign_label)
+
+        # non-matching campaign
+        Campaign.objects.create(sponsor_name="Original Name",
+                                campaign_label="NO!")
+
+        client = Client()
+        client.login(username="admin", password="secret")
+        campaign_list_endpoint = reverse("campaign-list")
+        response = client.get(campaign_list_endpoint, data={"search": campaign_label})
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["id"], campaign.pk)
+
+    def test_search_campaign_by_sponsor(self):
+        """Test that searching campaigns by their sponsor name works."""
+
+        # matching campaign
+        sponsor_name = "Hondaz"
+        campaign = Campaign.objects.create(sponsor_name=sponsor_name,
+                                           campaign_label="O-1337 HONADZ")
+
+        # non-matching campaign
+        Campaign.objects.create(sponsor_name="Hagendaz",
+                                campaign_label="O-1SCRM Hagendaz")
+
+        client = Client()
+        client.login(username="admin", password="secret")
+        campaign_list_endpoint = reverse("campaign-list")
+        response = client.get(campaign_list_endpoint, data={"search": sponsor_name})
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["id"], campaign.pk)
