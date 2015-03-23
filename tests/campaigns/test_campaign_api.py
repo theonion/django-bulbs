@@ -53,7 +53,8 @@ class CampaignApiCase(TestCase):
             "end_date":  END_DATE.isoformat(),
             "campaign_label": "Test Label",
             "impression_goal": 1000,
-            "pixels": [],
+            "pixels": [{"url": "http://example.com/pixel/1",
+                        "pixel_type": "Logo"}],
         }
         client = Client()
         client.login(username="admin", password="secret")
@@ -65,7 +66,9 @@ class CampaignApiCase(TestCase):
         # assert that we can load it up
         campaign = Campaign.objects.get(id=response.data["id"])
         self.assertEqual(campaign.sponsor_name, data["sponsor_name"])
-        self.assertEqual(0, campaign.pixels.count())
+        self.assertEqual(1, campaign.pixels.count())
+        pixel = campaign.pixels.first()
+        self.assertEqual(pixel.url, data["pixels"][0]["url"])
 
         # check that all the fields went through
         self.assertEqual({"id": campaign.id,
@@ -76,34 +79,11 @@ class CampaignApiCase(TestCase):
                           "impression_goal": 1000,
                           "start_date": START_DATE,
                           "end_date":  END_DATE,
-                          "pixels": [],
+                          "pixels": [{"id": pixel.id,
+                                      "url": "http://example.com/pixel/1",
+                                      "pixel_type": "Logo"}],
                           },
                          response.data)
-
-    def test_create_campaign_with_pixels_causes_validation_error(self):
-        data = {
-            "sponsor_name": "Acme",
-            #"sponsor_logo": TODO
-            "sponsor_url": "http://example.com",
-            "start_date": START_DATE.isoformat(),
-            "end_date":  END_DATE.isoformat(),
-            "campaign_label": "Test Label",
-            "impression_goal": 1000,
-            "pixels": [{"url": "http://example.com/pixel/1",
-                        "pixel_type": "Logo"}],
-        }
-        client = Client()
-        client.login(username="admin", password="secret")
-        campaign_detail_endpoint = reverse("campaign-list")
-        response = client.post(campaign_detail_endpoint, json.dumps(data),
-                               content_type="application/json")
-        self.assertEqual(response.status_code, 201)  # Bad Request
-        # self.assertEqual({"pixels": ["New campaigns must be saved once before adding pixels."]},
-        #                  json.loads(response.content))
-
-        ## assert no objects created
-        self.assertEqual(1, Campaign.objects.count())
-        self.assertEqual(1, CampaignPixel.objects.count())
 
     def test_update_campaign(self):
         campaign = Campaign.objects.create(sponsor_name="Original Name",
