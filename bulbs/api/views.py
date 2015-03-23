@@ -11,6 +11,7 @@ from django.utils.dateparse import parse_datetime
 from elastimorphic.models import polymorphic_indexable_registry
 from elasticutils.contrib.django import get_es
 import elasticsearch
+
 from rest_framework import (
     decorators,
     filters,
