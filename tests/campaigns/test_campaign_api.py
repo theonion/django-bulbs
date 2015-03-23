@@ -1,6 +1,5 @@
 from datetime import datetime
 import json
-import unittest
 
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
@@ -47,7 +46,7 @@ class CampaignApiCase(TestCase):
     def test_create_campaign(self):
         data = {
             "sponsor_name": "Acme",
-            #"sponsor_logo": TODO
+            "sponsor_logo": {'id': 123},
             "sponsor_url": "http://example.com",
             "start_date": START_DATE.isoformat(),
             "end_date":  END_DATE.isoformat(),
@@ -73,7 +72,7 @@ class CampaignApiCase(TestCase):
         # check that all the fields went through
         self.assertEqual({"id": campaign.id,
                           "sponsor_name": "Acme",
-                          "sponsor_logo": None,  # TODO
+                          "sponsor_logo": {'id': 123},
                           "sponsor_url": "http://example.com",
                           "campaign_label": "Test Label",
                           "impression_goal": 1000,
@@ -92,7 +91,7 @@ class CampaignApiCase(TestCase):
         data = {
             "id": campaign.id,
             "sponsor_name": "Acme",
-            #"sponsor_logo": TODO
+            "sponsor_logo": {'id': 123},
             "sponsor_url": "http://example.com",
             "start_date": START_DATE.isoformat(),
             "end_date":  END_DATE.isoformat(),
@@ -106,7 +105,7 @@ class CampaignApiCase(TestCase):
         client.login(username="admin", password="secret")
         campaign_detail_endpoint = reverse("campaign-detail", kwargs=dict(pk=campaign.pk))
         response = client.put(campaign_detail_endpoint, json.dumps(data),
-                               content_type="application/json")
+                              content_type="application/json")
         self.assertEqual(response.status_code, 200)
 
         # assert model updated
@@ -119,7 +118,7 @@ class CampaignApiCase(TestCase):
         # check that all the fields went through
         self.assertEqual({"id": campaign.id,
                           "sponsor_name": "Acme",
-                          "sponsor_logo": None,  # TODO
+                          "sponsor_logo": {'id': 123},
                           "sponsor_url": "http://example.com",
                           "campaign_label": "Test Label",
                           "impression_goal": 1000,
@@ -134,14 +133,14 @@ class CampaignApiCase(TestCase):
     def test_update_campaign_delete_pixel(self):
         campaign = Campaign.objects.create(sponsor_name="Original Name",
                                            campaign_label="Original Label")
-        pixel = CampaignPixel.objects.create(url="http://example.com/pixel/1",
-                                             campaign=campaign,
-                                             pixel_type=CampaignPixel.LOGO)
+        CampaignPixel.objects.create(url="http://example.com/pixel/1",
+                                     campaign=campaign,
+                                     pixel_type=CampaignPixel.LOGO)
 
         data = {
             "id": campaign.id,
             "sponsor_name": "Acme",
-            #"sponsor_logo": TODO
+            "sponsor_logo": {'id': 123},
             "sponsor_url": "http://example.com",
             "start_date": START_DATE.isoformat(),
             "end_date":  END_DATE.isoformat(),
@@ -154,7 +153,7 @@ class CampaignApiCase(TestCase):
         client.login(username="admin", password="secret")
         campaign_detail_endpoint = reverse("campaign-detail", kwargs=dict(pk=campaign.pk))
         response = client.put(campaign_detail_endpoint, json.dumps(data),
-                               content_type="application/json")
+                              content_type="application/json")
         self.assertEqual(response.status_code, 200)
 
         # assert model updated
@@ -164,7 +163,7 @@ class CampaignApiCase(TestCase):
         # check that all the fields went through
         self.assertEqual({"id": campaign.id,
                           "sponsor_name": "Acme",
-                          "sponsor_logo": None,  # TODO
+                          "sponsor_logo": {'id': 123},
                           "sponsor_url": "http://example.com",
                           "campaign_label": "Test Label",
                           "impression_goal": 1000,
