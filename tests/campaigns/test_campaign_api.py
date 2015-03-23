@@ -97,12 +97,13 @@ class CampaignApiCase(TestCase):
         campaign_detail_endpoint = reverse("campaign-list")
         response = client.post(campaign_detail_endpoint, json.dumps(data),
                                content_type="application/json")
-        self.assertEqual(response.status_code, 400)  # Bad Request
-        self.assertEqual({"pixels": ["New campaigns must be saved once before adding pixels."]},
-                         json.loads(response.content))
+        self.assertEqual(response.status_code, 201)  # Bad Request
+        # self.assertEqual({"pixels": ["New campaigns must be saved once before adding pixels."]},
+        #                  json.loads(response.content))
 
         ## assert no objects created
-        self.assertEqual(0, Campaign.objects.count())
+        self.assertEqual(1, Campaign.objects.count())
+        self.assertEqual(1, CampaignPixel.objects.count())
 
     def test_update_campaign(self):
         campaign = Campaign.objects.create(sponsor_name="Original Name",
