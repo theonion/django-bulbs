@@ -1,4 +1,6 @@
+from datetime import datetime
 import json
+import unittest
 
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
@@ -16,10 +18,10 @@ class CampaignApiCase(TestCase):
         admin.is_staff = True
         admin.save()
 
-    def test_api(self):
+    def test_get_api(self):
         campaign = Campaign.objects.create(sponsor_name="Sponsor",
                                            campaign_label="Label")
-        pixel = CampaignPixel.objects.create(url='http://example.com/1',
+        pixel = CampaignPixel.objects.create(url="http://example.com/1",
                                              campaign=campaign,
                                              pixel_type=CampaignPixel.LOGO)
         client = Client()
@@ -30,10 +32,122 @@ class CampaignApiCase(TestCase):
 
         data = json.loads(response.content)
 
-        self.assertEqual(data['id'], campaign.id)
-        self.assertEqual(len(data['pixels']), 1)
-        self.assertEqual(data['pixels'][0],
-                         {'id': pixel.id,
-                          'url': 'http://example.com/1',
-                          'pixel_type': 'Logo'},
+        self.assertEqual(data["id"], campaign.id)
+        self.assertEqual(len(data["pixels"]), 1)
+        self.assertEqual(data["pixels"][0],
+                         {"id": pixel.id,
+                          "url": "http://example.com/1",
+                          "pixel_type": "Logo"},
                          )
+
+    def test_create_campaign(self):
+        start_date = datetime(2015, 3, 19, 19, 0, 5)
+        end_date = datetime(2015, 3, 20, 20, 0, 5)
+        data = {
+            "sponsor_name": "Acme",
+            #"sponsor_logo": TODO
+            "sponsor_url": "http://example.com",
+            "start_date": start_date.isoformat(),
+            "end_date":  end_date.isoformat(),
+            "campaign_label": "Test Label",
+            "impression_goal": 1000,
+            "pixels": [],
+        }
+        client = Client()
+        client.login(username="admin", password="secret")
+        campaign_detail_endpoint = reverse("campaign-list")
+        response = client.post(campaign_detail_endpoint, json.dumps(data),
+                               content_type="application/json")
+        self.assertEqual(response.status_code, 201)  # 201 Created
+
+        # assert that we can load it up
+        campaign = Campaign.objects.get(id=response.data["id"])
+        self.assertEqual(campaign.sponsor_name, data["sponsor_name"])
+        self.assertEqual(0, campaign.pixels.count())
+
+        # check that all the fields went through
+        self.assertEqual({"id": campaign.id,
+                          "sponsor_name": "Acme",
+                          "sponsor_logo": None,  # TODO
+                          "sponsor_url": "http://example.com",
+                          "campaign_label": "Test Label",
+                          "impression_goal": 1000,
+                          "start_date": start_date,
+                          "end_date":  end_date,
+                          "pixels": [],
+                          },
+                         response.data)
+
+    def test_create_campaign_with_pixels_causes_validation_error(self):
+        start_date = datetime(2015, 3, 19, 19, 0, 5)
+        end_date = datetime(2015, 3, 20, 20, 0, 5)
+        data = {
+            "sponsor_name": "Acme",
+            #"sponsor_logo": TODO
+            "sponsor_url": "http://example.com",
+            "start_date": start_date.isoformat(),
+            "end_date":  end_date.isoformat(),
+            "campaign_label": "Test Label",
+            "impression_goal": 1000,
+            "pixels": [{"url": "http://example.com/pixel/1",
+                        "pixel_type": "Logo"}],
+        }
+        client = Client()
+        client.login(username="admin", password="secret")
+        campaign_detail_endpoint = reverse("campaign-list")
+        response = client.post(campaign_detail_endpoint, json.dumps(data),
+                               content_type="application/json")
+        self.assertEqual(response.status_code, 400)  # Bad Request
+        self.assertEqual({"pixels": ["New campaigns must be saved once before adding pixels."]},
+                         json.loads(response.content))
+
+        ## assert no objects created
+        self.assertEqual(0, Campaign.objects.count())
+
+    def test_update_campaign(self):
+        campaign = Campaign.objects.create(sponsor_name="Original Name",
+                                           campaign_label="Original Label")
+
+        start_date = datetime(2015, 3, 19, 19, 0, 5)
+        end_date = datetime(2015, 3, 20, 20, 0, 5)
+        data = {
+            "id": campaign.id,
+            "sponsor_name": "Acme",
+            #"sponsor_logo": TODO
+            "sponsor_url": "http://example.com",
+            "start_date": start_date.isoformat(),
+            "end_date":  end_date.isoformat(),
+            "campaign_label": "Test Label",
+            "impression_goal": 1000,
+            "pixels": [{"url": "http://example.com/pixel/1",
+                        "pixel_type": "Logo"}],
+        }
+
+        client = Client()
+        client.login(username="admin", password="secret")
+        campaign_detail_endpoint = reverse("campaign-detail", kwargs=dict(pk=campaign.pk))
+        response = client.put(campaign_detail_endpoint, json.dumps(data),
+                               content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+
+        # assert model updated
+        campaign = Campaign.objects.get(id=response.data["id"])
+        self.assertEqual(campaign.sponsor_name, data["sponsor_name"])
+        self.assertEqual(1, campaign.pixels.count())
+        pixel = campaign.pixels.first()
+        self.assertEqual(pixel.url, data["pixels"][0]["url"])
+
+        # check that all the fields went through
+        self.assertEqual({"id": campaign.id,
+                          "sponsor_name": "Acme",
+                          "sponsor_logo": None,  # TODO
+                          "sponsor_url": "http://example.com",
+                          "campaign_label": "Test Label",
+                          "impression_goal": 1000,
+                          "start_date": start_date,
+                          "end_date":  end_date,
+                          "pixels": [{"id": pixel.id,
+                                      "url": "http://example.com/pixel/1",
+                                      "pixel_type": "Logo"}],
+                          },
+                         response.data)
