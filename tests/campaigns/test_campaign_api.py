@@ -1,6 +1,5 @@
 from datetime import datetime
 import json
-import unittest
 
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
@@ -106,7 +105,7 @@ class CampaignApiCase(TestCase):
         client.login(username="admin", password="secret")
         campaign_detail_endpoint = reverse("campaign-detail", kwargs=dict(pk=campaign.pk))
         response = client.put(campaign_detail_endpoint, json.dumps(data),
-                               content_type="application/json")
+                              content_type="application/json")
         self.assertEqual(response.status_code, 200)
 
         # assert model updated
@@ -134,9 +133,9 @@ class CampaignApiCase(TestCase):
     def test_update_campaign_delete_pixel(self):
         campaign = Campaign.objects.create(sponsor_name="Original Name",
                                            campaign_label="Original Label")
-        pixel = CampaignPixel.objects.create(url="http://example.com/pixel/1",
-                                             campaign=campaign,
-                                             pixel_type=CampaignPixel.LOGO)
+        CampaignPixel.objects.create(url="http://example.com/pixel/1",
+                                     campaign=campaign,
+                                     pixel_type=CampaignPixel.LOGO)
 
         data = {
             "id": campaign.id,
@@ -154,7 +153,7 @@ class CampaignApiCase(TestCase):
         client.login(username="admin", password="secret")
         campaign_detail_endpoint = reverse("campaign-detail", kwargs=dict(pk=campaign.pk))
         response = client.put(campaign_detail_endpoint, json.dumps(data),
-                               content_type="application/json")
+                              content_type="application/json")
         self.assertEqual(response.status_code, 200)
 
         # assert model updated
