@@ -23,32 +23,37 @@ class PixelTypeField(serializers.WritableField):
         return pixel_type_string_to_value(data)
 
 
-class CampaignPixelSerializer(serializers.ModelSerializer):
-class CampaignPixelSerializer(relations.RelatedField):
+# class CampaignPixelSerializer(serializers.ModelSerializer):
+class CampaignPixelField(relations.RelatedField):
 
-    pixel_type = PixelTypeField()
+    # pixel_type = PixelTypeField()
 
-    class Meta:
-        model = CampaignPixel
-        exclude = ('campaign',)
+    # class Meta:
+    #     model = CampaignPixel
+    #     exclude = ('campaign',)
 
-    def from_native(self, value, files):
+    read_only = False
+
+    def from_native(self, data):
+        print(self.parent.object)
+        # raise Exception()
         #import pytest; pytest.set_trace()
-        if "id" in value:
-            pixel = CampaignPixel.objects.get(id=value["id"])
+        if "id" in data:
+            pixel = CampaignPixel.objects.get(id=data["id"])
         else:
             #import pytest; pytest.set_trace()
-            url = value["url"]
-            pixel_type = pixel_type_string_to_value(value["pixel_type"])
+            url = data["url"]
+            pixel_type = pixel_type_string_to_value(data["pixel_type"])
             pixel = CampaignPixel.objects.create(url=url,
-                                                 pixel_type=pixel_type)
+                                                 pixel_type=pixel_type,
+                                                 campaign=self.parent.object)
         return pixel
 
 
 class CampaignSerializer(serializers.ModelSerializer):
 
     sponsor_logo = ImageFieldSerializer(required=False)
-    pixels = CampaignPixelSerializer(many=True)
+    pixels = CampaignPixelField(many=True)
 
     class Meta:
         model = Campaign
