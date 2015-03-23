@@ -12,17 +12,6 @@ def pixel_type_string_to_value(data):
                 for value, label in CampaignPixel.PIXEL_TYPES)[data]
 
 
-class PixelTypeField(serializers.WritableField):
-    """
-    Pixel 'type' objects serialized to/from label/identifier
-    """
-    def to_native(self, obj):
-        return dict(CampaignPixel.PIXEL_TYPES)[obj]
-
-    def from_native(self, data):
-        return pixel_type_string_to_value(data)
-
-
 class CampaignPixelField(relations.RelatedField):
 
     read_only = False
@@ -52,7 +41,7 @@ class CampaignPixelField(relations.RelatedField):
 class CampaignSerializer(serializers.ModelSerializer):
 
     sponsor_logo = ImageFieldSerializer(required=False)
-    pixels = CampaignPixelField(many=True)
+    pixels = CampaignPixelField(many=True, allow_add_remove=True)
 
     class Meta:
         model = Campaign
