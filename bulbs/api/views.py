@@ -34,7 +34,6 @@ from bulbs.content.serializers import (
 )
 from bulbs.contributions.serializers import ContributionSerializer
 from bulbs.contributions.models import Contribution
-from bulbs.videohub.models import VideoHubVideo
 
 from .mixins import UncachedResponse
 from .permissions import CanEditContent, CanPublishContent
@@ -526,37 +525,6 @@ class CustomSearchContentViewSet(viewsets.GenericViewSet):
         return Response(dict(count=qs.count()))
 
 
-class VideoHubVideoViewSet(viewsets.ViewSet):
-    """CRUD for videohub.VideoHubVideo and searching the video hub"""
-
-    model = VideoHubVideo
-    serializer_class = VideoHubVideo.get_serializer_class()
-    filter_backends = (filters.SearchFilter, filters.OrderingFilter)
-    search_fields = ("title", )
-    paginate_by = 20
-
-    @list_route(methods=["post"])
-    def search_hub(self, request, *args, **kwargs):
-        """searches the video hub
-        """
-        query = request.DATA.get("query")
-        _filters = request.DATA.get("filters")
-        _status = request.DATA.get("status")
-        sort = request.DATA.get("sort")
-        size = request.DATA.get("size")
-        page = request.DATA.get("page")
-        if not query:
-            return Response(
-                data={"error": "query is a required parameter to search"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        try:
-            res = VideoHubVideo.search_videohub(query, _filters, _status, sort, size, page)
-        except Exception, e:
-            return Response(data={"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        return Response(data=res, status=status.HTTP_200_OK)
-
-
 # api router for aforementioned/defined viewsets
 # note: me view is registered in urls.py
 api_v1_router = routers.DefaultRouter()
@@ -568,4 +536,3 @@ api_v1_router.register(r"log", LogEntryViewSet, base_name="logentry")
 api_v1_router.register(r"author", AuthorViewSet, base_name="author")
 api_v1_router.register(r"feature-type", FeatureTypeViewSet, base_name="feature-type")
 api_v1_router.register(r"user", UserViewSet, base_name="user")
-api_v1_router.register(r"videohub-video", VideoHubVideoViewSet, base_name="videohub-video")
