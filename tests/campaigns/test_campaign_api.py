@@ -46,7 +46,7 @@ class CampaignApiCase(TestCase):
     def test_create_campaign(self):
         data = {
             "sponsor_name": "Acme",
-            #"sponsor_logo": TODO
+            "sponsor_logo": {'id': 123},
             "sponsor_url": "http://example.com",
             "start_date": START_DATE.isoformat(),
             "end_date":  END_DATE.isoformat(),
@@ -72,7 +72,7 @@ class CampaignApiCase(TestCase):
         # check that all the fields went through
         self.assertEqual({"id": campaign.id,
                           "sponsor_name": "Acme",
-                          "sponsor_logo": None,  # TODO
+                          "sponsor_logo": {'id': 123},
                           "sponsor_url": "http://example.com",
                           "campaign_label": "Test Label",
                           "impression_goal": 1000,
@@ -91,7 +91,7 @@ class CampaignApiCase(TestCase):
         data = {
             "id": campaign.id,
             "sponsor_name": "Acme",
-            #"sponsor_logo": TODO
+            "sponsor_logo": {'id': 123},
             "sponsor_url": "http://example.com",
             "start_date": START_DATE.isoformat(),
             "end_date":  END_DATE.isoformat(),
@@ -118,7 +118,7 @@ class CampaignApiCase(TestCase):
         # check that all the fields went through
         self.assertEqual({"id": campaign.id,
                           "sponsor_name": "Acme",
-                          "sponsor_logo": None,  # TODO
+                          "sponsor_logo": {'id': 123},
                           "sponsor_url": "http://example.com",
                           "campaign_label": "Test Label",
                           "impression_goal": 1000,
@@ -140,7 +140,7 @@ class CampaignApiCase(TestCase):
         data = {
             "id": campaign.id,
             "sponsor_name": "Acme",
-            #"sponsor_logo": TODO
+            "sponsor_logo": {'id': 123},
             "sponsor_url": "http://example.com",
             "start_date": START_DATE.isoformat(),
             "end_date":  END_DATE.isoformat(),
@@ -163,7 +163,7 @@ class CampaignApiCase(TestCase):
         # check that all the fields went through
         self.assertEqual({"id": campaign.id,
                           "sponsor_name": "Acme",
-                          "sponsor_logo": None,  # TODO
+                          "sponsor_logo": {'id': 123},
                           "sponsor_url": "http://example.com",
                           "campaign_label": "Test Label",
                           "impression_goal": 1000,
