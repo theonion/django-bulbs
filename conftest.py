@@ -41,6 +41,7 @@ def pytest_configure():
             "polymorphic",
             # local apps
             "bulbs.api",
+            "bulbs.campaigns",
             "bulbs.feeds",
             "bulbs.redirects",
             "bulbs.cms_notifications",
@@ -48,6 +49,7 @@ def pytest_configure():
             "bulbs.content",
             "bulbs.contributions",
             "bulbs.promotion",
+            "bulbs.special_coverage",
             # local testing apps
             "tests.testcontent",
         ),

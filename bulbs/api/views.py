@@ -7,8 +7,11 @@ from django.http import Http404
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
-from firebase_token_generator import create_token
+
+from elastimorphic.models import polymorphic_indexable_registry
+from elasticutils.contrib.django import get_es
 import elasticsearch
+
 from rest_framework import (
     decorators,
     filters,
@@ -16,20 +19,22 @@ from rest_framework import (
     viewsets,
     routers
 )
-from rest_framework.decorators import detail_route
+from firebase_token_generator import create_token
+
+from rest_framework.decorators import detail_route, list_route
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
-from elastimorphic.models import polymorphic_indexable_registry
-from elasticutils.contrib.django import get_es
 
-from bulbs.content.models import Content, Tag, LogEntry, FeatureType, ObfuscatedUrlInfo, TemplateType
+from bulbs.content.custom_search import custom_search_model
+from bulbs.content.models import Content, Tag, LogEntry, FeatureType, ObfuscatedUrlInfo
 from bulbs.content.serializers import (
-    LogEntrySerializer, PolymorphicContentSerializer,
+    ContentSerializer, LogEntrySerializer, PolymorphicContentSerializer,
     TagSerializer, UserSerializer, FeatureTypeSerializer,
-    ObfuscatedUrlInfoSerializer, TemplateTypeSerializer
+    ObfuscatedUrlInfoSerializer
 )
 from bulbs.contributions.serializers import ContributionSerializer
 from bulbs.contributions.models import Contribution
+
 from .mixins import UncachedResponse
 from .permissions import CanEditContent, CanPublishContent
 
@@ -436,7 +441,7 @@ class MeViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
         return Response(data)
 
 
-class DoctypeViewSet(viewsets.ViewSet):
+class ContentTypeViewSet(viewsets.ViewSet):
     """Searches doctypes of a model."""
     model = Content
 
@@ -446,7 +451,7 @@ class DoctypeViewSet(viewsets.ViewSet):
         results = []
         doctypes = self.model.get_doctypes()
         for doctype, klass in doctypes.items():
-            name = klass._meta.verbose_name
+            name = klass._meta.verbose_name.title()
             if query.lower() in name.lower():
                 results.append(dict(
                     name=name,
@@ -456,11 +461,76 @@ class DoctypeViewSet(viewsets.ViewSet):
         return Response(dict(results=results))
 
 
+class CustomSearchContentViewSet(viewsets.GenericViewSet):
+    """This is for searching with a custom search filter."""
+    model = Content
+    queryset = Content.objects.select_related("tags").all()
+    serializer_class = ContentSerializer
+    paginate_by = 20
+    permission_classes = [IsAdminUser, CanEditContent]
+    field_map = {
+        "feature-type": "feature_type.slug",
+        "tag": "tags.slug",
+        "content-type": "_type"
+    }
+
+    def list(self, request, *args, **kwargs):
+        """Filter Content with a custom search.
+        {
+            "query": SEARCH_QUERY
+            "preview": true
+        }
+        "preview" is optional and, when true, will include
+        items that would normally be removed due to "excluded_ids".
+        """
+        self.object_list = self.get_filtered_queryset(request.DATA)
+        # Switch between paginated or standard style responses
+        page = self.paginate_queryset(self.object_list)
+        if page is not None:
+            serializer = self.get_pagination_serializer(page)
+        else:
+            serializer = self.get_serializer(self.object_list, many=True)
+
+        return Response(serializer.data)
+
+    def create(self, request, *args, **kwargs):
+        """HACK: couldn't get POST to the list endpoint without
+        messing up POST for the other list_routes so I'm doing this.
+        Maybe something to do with the router?
+        """
+        return self.list(request, *args, **kwargs)
+
+    def get_filtered_queryset(self, params, sort_pinned=True):
+        query = params
+        is_preview = params.get("preview", True)
+        qs = custom_search_model(
+            self.model, query, preview=is_preview,
+            sort_pinned=sort_pinned, field_map=self.field_map
+        )
+        return qs
+
+    @list_route(methods=["get", "post"])
+    def count(self, request, **kwargs):
+        qs = self.get_filtered_queryset(request.DATA, sort_pinned=False)
+        return Response(dict(count=qs.count()))
+
+    @list_route(methods=["get", "post"])
+    def group_count(self, request, **kwargs):
+        params = dict(
+            groups=[
+                dict(request.DATA)
+            ]
+        )
+        qs = self.get_filtered_queryset(params, sort_pinned=False)
+        return Response(dict(count=qs.count()))
+
+
 # api router for aforementioned/defined viewsets
 # note: me view is registered in urls.py
 api_v1_router = routers.DefaultRouter()
 api_v1_router.register(r"content", ContentViewSet, base_name="content")
-api_v1_router.register(r"doctype", DoctypeViewSet, base_name="doctype")
+api_v1_router.register(r"custom-search-content", CustomSearchContentViewSet, base_name="custom-search-content")
+api_v1_router.register(r"content-type", ContentTypeViewSet, base_name="content-type")
 api_v1_router.register(r"tag", TagViewSet, base_name="tag")
 api_v1_router.register(r"log", LogEntryViewSet, base_name="logentry")
 api_v1_router.register(r"author", AuthorViewSet, base_name="author")
