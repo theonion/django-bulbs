@@ -88,11 +88,15 @@ class ContributionReportingTestCase(BaseAPITestCase):
         # Let's look at all the items
         endpoint = reverse("contentreporting-list")
         start_date = timezone.now() - datetime.timedelta(days=4)
+
+        content_one.authors.all().delete()
+
         response = client.get(endpoint, data={"start": start_date.strftime("%Y-%m-%d")})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
 
         self.assertEqual(response.data[0]["editor"], "")
+        self.assertEqual(response.data[0]["authors"], "")
 
         Contribution.objects.create(
             content=content_one,
@@ -110,9 +114,20 @@ class ContributionReportingTestCase(BaseAPITestCase):
             role=self.roles["writer"]
         )
 
+        self.jenny = User.objects.create(
+            username="jcrowley",
+            first_name="Jenny",
+            last_name="Crowley",
+            is_staff=True)
+
+        content_one.authors.add(self.chris)
+        content_one.authors.add(self.jenny)
+
         response = client.get(endpoint, data={"start": start_date.strftime("%Y-%m-%d")})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
+
+        self.assertEqual(response.data[0]["authors"], "Chris Sinchok,Jenny Crowley")
 
         self.assertEqual(response.data[0]["editor"], "Chris Sinchok,Mike Wnuk")
         self.assertEqual(response.data[0]["writer"], "Mike Wnuk")

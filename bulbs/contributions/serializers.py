@@ -75,10 +75,11 @@ class ContentReportingSerializer(serializers.ModelSerializer):
     published = serializers.SerializerMethodField("get_published")
     feature_type = serializers.SerializerMethodField("get_feature_type")
     url = serializers.URLField(source="get_absolute_url")
+    authors = serializers.SerializerMethodField("get_authors")
 
     class Meta:
         model = Content
-        fields = ("id", "title", "url", "content_type", "feature_type", "published")
+        fields = ("id", "title", "url", "content_type", "feature_type", "published", "authors")
 
     def get_fields(self):
 
@@ -101,3 +102,6 @@ class ContentReportingSerializer(serializers.ModelSerializer):
 
     def get_published(self, obj):
         return timezone.localtime(obj.published)
+
+    def get_authors(self, obj):
+        return ",".join([author.get_full_name() for author in obj.authors.all()])
