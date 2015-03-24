@@ -143,7 +143,7 @@ class CampaignApiCase(TestCase):
             "sponsor_logo": {'id': 123},
             "sponsor_url": "http://example.com",
             "start_date": START_DATE.isoformat(),
-            "end_date":  END_DATE.isoformat(),
+            "end_date": END_DATE.isoformat(),
             "campaign_label": "Test Label",
             "impression_goal": 1000,
             "pixels": [],
@@ -168,7 +168,7 @@ class CampaignApiCase(TestCase):
                           "campaign_label": "Test Label",
                           "impression_goal": 1000,
                           "start_date": START_DATE,
-                          "end_date":  END_DATE,
+                          "end_date": END_DATE,
                           "pixels": [],
                           },
                          response.data)
@@ -216,3 +216,25 @@ class CampaignApiCase(TestCase):
 
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["id"], campaign.pk)
+
+    def test_search_campaign_ordering(self):
+        """Test that campaign search results are ordered."""
+
+        campaign_3 = Campaign.objects.create(sponsor_name="abc3",
+                                             campaign_label="abc3")
+        campaign_1 = Campaign.objects.create(sponsor_name="abc1",
+                                             campaign_label="abc1")
+        campaign_2 = Campaign.objects.create(sponsor_name="abc2",
+                                             campaign_label="abc2")
+
+        client = Client()
+        client.login(username="admin", password="secret")
+        campaign_list_endpoint = reverse("campaign-list")
+        response = client.get(campaign_list_endpoint,
+                              data={"search": "abc", "ordering": "-campaign_label"})
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(response.data[0]["id"], campaign_3.pk)
+        self.assertEqual(response.data[1]["id"], campaign_2.pk)
+        self.assertEqual(response.data[2]["id"], campaign_1.pk)
