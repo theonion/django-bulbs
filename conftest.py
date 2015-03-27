@@ -50,6 +50,7 @@ def pytest_configure():
             "bulbs.contributions",
             "bulbs.promotion",
             "bulbs.special_coverage",
+            "bulbs.sections",
             # local testing apps
             "tests.testcontent",
         ),

@@ -70,7 +70,7 @@ def custom_search_model(model, query, preview=False, published=False,
                     },
                     "boost_factor": 2
                 }],
-                "score_mode": "sum"
+                "score_mode": "multiply"
             }
         }]
         # re-add the original query

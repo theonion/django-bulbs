@@ -14,7 +14,6 @@ END_DATE = datetime(2015, 3, 20, 20, 0, 5)
 
 
 class CampaignApiCase(TestCase):
-
     def setUp(self):
         User = get_user_model()
         admin = User.objects.create_user("admin", "tech@theonion.com", "secret")
@@ -49,7 +48,7 @@ class CampaignApiCase(TestCase):
             "sponsor_logo": {'id': 123},
             "sponsor_url": "http://example.com",
             "start_date": START_DATE.isoformat(),
-            "end_date":  END_DATE.isoformat(),
+            "end_date": END_DATE.isoformat(),
             "campaign_label": "Test Label",
             "impression_goal": 1000,
             "pixels": [{"url": "http://example.com/pixel/1",
@@ -77,7 +76,7 @@ class CampaignApiCase(TestCase):
                           "campaign_label": "Test Label",
                           "impression_goal": 1000,
                           "start_date": START_DATE,
-                          "end_date":  END_DATE,
+                          "end_date": END_DATE,
                           "pixels": [{"id": pixel.id,
                                       "url": "http://example.com/pixel/1",
                                       "pixel_type": "Logo"}],
@@ -94,7 +93,7 @@ class CampaignApiCase(TestCase):
             "sponsor_logo": {'id': 123},
             "sponsor_url": "http://example.com",
             "start_date": START_DATE.isoformat(),
-            "end_date":  END_DATE.isoformat(),
+            "end_date": END_DATE.isoformat(),
             "campaign_label": "Test Label",
             "impression_goal": 1000,
             "pixels": [{"url": "http://example.com/pixel/1",
@@ -123,7 +122,7 @@ class CampaignApiCase(TestCase):
                           "campaign_label": "Test Label",
                           "impression_goal": 1000,
                           "start_date": START_DATE,
-                          "end_date":  END_DATE,
+                          "end_date": END_DATE,
                           "pixels": [{"id": pixel.id,
                                       "url": "http://example.com/pixel/1",
                                       "pixel_type": "Logo"}],
@@ -191,9 +190,8 @@ class CampaignApiCase(TestCase):
         response = client.get(campaign_list_endpoint, data={"search": campaign_label})
 
         self.assertEqual(response.status_code, 200)
-
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]["id"], campaign.pk)
+        self.assertEqual(len(response.data["results"]), 1)
+        self.assertEqual(response.data["results"][0]["id"], campaign.pk)
 
     def test_search_campaign_by_sponsor(self):
         """Test that searching campaigns by their sponsor name works."""
@@ -213,9 +211,8 @@ class CampaignApiCase(TestCase):
         response = client.get(campaign_list_endpoint, data={"search": sponsor_name})
 
         self.assertEqual(response.status_code, 200)
-
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]["id"], campaign.pk)
+        self.assertEqual(len(response.data["results"]), 1)
+        self.assertEqual(response.data["results"][0]["id"], campaign.pk)
 
     def test_search_campaign_ordering(self):
         """Test that campaign search results are ordered."""
@@ -232,9 +229,7 @@ class CampaignApiCase(TestCase):
         campaign_list_endpoint = reverse("campaign-list")
         response = client.get(campaign_list_endpoint,
                               data={"search": "abc", "ordering": "-campaign_label"})
-
         self.assertEqual(response.status_code, 200)
-
-        self.assertEqual(response.data[0]["id"], campaign_3.pk)
-        self.assertEqual(response.data[1]["id"], campaign_2.pk)
-        self.assertEqual(response.data[2]["id"], campaign_1.pk)
+        self.assertEqual(response.data["results"][0]["id"], campaign_3.pk)
+        self.assertEqual(response.data["results"][1]["id"], campaign_2.pk)
+        self.assertEqual(response.data["results"][2]["id"], campaign_1.pk)

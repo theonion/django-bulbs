@@ -29,7 +29,10 @@ class SpecialCoverage(models.Model):
 
     def save(self, *args, **kwargs):
         """Saving ensures that the slug, if not set, is set to the slugified name."""
-        self.slug = slugify(self.name)
+
+        if not self.slug:
+            self.slug = slugify(self.name)
+
         if self.query and self.query != {}:
             if self.active:
                 self._save_percolator()

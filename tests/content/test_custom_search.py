@@ -388,6 +388,19 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
             (s_text_query, 1),
             (s_text_query_pinned, 2),
         )
+        self.published_not_pinned_expectations = (
+            (s_biden, 2),
+            (s_obama, 3),
+            (s_b_and_b, 1),
+            (s_b_or_b, 5 - 1),
+            (s_lite_obama, 2),
+            (s_funny_and_slideshows, 2),
+            (s_wow, len(self.content_list) - 1),
+            (s_one_article, 1 - 1),
+            (s_two_articles, 2 - 1),
+            (s_all_but_one_article, len(self.content_list) - 1),
+            (s_last_day, 2),
+        )
         # (search filter, (list, of, ids, in, order)),
         self.ordered_expectations = (
             (s_all_but_one_article, (2, 3, 4)),
@@ -477,6 +490,51 @@ class ResultsApiTests(BaseCustomSearchApiTests):
         r = self.api_client.post(endpoint_url, query, format="json")
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r.data["count"], expected_count)
+
+    def test_pinned_ordering(self):
+        for s, ids in self.pinned_expectations:
+            self.check_pinned_ordering(s["query"], ids)
+
+    def check_pinned_ordering(self, query, expected_ids):
+        endpoint_url = reverse("custom-search-content-list")
+        r = self.api_client.post(endpoint_url, query, format="json")
+        self.assertEqual(r.status_code, 200)
+        result_ids = [res["id"] for res in r.data["results"]]
+        sliced_ids = result_ids[:len(expected_ids)]
+        self.assertEqual(sliced_ids, list(expected_ids))
+
+    def test_published_ordering(self):
+        for s, _ in self.published_not_pinned_expectations:
+            self.check_published_ordering(s["query"])
+
+    def check_published_ordering(self, query):
+        date = timezone.now() + timedelta(days=100000)
+        endpoint_url = reverse("custom-search-content-list")
+        r = self.api_client.post(endpoint_url, query, format="json")
+        self.assertEqual(r.status_code, 200)
+        results = r.data.get("results", [])
+        for res in results:
+            self.assertLessEqual(res["published"], date)
+            date = res["published"]
+
+    def test_all_ordering(self):
+        for s, _ in self.published_expectations:
+            self.check_all_ordering(s["query"])
+
+    def check_all_ordering(self, query):
+        pinned_ids = query.get("pinned_ids", [])
+        endpoint_url = reverse("custom-search-content-list")
+        r = self.api_client.post(endpoint_url, query, format="json")
+        self.assertEqual(r.status_code, 200)
+        result_ids = [res["id"] for res in r.data["results"]]
+        sliced_ids = result_ids[:len(pinned_ids)]
+        for pid in pinned_ids:
+            self.assertIn(pid, sliced_ids)
+        published_results = r.data["results"][len(sliced_ids):]
+        date = timezone.now() + timedelta(days=100000)
+        for res in published_results:
+            self.assertLessEqual(res["published"], date)
+            date = res["published"]
 
 
 class CountsApiTests(BaseCustomSearchApiTests):

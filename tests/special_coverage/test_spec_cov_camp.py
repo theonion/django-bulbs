@@ -28,8 +28,8 @@ class SpecialCoverageApiTestCase(BaseAPITestCase):
             name="Jackz Linkz Coveragez",
             slug="jackz-linkz-coveragez",
             description="Stuff about jerky.",
-            query="",
-            videos="",
+            query={},
+            videos=[],
             campaign=self.campaign
         )
 
@@ -66,11 +66,11 @@ class SpecialCoverageApiTestCase(BaseAPITestCase):
 
         self.assertEqual(response.status_code, 403)
 
-    def test_query_string_resolves_to_json_object_when_retrieving(self):
+    def test_query_dict_resolves_to_json_object_when_retrieving(self):
         """Check that query string does not resolve to a string when received by
         the frontend."""
 
-        self.special_coverage.query = '{"included_ids": [1,2,3]}'
+        self.special_coverage.query = {"included_ids": [1, 2, 3]}
         self.special_coverage.save()
 
         endpoint = reverse(
@@ -81,7 +81,7 @@ class SpecialCoverageApiTestCase(BaseAPITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIsInstance(response.data["query"], dict)
 
-    def test_query_string_resolves_to_string_when_saving(self):
+    def test_query_string_resolves_to_dict_when_saving(self):
         """Check that query string resolves back into a string when returned to the
         backend."""
 
@@ -99,4 +99,4 @@ class SpecialCoverageApiTestCase(BaseAPITestCase):
             content_type="application/json"
         )
 
-        self.assertIsInstance(SpecialCoverage.objects.all()[0].query, basestring)
+        self.assertIsInstance(SpecialCoverage.objects.all()[0].query, dict)

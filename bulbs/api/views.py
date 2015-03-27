@@ -483,6 +483,7 @@ class CustomSearchContentViewSet(viewsets.GenericViewSet):
         "preview" is optional and, when true, will include
         items that would normally be removed due to "excluded_ids".
         """
+
         self.object_list = self.get_filtered_queryset(request.DATA)
         # Switch between paginated or standard style responses
         page = self.paginate_queryset(self.object_list)
