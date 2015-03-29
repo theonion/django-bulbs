@@ -5,7 +5,7 @@ from elastimorphic.tests.base import BaseIndexableTestCase
 import elasticsearch
 
 from bulbs.content.models import Content
-from tests.utils import make_content
+from bulbs.utils.test import make_content
 
 
 class SerializerTestCase(BaseIndexableTestCase):

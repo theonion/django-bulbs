@@ -11,8 +11,8 @@ from rest_framework.test import APIClient
 from bulbs.content.models import Content, FeatureType, Tag
 from bulbs.content.custom_search import custom_search_model
 
-from tests.testcontent.models import TestContentObj, TestContentObjTwo
-from tests.utils import BaseAPITestCase, make_content
+from example.testcontent.models import TestContentObj, TestContentObjTwo
+from bulbs.utils.test import BaseAPITestCase, make_content
 
 
 class BaseCustomSearchFilterTests(BaseIndexableTestCase):
@@ -579,14 +579,14 @@ class CountsApiTests(BaseCustomSearchApiTests):
 class ContentCustomSearchListViewTestCase(BaseCustomSearchFilterTests):
     """Test the ListView."""
     def test_published_list_view(self):
-        url = reverse("tests.testcontent.views.test_published_content_custom_search_list")
+        url = reverse("example.testcontent.views.test_published_content_custom_search_list")
         for s, expected_count in self.published_expectations:
             r = self.client.post(url, json.dumps(dict(query=s["query"])), content_type="application/json")
             self.assertEqual(r.status_code, 200)
             self.assertEqual(r.context_data["paginator"].count, expected_count)
-            
+
     def test_unpublished_list_view(self):
-        url = reverse("tests.testcontent.views.test_unpublished_content_custom_search_list")
+        url = reverse("example.testcontent.views.test_unpublished_content_custom_search_list")
         for s, expected_count in self.search_expectations:
             r = self.client.post(url, json.dumps(dict(query=s["query"])), content_type="application/json")
             self.assertEqual(r.status_code, 200)
