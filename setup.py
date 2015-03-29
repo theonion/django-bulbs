@@ -37,7 +37,7 @@ dev_requires = [
     "model-mommy==1.2",
     "psycopg2==2.5.1",
     "pytest==2.7.0",
-    "pytest-cov==1.6",
+    "pytest-cov==1.8.1",
     "pytest-django==2.8.0",
     "celery==3.1.10",
     "coveralls==0.4.1"
