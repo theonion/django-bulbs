@@ -2,7 +2,6 @@ import copy
 import json
 from datetime import timedelta
 
-from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.utils import timezone
 from elastimorphic.tests.base import BaseIndexableTestCase
@@ -11,7 +10,7 @@ from rest_framework.test import APIClient
 from bulbs.content.models import Content, FeatureType, Tag
 from bulbs.content.custom_search import custom_search_model
 
-from example.testcontent.models import TestContentObj, TestContentObjTwo
+from example.testcontent.models import TestContentObjTwo
 from bulbs.utils.test import BaseAPITestCase, make_content
 
 
