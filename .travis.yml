@@ -1,34 +1,14 @@
 language: python
 python:
   - '2.7'
-env:
-  global:
-    - ES_DIRECTORY=$(mktemp -d)
-  matrix:
-    - DJANGO_VERSION=1.7 
-cache:
-  directories:
-    - $HOME/.pip-cache/
 install:
-  - wget --no-check-certificate -O - https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.0.3.tar.gz | tar xz --directory=$ES_DIRECTORY --strip-components=1
-  - pushd ${ES_DIRECTORY}
-  - bin/elasticsearch -d -D es.path.data=/tmp -D es.gateway.type=none -D es.index.store.type=memory -D es.discovery.zen.ping.multicast.enabled=false
-  - popd 
-  - pip install --download-cache $HOME/.pip-cache -q Django==$DJANGO_VERSION
-  - pip install --download-cache $HOME/.pip-cache -r requirements-dev.txt
-  - until curl http://localhost:9200/; do sleep 1; done
+  - travis_retry pip install -e .
+  - travis_retry pip install file://$(pwd)#egg=django-bulbs[dev]
 services:
   - postgresql
+  - elasticsearch
 before_script:
   - psql -c 'create database bulbs;' -U postgres
-script: py.test --cov bulbs tests/
+script: py.test --cov bulbs --cov-report term-missing
 after_success:
   - coveralls
-deploy:
-  provider: pypi
-  user: csinchok
-  password:
-    secure: KOj/PW07DMSP8aNQMjC6yjLohuhat6//GMHfg9r/XjxLqNd86/t8z1KpNgyRsIC25x2KUkPHjUxg6VC7Dbr5YBptq3kcXR7vkhGFVVud6W4A93/wHhrE6QLrwQzu1vD32Hp5dNY0qggQSwFE2AYS0dXPpbiJuxZJAwtaOfS5Hk4=
-  on:
-    tags: true
-    python: 2.7

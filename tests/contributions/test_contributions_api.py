@@ -4,7 +4,7 @@ from django.core.urlresolvers import reverse
 from django.test.client import Client
 
 from bulbs.contributions.models import Contribution, ContributorRole
-from tests.utils import BaseAPITestCase, make_content
+from bulbs.utils.test import BaseAPITestCase, make_content
 
 
 class ContributionApiTestCase(BaseAPITestCase):

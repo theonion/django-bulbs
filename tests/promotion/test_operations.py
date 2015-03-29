@@ -6,7 +6,7 @@ from mock import patch
 
 from bulbs.promotion.models import PZone, update_pzone
 from bulbs.promotion.operations import InsertOperation, ReplaceOperation, DeleteOperation
-from tests.utils import make_content
+from bulbs.utils.test import make_content
 
 
 class PZoneOperationsTestCase(BaseIndexableTestCase):

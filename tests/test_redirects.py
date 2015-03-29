@@ -4,7 +4,7 @@ from django.test import Client
 
 from elastimorphic.tests.base import BaseIndexableTestCase
 
-from tests.testcontent.models import TestContentObj
+from example.testcontent.models import TestContentObj
 
 
 class RedirectTestCase(BaseIndexableTestCase):

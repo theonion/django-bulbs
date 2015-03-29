@@ -7,7 +7,7 @@ from django.test.client import Client
 
 from bulbs.sections.models import Section
 
-from tests.utils import BaseAPITestCase, JsonEncoder
+from bulbs.utils.test import  BaseAPITestCase, JsonEncoder
 
 
 class SectionsApiTestCase(BaseAPITestCase):

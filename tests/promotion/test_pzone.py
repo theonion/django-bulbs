@@ -1,12 +1,10 @@
-import datetime
-
 from django.utils import timezone
 
 from elastimorphic.tests.base import BaseIndexableTestCase
 
 from bulbs.promotion.models import PZone, PZoneHistory
-from tests.testcontent.models import TestContentObj
-from tests.utils import make_content
+from example.testcontent.models import TestContentObj
+from bulbs.utils.test import make_content
 
 
 class PZoneTestCase(BaseIndexableTestCase):

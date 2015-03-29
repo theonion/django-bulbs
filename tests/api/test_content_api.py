@@ -9,8 +9,8 @@ from django.test.client import Client
 from django.utils import timezone
 
 from bulbs.content.models import LogEntry, Tag, Content, ObfuscatedUrlInfo
-from tests.testcontent.models import TestContentObj, TestContentDetailImage
-from tests.utils import JsonEncoder, BaseAPITestCase, make_content
+from example.testcontent.models import TestContentObj, TestContentDetailImage
+from bulbs.utils.test import JsonEncoder, BaseAPITestCase, make_content
 
 
 class TestContentListingAPI(BaseAPITestCase):

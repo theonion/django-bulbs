@@ -8,8 +8,8 @@ from django.utils import timezone
 from elastimorphic.tests.base import BaseIndexableTestCase
 
 from bulbs.content.models import FeatureType, ObfuscatedUrlInfo
-from tests.testcontent.models import TestContentObj, TestContentObjTwo
-from tests.utils import make_content
+from example.testcontent.models import TestContentObj, TestContentObjTwo
+from bulbs.utils.test import make_content
 
 
 class TestContentViews(BaseIndexableTestCase):
@@ -46,11 +46,11 @@ class TestContentViews(BaseIndexableTestCase):
         # make sure we get all content with this list
         TestContentObj.search_objects.refresh()
         TestContentObjTwo.search_objects.refresh()
-        r = self.client.get(reverse("tests.testcontent.views.test_all_content_list"))
+        r = self.client.get(reverse("example.testcontent.views.test_all_content_list"))
         self.assertEqual(r.status_code, 200)
         self.assertEqual(2, len(r.context_data["content_list"]))
         # make sure we only get TestContentTwoObjs from this other list
-        r = self.client.get(reverse("tests.testcontent.views.test_content_two_list"))
+        r = self.client.get(reverse("example.testcontent.views.test_content_two_list"))
         self.assertEqual(r.status_code, 200)
         self.assertEqual(1, len(r.context_data["content_list"]))
         item = r.context_data["content_list"][0]

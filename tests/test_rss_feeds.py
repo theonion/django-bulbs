@@ -2,7 +2,7 @@ from django.core.urlresolvers import reverse
 from django.test.client import Client
 from elastimorphic.tests.base import BaseIndexableTestCase
 
-from tests.utils import make_content
+from bulbs.utils.test import make_content
 
 
 class RSSTestCase(BaseIndexableTestCase):

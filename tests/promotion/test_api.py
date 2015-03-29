@@ -8,7 +8,7 @@ from django.utils import timezone
 
 from bulbs.promotion.models import PZone, PZoneHistory
 from bulbs.promotion.operations import PZoneOperation, InsertOperation, DeleteOperation
-from tests.utils import BaseAPITestCase, make_content
+from bulbs.utils.test import  BaseAPITestCase, make_content
 
 
 class PromotionApiTestCase(BaseAPITestCase):

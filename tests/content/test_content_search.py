@@ -9,8 +9,8 @@ from django.template.defaultfilters import slugify
 from elastimorphic.tests.base import BaseIndexableTestCase
 
 from bulbs.content.models import Content, Tag, FeatureType
-from tests.testcontent.models import TestContentObj, TestContentObjTwo
-from tests.utils import make_content
+from example.testcontent.models import TestContentObj, TestContentObjTwo
+from bulbs.utils.test import make_content
 
 
 class PolyContentTestCase(BaseIndexableTestCase):

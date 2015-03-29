@@ -5,7 +5,7 @@ from bulbs.cms_notifications.models import CmsNotification
 from django.core.urlresolvers import reverse
 from django.test import Client
 from elastimorphic.tests.base import BaseIndexableTestCase
-from tests.utils import JsonEncoder
+from bulbs.utils.test import  JsonEncoder
 from django.contrib.auth import get_user_model
 
 
