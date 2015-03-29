@@ -1,15 +1,9 @@
 language: python
 python:
   - '2.7'
-env:
-  matrix:
-    - DJANGO_VERSION=1.7 
-cache:
-  directories:
-    - $HOME/.pip-cache/
 install:
-  - pip install --download-cache $HOME/.pip-cache -q Django==$DJANGO_VERSION
-  - pip install --download-cache $HOME/.pip-cache -r requirements-dev.txt
+  - travis_retry pip install -e .
+  - travis_retry pip install file://$(pwd)#egg=django-bulbs[dev]
 services:
   - postgresql
   - elasticsearch
@@ -18,11 +12,3 @@ before_script:
 script: py.test --cov bulbs --cov-report term-missing
 after_success:
   - coveralls
-deploy:
-  provider: pypi
-  user: csinchok
-  password:
-    secure: KOj/PW07DMSP8aNQMjC6yjLohuhat6//GMHfg9r/XjxLqNd86/t8z1KpNgyRsIC25x2KUkPHjUxg6VC7Dbr5YBptq3kcXR7vkhGFVVud6W4A93/wHhrE6QLrwQzu1vD32Hp5dNY0qggQSwFE2AYS0dXPpbiJuxZJAwtaOfS5Hk4=
-  on:
-    tags: true
-    python: 2.7

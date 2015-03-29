@@ -30,6 +30,19 @@ requires = [
     "firebase-token-generator==1.3.2",
 ]
 
+dev_requires = [
+    "Sphinx==1.2b1",
+    "pylint==1.0.0",
+    "httmock==1.0.5",
+    "model-mommy==1.2",
+    "psycopg2==2.5.1",
+    "pytest==2.7.0",
+    "pytest-cov==1.6",
+    "pytest-django==2.8.0",
+    "celery==3.1.10",
+    "coveralls==0.4.1"
+]
+
 
 def get_version(package):
     """
@@ -83,5 +96,8 @@ setup(
     author_email=author_email,
     packages=get_packages(package),
     package_data=get_package_data(package),
-    install_requires=requires
+    install_requires=requires,
+    extras_require={
+        'dev': dev_requires,
+    },
 )
