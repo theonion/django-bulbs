@@ -25,6 +25,7 @@ INSTALLED_APPS = (
     "django.contrib.sessions",
     # third parties
     "djbetty",
+    "djes",
     "elastimorphic",
     "rest_framework",
     "polymorphic",
@@ -83,3 +84,4 @@ SECRET_KEY = "no-op"
 ES_DISABLED = False
 
 ES_URLS = ['http://localhost:9200']
+ES_INDEX = "django-bulbs"

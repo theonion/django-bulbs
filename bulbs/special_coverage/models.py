@@ -10,7 +10,6 @@ from bulbs.content.models import Content
 
 
 es = Elasticsearch(settings.ES_URLS)
-index = Content.get_index_name()
 
 
 class SpecialCoverage(models.Model):
@@ -43,6 +42,7 @@ class SpecialCoverage(models.Model):
     def _save_percolator(self):
         """saves the query field as an elasticsearch percolator
         """
+        index = Content.get_index_name()
         query_filter = self.get_content().build_search()
         if query_filter.get("filter"):
             q = {
@@ -54,16 +54,17 @@ class SpecialCoverage(models.Model):
             }
             try:
                 res = es.create(index=index, doc_type=self.get_doc_type(), body=q, id=self.es_id, refresh=True)
-            except Exception, e:
+            except Exception as e:
                 res = e
         else:
             res = None
         return res
 
     def _delete_percolator(self):
+        index = Content.get_index_name()
         try:
             res = es.delete(index=index, doc_type=self.get_doc_type(), id=self.es_id, refresh=True)
-        except Exception, e:
+        except Exception as e:
             res = e
         return res
 

@@ -14,13 +14,12 @@ from django.db.models import Model
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django.utils.html import strip_tags
+from djes.models import Indexable, IndexableManager
 import elasticsearch
-from elasticutils import F
-from elastimorphic.base import (
-    PolymorphicIndexable,
-    PolymorphicMappingType,
-    SearchManager,
-)
+# from elasticutils import F
+from elasticsearch_dsl import field
+from elasticsearch_dsl.query import Q
+from elasticsearch_dsl.filter import F
 from polymorphic import PolymorphicModel
 from djbetty import ImageField
 from six import string_types, text_type, binary_type
@@ -36,6 +35,12 @@ except ImportError:
     index_task = lambda *x: x
     update_task = lambda *x: x
     CELERY_ENABLED = False
+
+
+class ElasticsearchImageField(field.Integer):
+
+    def to_es(self, data):
+        return data.id
 
 
 def parse_datetime(value):
@@ -54,14 +59,13 @@ def parse_datetime(value):
         raise ValueError('Value must be parsable to datetime object. Got `{}`'.format(type(value)))
 
 
-class Tag(PolymorphicIndexable, PolymorphicModel):
+class Tag(PolymorphicModel, Indexable):
     """Model for tagging up Content.
     """
 
     name = models.CharField(max_length=255)
     slug = models.SlugField(unique=True)
     # additional manager to handle querying with ElasticSearch
-    search_objects = SearchManager()
 
     def __unicode__(self):
         """unicode friendly name
@@ -157,23 +161,10 @@ class TemplateType(models.Model):
     content_type = models.ForeignKey(ContentType)
 
 
-class ContentManager(SearchManager):
+class ContentManager(IndexableManager):
     """
     a specialized version of `elastimorphic.base.SearchManager` for `bulbs.content.Content`
     """
-
-    def s(self):
-        """Returns a ShallowContentS() instance, using an ES URL from the settings, and an index
-        from this manager's model
-        """
-
-        base_polymorphic_class = self.model.get_base_class()
-        type_ = type(
-            '%sMappingType' % base_polymorphic_class.__name__,
-            (PolymorphicMappingType,),
-            {"base_polymorphic_class": base_polymorphic_class})
-
-        return ShallowContentS(type_=type_).es(urls=settings.ES_URLS)
 
     def search(self, **kwargs):
         """
@@ -187,12 +178,12 @@ class ContentManager(SearchManager):
          * authors : authors
          * published : date range
         """
-        results = self.s()
+        search_query = super(ContentManager, self).search()
 
         if "query" in kwargs:
-            results = results.query(_all__match=kwargs.get("query"))
+            search_query = search_query.query(_all=kwargs.get("query"))
         else:
-            results = results.order_by('-published', '-last_modified')
+            search_query = search_query.sort('-published', '-last_modified')
 
         # Right now we have "Before", "After" (datetimes),
         # and "published" (a boolean). Should simplify this in the future.
@@ -200,78 +191,64 @@ class ContentManager(SearchManager):
             if "before" in kwargs and "after" in kwargs:
                 before = parse_datetime(kwargs["before"])
                 after = parse_datetime(kwargs["after"])
-                # raise Exception((before, after))
-                results = results.query(published__lte=before, published__gte=after, must=True)
+                published_range = F("range", {"published": {"gte": after, "lte": before}})
+                search_query = search_query.filter(published_range)
 
             elif "before" in kwargs:
                 before = parse_datetime(kwargs["before"])
-                # raise Exception(before)
-                results = results.query(published__lte=before, must=True)
+                published_range = F("range", {"published": {"lte": before}})
+                search_query = search_query.filter(published_range)
 
             elif "after" in kwargs:
                 after = parse_datetime(kwargs["after"])
-                # raise Exception(after)
-                results = results.query(published__gte=after, must=True)
+                published_range = F("range", {"published": {"gte": after}})
+                search_query = search_query.filter(published_range)
         else:
             # TODO: kill this "published" param. it sucks
             if kwargs.get("published", True) and "status" not in kwargs:
                 now = timezone.now()
-                results = results.query(published__lte=now, must=True)
+                published_range = F("range", {"published": {"lte": now}})
+                search_query = search_query.filter(published_range)
 
         if "status" in kwargs:
-            results = results.filter(status=kwargs.get("status"))
+            search_query = search_query.filter(status=kwargs.get("status"))
 
         f = F()
         for tag in kwargs.get("tags", []):
             if tag.startswith("-"):
-                f &= ~F(**{"tags.slug": tag[1:]})
+                f &= ~F({"term": {"tags.slug": tag[1:]}})
             else:
-                f |= F(**{"tags.slug": tag})
+                f |= F({"term": {"tags.slug": tag}})
 
         for feature_type in kwargs.get("feature_types", []):
             if feature_type.startswith("-"):
-                f &= ~F(**{"feature_type.slug": feature_type[1:]})
+                f &= ~F({"term": {"feature_type.slug": feature_type[1:]}})
             else:
-                f |= F(**{"feature_type.slug": feature_type})
+                f |= F({"term": {"feature_type.slug": feature_type}})
 
         for author in kwargs.get("authors", []):
             if author.startswith("-"):
-                f &= ~F(**{"authors.username": author})
+                f &= ~F({"term": {"authors.username": author}})
             else:
-                f |= F(**{"authors.username": author})
+                f |= F({"term": {"authors.username": author}})
 
-        results = results.filter(f)
+        search_query = search_query.filter(f)
 
         # only use valid subtypes
-        types = kwargs.pop("types", [])
-        model_types = self.model.get_mapping_type_names()
-        if types:
-            results = results.doctypes(*[
-                type_classname for type_classname
-                in types
-                if type_classname in model_types
-            ])
-        else:
-            results = results.doctypes(*model_types)
-        return results
-
-    def in_bulk(self, pks):
-        """performs a GET from ElasticSearch en masse
-
-        :param pks: iterable of object primary keys
-        :return: `list`
-        """
-        results = self.es.multi_get(pks, index=self.model.get_index_name())
-        ret = []
-        for r in results["docs"]:
-            if "_source" in r:
-                ret.append(ShallowContentResult(r["_source"]))
-            else:
-                ret.append(None)
-        return ret
+        # types = kwargs.pop("types", [])
+        # model_types = self.model.get_mapping_type_names()
+        # if types:
+        #     results = results.doctypes(*[
+        #         type_classname for type_classname
+        #         in types
+        #         if type_classname in model_types
+        #     ])
+        # else:
+        #     results = results.doctypes(*model_types)
+        return search_query.execute()
 
 
-class Content(PolymorphicIndexable, PolymorphicModel):
+class Content(PolymorphicModel, Indexable):
     """
     The base content model from which all other content derives.
     """
@@ -303,6 +280,9 @@ class Content(PolymorphicIndexable, PolymorphicModel):
             ("publish_content", "Can publish content"),
             ("promote_content", "Can promote content"),
         )
+
+    class Mapping:
+        thumbnail_override = ElasticsearchImageField()
 
     def __unicode__(self):
         """unicode friendly name
