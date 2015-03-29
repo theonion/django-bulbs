@@ -5,7 +5,7 @@ import datetime
 from django.utils import timezone
 
 from bulbs.content.models import Content, Tag, FeatureType
-from tests.testcontent.models import TestContentObj
+from example.testcontent.models import TestContentObj
 from elastimorphic.tests.base import BaseIndexableTestCase
 
 

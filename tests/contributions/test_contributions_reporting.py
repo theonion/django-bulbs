@@ -8,7 +8,7 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 
 from bulbs.contributions.models import Contribution, ContributorRole
-from tests.utils import BaseAPITestCase, make_content
+from bulbs.utils.test import  BaseAPITestCase, make_content
 
 
 class ContributionReportingTestCase(BaseAPITestCase):

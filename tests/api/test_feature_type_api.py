@@ -1,7 +1,7 @@
 from django.core.urlresolvers import reverse
 from django.test.client import Client
 
-from tests.utils import BaseAPITestCase
+from bulbs.utils.test import BaseAPITestCase
 
 from bulbs.content.models import FeatureType
 

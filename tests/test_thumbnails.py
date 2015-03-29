@@ -8,8 +8,8 @@ from django.contrib.auth.models import Permission
 from djbetty.fields import ImageFieldFile
 
 from bulbs.content.models import Content
-from tests.testcontent.models import TestContentDetailImage
-from tests.utils import JsonEncoder, make_content
+from example.testcontent.models import TestContentDetailImage
+from bulbs.utils.test import JsonEncoder, make_content
 
 
 class TestThumbnailing(BaseIndexableTestCase):

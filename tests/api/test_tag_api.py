@@ -8,7 +8,7 @@ from elastimorphic.tests.base import BaseIndexableTestCase
 
 from bulbs.content.models import Tag
 
-from tests.testcontent.models import TestCategory
+from example.testcontent.models import TestCategory
 
 
 # User = get_model(*settings.AUTH_USER_MODEL.split("."))

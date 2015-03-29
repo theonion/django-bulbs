@@ -6,8 +6,7 @@ from django.utils import timezone
 from elastimorphic.tests.base import BaseIndexableTestCase
 
 from bulbs.promotion.models import PZone, InsertOperation
-from tests.testcontent.models import TestContentObj
-from tests.utils import make_content
+from bulbs.utils.test import make_content
 
 
 class ForPZoneTestCase(BaseIndexableTestCase):
@@ -27,7 +26,6 @@ class ForPZoneTestCase(BaseIndexableTestCase):
         t = Template("""{% load promotion %}{% forpzone name="homepage" %}{{ content.title }} | {% endforpzone %}""")
         c = Context({})
         self.assertEquals(t.render(c), "Content test #0 | Content test #1 | Content test #2 | Content test #3 | Content test #4 | ")
-
 
     def test_pzone_tag_with_slice(self):
         t = Template("""{% load promotion %}{% forpzone name="homepage" slice=":2" %}{{ content.title }} | {% endforpzone %}""")
@@ -50,4 +48,3 @@ class ForPZoneTestCase(BaseIndexableTestCase):
 
         c = Context({"pzone_preview": test_time + datetime.timedelta(minutes=30)})
         self.assertEquals(t.render(c), "Something New | Content test #0 | Content test #1 | Content test #2 | Content test #3 | ")
-
