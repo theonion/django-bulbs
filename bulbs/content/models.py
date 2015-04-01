@@ -65,7 +65,10 @@ class Tag(PolymorphicModel, Indexable):
 
     name = models.CharField(max_length=255)
     slug = models.SlugField(unique=True)
-    # additional manager to handle querying with ElasticSearch
+
+    class Mapping:
+        name = field.String(analyzer="autocomplete")
+        name = field.String(index="not_analyzed")
 
     def __unicode__(self):
         """unicode friendly name
@@ -90,33 +93,6 @@ class Tag(PolymorphicModel, Indexable):
         return TagCache.count(self.slug)
 
     @classmethod
-    def get_mapping_properties(cls):
-        """provides mapping information for ElasticSearch
-
-        :return: `dict`
-        """
-        props = super(Tag, cls).get_mapping_properties()
-        props.update({
-            "name": {"type": "string", "analyzer": "autocomplete"},
-            "slug": {"type": "string", "index": "not_analyzed"},
-            "type": {"type": "string", "index": "not_analyzed"}
-        })
-        return props
-
-    def extract_document(self):
-        """instantiates a dict representation of the object from ElasticSearch
-
-        :return: `dict`
-        """
-        data = super(Tag, self).extract_document()
-        data.update({
-            "name": self.name,
-            "slug": self.slug,
-            "type": self.get_mapping_type_name()
-        })
-        return data
-
-    @classmethod
     def get_serializer_class(cls):
         """gets the serializer class for the model
 
@@ -126,13 +102,17 @@ class Tag(PolymorphicModel, Indexable):
         return TagSerializer
 
 
-class FeatureType(models.Model):
+class FeatureType(Indexable):
     """
     special model for featured content
     """
 
     name = models.CharField(max_length=255)
     slug = models.SlugField(unique=True)
+
+    class Mapping:
+        name = field.String(analyzer="autocomplete")
+        name = field.String(index="not_analyzed")
 
     def __unicode__(self):
         """unicode friendly name
@@ -234,6 +214,7 @@ class ContentManager(IndexableManager):
 
         search_query = search_query.filter(f)
 
+        # TODO: reimplement this somehow. Probably at the top of this function?
         # only use valid subtypes
         # types = kwargs.pop("types", [])
         # model_types = self.model.get_mapping_type_names()
@@ -282,7 +263,11 @@ class Content(PolymorphicModel, Indexable):
         )
 
     class Mapping:
+        title = field.String(analyzer="snowball", _boost=2.0)
+        slug = field.String(index="not_analyzed")
+        status = field.String(index="not_analyzed")
         thumbnail_override = ElasticsearchImageField()
+        # TODO: authors?
 
     def __unicode__(self):
         """unicode friendly name
@@ -312,10 +297,10 @@ class Content(PolymorphicModel, Indexable):
         not the thumbnail override field.
         """
         # loop through image fields and grab the first non-none one
-        for field in self._meta.fields:
-            if isinstance(field, ImageField):
-                if field.name is not 'thumbnail_override':
-                    field_value = getattr(self, field.name)
+        for model_field in self._meta.fields:
+            if isinstance(model_field, ImageField):
+                if model_field.name is not 'thumbnail_override':
+                    field_value = getattr(self, model_field.name)
                     if field_value.id is not None:
                         return field_value
 
@@ -355,13 +340,6 @@ class Content(PolymorphicModel, Indexable):
                 return True
         return False
 
-    @property
-    def type(self):
-        """gets the ElasticSearch mapping name
-
-        :return: `str`
-        """
-        return self.get_mapping_type_name()
 
     def ordered_tags(self):
         """gets the related tags
