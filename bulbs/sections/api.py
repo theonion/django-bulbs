@@ -8,8 +8,9 @@ from .serializers import SectionSerializer
 class SectionViewSet(viewsets.ModelViewSet):
     model = Section
     serializer_class = SectionSerializer
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ("name", "description")
+    filter_backends = (filters.SearchFilter, filters.OrderingFilter,)
+    search_fields = ("name",)
+    ordering_fields = ("name",)
     paginate_by = 10
     permission_classes = [IsAdminUser]
 
