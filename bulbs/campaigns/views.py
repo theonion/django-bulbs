@@ -9,7 +9,8 @@ class CampaignViewSet(viewsets.ModelViewSet):
     serializer_class = CampaignSerializer
     filter_backends = (filters.SearchFilter, filters.OrderingFilter,)
     paginate_by = 10
-    search_fields = ("campaign_label", "sponsor_name",)
+    search_fields = ("campaign_label", "sponsor_name")
+    ordering_fields = ("campaign_label", "sponsor_name", "start_date", "end_date")
 
 api_v1_router = routers.DefaultRouter()
 api_v1_router.register(
