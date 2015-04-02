@@ -8,8 +8,19 @@ from .serializers import SpecialCoverageSerializer
 class SpecialCoverageViewSet(viewsets.ModelViewSet):
     model = SpecialCoverage
     serializer_class = SpecialCoverageSerializer
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ("name", "description")
+    filter_backends = (filters.SearchFilter, filters.OrderingFilter, filters.DjangoFilterBackend,)
+    filter_fields = ("active", "promoted")
+    search_fields = (
+        "name",
+        "description",
+        "campaign__campaign_label",
+        "campaign__sponsor_name"
+    )
+    ordering_fields = (
+        "name",
+        "campaign__campaign_label",
+        "campaign__sponsor_name"
+    )
     paginate_by = 10
     permission_classes = [IsAdminUser]
 

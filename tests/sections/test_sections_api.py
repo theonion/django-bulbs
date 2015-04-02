@@ -126,3 +126,33 @@ class SectionsApiTestCase(BaseAPITestCase):
         )
 
         self.assertEqual(section_slug, response.data["slug"])
+
+    def test_section_search_by_name(self):
+        """Test that searching sections by their name."""
+
+        # matching
+        name = "Some section name"
+        section = Section.objects.create(name=name)
+
+        # non-matching
+        Section.objects.create(name="Joe Biden")
+
+        response = self.client.get(reverse("section-list"), data={"search": "name"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data["results"]), 1)
+        self.assertEqual(response.data["results"][0]["id"], section.pk)
+
+    def test_section_ordering_by_name(self):
+        """Test that section search results can be ordered by name."""
+
+        section_3 = Section.objects.create(name="abc3")
+        section_1 = Section.objects.create(name="abc1")
+        section_2 = Section.objects.create(name="abc2")
+
+        response = self.client.get(reverse("section-list"),
+                                   data={"search": "abc", "ordering": "name"})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["results"][0]["id"], section_1.pk)
+        self.assertEqual(response.data["results"][1]["id"], section_2.pk)
+        self.assertEqual(response.data["results"][2]["id"], section_3.pk)
