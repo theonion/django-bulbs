@@ -36,12 +36,13 @@ class SpecialCoverage(models.Model):
         if not self.slug:
             self.slug = slugify(self.name)
 
+        super(SpecialCoverage, self).save(*args, **kwargs)
+
         if self.query and self.query != {}:
             if self.active:
                 self._save_percolator()
             else:
                 self._delete_percolator()
-        return super(SpecialCoverage, self).save(*args, **kwargs)
 
     def _save_percolator(self):
         """saves the query field as an elasticsearch percolator
