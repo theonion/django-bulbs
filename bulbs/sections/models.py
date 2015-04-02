@@ -15,6 +15,9 @@ class Section(models.Model):
     promoted = models.BooleanField(default=False)
     query = JSONField(default={}, blank=True)
 
+    def __unicode__(self):
+        return self.name
+
     def save(self, *args, **kwargs):
         """Saving ensures that the slug, if not set, is set to the slugified name."""
 

@@ -23,6 +23,9 @@ class SpecialCoverage(models.Model):
     promoted = models.BooleanField(default=False)
     campaign = models.ForeignKey(Campaign, null=True, default=None, blank=True)
 
+    def __unicode__(self):
+        return self.name
+
     @classmethod
     def get_doc_type(cls):
         return ".percolator"
