@@ -472,6 +472,21 @@ class PromotionApiTestCase(BaseAPITestCase):
         self.assertEqual(self.pzone[0].id, old_1.id)
         self.assertEqual(self.pzone[1].id, old_0.id)
 
+        # try to empy out the pzone
+        self.pzone.data = []
+        response = self.client.put(
+            endpoint,
+            data=json.dumps({"content": self.pzone.data, "name": "homepage"}),
+            content_type="application/json"
+        )
+        self.assertEqual(
+            response.status_code, 200,
+            msg="Failed ({}): {}".format(response.status_code, response.data))
+        self.pzone = PZone.objects.get(name=self.pzone.name)
+        self.assertEqual(len(self.pzone), 0)
+
+
+
     def test_put_pzone_403(self):
         """Ensure that PUTing to a pzone without permission gives a 403."""
 

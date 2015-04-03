@@ -26,7 +26,7 @@ class PZoneSerializer(serializers.ModelSerializer):
         model = PZone
         exclude = ("data",)
 
-    content = PZoneField(source="data")
+    content = PZoneField(source="data", required=False)
 
 
 class _PZoneOperationSerializer(serializers.ModelSerializer):

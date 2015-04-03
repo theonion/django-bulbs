@@ -91,7 +91,7 @@ class PZoneManager(models.Manager):
 class PZone(models.Model):
     name = models.SlugField(unique=True)
     zone_length = models.IntegerField(default=10)
-    data = JSONField(default=[])
+    data = JSONField(default=[], blank=True)
 
     objects = PZoneManager()
 
