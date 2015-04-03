@@ -1,8 +1,6 @@
-# from django.contrib.auth import get_user_model
 from bulbs.content.models import Content
 from django.conf import settings
 from django.db import models
-# from django.db.models.loading import get_model
 
 
 # User = get_user_model()

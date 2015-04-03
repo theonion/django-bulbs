@@ -22,6 +22,9 @@ class SpecialCoverage(models.Model):
     promoted = models.BooleanField(default=False)
     campaign = models.ForeignKey(Campaign, null=True, default=None, blank=True)
 
+    def __unicode__(self):
+        return self.name
+
     @classmethod
     def get_doc_type(cls):
         return ".percolator"
@@ -32,12 +35,13 @@ class SpecialCoverage(models.Model):
         if not self.slug:
             self.slug = slugify(self.name)
 
+        super(SpecialCoverage, self).save(*args, **kwargs)
+
         if self.query and self.query != {}:
             if self.active:
                 self._save_percolator()
             else:
                 self._delete_percolator()
-        return super(SpecialCoverage, self).save(*args, **kwargs)
 
     def _save_percolator(self):
         """saves the query field as an elasticsearch percolator

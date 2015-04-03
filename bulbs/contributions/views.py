@@ -2,7 +2,6 @@
 
 import datetime
 
-# from django.contrib.auth import get_user_model
 from django.utils import dateparse, timezone
 
 from rest_framework import viewsets, routers, mixins
@@ -13,8 +12,6 @@ from rest_framework_csv.renderers import CSVRenderer
 from .models import ContributorRole, Contribution
 from .serializers import ContributorRoleSerializer, ContributionReportingSerializer, ContentReportingSerializer
 from bulbs.content.models import Content
-
-# User = get_user_model()
 
 
 class ContributorRoleViewSet(viewsets.ModelViewSet):
@@ -42,7 +39,7 @@ class ContentReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
         if "end" in self.request.GET:
             end_date = dateparse.parse_date(self.request.GET["end"])
 
-        content = Content.objects.filter(published__range=(start_date, end_date))
+        content = Content.objects.filter(published__range=(start_date, end_date)).prefetch_related("authors", "contribution_set").select_related("feature_type")
 
         return content
 
