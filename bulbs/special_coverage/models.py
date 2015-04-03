@@ -52,6 +52,13 @@ class SpecialCoverage(models.Model):
                     }
                 }
             }
+
+            # We'll need this data, to decide which special coverage section to use
+            if self.campaign:
+                q["sponsored"] = True
+                q["start_date"] = self.campaign.start_date
+                q["end_date"] = self.campaign.end_date
+
             res = es.index(
                 index=index,
                 doc_type=".percolator",

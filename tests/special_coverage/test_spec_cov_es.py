@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 from django.utils import timezone
+from elasticsearch.exceptions import TransportError
 from elastimorphic.tests.base import BaseIndexableTestCase
 
 from bulbs.content.models import Content, FeatureType, Tag
@@ -489,14 +490,40 @@ class SpecialCoverageQueryTests(BaseIndexableTestCase):
         )
         assert response["_source"]["query"]["filtered"]["filter"] == sc.get_content().build_search()["filter"]
 
-    # def test_delete_percolator(self):
-    #     query = self.search_expectations[1][0]
-    #     sc = SpecialCoverage.objects.create(
-    #         name="All Obama, Baby",
-    #         description="All Obama, Baby",
-    #         query=query
-    #     )
-    #     res = sc._save_percolator()
-    #     assert isinstance(res, dict)
-    #     res = sc._delete_percolator()
-    #     assert isinstance(res, dict)
+    def test_delete_percolator(self):
+        sc = SpecialCoverage(
+            id=93,
+            name="Uncle Joe",
+            description="Classic Joeseph Biden"
+        )
+        self.es.index(
+            index=Content.get_index_name(),
+            doc_type=".percolator",
+            id="specialcoverage.93",
+            body={
+                "query": {
+                    "filtered": {
+                        "filter": {
+                            "match_all": {}
+                        }
+                    }
+                }
+            }
+        )        
+        response = self.es.get(
+            index=Content.get_index_name(),
+            doc_type=".percolator",
+            id="specialcoverage.93"
+        )
+        assert isinstance(response, dict)
+
+        sc._delete_percolator()
+
+        with self.assertRaises(TransportError):
+            response = self.es.get(
+                index=Content.get_index_name(),
+                doc_type=".percolator",
+                id="specialcoverage.93"
+            )
+
+
