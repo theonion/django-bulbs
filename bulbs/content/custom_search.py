@@ -154,7 +154,7 @@ def groups_filter_from_query(query, time_field="published", field_map={}):
 def date_range_filter(range_name, field_name):
     """Create a filter from a named date range."""
 
-    num_days = settings.USER_FRIENDLY_DATE_RANGES.get(range_name)
+    num_days = settings.CUSTOM_SEARCH_TIME_PERIODS.get(range_name)
     if num_days:
         dt = timedelta(num_days)
         start_time = timezone.now() - dt

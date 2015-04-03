@@ -1,5 +1,5 @@
 
-USER_FRIENDLY_DATE_RANGES = {
+CUSTOM_SEARCH_TIME_PERIODS = {
     "Past day": 1,
     "Past week": 7,
     "Past 2 weeks": 14,
