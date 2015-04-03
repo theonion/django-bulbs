@@ -196,7 +196,7 @@ class ContentManager(IndexableManager):
         for tag in kwargs.get("tags", []):
             if tag.startswith("-"):
                 if tag_filter is None:
-                    tag_filter = ~filter.Term(**{"slug": tag[1:]})
+                    tag_filter = ~filter.Term(**{"tags.slug": tag[1:]})
                 else:
                     tag_filter &= ~filter.Term(**{"tags.slug": tag[1:]})
                     
@@ -347,6 +347,7 @@ class Content(PolymorphicModel, Indexable):
         if self.published:
             return "final"  # The published time has been set
         return "draft"  # No published time has been set
+    status = property(get_status)
 
     @property
     def is_published(self):

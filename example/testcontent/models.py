@@ -16,7 +16,7 @@ class TestContentObj(Content):
         from .serializers import TestContentObjSerializer
         return TestContentObjSerializer
 
-    class Mapping:
+    class Mapping(Content.Mapping):
         thumbnail_override = ElasticsearchImageField()
 
 
@@ -44,7 +44,7 @@ class TestContentDetailImage(TestContentObj):
 
     detail_image = ImageField(null=True, blank=True, caption_field="detail_caption", alt_field="detail_alt")
 
-    class Mapping:
+    class Mapping(Content.Mapping):
 
         class Meta:
             excludes = ("detail_alt", "detail_caption", "detail_image")

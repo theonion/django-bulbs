@@ -60,15 +60,6 @@ class PolyContentTestCase(BaseIndexableTestCase):
 
         self.assertEqual(Content.objects.count(), 13)  # The 12, plus the unpublished one
 
-        # d = q.to_dict()
-        # es = connections.get_connection()
-        # result = es.search(
-        #     index=q._index,
-        #     doc_type=q._doc_type,
-        #     body=d
-        # )
-        # print(result)
-
         q = Content.search_objects.search()
         self.assertEqual(q.count(), 12)
 
@@ -170,6 +161,7 @@ class PolyContentTestCase(BaseIndexableTestCase):
 
     def test_negative_filters(self):
         q = Content.search_objects.search(tags=["-spam"])
+        print(q.to_dict())
         self.assertEqual(q.count(), 6)
 
         q = Content.search_objects.search(feature_types=["-obj-one"])
@@ -190,10 +182,6 @@ class PolyContentTestCase(BaseIndexableTestCase):
         self.assertEqual(
             len(response.context['object_list']), len(self.combos) * self.num_subclasses)
 
-    # def test_num_polymorphic_queries(self):
-    #     with self.assertNumQueries(1 + self.num_subclasses):
-    #         for content in Content.objects.all():
-    #             self.assertIsInstance(content, (TestContentObj, TestContentObjTwo))
 
     def test_add_remove_tags(self):
         content = make_content()
