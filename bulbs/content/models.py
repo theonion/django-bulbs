@@ -19,7 +19,7 @@ import elasticsearch
 # from elasticutils import F
 from elasticsearch_dsl import field
 from elasticsearch_dsl.query import Q
-from elasticsearch_dsl.filter import F
+from elasticsearch_dsl import filter
 from polymorphic import PolymorphicModel
 from djbetty import ImageField
 from six import string_types, text_type, binary_type
@@ -68,7 +68,7 @@ class Tag(PolymorphicModel, Indexable):
 
     class Mapping:
         name = field.String(analyzer="autocomplete")
-        name = field.String(index="not_analyzed")
+        # slug = field.String(index="not_analyzed")
 
     def __unicode__(self):
         """unicode friendly name
@@ -112,7 +112,6 @@ class FeatureType(Indexable):
 
     class Mapping:
         name = field.String(analyzer="autocomplete")
-        name = field.String(index="not_analyzed")
 
     def __unicode__(self):
         """unicode friendly name
@@ -161,7 +160,7 @@ class ContentManager(IndexableManager):
         search_query = super(ContentManager, self).search()
 
         if "query" in kwargs:
-            search_query = search_query.query(_all=kwargs.get("query"))
+            search_query = search_query.query("match", _all=kwargs.get("query"))
         else:
             search_query = search_query.sort('-published', '-last_modified')
 
@@ -187,32 +186,48 @@ class ContentManager(IndexableManager):
             # TODO: kill this "published" param. it sucks
             if kwargs.get("published", True) and "status" not in kwargs:
                 now = timezone.now()
-                published_range = F("range", {"published": {"lte": now}})
-                search_query = search_query.filter(published_range)
+                published_filter = filter.Range(published={"lte": now})
+                search_query = search_query.filter(published_filter)
 
         if "status" in kwargs:
-            search_query = search_query.filter(status=kwargs.get("status"))
-
-        f = F()
+            f &= filter.Term(status=kwargs.get("status"))
+        
+        tag_filter = None
         for tag in kwargs.get("tags", []):
             if tag.startswith("-"):
-                f &= ~F({"term": {"tags.slug": tag[1:]}})
+                if tag_filter is None:
+                    tag_filter = ~filter.Term(**{"slug": tag[1:]})
+                else:
+                    tag_filter &= ~filter.Term(**{"tags.slug": tag[1:]})
+                    
             else:
-                f |= F({"term": {"tags.slug": tag}})
+                if tag_filter is None:
+                    tag_filter = filter.Term(**{"tags.slug": tag})
+                else:
+                    tag_filter |= filter.Term(**{"tags.slug": tag})
+        if tag_filter:
+            search_query = search_query.filter(filter.Nested(path="tags", filter=tag_filter))
 
+        feature_type_filter = None
         for feature_type in kwargs.get("feature_types", []):
             if feature_type.startswith("-"):
-                f &= ~F({"term": {"feature_type.slug": feature_type[1:]}})
+                if feature_type_filter is None:
+                    feature_type_filter = ~filter.Term(**{"feature_type.slug": feature_type[1:]})
+                else:
+                    feature_type_filter &= ~filter.Term(**{"feature_type.slug": feature_type[1:]})
             else:
-                f |= F({"term": {"feature_type.slug": feature_type}})
+                if feature_type_filter is None:
+                    feature_type_filter = filter.Term(**{"feature_type.slug": feature_type})
+                else:
+                    feature_type_filter |= filter.Term(**{"feature_type.slug": feature_type})
+        if feature_type_filter:
+            search_query = search_query.filter(filter.Nested(path="feature_type", filter=feature_type_filter))
 
         for author in kwargs.get("authors", []):
             if author.startswith("-"):
                 f &= ~F({"term": {"authors.username": author}})
             else:
                 f |= F({"term": {"authors.username": author}})
-
-        search_query = search_query.filter(f)
 
         # TODO: reimplement this somehow. Probably at the top of this function?
         # only use valid subtypes
@@ -226,7 +241,7 @@ class ContentManager(IndexableManager):
         #     ])
         # else:
         #     results = results.doctypes(*model_types)
-        return search_query.execute()
+        return search_query
 
 
 class Content(PolymorphicModel, Indexable):

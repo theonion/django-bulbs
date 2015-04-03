@@ -7,9 +7,9 @@ import time
 from django.utils import timezone
 from django.test.client import Client
 from django.template.defaultfilters import slugify
-# from elastimorphic.tests.base import BaseIndexableTestCase
-from bulbs.utils.test import BaseIndexableTestCase
+from elasticsearch_dsl.connections import connections
 
+from bulbs.utils.test import BaseIndexableTestCase
 from bulbs.content.models import Content, Tag, FeatureType
 from example.testcontent.models import TestContentObj, TestContentObjTwo
 from bulbs.utils.test import make_content
@@ -32,6 +32,7 @@ class PolyContentTestCase(BaseIndexableTestCase):
         self.all_tags = []
         ft_one = FeatureType.objects.create(name="Obj one", slug="obj-one")
         ft_two = FeatureType.objects.create(name="Obj two", slug="obj-two")
+
         for i, combo in enumerate(self.combos):
             tags = []
             for atom in combo:
@@ -53,14 +54,20 @@ class PolyContentTestCase(BaseIndexableTestCase):
             foo="bar",
             feature_type=ft_one
         )
+        Content.search_objects.refresh()
 
-        # We need to let the index refresh
-        # TestContentObj.search_objects.refresh()
-        # TestContentObjTwo.search_objects.refresh()
-
-    def _test_filter_search_content(self):
+    def test_filter_search_content(self):
 
         self.assertEqual(Content.objects.count(), 13)  # The 12, plus the unpublished one
+
+        # d = q.to_dict()
+        # es = connections.get_connection()
+        # result = es.search(
+        #     index=q._index,
+        #     doc_type=q._doc_type,
+        #     body=d
+        # )
+        # print(result)
 
         q = Content.search_objects.search()
         self.assertEqual(q.count(), 12)
@@ -69,13 +76,16 @@ class PolyContentTestCase(BaseIndexableTestCase):
         self.assertEqual(q.count(), 6)
 
         q = Content.search_objects.search(tags=["spam"])
+        self.assertEqual(len(q), 6)
         self.assertEqual(q.count(), 6)
-        for content in q.full():
-            self.assertTrue("spam" in content.tags.values_list("slug", flat=True))
+        for content in q:
+            slugs = [tag.slug for tag in content.tags.all()]
+            self.assertTrue("spam" in slugs)
 
         q = Content.search_objects.search(feature_types=["obj-one"])
+        print(q.to_dict())
         self.assertEqual(q.count(), 6)
-        for content in q.full():
+        for content in q:
             self.assertEqual("Obj one", content.feature_type.name)
 
         q = Content.search_objects.search(types=["testcontent_testcontentobj"])

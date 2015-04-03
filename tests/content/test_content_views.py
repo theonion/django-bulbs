@@ -5,7 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.test import Client
 from django.utils import timezone
-from elastimorphic.tests.base import BaseIndexableTestCase
+from bulbs.utils.test import BaseIndexableTestCase
 
 from bulbs.content.models import FeatureType, ObfuscatedUrlInfo
 from example.testcontent.models import TestContentObj, TestContentObjTwo
@@ -24,9 +24,7 @@ class TestContentViews(BaseIndexableTestCase):
 
     def test_unpublished_article(self):
         content = TestContentObj.objects.create(title="Testing Content")
-        print(reverse("published", kwargs={"pk": content.id}))
         response = self.client.get(reverse("published", kwargs={"pk": content.id}))
-        print(response["Location"])
         self.assertEqual(response.status_code, 302)
 
         # But this should work when we login
@@ -44,10 +42,9 @@ class TestContentViews(BaseIndexableTestCase):
         content = make_content(TestContentObj, feature_type=ft, published=timezone.now() - timedelta(hours=2))
         content_two = make_content(TestContentObjTwo, feature_type=ft, published=timezone.now() - timedelta(hours=2))
         # make sure we get all content with this list
-        TestContentObj.search_objects.refresh()
-        TestContentObjTwo.search_objects.refresh()
         r = self.client.get(reverse("example.testcontent.views.test_all_content_list"))
         self.assertEqual(r.status_code, 200)
+        print(r.context_data["content_list"])
         self.assertEqual(2, len(r.context_data["content_list"]))
         # make sure we only get TestContentTwoObjs from this other list
         r = self.client.get(reverse("example.testcontent.views.test_content_two_list"))
