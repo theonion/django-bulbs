@@ -83,7 +83,6 @@ class PolyContentTestCase(BaseIndexableTestCase):
             self.assertTrue("spam" in slugs)
 
         q = Content.search_objects.search(feature_types=["obj-one"])
-        print(q.to_dict())
         self.assertEqual(q.count(), 6)
         for content in q:
             self.assertEqual("Obj one", content.feature_type.name)
@@ -155,46 +154,46 @@ class PolyContentTestCase(BaseIndexableTestCase):
         self.assertEqual(q.count(), 0)
         # /date range tests
 
-        q = Content.search_objects.search(types=["testcontent_testcontentobjtwo"]).full()
+        q = Content.search_objects.search(types=["testcontent_testcontentobjtwo"])
         self.assertEqual(q.count(), 6)
 
         q = Content.search_objects.search(types=[
             "testcontent_testcontentobjtwo", "testcontent_testcontentobj"])
         self.assertEqual(q.count(), 12)
 
-    def _test_status_filter(self):
+    def test_status_filter(self):
         q = Content.search_objects.search(status="final")
         self.assertEqual(q.count(), 12)
 
         q = Content.search_objects.search(status="draft")
         self.assertEqual(q.count(), 1)
 
-    def _test_negative_filters(self):
+    def test_negative_filters(self):
         q = Content.search_objects.search(tags=["-spam"])
         self.assertEqual(q.count(), 6)
 
         q = Content.search_objects.search(feature_types=["-obj-one"])
         self.assertEqual(q.count(), 6)
-        for content in q.full():
+        for content in q:
             self.assertNotEqual("Obj one", content.feature_type.name)
 
-    def _test_content_subclasses(self):
+    def test_content_subclasses(self):
         # We created one of each subclass per combination so the following should be true:
         self.assertEqual(Content.objects.count(), (len(self.combos) * self.num_subclasses) + 1)
         self.assertEqual(TestContentObj.objects.count(), len(self.combos) + 1)
         self.assertEqual(TestContentObjTwo.objects.count(), len(self.combos))
 
-    def _test_content_list_view(self):
+    def test_content_list_view(self):
         client = Client()
         response = client.get('/content_list_one.html')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             len(response.context['object_list']), len(self.combos) * self.num_subclasses)
 
-    def _test_num_polymorphic_queries(self):
-        with self.assertNumQueries(1 + self.num_subclasses):
-            for content in Content.objects.all():
-                self.assertIsInstance(content, (TestContentObj, TestContentObjTwo))
+    # def test_num_polymorphic_queries(self):
+    #     with self.assertNumQueries(1 + self.num_subclasses):
+    #         for content in Content.objects.all():
+    #             self.assertIsInstance(content, (TestContentObj, TestContentObjTwo))
 
     def test_add_remove_tags(self):
         content = make_content()
@@ -212,10 +211,3 @@ class PolyContentTestCase(BaseIndexableTestCase):
         self.assertTrue(results.count() == 1)
         tag_result = results.execute()[0]
         self.assertIsInstance(tag_result, Tag)
-
-    def _test_in_bulk_performs_polymorphic_query(self):
-        content_ids = [c.id for c in Content.objects.all()]
-        results = Content.objects.in_bulk(content_ids)
-        subclasses = tuple(Content.__subclasses__())
-        for result in results.values():
-            self.assertIsInstance(result, subclasses)

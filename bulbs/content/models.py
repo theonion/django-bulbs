@@ -170,17 +170,17 @@ class ContentManager(IndexableManager):
             if "before" in kwargs and "after" in kwargs:
                 before = parse_datetime(kwargs["before"])
                 after = parse_datetime(kwargs["after"])
-                published_range = F("range", {"published": {"gte": after, "lte": before}})
+                published_range = filter.Range(published={"gte": after, "lte": before})
                 search_query = search_query.filter(published_range)
 
             elif "before" in kwargs:
                 before = parse_datetime(kwargs["before"])
-                published_range = F("range", {"published": {"lte": before}})
+                published_range = filter.Range(published={"lte": before})
                 search_query = search_query.filter(published_range)
 
             elif "after" in kwargs:
                 after = parse_datetime(kwargs["after"])
-                published_range = F("range", {"published": {"gte": after}})
+                published_range = filter.Range(published={"gte": after})
                 search_query = search_query.filter(published_range)
         else:
             # TODO: kill this "published" param. it sucks
@@ -190,7 +190,7 @@ class ContentManager(IndexableManager):
                 search_query = search_query.filter(published_filter)
 
         if "status" in kwargs:
-            f &= filter.Term(status=kwargs.get("status"))
+            search_query = search_query.filter(filter.Term(status=kwargs.get("status")))
         
         tag_filter = None
         for tag in kwargs.get("tags", []):
@@ -241,6 +241,11 @@ class ContentManager(IndexableManager):
         #     ])
         # else:
         #     results = results.doctypes(*model_types)
+
+        # Is this good enough? Are we even using this feature at all?
+        types = kwargs.pop("types", [])
+        if types:
+            search_query._doc_type = types
         return search_query
 
 
