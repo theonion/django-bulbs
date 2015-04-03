@@ -1,5 +1,6 @@
 from django_filters import DateTimeFilter, FilterSet
 from rest_framework import routers, viewsets, filters
+from rest_framework.permissions import IsAdminUser
 
 from .models import Campaign
 from .serializers import CampaignSerializer
@@ -25,6 +26,7 @@ class CampaignViewSet(viewsets.ModelViewSet):
     search_fields = ("campaign_label", "sponsor_name", )
     # ordering
     ordering_fields = ("campaign_label", "sponsor_name", "start_date", "end_date", )
+    permission_classes = [IsAdminUser]
 
 
 api_v1_router = routers.DefaultRouter()
