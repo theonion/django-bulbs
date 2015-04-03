@@ -26,10 +26,6 @@ class SpecialCoverage(models.Model):
     def __unicode__(self):
         return self.name
 
-    @classmethod
-    def get_doc_type(cls):
-        return ".percolator"
-
     def save(self, *args, **kwargs):
         """Saving ensures that the slug, if not set, is set to the slugified name."""
 
@@ -56,10 +52,15 @@ class SpecialCoverage(models.Model):
                     }
                 }
             }
-            res = es.create(index=index, doc_type=self.get_doc_type(), body=q, id=self.es_id, refresh=True)
+            res = es.index(
+                index=index,
+                doc_type=".percolator",
+                body=q,
+                id=self.es_id
+            )
 
     def _delete_percolator(self):
-        es.delete(index=index, doc_type=self.get_doc_type(), id=self.es_id, refresh=True, ignore=404)
+        es.delete(index=index, doc_type=".percolator", id=self.es_id, refresh=True, ignore=404)
 
     def get_content(self):
         """performs es search and gets content objects

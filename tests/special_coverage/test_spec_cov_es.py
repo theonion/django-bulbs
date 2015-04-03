@@ -419,9 +419,6 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
 
 class SpecialCoverageQueryTests(BaseIndexableTestCase):
 
-    def test_get_doc_type(self):
-        assert SpecialCoverage.get_doc_type() == ".percolator"
-
     def test_es_id(self):
         sc = SpecialCoverage(
             id=101,
@@ -437,7 +434,7 @@ class SpecialCoverageQueryTests(BaseIndexableTestCase):
                 "label": "Joe Biden"
             }],
             "type": "all",
-            "field": "tag.slug"
+            "field": "tag"
         }
 
         query = {
@@ -457,8 +454,40 @@ class SpecialCoverageQueryTests(BaseIndexableTestCase):
         )
 
         # Manually index this percolator
-        res = sc._save_percolator()
+        sc._save_percolator()
 
+        response = self.es.get(
+            index=Content.get_index_name(),
+            doc_type=".percolator",
+            id="specialcoverage.93"
+        )
+        assert response["_source"]["query"]["filtered"]["filter"] == sc.get_content().build_search()["filter"]
+
+        # Now let's munge this a little. Holy shit is this deeply nested.
+        obama_condition = {
+            "values": [{
+                "value": "barack-obama", 
+                "label": "Barack Obama"
+            }],
+            "type": "all",
+            "field": "tag"
+        }
+        sc.query = {
+            "label": "Barack",
+            "query": {
+                "groups": [{
+                    "conditions": [obama_condition]
+                }]
+            },
+        }
+        sc._save_percolator()
+
+        response = self.es.get(
+            index=Content.get_index_name(),
+            doc_type=".percolator",
+            id="specialcoverage.93"
+        )
+        assert response["_source"]["query"]["filtered"]["filter"] == sc.get_content().build_search()["filter"]
 
     # def test_delete_percolator(self):
     #     query = self.search_expectations[1][0]
