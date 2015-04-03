@@ -417,39 +417,57 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
         )
 
 
-class SpecialCoverageQueryTests(BaseCustomSearchFilterTests):
-    def setUp(self):
-        super(SpecialCoverageQueryTests, self).setUp()
+class SpecialCoverageQueryTests(BaseIndexableTestCase):
 
     def test_get_doc_type(self):
         assert SpecialCoverage.get_doc_type() == ".percolator"
 
     def test_es_id(self):
-        sc = SpecialCoverage.objects.create(
+        sc = SpecialCoverage(
+            id=101,
             name="All Obama, Baby",
             description="All Obama, Baby"
         )
-        es_id = "specialcoverage.{}".format(sc.id)
-        assert sc.es_id == es_id
+        assert sc.es_id == "specialcoverage.101"
 
     def test_save_percolator(self):
-        query = self.search_expectations[1][0]
-        sc = SpecialCoverage.objects.create(
-            name="All Obama, Baby",
-            description="All Obama, Baby",
-            query=query
-        )
-        res = sc._save_percolator()
-        assert isinstance(res, dict)
+        joe_biden_condition = {
+            "values": [{
+                "value": "joe-biden", 
+                "label": "Joe Biden"
+            }],
+            "type": "all",
+            "field": "tag.slug"
+        }
 
-    def test_delete_percolator(self):
-        query = self.search_expectations[1][0]
-        sc = SpecialCoverage.objects.create(
-            name="All Obama, Baby",
-            description="All Obama, Baby",
+        query = {
+            "label": "Uncle Joe",
+            "query": {
+                "groups": [{
+                    "conditions": [joe_biden_condition]
+                }]
+            },
+        }
+
+        sc = SpecialCoverage(
+            id=93,
+            name="Uncle Joe",
+            description="Classic Joeseph Biden",
             query=query
         )
+
+        # Manually index this percolator
         res = sc._save_percolator()
-        assert isinstance(res, dict)
-        res = sc._delete_percolator()
-        assert isinstance(res, dict)
+
+
+    # def test_delete_percolator(self):
+    #     query = self.search_expectations[1][0]
+    #     sc = SpecialCoverage.objects.create(
+    #         name="All Obama, Baby",
+    #         description="All Obama, Baby",
+    #         query=query
+    #     )
+    #     res = sc._save_percolator()
+    #     assert isinstance(res, dict)
+    #     res = sc._delete_percolator()
+    #     assert isinstance(res, dict)

@@ -56,20 +56,10 @@ class SpecialCoverage(models.Model):
                     }
                 }
             }
-            try:
-                res = es.create(index=index, doc_type=self.get_doc_type(), body=q, id=self.es_id, refresh=True)
-            except Exception, e:
-                res = e
-        else:
-            res = None
-        return res
+            res = es.create(index=index, doc_type=self.get_doc_type(), body=q, id=self.es_id, refresh=True)
 
     def _delete_percolator(self):
-        try:
-            res = es.delete(index=index, doc_type=self.get_doc_type(), id=self.es_id, refresh=True)
-        except Exception, e:
-            res = e
-        return res
+        es.delete(index=index, doc_type=self.get_doc_type(), id=self.es_id, refresh=True, ignore=404)
 
     def get_content(self):
         """performs es search and gets content objects
