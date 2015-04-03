@@ -15,7 +15,7 @@
                         ...
                     ]
                 ],
-                time: 'X days' 
+                time: 'X days'
             },
             ...
         ],
@@ -34,9 +34,11 @@ from datetime import timedelta
 from django.utils import timezone
 from elasticutils import F
 
+from bulbs.conf import settings
+
 
 def custom_search_model(model, query, preview=False, published=False,
-    id_field="id", time_field="published", sort_pinned=True, field_map={}):
+                        id_field="id", time_field="published", sort_pinned=True, field_map={}):
     """Filter a model with the given filter.
 
     `field_map` translates incoming field names to the appropriate ES names.
@@ -84,7 +86,7 @@ def custom_search_model(model, query, preview=False, published=False,
                     "bool": {
                         "must": must_queries
                     }
-                } 
+                }
             }
         }
         # include the original filters, if present
@@ -151,15 +153,8 @@ def groups_filter_from_query(query, time_field="published", field_map={}):
 
 def date_range_filter(range_name, field_name):
     """Create a filter from a named date range."""
-    ranges = {
-        "1 day": 1,
-        "1 week": 7,
-        "2 weeks": 14,
-        "1 month": 31,
-        "6 months": 31 * 6,  # ugh
-        "1 year": 365,
-    }
-    num_days = ranges.get(range_name)
+
+    num_days = settings.USER_FRIENDLY_DATE_RANGES.get(range_name)
     if num_days:
         dt = timedelta(num_days)
         start_time = timezone.now() - dt
