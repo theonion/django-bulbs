@@ -26,6 +26,7 @@ from six import string_types, text_type, binary_type
 
 from bulbs.content import TagCache
 from .shallow import ShallowContentS, ShallowContentResult
+from .filters import Published, Status, Tags, FeatureTypes
 
 try:
     from bulbs.content.tasks import index as index_task  # noqa
@@ -167,61 +168,22 @@ class ContentManager(IndexableManager):
         # Right now we have "Before", "After" (datetimes),
         # and "published" (a boolean). Should simplify this in the future.
         if "before" in kwargs or "after" in kwargs:
-            if "before" in kwargs and "after" in kwargs:
-                before = parse_datetime(kwargs["before"])
-                after = parse_datetime(kwargs["after"])
-                published_range = filter.Range(published={"gte": after, "lte": before})
-                search_query = search_query.filter(published_range)
-
-            elif "before" in kwargs:
-                before = parse_datetime(kwargs["before"])
-                published_range = filter.Range(published={"lte": before})
-                search_query = search_query.filter(published_range)
-
-            elif "after" in kwargs:
-                after = parse_datetime(kwargs["after"])
-                published_range = filter.Range(published={"gte": after})
-                search_query = search_query.filter(published_range)
+            published_filter = Published(before=kwargs.get("before"), after=kwargs.get("after"))
+            search_query = search_query.filter(filter.Bool(must=[published_filter]))
         else:
             # TODO: kill this "published" param. it sucks
             if kwargs.get("published", True) and "status" not in kwargs:
-                now = timezone.now()
-                published_filter = filter.Range(published={"lte": now})
+                published_filter = Published()
                 search_query = search_query.filter(published_filter)
 
         if "status" in kwargs:
-            search_query = search_query.filter(filter.Term(status=kwargs.get("status")))
+            search_query = search_query.filter(Status(kwargs["status"]))
         
-        tag_filter = None
-        for tag in kwargs.get("tags", []):
-            if tag.startswith("-"):
-                if tag_filter is None:
-                    tag_filter = ~filter.Term(**{"tags.slug": tag[1:]})
-                else:
-                    tag_filter &= ~filter.Term(**{"tags.slug": tag[1:]})
-                    
-            else:
-                if tag_filter is None:
-                    tag_filter = filter.Term(**{"tags.slug": tag})
-                else:
-                    tag_filter |= filter.Term(**{"tags.slug": tag})
-        if tag_filter:
-            search_query = search_query.filter(filter.Nested(path="tags", filter=tag_filter))
+        tag_filter = Tags(kwargs.get("tags", []))
+        search_query = search_query.filter(tag_filter)
 
-        feature_type_filter = None
-        for feature_type in kwargs.get("feature_types", []):
-            if feature_type.startswith("-"):
-                if feature_type_filter is None:
-                    feature_type_filter = ~filter.Term(**{"feature_type.slug": feature_type[1:]})
-                else:
-                    feature_type_filter &= ~filter.Term(**{"feature_type.slug": feature_type[1:]})
-            else:
-                if feature_type_filter is None:
-                    feature_type_filter = filter.Term(**{"feature_type.slug": feature_type})
-                else:
-                    feature_type_filter |= filter.Term(**{"feature_type.slug": feature_type})
-        if feature_type_filter:
-            search_query = search_query.filter(filter.Nested(path="feature_type", filter=feature_type_filter))
+        feature_type_filter = FeatureTypes(kwargs.get("feature_types", []))
+        search_query = search_query.filter(feature_type_filter)
 
         for author in kwargs.get("authors", []):
             if author.startswith("-"):
