@@ -19,7 +19,6 @@ import elasticsearch
 # from elasticutils import F
 from elasticsearch_dsl import field
 from elasticsearch_dsl.query import Q
-from elasticsearch_dsl import filter
 from polymorphic import PolymorphicModel
 from djbetty import ImageField
 from six import string_types, text_type, binary_type
@@ -42,22 +41,6 @@ class ElasticsearchImageField(field.Integer):
 
     def to_es(self, data):
         return data.id
-
-
-def parse_datetime(value):
-    if isinstance(value, (string_types, text_type, binary_type)):
-        value = dateutil.parser.parse(value)
-        value.replace(tzinfo=dateutil.tz.tzutc())
-        return value
-    elif isinstance(value, datetime.datetime):
-        value.replace(tzinfo=dateutil.tz.tzutc())
-        return value
-    elif isinstance(value, datetime.date):
-        value = datetime.datetime(value.year, value.month, value.day)
-        value.replace(tzinfo=dateutil.tz.tzutc())
-        return value
-    else:
-        raise ValueError('Value must be parsable to datetime object. Got `{}`'.format(type(value)))
 
 
 class Tag(PolymorphicModel, Indexable):
@@ -169,7 +152,7 @@ class ContentManager(IndexableManager):
         # and "published" (a boolean). Should simplify this in the future.
         if "before" in kwargs or "after" in kwargs:
             published_filter = Published(before=kwargs.get("before"), after=kwargs.get("after"))
-            search_query = search_query.filter(filter.Bool(must=[published_filter]))
+            search_query = search_query.filter(published_filter)
         else:
             # TODO: kill this "published" param. it sucks
             if kwargs.get("published", True) and "status" not in kwargs:
