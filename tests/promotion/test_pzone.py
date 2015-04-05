@@ -1,6 +1,6 @@
 from django.utils import timezone
 
-from elastimorphic.tests.base import BaseIndexableTestCase
+from bulbs.utils.test import BaseIndexableTestCase
 
 from bulbs.promotion.models import PZone, PZoneHistory
 from example.testcontent.models import TestContentObj
