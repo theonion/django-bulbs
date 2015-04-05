@@ -25,10 +25,6 @@ class SpecialCoverage(models.Model):
     def __unicode__(self):
         return self.name
 
-    @classmethod
-    def get_doc_type(cls):
-        return ".percolator"
-
     def save(self, *args, **kwargs):
         """Saving ensures that the slug, if not set, is set to the slugified name."""
 
@@ -56,21 +52,22 @@ class SpecialCoverage(models.Model):
                     }
                 }
             }
-            try:
-                res = es.create(index=index, doc_type=self.get_doc_type(), body=q, id=self.es_id, refresh=True)
-            except Exception as e:
-                res = e
-        else:
-            res = None
-        return res
+
+            # We'll need this data, to decide which special coverage section to use
+            if self.campaign:
+                q["sponsored"] = True
+                q["start_date"] = self.campaign.start_date
+                q["end_date"] = self.campaign.end_date
+
+            res = es.index(
+                index=index,
+                doc_type=".percolator",
+                body=q,
+                id=self.es_id
+            )
 
     def _delete_percolator(self):
-        index = Content.get_index_name()
-        try:
-            res = es.delete(index=index, doc_type=self.get_doc_type(), id=self.es_id, refresh=True)
-        except Exception as e:
-            res = e
-        return res
+        es.delete(index=index, doc_type=".percolator", id=self.es_id, refresh=True, ignore=404)
 
     def get_content(self):
         """performs es search and gets content objects

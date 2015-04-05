@@ -20,22 +20,22 @@ class SectionsApiTestCase(BaseAPITestCase):
         self.client = Client()
         self.client.login(username="admin", password="secret")
 
+    def test_sections_detail(self):
+        """Test retrieving a single section object via URL."""
+
         # set up a test section
-        self.section = Section.objects.create(
+        section = Section.objects.create(
             name="Politics Politics",
             slug="politics-politics"
         )
 
-    def test_sections_detail(self):
-        """Test retrieving a single section object via URL."""
-
         endpoint = reverse(
             "section-detail",
-            kwargs={"pk": self.section.id})
+            kwargs={"pk": section.id})
         response = self.client.get(endpoint)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data["id"], self.section.id)
+        self.assertEqual(response.data["id"], section.id)
 
     def test_sections_detail_permissions(self):
         """Ensure there is no unauthorized access to section cms endpoints."""
@@ -50,9 +50,14 @@ class SectionsApiTestCase(BaseAPITestCase):
         )
         self.client.login(username=regular_user_name, password=regular_user_pass)
 
+        section = Section.objects.create(
+            name="Politics Politics",
+            slug="politics-politics"
+        )
+
         endpoint = reverse(
             "section-detail",
-            kwargs={"pk": self.section.id})
+            kwargs={"pk": section.id})
         response = self.client.get(endpoint)
 
         self.assertEqual(response.status_code, 403)
@@ -61,12 +66,15 @@ class SectionsApiTestCase(BaseAPITestCase):
         """Check that query string does not resolve to a string when received by
         the frontend."""
 
-        self.section.query = {"included_ids": [1, 2, 3]}
-        self.section.save()
+        section = Section.objects.create(
+            name="Politics Politics",
+            slug="politics-politics",
+            query={"included_ids": [1, 2, 3]}
+        )
 
         endpoint = reverse(
             "section-detail",
-            kwargs={"pk": self.section.id})
+            kwargs={"pk": section.id})
         response = self.client.get(endpoint)
 
         self.assertEqual(response.status_code, 200)
@@ -151,7 +159,7 @@ class SectionsApiTestCase(BaseAPITestCase):
         section_2 = Section.objects.create(name="abc2")
 
         response = self.client.get(reverse("section-list"),
-                                   data={"search": "abc", "ordering": "name"})
+                                   data={"ordering": "name"})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["results"][0]["id"], section_1.pk)
         self.assertEqual(response.data["results"][1]["id"], section_2.pk)
