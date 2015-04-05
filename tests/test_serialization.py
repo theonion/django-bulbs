@@ -6,8 +6,7 @@ from django.utils import timezone
 
 from bulbs.content.models import Content, Tag, FeatureType
 from example.testcontent.models import TestContentObj
-from elastimorphic.tests.base import BaseIndexableTestCase
-
+from bulbs.utils.test import BaseIndexableTestCase
 
 class SerializerTestCase(BaseIndexableTestCase):
 

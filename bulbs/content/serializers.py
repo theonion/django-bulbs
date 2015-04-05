@@ -73,7 +73,7 @@ class TagSerializer(serializers.ModelSerializer):
             "id": obj.pk,
             "name": obj.name,
             "slug": obj.slug,
-            "type": obj.get_mapping_type_name()
+            "type": obj.mapping.doc_type
         }
 
 
@@ -116,7 +116,7 @@ class TagField(relations.RelatedField):
             "id": obj.pk,
             "name": obj.name,
             "slug": obj.slug,
-            "type": obj.get_mapping_type_name()
+            "type": obj.mapping.doc_type
         }
 
     def from_native(self, value):
