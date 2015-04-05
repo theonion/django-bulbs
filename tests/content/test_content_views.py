@@ -7,7 +7,7 @@ from django.test import Client
 from django.utils import timezone
 from bulbs.utils.test import BaseIndexableTestCase
 
-from bulbs.content.models import FeatureType, ObfuscatedUrlInfo
+from bulbs.content.models import FeatureType, ObfuscatedUrlInfo, Content
 from example.testcontent.models import TestContentObj, TestContentObjTwo
 from bulbs.utils.test import make_content
 
@@ -41,17 +41,17 @@ class TestContentViews(BaseIndexableTestCase):
         ft = FeatureType.objects.create(name="Feature", slug="feature")
         content = make_content(TestContentObj, feature_type=ft, published=timezone.now() - timedelta(hours=2))
         content_two = make_content(TestContentObjTwo, feature_type=ft, published=timezone.now() - timedelta(hours=2))
+        Content.search_objects.refresh()
         # make sure we get all content with this list
         r = self.client.get(reverse("example.testcontent.views.test_all_content_list"))
         self.assertEqual(r.status_code, 200)
-        print(r.context_data["content_list"])
         self.assertEqual(2, len(r.context_data["content_list"]))
         # make sure we only get TestContentTwoObjs from this other list
         r = self.client.get(reverse("example.testcontent.views.test_content_two_list"))
         self.assertEqual(r.status_code, 200)
         self.assertEqual(1, len(r.context_data["content_list"]))
         item = r.context_data["content_list"][0]
-        ctype = ContentType.objects.get_for_id(item.polymorphic_ctype)
+        ctype = ContentType.objects.get_for_id(item.polymorphic_ctype_id)
         self.assertIs(ctype.model_class(), TestContentObjTwo)
 
     def test_base_content_detail_view_tokenized_url(self):

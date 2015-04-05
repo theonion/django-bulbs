@@ -494,12 +494,11 @@ def content_deleted(sender, instance=None, **kwargs):
     """removes content from the ES index when deleted from DB
     """
     if getattr(instance, "_index", True):
-        index = instance.get_index_name()
-        klass = instance.get_real_instance_class()
-        try:
-            klass.search_objects.es.delete(index, klass.get_mapping_type_name(), instance.id)
-        except elasticsearch.exceptions.NotFoundError:
-            pass
+        cls = instance.get_real_instance_class()
+        cls.search_objects.client.delete(
+            cls.mapping.index,
+            cls.mapping.doc_type,
+            instance.id, ignore=[404])
 
 
 ##

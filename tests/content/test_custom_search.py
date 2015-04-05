@@ -4,7 +4,7 @@ from datetime import timedelta
 
 from django.core.urlresolvers import reverse
 from django.utils import timezone
-from elastimorphic.tests.base import BaseIndexableTestCase
+from bulbs.utils.test import BaseIndexableTestCase
 from rest_framework.test import APIClient
 
 from bulbs.content.models import Content, FeatureType, Tag
