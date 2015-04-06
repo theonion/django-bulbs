@@ -3,7 +3,7 @@ from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.test.client import Client
 
-from elastimorphic.tests.base import BaseIndexableTestCase
+from bulbs.utils.test import BaseIndexableTestCase
 
 # from django.conf import settings
 # from django.db.models.loading import get_model

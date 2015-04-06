@@ -7,6 +7,7 @@ from django.http import Http404
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
+from djes.apps import indexable_registry
 
 from elastimorphic.models import polymorphic_indexable_registry
 from elasticutils.contrib.django import get_es
@@ -63,8 +64,10 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         if getattr(self, "object", None):
             klass = self.object.__class__
         elif "doctype" in self.request.REQUEST:
+            base = self.model.get_base_class()
+            doctypes = indexable_registry.families[base]
             try:
-                klass = Content.get_doctypes()[self.request.REQUEST["doctype"]]
+                klass = doctypes[self.request.REQUEST["doctype"]]
             except KeyError:
                 raise Http404
 
@@ -179,10 +182,11 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         content.indexed = False
         content.save()
 
-        es = get_es(urls=settings.ES_URLS)
         try:
-            es.delete(index=content.get_index_name(), doc_type=content.get_mapping_type_name(),
-                      id=content.id)
+            Content.search_objects.client.delete(
+                index=content.mapping.index,
+                doc_type=content.mapping.doc_type,
+                id=content.id)
             LogEntry.objects.log(request.user, content, "Trashed")
             return Response({"status": "Trashed"})
         except elasticsearch.exceptions.NotFoundError:
@@ -282,29 +286,18 @@ class TagViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
         :return: `rest_framework.response.Response`
         """
 
-        search_query = Tag.search_objects.s()
+        search_query = Tag.search_objects.search()
         if "search" in request.REQUEST:
             search_query = search_query.query(
-                name__match_phrase=request.REQUEST["search"], should=True
+                "match_phrase", name=request.REQUEST["search"]
             ).query(
-                name__term=request.REQUEST["search"], should=True
+                "term", name=request.REQUEST["search"]
             )
 
         if "types" in request.REQUEST:
-            search_query = search_query.doctypes(*request.REQUEST.getlist("types"))
+            search_query = search_query.doc_type(*request.REQUEST.getlist("types"))
 
-        # HACK ALERT. I changed the edge ngram to go from 3 to 10, so "TV" got screwed
-        if len(request.REQUEST.get("search", [])) < 3:
-            self.object_list = Tag.objects.filter(
-                name__istartswith=request.REQUEST["search"].lower()
-            )
-            if "types" in request.REQUEST:
-                type_classes = [polymorphic_indexable_registry.all_models[type_name] for type_name
-                                in request.REQUEST.getlist("types")]
-                print(type_classes)
-                self.object_list = self.object_list.instance_of(*type_classes)
-        else:
-            self.object_list = search_query.full()
+        self.object_list = search_query
 
         # Switch between paginated or standard style responses
         page = self.paginate_queryset(self.object_list)
@@ -449,7 +442,8 @@ class ContentTypeViewSet(viewsets.ViewSet):
         """Search the doctypes for this model."""
         query = request.QUERY_PARAMS.get("search", "")
         results = []
-        doctypes = self.model.get_doctypes()
+        base = self.model.get_base_class()
+        doctypes = indexable_registry.families[base]
         for doctype, klass in doctypes.items():
             name = klass._meta.verbose_name.title()
             if query.lower() in name.lower():

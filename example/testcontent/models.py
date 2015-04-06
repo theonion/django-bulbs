@@ -33,9 +33,6 @@ class TestCategory(Tag):
 
     baz = models.CharField(max_length=255)
 
-    class Mapping:
-        thumbnail_override = ElasticsearchImageField()
-
 
 class TestContentDetailImage(TestContentObj):
 

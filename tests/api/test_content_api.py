@@ -444,7 +444,7 @@ class TestTrashContentAPI(BaseAPITestCase):
     def test_trash(self):
         content = make_content()
         self.assertTrue(content.indexed)
-        data = self.es.get(index=content.get_index_name(), doc_type=content.get_mapping_type_name(),
+        data = self.es.get(index=content.mapping.index, doc_type=content.mapping.doc_type,
                            id=content.id)
         self.assertEqual(data["_source"]["title"], content.title)
 
@@ -465,13 +465,17 @@ class TestTrashContentAPI(BaseAPITestCase):
         LogEntry.objects.filter(object_id=content.pk).get(change_message="Trashed")
 
         with self.assertRaises(elasticsearch.exceptions.NotFoundError):
-            self.es.get(index=content.get_index_name(), doc_type=content.get_mapping_type_name(),
-                        id=content.id)
+            Content.search_objects.client.get(
+                index=content.mapping.index,
+                doc_type=content.mapping.doc_type,
+                id=content.id)
 
         content.save()
         with self.assertRaises(elasticsearch.exceptions.NotFoundError):
-            self.es.get(index=content.get_index_name(), doc_type=content.get_mapping_type_name(),
-                        id=content.id)
+            Content.search_objects.client.get(
+                index=content.mapping.index,
+                doc_type=content.mapping.doc_type,
+                id=content.id)
 
     def test_trash_404(self):
         client = Client()
