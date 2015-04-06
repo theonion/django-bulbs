@@ -2,12 +2,11 @@ from datetime import timedelta
 
 from django.utils import timezone
 from elasticsearch.exceptions import TransportError
-from elastimorphic.tests.base import BaseIndexableTestCase
 from model_mommy import mommy
 
 from bulbs.content.models import Content, FeatureType, Tag
 from bulbs.special_coverage.models import SpecialCoverage
-from bulbs.utils.test import make_content
+from bulbs.utils.test import BaseIndexableTestCase, make_content
 
 from example.testcontent.models import TestContentObjTwo
 

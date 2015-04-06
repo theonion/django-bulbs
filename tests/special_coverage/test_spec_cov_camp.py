@@ -7,7 +7,7 @@ from django.test.client import Client
 from bulbs.campaigns.models import Campaign
 from bulbs.special_coverage.models import SpecialCoverage
 
-from bulbs.utils.test import  BaseAPITestCase, JsonEncoder
+from bulbs.utils.test import BaseAPITestCase, JsonEncoder
 
 
 class SpecialCoverageApiTestCase(BaseAPITestCase):

@@ -1,8 +1,7 @@
 import datetime
 
 from bulbs.cms_notifications.models import CmsNotification
-from elastimorphic.tests.base import BaseIndexableTestCase
-
+from bulbs.utils.test import BaseIndexableTestCase
 
 class TestModels(BaseIndexableTestCase):
 

@@ -50,7 +50,7 @@ def custom_search_model(model, query, preview=False, published=False,
     if published:
         now = timezone.now()
         f &= F(**{time_field + "__lte": now})
-    qs = model.search_objects.s().filter(f)
+    qs = model.search_objects.search().filter(f)
     # possibly include a text query
     if query.get("query"):
         qs = qs.query(_all__match=query["query"], must=True)
@@ -74,7 +74,7 @@ def custom_search_model(model, query, preview=False, published=False,
             }
         }]
         # re-add the original query
-        original_q = qs.build_search()
+        original_q = qs.to_dict()
         if original_q.get("query"):
             must_queries.append(original_q.get("query"))
         # build up the raw es query

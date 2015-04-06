@@ -2,13 +2,12 @@
 from datetime import timedelta
 
 from django.utils import timezone
-from elastimorphic.tests.base import BaseIndexableTestCase
 
 from bulbs.content.models import Content, FeatureType, Tag
 from bulbs.special_coverage.models import SpecialCoverage
 
 from example.testcontent.models import TestContentObjTwo
-from bulbs.utils.test import make_content
+from bulbs.utils.test import BaseIndexableTestCase, make_content
 
 
 class BaseCustomSearchFilterTests(BaseIndexableTestCase):
@@ -197,7 +196,7 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
                 groups=makeGroups([
                     [
                         ("content-type", "all", [
-                            TestContentObjTwo.get_mapping_type_name()
+                            TestContentObjTwo.mapping.doc_type
                         ])
                     ]
                 ])
