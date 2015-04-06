@@ -9,7 +9,6 @@ from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from djes.apps import indexable_registry
 
-from elastimorphic.models import polymorphic_indexable_registry
 from elasticutils.contrib.django import get_es
 import elasticsearch
 

@@ -26,7 +26,6 @@ INSTALLED_APPS = (
     # third parties
     "djbetty",
     "djes",
-    "elastimorphic",
     "rest_framework",
     "polymorphic",
     # local apps

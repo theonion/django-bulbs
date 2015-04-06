@@ -2,7 +2,6 @@ import json
 import random
 
 from elasticsearch_dsl.connections import connections
-# from elastimorphic.models import polymorphic_indexable_registry
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
