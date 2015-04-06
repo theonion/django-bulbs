@@ -240,7 +240,7 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
             query=dict(
                 groups=[dict(
                     conditions=[],
-                    time="1 day"
+                    time="Past day"
                 )],
             )
         )
@@ -253,7 +253,7 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
                 ]
             )
         )
-        # pinned 2 
+        # pinned 2
         s_pinned_2 = dict(
             label="Pinned 2 things",
             query=dict(
@@ -452,7 +452,7 @@ class CustomSearchFilterTests(BaseCustomSearchFilterTests):
     def test_pinned(self):
         for s, ids in self.pinned_expectations:
             self.check_ordering(s["query"], ids)
-        
+
     def check_ordering(self, query, ids):
         qs = custom_search_model(Content, query, field_map=self.field_map)
         self.assertSequenceEqual([c.id for c in qs[:len(ids)]], ids)

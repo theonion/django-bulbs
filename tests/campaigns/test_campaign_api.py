@@ -324,3 +324,25 @@ class CampaignApiCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data["results"]), 1)
         self.assertEqual(response.data["results"][0]["id"], campaign_1.pk)
+
+    def test_campaign_detail_permissions(self):
+        """Ensure there is no unauthorized access to campaign cms endpoints."""
+
+        # create regular user
+        regular_user_name = "regularuser"
+        regular_user_pass = "12345"
+        get_user_model().objects.create_user(
+            regular_user_name,
+            "regularguy@aol.com",
+            regular_user_pass
+        )
+        self.client.login(username=regular_user_name, password=regular_user_pass)
+
+        campaign = Campaign.objects.create(campaign_label="abc1")
+
+        endpoint = reverse(
+            "campaign-detail",
+            kwargs={"pk": campaign.id})
+        response = self.client.get(endpoint)
+
+        self.assertEqual(response.status_code, 403)
