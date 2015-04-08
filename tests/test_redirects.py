@@ -1,5 +1,6 @@
 import urlparse
 
+from django.core.urlresolvers import reverse
 from django.test import Client
 
 from elastimorphic.tests.base import BaseIndexableTestCase
@@ -15,14 +16,22 @@ class RedirectTestCase(BaseIndexableTestCase):
 
     def test_simple_redirect(self):
         client = Client()
-        response = client.get("/r/{}".format(self.test_obj.id))
+        endpoint = reverse("utm-redirect-pk", kwargs={"pk": self.test_obj.id})
+        response = client.get(endpoint)
         self.assertEqual(response.status_code, 301)
         parsed = urlparse.urlparse(response["Location"])
         self.assertEqual(parsed.path, self.test_obj.get_absolute_url())
 
     def test_utm_redirect(self):
         client = Client()
-        response = client.get("/r/{}tsd".format(self.test_obj.id))
+        endpoint = reverse("utm-redirect-tracking",
+                           kwargs={
+                               "pk": self.test_obj.id,
+                               "source": "tsd",
+                               "medium": "",
+                               "name": ""
+                           })
+        response = client.get(endpoint)
         self.assertEqual(response.status_code, 301)
 
         parsed = urlparse.urlparse(response["Location"])
