@@ -297,3 +297,46 @@ class SpecialCoverageApiTestCase(BaseAPITestCase):
         self.assertEqual(response.data["results"][2]["id"], special_coverage_3.pk)
         self.assertEqual(response.data["results"][3]["id"], special_coverage_4.pk)
 
+    def test_special_coverage_persists_after_campaign_deletion(self):
+        """Tests to make sure that a special coverage deletion does not delete a Campaign."""
+
+        # Create campaign
+        campaign = Campaign.objects.create(campaign_label="Birdman Stunna")
+
+        # Create a special coverage object
+        special_coverage = SpecialCoverage.objects.create(
+            name="Jack Links is Covered",
+            slug="jack-links-covered",
+            description="jerky jokes",
+            campaign=campaign
+        )
+
+        # Ensure campaign exists
+        resp = self.client.get(reverse("campaign-detail", kwargs={"pk": campaign.id}))
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data["campaign_label"], campaign.campaign_label)
+
+        # Ensure special coverage exists
+        resp = self.client.get(
+            reverse("special-coverage-detail", kwargs={'pk': special_coverage.id}))
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data['name'], special_coverage.name)
+        self.assertEqual(resp.data['campaign'], campaign.id)
+
+        # Delete Campaign
+        resp = self.client.delete(reverse("campaign-detail", kwargs={"pk": campaign.id}))
+        self.assertEqual(resp.status_code, 204)
+        self.assertIsNone(resp.data)
+
+        # Check GET Campaign 404s
+        resp = self.client.delete(reverse("campaign-detail", kwargs={"pk": campaign.id}))
+        self.assertEqual(resp.status_code, 404)
+
+        # Check GET SpecialCoverage 200
+        resp = self.client.get(
+            reverse("special-coverage-detail", kwargs={"pk": special_coverage.id}))
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data["name"], special_coverage.name)
+        self.assertEqual(resp.data["slug"], special_coverage.slug)
+        self.assertEqual(resp.data["description"], special_coverage.description)
+        self.assertIsNone(resp.data["campaign"])

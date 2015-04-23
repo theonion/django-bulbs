@@ -21,7 +21,8 @@ class SpecialCoverage(models.Model):
     videos = JSONField(default=[], blank=True)
     active = models.BooleanField(default=False)
     promoted = models.BooleanField(default=False)
-    campaign = models.ForeignKey(Campaign, null=True, default=None, blank=True)
+    campaign = models.ForeignKey(
+        Campaign, null=True, default=None, blank=True, on_delete=models.SET_NULL)
 
     def __unicode__(self):
         return self.name
