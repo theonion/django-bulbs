@@ -458,6 +458,85 @@ class CustomSearchFilterTests(BaseCustomSearchFilterTests):
         self.assertSequenceEqual([c.id for c in qs[:len(ids)]], ids)
 
 
+class CustomSearchModelTests(BaseIndexableTestCase):
+
+    field_map = {
+        "feature-type": "feature_type.slug",
+        "tag": "tags.slug",
+        "content-type": "_type"
+    }
+
+    def make_content(self, quantity):
+        content = [make_content(published=(timezone.now() - timedelta(days=i)))
+                   for i in range(quantity)]
+        Content.search_objects.refresh()
+        return content
+
+    def test_one_pinned(self):
+        content = self.make_content(4)
+        pinned = content[-1]
+        query = dict(
+            pinned_ids=[content[-1].id],
+        )
+        q = custom_search_model(Content, query, field_map=self.field_map)
+        self.assertEqual(len(content), q.count())
+        # Sorted by pinned, then published
+        self.assertEqual([pinned] + content[:-1],
+                         q.all().objects)
+
+    def test_two_pinned(self):
+        content = self.make_content(4)
+        pinned_ids = [content[i].id for i in [1, 3]]
+        query = dict(
+            pinned_ids=pinned_ids,
+        )
+        q = custom_search_model(Content, query, field_map=self.field_map)
+        # First two pinned bubble to top (sorted by published), then other two sorted by published
+        self.assertEqual([content[i] for i in [1, 3, 0, 2]],
+                         q.all().objects)
+
+    def test_pinned_and_tagged(self):
+        # Verify that pin bubbling logic still works with addtional query rules.
+        content = self.make_content(4)
+        tag = Tag.objects.create(name='Joe Biden')
+        # Only 2 contents tagged, one is pinned
+        for i in [1, 3]:
+            content[i].tags = [tag]
+            content[i].save()
+        Content.search_objects.refresh()
+
+        # A tag query
+        query = dict(
+            groups=[
+                {'conditions': [
+                    {'values': [{'value': u'joe-biden',
+                                 'label': u'joe-biden'}],
+                     'type': 'all',
+                     'field': 'tag'}
+                ]}
+            ],
+            pinned_ids=[content[3].id],
+        )
+
+        q = custom_search_model(Content, query, field_map=self.field_map)
+        self.assertEqual([content[3],  # Tagged + Pinned
+                          content[1]], # Tagged
+                         q.all().objects)
+
+    def test_chain_additional_query(self):
+        # Ensure that custom_search_model() queries can chain additional queries.
+        # This was originally broken when custom_search_model() used a query_raw() to bubble pinned
+        # IDs to the top.
+        content = self.make_content(4)
+        query = dict(
+            pinned_ids=[content[3].id]
+        )
+        q = custom_search_model(Content, query, field_map=self.field_map)
+        # Simulate SpecialCoverage behavior to get all content except first pinned result
+        self.assertEqual(content[:3],
+                         q.query(id=content[3].id, must_not=True).all().objects)
+
+
 class BaseCustomSearchApiTests(BaseAPITestCase, BaseCustomSearchFilterTests):
     """Makes sure we're getting the same data through the API."""
     def setUp(self):

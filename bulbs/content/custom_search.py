@@ -59,40 +59,30 @@ def custom_search_model(model, query, preview=False, published=False,
     # set up pinned ids
     pinned_ids = query.get("pinned_ids")
     if pinned_ids and sort_pinned:
-        # we need to work around elasticutils to build a
-        # filtered query containing a function score query
-        # which bubbles up the pinned items
-        must_queries = [{
-            "function_score": {
-                "functions": [{
-                    "filter": {
-                        "ids": {
-                            "values": pinned_ids
-                        }
-                    },
-                    "boost_factor": 2
-                }],
-                "score_mode": "multiply"
-            }
-        }]
-        # re-add the original query
-        original_q = qs.build_search()
-        if original_q.get("query"):
-            must_queries.append(original_q.get("query"))
-        # build up the raw es query
-        raw = {
-            "filtered": {
-                "query": {
-                    "bool": {
-                        "must": must_queries
-                    }
-                }
-            }
-        }
-        # include the original filters, if present
-        if "filter" in original_q:
-            raw["filtered"]["filter"] = original_q.get("filter")
-        qs = model.search_objects.s().full().query_raw(raw).order_by("-_score", "-published")
+        #
+        # PLEASE UPGRADE ME!
+        #
+        # ElasticUtils doesn't provide hooks to scoring functions (other than boost/demote).
+        # This is a workaround to prioritize Pinned IDs without using query_raw().
+        #
+        # Original implemntation used a function_score via a query_raw() call. This worked, but
+        # query_raw() causes all query() calls to be ignored, so it was not possible to chain
+        # additional query() calls to the result (see previous Git revision).
+        #
+        # The workaround is to use demote() to lower the scores for pinned IDs, and then sort by low
+        # score. (Couldn't get query+boost to work with ID list).
+        #
+        # The real solution is to upgrade away from elasticutils.
+
+        # First we begin with a HACK: Need to ensure there is at least one positive query for
+        # demote() to work.
+        # Workaround is to just do an "always true" query like ID >= 0. Might be able to just check
+        # if qs.build_search() is False/empty, but this is a workaround anyway and should be
+        # replaced entirely.
+        qs = qs.query(id__gte=0)
+        # Demote will penalize Pinned ID results, and then we'll sort by lowest score first.
+        qs = qs.demote(2, id__in=pinned_ids)
+        qs = qs.order_by("_score", "-published")
     else:
         qs = qs.order_by("-published")
     return qs.full()
