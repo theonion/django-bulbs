@@ -486,13 +486,13 @@ class CustomSearchModelTests(BaseIndexableTestCase):
 
     def test_two_pinned(self):
         content = self.make_content(4)
-        pinned_ids = [content[i].id for i in [1, -1]]
+        pinned_ids = [content[i].id for i in [1, 3]]
         query = dict(
             pinned_ids=pinned_ids,
         )
         q = custom_search_model(Content, query, field_map=self.field_map)
         # First two pinned bubble to top (sorted by published), then other two sorted by published
-        self.assertEqual([content[i] for i in [1, -1, 0, 2]],
+        self.assertEqual([content[i] for i in [1, 3, 0, 2]],
                          q.all().objects)
 
     def test_pinned_and_tagged(self):
