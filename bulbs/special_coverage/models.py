@@ -48,12 +48,7 @@ class SpecialCoverage(models.Model):
 
         q = {}
 
-        if "query" in query_filter:
-            # We already have a query, let's go ahead
-            q = {
-                "query": query_filter["query"]
-            }
-        elif "filter" in query_filter:
+        if "filter" in query_filter:
             q = {
                 "query": {
                     "filtered": {
