@@ -45,7 +45,13 @@ class SpecialCoverage(models.Model):
         """saves the query field as an elasticsearch percolator
         """
         query_filter = self.get_content().build_search()
-        if query_filter.get("filter"):
+
+        q = {}
+
+        if "query" in query_filter:
+            # We already have a query, let's go ahead
+            q = query_filter
+        elif "filter" in query_filter:
             q = {
                 "query": {
                     "filtered": {
@@ -53,19 +59,22 @@ class SpecialCoverage(models.Model):
                     }
                 }
             }
+        else:
+            # We don't know how to save this
+            return
 
-            # We'll need this data, to decide which special coverage section to use
-            if self.campaign:
-                q["sponsored"] = True
-                q["start_date"] = self.campaign.start_date
-                q["end_date"] = self.campaign.end_date
+        # We'll need this data, to decide which special coverage section to use
+        if self.campaign:
+            q["sponsored"] = True
+            q["start_date"] = self.campaign.start_date
+            q["end_date"] = self.campaign.end_date
 
-            res = es.index(
-                index=index,
-                doc_type=".percolator",
-                body=q,
-                id=self.es_id
-            )
+        es.index(
+            index=index,
+            doc_type=".percolator",
+            body=q,
+            id=self.es_id
+        )
 
     def _delete_percolator(self):
         es.delete(index=index, doc_type=".percolator", id=self.es_id, refresh=True, ignore=404)
