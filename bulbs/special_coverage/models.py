@@ -88,7 +88,7 @@ class SpecialCoverage(models.Model):
             "tag": "tags.slug",
             "content-type": "_type"
         })
-        return search.full()
+        return search
 
     @property
     def es_id(self):
