@@ -478,7 +478,7 @@ class CustomSearchModelTests(BaseIndexableTestCase):
         query = dict(
             pinned_ids=[content[-1].id],
         )
-        q = custom_search_model(Content, query, field_map=self.field_map)
+        q = custom_search_model(Content, query, field_map=self.field_map).full()
         self.assertEqual(len(content), q.count())
         # Sorted by pinned, then published
         self.assertEqual([pinned] + content[:-1],
@@ -490,7 +490,7 @@ class CustomSearchModelTests(BaseIndexableTestCase):
         query = dict(
             pinned_ids=pinned_ids,
         )
-        q = custom_search_model(Content, query, field_map=self.field_map)
+        q = custom_search_model(Content, query, field_map=self.field_map).full()
         # First two pinned bubble to top (sorted by published), then other two sorted by published
         self.assertEqual([content[i] for i in [1, 3, 0, 2]],
                          q.all().objects)
@@ -518,7 +518,7 @@ class CustomSearchModelTests(BaseIndexableTestCase):
             pinned_ids=[content[3].id],
         )
 
-        q = custom_search_model(Content, query, field_map=self.field_map)
+        q = custom_search_model(Content, query, field_map=self.field_map).full()
         self.assertEqual([content[3],  # Tagged + Pinned
                           content[1]], # Tagged
                          q.all().objects)
@@ -531,7 +531,7 @@ class CustomSearchModelTests(BaseIndexableTestCase):
         query = dict(
             pinned_ids=[content[3].id]
         )
-        q = custom_search_model(Content, query, field_map=self.field_map)
+        q = custom_search_model(Content, query, field_map=self.field_map).full()
         # Simulate SpecialCoverage behavior to get all content except first pinned result
         self.assertEqual(content[:3],
                          q.query(id=content[3].id, must_not=True).all().objects)

@@ -508,7 +508,7 @@ class CustomSearchContentViewSet(viewsets.GenericViewSet):
             self.model, query, preview=is_preview,
             sort_pinned=sort_pinned, field_map=self.field_map
         )
-        return qs
+        return qs.full()
 
     @list_route(methods=["get", "post"])
     def count(self, request, **kwargs):

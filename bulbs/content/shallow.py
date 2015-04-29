@@ -116,9 +116,12 @@ class ShallowContentResult(ShallowObject):
         else:
             self.published = None
 
-        self.feature_type = ShallowFeatureType(
-            _source.get('feature_type').get('name'),
-            slug=_source.get('feature_type').get('slug'))
+        if 'feature_type' in _source:
+            self.feature_type = ShallowFeatureType(
+                _source.get('feature_type').get('name'),
+                slug=_source.get('feature_type').get('slug'))
+        else:
+            self.feature_type = None
         super(ShallowContentResult, self).__init__(_source)
 
     def __unicode__(self):

@@ -154,7 +154,7 @@ class ContentCustomSearchListView(ListView):
         "feature-type": "feature_type.slug",
         "tag": "tags.slug",
         "content-type": "_type"
-    } 
+    }
 
     def get_queryset(self):
         query = self.get_search_query()
@@ -168,7 +168,7 @@ class ContentCustomSearchListView(ListView):
             self.model, query, preview=self.is_preview,
             published=self.is_published, field_map=self.field_map
         )
-        return qs
+        return qs.full()
 
 
 class BaseContentDetailView(DetailView):
