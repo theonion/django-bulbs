@@ -85,7 +85,7 @@ def custom_search_model(model, query, preview=False, published=False,
         qs = qs.order_by("_score", "-published")
     else:
         qs = qs.order_by("-published")
-    return qs.full()
+    return qs
 
 
 def preview_filter_from_query(query, id_field="id", time_field="published", field_map={}):
