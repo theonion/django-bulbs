@@ -36,16 +36,16 @@ class SerializerTestCase(BaseIndexableTestCase):
 
         response = self.es.get(
             index=content.mapping.index,
-            doc_type= content.mapping.doc_type,
+            doc_type=content.mapping.doc_type,
             id=content.id)
-        assert response["found"] == True
+        assert response["found"] is True
 
         content.delete()
 
         with self.assertRaises(elasticsearch.exceptions.NotFoundError):
             response = self.es.get(
                 index=content.mapping.index,
-                doc_type= content.mapping.doc_type,
+                doc_type=content.mapping.doc_type,
                 id=content.id)
 
         Content.search_objects.refresh()
@@ -56,4 +56,3 @@ class SerializerTestCase(BaseIndexableTestCase):
         content.thumbnail_override = 666
 
         self.assertNotEqual(content.first_image, content.thumbnail_override)
-

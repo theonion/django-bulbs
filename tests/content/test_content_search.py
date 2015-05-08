@@ -7,7 +7,6 @@ import time
 from django.utils import timezone
 from django.test.client import Client
 from django.template.defaultfilters import slugify
-from elasticsearch_dsl.connections import connections
 
 from bulbs.utils.test import BaseIndexableTestCase
 from bulbs.content.models import Content, Tag, FeatureType
@@ -181,7 +180,6 @@ class PolyContentTestCase(BaseIndexableTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             len(response.context['object_list']), len(self.combos) * self.num_subclasses)
-
 
     def test_add_remove_tags(self):
         content = make_content()

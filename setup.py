@@ -15,12 +15,12 @@ author = "Chris Sinchok"
 author_email = "csinchok@theonion.com"
 license = "BSD"
 requires = [
-    "Django>=1.7,<1.8",
+    "Django>=1.8",
     "South==0.8.1",
     "django-betty-cropper>=0.1.4",
     "djangorestframework==2.4.3",
-    "django-elastimorphic>=0.1.6",
-    "djes==0.0.1a3",
+    "django-polymorphic==0.7.1",
+    "djes==0.0.1a4",
     "django-filter==0.9.2",
     "django-json-field==0.5.5",
     "djangorestframework-csv==1.3.3",
@@ -36,7 +36,7 @@ dev_requires = [
     "Sphinx==1.2b1",
     "pylint==1.0.0",
     "httmock==1.0.5",
-    "model-mommy==1.2",
+    "model-mommy==1.2.4",
     "psycopg2==2.5.1",
     "pytest==2.7.0",
     "pytest-cov==1.8.1",
@@ -82,9 +82,9 @@ def get_package_data(package):
 if sys.argv[-1] == "publish":
     os.system("python setup.py sdist upload")
     args = {"version": get_version(package)}
-    print "You probably want to also tag the version now:"
-    print "  git tag -a %(version)s -m 'version %(version)s'" % args
-    print "  git push --tags"
+    print("You probably want to also tag the version now:")
+    print("  git tag -a %(version)s -m 'version %(version)s'" % args)
+    print("  git push --tags")
     sys.exit()
 
 
