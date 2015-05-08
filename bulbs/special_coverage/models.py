@@ -20,7 +20,8 @@ class SpecialCoverage(models.Model):
     videos = JSONField(default=[], blank=True)
     active = models.BooleanField(default=False)
     promoted = models.BooleanField(default=False)
-    campaign = models.ForeignKey(Campaign, null=True, default=None, blank=True)
+    campaign = models.ForeignKey(
+        Campaign, null=True, default=None, blank=True, on_delete=models.SET_NULL)
 
     def __unicode__(self):
         return self.name
@@ -44,7 +45,10 @@ class SpecialCoverage(models.Model):
         """
         index = Content.mapping.index
         query_filter = self.get_content().build_search()
-        if query_filter.get("filter"):
+
+        q = {}
+
+        if "filter" in query_filter:
             q = {
                 "query": {
                     "filtered": {
@@ -52,19 +56,22 @@ class SpecialCoverage(models.Model):
                     }
                 }
             }
+        else:
+            # We don't know how to save this
+            return
 
-            # We'll need this data, to decide which special coverage section to use
-            if self.campaign:
-                q["sponsored"] = True
-                q["start_date"] = self.campaign.start_date
-                q["end_date"] = self.campaign.end_date
+        # We'll need this data, to decide which special coverage section to use
+        if self.campaign:
+            q["sponsored"] = True
+            q["start_date"] = self.campaign.start_date
+            q["end_date"] = self.campaign.end_date
 
-            res = es.index(
-                index=index,
-                doc_type=".percolator",
-                body=q,
-                id=self.es_id
-            )
+        es.index(
+            index=index,
+            doc_type=".percolator",
+            body=q,
+            id=self.es_id
+        )
 
     def _delete_percolator(self):
         index = Content.mapping.index
@@ -82,7 +89,7 @@ class SpecialCoverage(models.Model):
             "tag": "tags.slug",
             "content-type": "_type"
         })
-        return search.full()
+        return search
 
     @property
     def es_id(self):
