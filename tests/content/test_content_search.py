@@ -3,6 +3,8 @@ from __future__ import absolute_import
 import itertools
 import datetime
 import time
+import pytest
+
 
 from django.utils import timezone
 from django.test.client import Client
@@ -160,7 +162,6 @@ class PolyContentTestCase(BaseIndexableTestCase):
 
     def test_negative_filters(self):
         q = Content.search_objects.search(tags=["-spam"])
-        print(q.to_dict())
         self.assertEqual(q.count(), 6)
 
         q = Content.search_objects.search(feature_types=["-obj-one"])
@@ -191,9 +192,7 @@ class PolyContentTestCase(BaseIndexableTestCase):
 
     def test_search_exact_name_tags(self):
         Tag.objects.create(name="Beeftank")
-        time.sleep(2)
+        Tag.search_objects.refresh()
         results = Tag.search_objects.search().query({"match": {"name": "Beeftank"}})
-        # results = Tag.search_objects.search()
-        self.assertTrue(results.count() == 1)
-        tag_result = results.execute()[0]
-        self.assertIsInstance(tag_result, Tag)
+        assert results.count() == 1
+        assert isinstance(results[0], Tag)

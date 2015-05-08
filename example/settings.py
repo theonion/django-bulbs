@@ -85,7 +85,6 @@ ES_DISABLED = False
 ES_URLS = ['http://localhost:9200']
 ES_INDEX = "django-bulbs"
 
-
 ES_INDEX_SETTINGS = {
     "django-bulbs": {
         "analysis": {

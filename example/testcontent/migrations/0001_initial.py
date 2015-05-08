@@ -8,7 +8,7 @@ import djbetty.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('content', '0001_initial'),
+        ('content', '0004_auto_20150508_1210'),
     ]
 
     operations = [
@@ -35,6 +35,18 @@ class Migration(migrations.Migration):
             bases=('content.content',),
         ),
         migrations.CreateModel(
+            name='TestContentObjTwo',
+            fields=[
+                ('content_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='content.Content')),
+                ('foo', models.CharField(max_length=255)),
+                ('bar', models.IntegerField()),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=('content.content',),
+        ),
+        migrations.CreateModel(
             name='TestContentDetailImage',
             fields=[
                 ('testcontentobj_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='testcontent.TestContentObj')),
@@ -46,17 +58,5 @@ class Migration(migrations.Migration):
                 'abstract': False,
             },
             bases=('testcontent.testcontentobj',),
-        ),
-        migrations.CreateModel(
-            name='TestContentObjTwo',
-            fields=[
-                ('content_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='content.Content')),
-                ('foo', models.CharField(max_length=255)),
-                ('bar', models.IntegerField()),
-            ],
-            options={
-                'abstract': False,
-            },
-            bases=('content.content',),
         ),
     ]

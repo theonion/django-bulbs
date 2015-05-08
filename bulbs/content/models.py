@@ -15,16 +15,12 @@ from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django.utils.html import strip_tags
 from djes.models import Indexable, IndexableManager
-import elasticsearch
 # from elasticutils import F
 from elasticsearch_dsl import field
-from elasticsearch_dsl.query import Q
 from polymorphic import PolymorphicModel
 from djbetty import ImageField
-from six import string_types, text_type, binary_type
 
 from bulbs.content import TagCache
-from .shallow import ShallowContentS, ShallowContentResult
 from .filters import Published, Status, Tags, FeatureTypes
 
 try:
@@ -52,7 +48,6 @@ class Tag(PolymorphicModel, Indexable):
 
     class Mapping:
         name = field.String(analyzer="autocomplete")
-        # slug = field.String(index="not_analyzed")
 
     def __unicode__(self):
         """unicode friendly name
@@ -138,7 +133,6 @@ class ContentManager(IndexableManager):
          * tags : content tags
          * types : content types
          * feature_types : featured types
-         * authors : authors
          * published : date range
         """
         search_query = super(ContentManager, self).search()
@@ -161,18 +155,12 @@ class ContentManager(IndexableManager):
 
         if "status" in kwargs:
             search_query = search_query.filter(Status(kwargs["status"]))
-        
+
         tag_filter = Tags(kwargs.get("tags", []))
         search_query = search_query.filter(tag_filter)
 
         feature_type_filter = FeatureTypes(kwargs.get("feature_types", []))
         search_query = search_query.filter(feature_type_filter)
-
-        for author in kwargs.get("authors", []):
-            if author.startswith("-"):
-                f &= ~F({"term": {"authors.username": author}})
-            else:
-                f |= F({"term": {"authors.username": author}})
 
         # TODO: reimplement this somehow. Probably at the top of this function?
         # only use valid subtypes
@@ -200,7 +188,7 @@ class Content(PolymorphicModel, Indexable):
     """
 
     published = models.DateTimeField(blank=True, null=True)
-    last_modified = models.DateTimeField(auto_now=True, default=timezone.now)
+    last_modified = models.DateTimeField(auto_now=True)
     title = models.CharField(max_length=512)
     slug = models.SlugField(blank=True, default='')
     template_type = models.ForeignKey(TemplateType, blank=True, null=True)

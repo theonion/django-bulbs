@@ -20,7 +20,7 @@ requires = [
     "django-betty-cropper>=0.1.4",
     "djangorestframework==2.4.3",
     "django-polymorphic==0.7.1",
-    "djes==0.0.1a4",
+    "djes==0.0.1a5",
     "django-filter==0.9.2",
     "django-json-field==0.5.5",
     "djangorestframework-csv==1.3.3",
