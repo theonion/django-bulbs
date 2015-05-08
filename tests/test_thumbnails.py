@@ -74,6 +74,7 @@ class TestThumbnailing(BaseIndexableTestCase):
             data=json.dumps(content_data, cls=JsonEncoder),
             content_type="application/json"
         )
+        print(response.content)
         self.assertEqual(response.status_code, 200)
 
         # Refresh the content object from the db

@@ -1,15 +1,13 @@
-from elastimorphic.serializers import ContentTypeField
-
 from rest_framework import serializers
 
 from bulbs.content.models import Content
-from bulbs.content.serializers import ContentSerializer
+from bulbs.content.serializers import ContentSerializer, ContentTypeField
 
 from .models import PZone
 from .operations import PZoneOperation, InsertOperation, DeleteOperation, ReplaceOperation
 
 
-class PZoneField(serializers.WritableField):
+class PZoneField(serializers.Field):
     def field_to_native(self, obj, field_name):
         data = []
         for content in obj:
@@ -33,10 +31,10 @@ class _PZoneOperationSerializer(serializers.ModelSerializer):
     """Parent class of pzone operation serializers."""
 
     type_name = ContentTypeField(source="polymorphic_ctype_id")
-    pzone = serializers.PrimaryKeyRelatedField()
+    pzone = serializers.PrimaryKeyRelatedField(queryset=PZone.objects.all())
     when = serializers.DateTimeField()
     applied = serializers.BooleanField(default=False)
-    content = serializers.PrimaryKeyRelatedField()
+    content = serializers.PrimaryKeyRelatedField(queryset=Content.objects.all())
     content_title = serializers.SerializerMethodField('get_content_title')
 
     class Meta:

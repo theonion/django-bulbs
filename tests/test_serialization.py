@@ -8,6 +8,7 @@ from bulbs.content.models import Content, Tag, FeatureType
 from example.testcontent.models import TestContentObj
 from bulbs.utils.test import BaseIndexableTestCase
 
+
 class SerializerTestCase(BaseIndexableTestCase):
 
     def test_tag_serializer(self):
@@ -69,7 +70,3 @@ class SerializerTestCase(BaseIndexableTestCase):
         serializer.save()
         self.assertEqual(test_obj.tags.count(), 1)
         self.assertEqual(Tag.objects.all().count(), 2)
-
-    def test_deserialize_none(self):
-        s = Content.get_serializer_class()(data=None)
-        s.data

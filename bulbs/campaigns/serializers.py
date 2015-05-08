@@ -5,7 +5,7 @@ from bulbs.content.serializers import ImageFieldSerializer
 from .models import Campaign, CampaignPixel
 
 
-class PixelTypeField(serializers.WritableField):
+class PixelTypeField(serializers.Field):
     """
     Pixel 'type' objects serialized to/from label/identifier
     """
@@ -29,7 +29,7 @@ class CampaignPixelField(serializers.ModelSerializer):
 class CampaignSerializer(serializers.ModelSerializer):
 
     sponsor_logo = ImageFieldSerializer(required=False)
-    pixels = CampaignPixelField(many=True, allow_add_remove=True)
+    pixels = CampaignPixelField(many=True)
 
     class Meta:
         model = Campaign

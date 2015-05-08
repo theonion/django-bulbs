@@ -9,7 +9,6 @@ from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from djes.apps import indexable_registry
 
-from elasticutils.contrib.django import get_es
 import elasticsearch
 
 from rest_framework import (
@@ -45,7 +44,7 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
     """
 
     model = Content
-    queryset = Content.objects.select_related("tags").all()
+    queryset = Content.objects.all()
     serializer_class = PolymorphicContentSerializer
     include_base_doctype = False
     paginate_by = 20
@@ -140,7 +139,7 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
 
         return Response(serializer.data)
 
-    @decorators.action(permission_classes=[CanPublishContent])
+    @detail_route(permission_classes=[CanPublishContent])
     def publish(self, request, **kwargs):
         """sets the `published` value of the `Content`
 
@@ -167,7 +166,7 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         LogEntry.objects.log(request.user, content, content.get_status())
         return Response({"status": content.get_status(), "published": content.published})
 
-    @decorators.action(permission_classes=[CanPublishContent])
+    @detail_route(permission_classes=[CanPublishContent])
     def trash(self, request, **kwargs):
         """destroys a `Content` instance and removes it from the ElasticSearch index
 
@@ -191,7 +190,7 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         except elasticsearch.exceptions.NotFoundError:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-    @decorators.link()
+    @detail_route(methods=["get"])
     def status(self, request, **kwargs):
         """This endpoint returns a status text, currently one of:
           - "Draft" (If no publish date is set, and no item exists in the editor queue)
@@ -457,7 +456,7 @@ class ContentTypeViewSet(viewsets.ViewSet):
 class CustomSearchContentViewSet(viewsets.GenericViewSet):
     """This is for searching with a custom search filter."""
     model = Content
-    queryset = Content.objects.select_related("tags").all()
+    queryset = Content.objects.all()
     serializer_class = ContentSerializer
     paginate_by = 20
     permission_classes = [IsAdminUser, CanEditContent]

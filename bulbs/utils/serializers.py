@@ -1,9 +1,7 @@
-import json
-
 from rest_framework import serializers
 
 
-class JSONField(serializers.WritableField):
+class JSONField(serializers.Field):
     """Ensures json dict stays as a dict from db to json and back."""
 
     def to_native(self, obj):
@@ -15,4 +13,3 @@ class JSONField(serializers.WritableField):
         if data is None:
             return self.default
         return data
-

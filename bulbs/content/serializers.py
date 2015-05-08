@@ -13,12 +13,12 @@ from .models import Content, Tag, LogEntry, FeatureType, TemplateType, Obfuscate
 
 class ContentTypeField(serializers.Field):
     """Converts between natural key for native use and integer for non-native."""
-    def to_native(self, value):
+    def to_representation(self, value):
         """Convert to natural key."""
         content_type = ContentType.objects.get_for_id(value)
         return "_".join(content_type.natural_key())
 
-    def from_native(self, value):
+    def from_representation(self, value):
         """Convert to integer id."""
         natural_key = value.split("_")
         content_type = ContentType.objects.get_by_natural_key(*natural_key)
@@ -27,7 +27,7 @@ class ContentTypeField(serializers.Field):
 
 class PolymorphicSerializerMixin(object):
     """Serialize a mix of polymorphic models with their own serializer classes."""
-    def to_native(self, value):
+    def to_representation(self, value):
         if value:
             if hasattr(value, "get_serializer_class"):
                 ThisSerializer = value.get_serializer_class()
@@ -37,9 +37,9 @@ class PolymorphicSerializerMixin(object):
                         model = value.__class__
 
             serializer = ThisSerializer(context=self.context)
-            return serializer.to_native(value)
+            return serializer.to_representation(value)
         else:
-            return super(PolymorphicSerializerMixin, self).to_native(value)
+            return super(PolymorphicSerializerMixin, self).to_representation(value)
 
 
 class ImageFieldSerializer(serializers.Field):
@@ -59,7 +59,7 @@ class ImageFieldSerializer(serializers.Field):
         self.caption_field = caption_field
         self.alt_field = alt_field
 
-    def to_native(self, obj):
+    def to_representation(self, obj):
         if obj is None or obj.id is None:
             return None
         data = {
@@ -112,7 +112,7 @@ class FeatureTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = FeatureType
 
-    def to_native(self, obj):
+    def to_representation(self, obj):
         return {
             "id": obj.pk,
             "name": obj.name,
@@ -125,7 +125,7 @@ class TemplateTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = TemplateType
 
-    def to_natve(self, obj):
+    def to_representation(self, obj):
         return {
             "id": obj.pk,
             "name": obj.name,
@@ -141,15 +141,15 @@ class TagField(relations.RelatedField):
 
     read_only = False
 
-    def to_native(self, obj):
+    def to_representation(self, obj):
         return {
             "id": obj.pk,
             "name": obj.name,
             "slug": obj.slug,
-            "type": obj.mapping.doc_type
+            "type": obj.__class__.search_objects.mapping.doc_type
         }
 
-    def from_native(self, value):
+    def to_internal_value(self, value):
         """Basically, each tag dict must include a full dict with id,
         name and slug--or else you need to pass in a dict with just a name,
         which indicated that the Tag doesn't exist, and should be added."""
@@ -178,10 +178,10 @@ class FeatureTypeField(relations.RelatedField):
 
     read_only = False
 
-    def to_native(self, obj):
+    def to_representation(self, obj):
         return obj.name
 
-    def from_native(self, value):
+    def to_internal_value(self, value):
         """Basically, each tag dict must include a full dict with id,
         name and slug--or else you need to pass in a dict with just a name,
         which indicated that the Tag doesn't exist, and should be added."""
@@ -202,7 +202,7 @@ class DefaultUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
 
-    def to_native(self, obj):
+    def to_representation(self, obj):
 
         json = {
             "id": obj.pk,
@@ -216,7 +216,7 @@ class DefaultUserSerializer(serializers.ModelSerializer):
 
         return json
 
-    def from_native(self, data, files):
+    def from_representation(self, data, files):
         """Basically, each author dict must include either a username or id."""
         # model = get_user_model()
         model = self.Meta.model
@@ -238,24 +238,18 @@ AUTHOR_FILTER = getattr(settings, "BULBS_AUTHOR_FILTER", {"is_staff": True})
 class ContentSerializer(serializers.ModelSerializer):
 
     polymorphic_ctype = ContentTypeField(source="polymorphic_ctype_id", read_only=True)
-    tags = TagField(many=True, queryset=Tag.objects.all())
-    feature_type = FeatureTypeField(required=False, queryset=FeatureType.objects.all())
-    authors = UserSerializer(many=True, required=False)
-    thumbnail = ImageFieldSerializer(required=False, read_only=True)
-    first_image = ImageFieldSerializer(required=False, read_only=True)
-    thumbnail_override = ImageFieldSerializer(required=False)
-    absolute_url = serializers.Field(source="get_absolute_url")
-    status = serializers.Field(source="get_status")
-    template_type = serializers.SlugRelatedField(slug_field="slug", required=False, queryset=TemplateType.objects.all())
+    tags = TagField(allow_null=True, many=True, queryset=Tag.objects.all())
+    feature_type = FeatureTypeField(allow_null=True, queryset=FeatureType.objects.all())
+    authors = UserSerializer(many=True, allow_null=True, required=False)
+    thumbnail = ImageFieldSerializer(allow_null=True, read_only=True)
+    first_image = ImageFieldSerializer(allow_null=True, read_only=True)
+    thumbnail_override = ImageFieldSerializer(allow_null=True)
+    absolute_url = serializers.ReadOnlyField(source="get_absolute_url")
+    status = serializers.ReadOnlyField(source="get_status")
+    template_type = serializers.SlugRelatedField(slug_field="slug", allow_null=True, queryset=TemplateType.objects.all())
 
     class Meta:
         model = Content
-
-    @transaction.atomic
-    def save(self, *args, **kwargs):
-        if "index" not in kwargs:
-            kwargs["index"] = False
-        return super(ContentSerializer, self).save(*args, **kwargs)
 
 
 class LogEntrySerializer(serializers.ModelSerializer):
