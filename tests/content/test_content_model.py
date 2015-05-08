@@ -31,12 +31,14 @@ class SerializerTestCase(BaseIndexableTestCase):
 
     def test_content_deletion(self):
         content = make_content(published=None)
+        content.__class__.search_objects.refresh()
 
-        Content.search_objects.refresh()
+        index = content.__class__.search_objects.mapping.index
+        doc_type = content.__class__.search_objects.mapping.doc_type
 
         response = self.es.get(
-            index=content.mapping.index,
-            doc_type=content.mapping.doc_type,
+            index=index,
+            doc_type=doc_type,
             id=content.id)
         assert response["found"] is True
 
@@ -44,8 +46,8 @@ class SerializerTestCase(BaseIndexableTestCase):
 
         with self.assertRaises(elasticsearch.exceptions.NotFoundError):
             response = self.es.get(
-                index=content.mapping.index,
-                doc_type=content.mapping.doc_type,
+                index=index,
+                doc_type=doc_type,
                 id=content.id)
 
         Content.search_objects.refresh()
