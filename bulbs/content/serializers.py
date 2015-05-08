@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.template.defaultfilters import slugify
@@ -7,12 +8,41 @@ from django.template.defaultfilters import slugify
 from rest_framework import serializers
 from rest_framework import relations
 
-from elastimorphic.serializers import ContentTypeField, PolymorphicSerializerMixin
-
 from .models import Content, Tag, LogEntry, FeatureType, TemplateType, ObfuscatedUrlInfo
 
 
-class ImageFieldSerializer(serializers.WritableField):
+class ContentTypeField(serializers.Field):
+    """Converts between natural key for native use and integer for non-native."""
+    def to_native(self, value):
+        """Convert to natural key."""
+        content_type = ContentType.objects.get_for_id(value)
+        return "_".join(content_type.natural_key())
+
+    def from_native(self, value):
+        """Convert to integer id."""
+        natural_key = value.split("_")
+        content_type = ContentType.objects.get_by_natural_key(*natural_key)
+        return content_type.id
+
+
+class PolymorphicSerializerMixin(object):
+    """Serialize a mix of polymorphic models with their own serializer classes."""
+    def to_native(self, value):
+        if value:
+            if hasattr(value, "get_serializer_class"):
+                ThisSerializer = value.get_serializer_class()
+            else:
+                class ThisSerializer(serializers.ModelSerializer):
+                    class Meta:
+                        model = value.__class__
+
+            serializer = ThisSerializer(context=self.context)
+            return serializer.to_native(value)
+        else:
+            return super(PolymorphicSerializerMixin, self).to_native(value)
+
+
+class ImageFieldSerializer(serializers.Field):
     """
     serializer field type for images
     """
@@ -171,7 +201,6 @@ class DefaultUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = get_user_model()
-        # model = settings.AUTH_USER_MODEL
 
     def to_native(self, obj):
 
@@ -203,27 +232,28 @@ class DefaultUserSerializer(serializers.ModelSerializer):
 
 
 UserSerializer = getattr(settings, "BULBS_USER_SERIALIZER", DefaultUserSerializer)
+AUTHOR_FILTER = getattr(settings, "BULBS_AUTHOR_FILTER", {"is_staff": True})
 
 
 class ContentSerializer(serializers.ModelSerializer):
 
     polymorphic_ctype = ContentTypeField(source="polymorphic_ctype_id", read_only=True)
-    tags = TagField(many=True)
-    feature_type = FeatureTypeField(required=False)
-    authors = UserSerializer(many=True, required=False, allow_add_remove=True, read_only=False)
+    tags = TagField(many=True, queryset=Tag.objects.all())
+    feature_type = FeatureTypeField(required=False, queryset=FeatureType.objects.all())
+    authors = UserSerializer(many=True, required=False)
     thumbnail = ImageFieldSerializer(required=False, read_only=True)
     first_image = ImageFieldSerializer(required=False, read_only=True)
     thumbnail_override = ImageFieldSerializer(required=False)
     absolute_url = serializers.Field(source="get_absolute_url")
     status = serializers.Field(source="get_status")
-    template_type = serializers.SlugRelatedField(slug_field="slug", required=False)
+    template_type = serializers.SlugRelatedField(slug_field="slug", required=False, queryset=TemplateType.objects.all())
 
     class Meta:
         model = Content
 
     @transaction.atomic
     def save(self, *args, **kwargs):
-        if not "index" in kwargs:
+        if "index" not in kwargs:
             kwargs["index"] = False
         return super(ContentSerializer, self).save(*args, **kwargs)
 
