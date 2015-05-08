@@ -70,7 +70,8 @@ class ImageFieldSerializer(serializers.Field):
             data["caption"] = obj.caption
         return data
 
-    def from_native(self, data):
+    def to_internal_value(self, data):
+        raise Exception(data)
         if data is None:
             return None
         image_id = data.get("id")
@@ -79,17 +80,17 @@ class ImageFieldSerializer(serializers.Field):
             return int(image_id)
         return None
 
-    def field_from_native(self, data, files, field_name, into):
-        super(ImageFieldSerializer, self).field_from_native(data, files, field_name, into)
-        image_data = data.get(field_name, {})
-        if image_data is None:
-            return
+    # def field_to_internal_value(self, data, files, field_name, into):
+    #     super(ImageFieldSerializer, self).field_from_native(data, files, field_name, into)
+    #     image_data = data.get(field_name, {})
+    #     if image_data is None:
+    #         return
 
-        if self.alt_field and "alt" in image_data:
-            into[self.alt_field] = image_data["alt"]
+    #     if self.alt_field and "alt" in image_data:
+    #         into[self.alt_field] = image_data["alt"]
 
-        if self.caption_field and "caption" in image_data:
-            into[self.caption_field] = image_data["caption"]
+    #     if self.caption_field and "caption" in image_data:
+    #         into[self.caption_field] = image_data["caption"]
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -240,7 +241,7 @@ class ContentSerializer(serializers.ModelSerializer):
     polymorphic_ctype = ContentTypeField(source="polymorphic_ctype_id", read_only=True)
     tags = TagField(allow_null=True, many=True, queryset=Tag.objects.all())
     feature_type = FeatureTypeField(allow_null=True, queryset=FeatureType.objects.all())
-    authors = UserSerializer(many=True, allow_null=True, required=False)
+    authors = UserSerializer(many=True, read_only=True)
     thumbnail = ImageFieldSerializer(allow_null=True, read_only=True)
     first_image = ImageFieldSerializer(allow_null=True, read_only=True)
     thumbnail_override = ImageFieldSerializer(allow_null=True)
