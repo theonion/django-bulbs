@@ -18,7 +18,7 @@ requires = [
     "Django>=1.8",
     "South==0.8.1",
     "django-betty-cropper>=0.1.4",
-    "djangorestframework==2.4.3",
+    "djangorestframework==3.1.1",
     "django-polymorphic==0.7.1",
     "djes==0.0.1a7",
     "django-filter==0.9.2",
