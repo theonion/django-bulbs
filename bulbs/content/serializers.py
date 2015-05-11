@@ -187,15 +187,23 @@ class FeatureTypeField(relations.RelatedField):
     def to_internal_value(self, value):
         """Basically, each tag dict must include a full dict with id,
         name and slug--or else you need to pass in a dict with just a name,
-        which indicated that the Tag doesn't exist, and should be added."""
+        which indicated that the FeatureType doesn't exist, and should be added."""
         if value == "":
             return None
 
-        slug = slugify(value)
-        feature_type, created = FeatureType.objects.get_or_create(
-            slug=slug,
-            defaults={"name": value}
-        )
+        if isinstance(value, basestring):
+            slug = slugify(value)
+            feature_type, created = FeatureType.objects.get_or_create(
+                slug=slug,
+                defaults={"name": value}
+            )
+        else:
+            if "id" in value:
+                feature_type = FeatureType.objects.get(id=value["id"])
+            elif "slug" in value:
+                feature_type = FeatureType.objects.get(slug=value["slug"])
+            else:
+                raise ValidationError("Invalid feature type data")
         return feature_type
 
 
@@ -204,18 +212,6 @@ class DefaultUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = get_user_model()
-
-    # def run_validation(self, data={}):
-    #     value = self.to_internal_value(data)
-    #     return value
-
-    # def create(self, validated_data):
-    #     raise Exception(validated_data)
-    #     pass
-
-    # def update(self, instance, validated_data):
-    #     print(validated_data)
-    #     pass
 
     def to_representation(self, obj):
 
@@ -250,12 +246,45 @@ UserSerializer = getattr(settings, "BULBS_USER_SERIALIZER", DefaultUserSerialize
 AUTHOR_FILTER = getattr(settings, "BULBS_AUTHOR_FILTER", {"is_staff": True})
 
 
+class AuthorField(relations.RelatedField):
+    """This field handles the addition/removal of authors to content"""
+
+    read_only = False
+
+    def to_representation(self, obj):
+        return {
+            "id": obj.pk,
+            "username": obj.username,
+            "email": obj.email,
+            "first_name": obj.first_name,
+            "last_name": obj.last_name,
+            "full_name": obj.get_full_name(),
+            "short_name": obj.get_short_name()
+        }
+
+    def to_internal_value(self, data):
+        """Basically, each author dict must include either a username or id."""
+        # model = get_user_model()
+        model = get_user_model()
+
+        if data is None:
+            return None
+
+        if "id" in data:
+            author = model.objects.get(id=data["id"])
+        elif "username" in data:
+            author = model.objects.get(username=data["username"])
+        else:
+            raise ValidationError("Authors must include an ID or a username.")
+        return author
+
+
 class ContentSerializer(serializers.ModelSerializer):
 
     polymorphic_ctype = ContentTypeField(source="polymorphic_ctype_id", read_only=True)
     tags = TagField(allow_null=True, many=True, queryset=Tag.objects.all(), required=False)
-    feature_type = FeatureTypeField(allow_null=True, queryset=FeatureType.objects.all())
-    authors = UserSerializer(many=True, allow_null=True, required=False)
+    feature_type = FeatureTypeField(allow_null=True, queryset=FeatureType.objects.all(), required=False)
+    authors = AuthorField(many=True, allow_null=True, queryset=get_user_model().objects.filter(**AUTHOR_FILTER), required=False)
     thumbnail = ImageFieldSerializer(allow_null=True, read_only=True)
     first_image = ImageFieldSerializer(allow_null=True, read_only=True)
     thumbnail_override = ImageFieldSerializer(allow_null=True)
@@ -270,43 +299,43 @@ class ContentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Content
 
-    # def create(self, validated_data):
-    #     ModelClass = self.Meta.model
+    def create(self, validated_data):
+        ModelClass = self.Meta.model
 
-    #     # Remove many-to-many relationships from validated_data.
-    #     # They are not valid arguments to the default `.create()` method,
-    #     # as they require that the instance has already been saved.
-    #     info = model_meta.get_field_info(ModelClass)
-    #     many_to_many = {}
-    #     for field_name, relation_info in info.relations.items():
-    #         if relation_info.to_many and (field_name in validated_data):
-    #             many_to_many[field_name] = validated_data.pop(field_name)
+        # Remove many-to-many relationships from validated_data.
+        # They are not valid arguments to the default `.create()` method,
+        # as they require that the instance has already been saved.
+        info = model_meta.get_field_info(ModelClass)
+        many_to_many = {}
+        for field_name, relation_info in info.relations.items():
+            if relation_info.to_many and (field_name in validated_data):
+                many_to_many[field_name] = validated_data.pop(field_name)
 
-    #     try:
-    #         instance = ModelClass.objects.create(**validated_data)
-    #     except TypeError as exc:
-    #         msg = (
-    #             'Got a `TypeError` when calling `%s.objects.create()`. '
-    #             'This may be because you have a writable field on the '
-    #             'serializer class that is not a valid argument to '
-    #             '`%s.objects.create()`. You may need to make the field '
-    #             'read-only, or override the %s.create() method to handle '
-    #             'this correctly.\nOriginal exception text was: %s.' %
-    #             (
-    #                 ModelClass.__name__,
-    #                 ModelClass.__name__,
-    #                 self.__class__.__name__,
-    #                 exc
-    #             )
-    #         )
-    #         raise TypeError(msg)
+        try:
+            instance = ModelClass.objects.create(**validated_data)
+        except TypeError as exc:
+            msg = (
+                'Got a `TypeError` when calling `%s.objects.create()`. '
+                'This may be because you have a writable field on the '
+                'serializer class that is not a valid argument to '
+                '`%s.objects.create()`. You may need to make the field '
+                'read-only, or override the %s.create() method to handle '
+                'this correctly.\nOriginal exception text was: %s.' %
+                (
+                    ModelClass.__name__,
+                    ModelClass.__name__,
+                    self.__class__.__name__,
+                    exc
+                )
+            )
+            raise TypeError(msg)
 
-    #     # Save many-to-many relationships after the instance is created.
-    #     if many_to_many:
-    #         for field_name, value in many_to_many.items():
-    #             setattr(instance, field_name, value)
+        # Save many-to-many relationships after the instance is created.
+        if many_to_many:
+            for field_name, value in many_to_many.items():
+                setattr(instance, field_name, value)
 
-    #     return instance
+        return instance
 
 
 class LogEntrySerializer(serializers.ModelSerializer):

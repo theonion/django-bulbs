@@ -2,9 +2,10 @@ from __future__ import absolute_import
 
 import datetime
 
+from django.contrib.auth import get_user_model
 from django.utils import timezone
 
-from bulbs.content.models import Content, Tag, FeatureType
+from bulbs.content.models import Tag, FeatureType
 from bulbs.content.serializers import ContentSerializer
 
 
@@ -15,12 +16,68 @@ from bulbs.utils.test import BaseIndexableTestCase
 class SerializerTestCase(BaseIndexableTestCase):
 
     def test_content_serializer(self):
-        pass
+        data = {
+            "title": "testing"
+        }
+        serializer = ContentSerializer(data=data)
+        serializer.is_valid()
+        content = serializer.save()
+        assert content.id > 0
+        assert content.title == "testing"
 
+    def test_feature_type_field(self):
+        # Make sure we can create new Feature Types by just posting in a name
+        data = {
+            "title": "testing",
+            "feature_type": "Clickventure"
+        }
+        serializer = ContentSerializer(data=data)
+        serializer.is_valid()
+        content = serializer.save()
+        assert content.id > 0
+        assert content.feature_type.name == "Clickventure"
+        assert FeatureType.objects.count() == 1
 
-    def test_tag_serializer(self):
-        # avoid the app register hell for the user model
-        from bulbs.content.serializers import ContentSerializer
+        ft = FeatureType.objects.get(name="Clickventure")
+        data = {
+            "title": "testing",
+            "feature_type": {"id": ft.id, "name": "Poopventure", "slug": "poopventure"}
+        }
+        serializer = ContentSerializer(data=data)
+        serializer.is_valid()
+        content = serializer.save()
+        assert content.id > 0
+        assert content.feature_type.name == "Clickventure"
+        assert FeatureType.objects.count() == 1
+        assert FeatureType.objects.get().name == "Clickventure"
+
+        data["feature_type"] = None
+        # Now remove the author
+        serializer = ContentSerializer(content, data=data)
+        serializer.is_valid()
+        content = serializer.save()
+        assert content.feature_type is None
+
+    def test_author_field(self):
+        author = get_user_model().objects.create(username="some-author")
+        data = {
+            "title": "testing",
+            "authors": [{"id": author.id}]
+        }
+        serializer = ContentSerializer(data=data)
+        serializer.is_valid()
+        content = serializer.save()
+        assert content.id > 0
+        assert content.authors.count() == 1
+
+        data["authors"] = []
+        # Now remove the author
+        serializer = ContentSerializer(content, data=data)
+        serializer.is_valid()
+        content = serializer.save()
+        assert content.authors.count() == 0
+
+    def test_tag_field(self):
         # generate some data
         one_hour_ago = timezone.now() - datetime.timedelta(hours=1)
         some_bullshit = FeatureType.objects.create(name="Some Bullshit", slug="some-bullshit")

@@ -158,6 +158,7 @@ class TestPublishContentAPI(BaseAPITestCase):
         # ensure permission to publish
         content_rest_url = reverse("content-publish", kwargs={"pk": content.id})
         response = client.post(content_rest_url, content_type="application/json")
+        print(response.content)
         self.assertEqual(response.status_code, 403)
         self.give_author_permissions()
         # ok now it should work
