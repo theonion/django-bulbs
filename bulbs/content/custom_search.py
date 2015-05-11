@@ -99,11 +99,11 @@ def preview_filter_from_query(query, id_field="id", time_field="published", fiel
     return f
 
 
-def filter_from_query(query, id_field="id", time_field="published", field_map={}):
+def filter_from_query(query, id_field="id", field_map={}):
     """This returns a filter which actually filters out everything, unlike the
     preview filter which includes excluded_ids for UI purposes.
     """
-    f = groups_filter_from_query(query, time_field=time_field, field_map=field_map)
+    f = groups_filter_from_query(query, field_map=field_map)
     excluded_ids = query.get("excluded_ids")
     included_ids = query.get("included_ids")
     if excluded_ids:  # exclude these
@@ -136,12 +136,12 @@ def groups_filter_from_query(query, time_field="published", field_map={}):
                     group_f &= ~F(**{field_name + "__in": values})
         date_range = group.get("time")
         if date_range:
-            group_f &= date_range_filter(date_range, time_field)
+            group_f &= date_range_filter(date_range)
         f |= group_f
     return f
 
 
-def date_range_filter(range_name, field_name):
+def date_range_filter(range_name):
     """Create a filter from a named date range."""
 
     filter_days = filter(
@@ -152,5 +152,5 @@ def date_range_filter(range_name, field_name):
     if num_days:
         dt = timedelta(num_days)
         start_time = timezone.now() - dt
-        return F(**{field_name + "__gte": start_time})
+        return Published(after=start_time)
     return F()
