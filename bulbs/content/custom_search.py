@@ -32,14 +32,14 @@
 from datetime import timedelta
 
 from django.utils import timezone
-from elasticutils import F
+from elasticsearch_dsl.filter import Term, Terms, Range, MatchAll, Nested, Ids
 
 from bulbs.conf import settings
 from .filters import Published
 
 
 def custom_search_model(model, query, preview=False, published=False,
-                        id_field="id", time_field="published", sort_pinned=True, field_map={}):
+                        id_field="id", sort_pinned=True, field_map={}):
     """Filter a model with the given filter.
 
     `field_map` translates incoming field names to the appropriate ES names.
@@ -48,7 +48,7 @@ def custom_search_model(model, query, preview=False, published=False,
         func = preview_filter_from_query
     else:
         func = filter_from_query
-    f = func(query, id_field=id_field, time_field=time_field, field_map=field_map)
+    f = func(query, id_field=id_field, field_map=field_map)
     # filter by published
     if published:
         f &= Published()
@@ -82,20 +82,20 @@ def custom_search_model(model, query, preview=False, published=False,
         qs = qs.query(id__gte=0)
         # Demote will penalize Pinned ID results, and then we'll sort by lowest score first.
         qs = qs.demote(2, id__in=pinned_ids)
-        qs = qs.order_by("_score", "-published")
+        qs = qs.sort("_score", "-published")
     else:
-        qs = qs.order_by("-published")
+        qs = qs.sort("-published")
     return qs
 
 
-def preview_filter_from_query(query, id_field="id", time_field="published", field_map={}):
+def preview_filter_from_query(query, id_field="id", field_map={}):
     """This filter includes the "excluded_ids" so they still show up in the editor."""
-    f = groups_filter_from_query(query, time_field=time_field, field_map=field_map)
+    f = groups_filter_from_query(query, field_map=field_map)
     # NOTE: we don't exclude the excluded ids here so they show up in the editor
     # include these, please
     included_ids = query.get("included_ids")
     if included_ids:
-        f |= F(**{id_field + "__in": included_ids})
+        f |= Ids(included_ids)
     return f
 
 
@@ -107,18 +107,18 @@ def filter_from_query(query, id_field="id", field_map={}):
     excluded_ids = query.get("excluded_ids")
     included_ids = query.get("included_ids")
     if excluded_ids:  # exclude these
-        f &= ~F(**{id_field + "__in": excluded_ids})
+        f &= ~Ids(included_ids)
     if included_ids:  # include these, please
-        f |= F(**{id_field + "__in": included_ids})
+        f |= Ids(included_ids)
     return f
 
 
-def groups_filter_from_query(query, time_field="published", field_map={}):
+def groups_filter_from_query(query, field_map={}):
     """Creates an F object for the groups of a search query."""
-    f = F()
+    f = MatchAll()
     # filter groups
     for group in query.get("groups", []):
-        group_f = F()
+        group_f = MatchAll()
         for condition in group.get("conditions", []):
             field_name = condition["field"]
             field_name = field_map.get(field_name, field_name)
@@ -129,11 +129,11 @@ def groups_filter_from_query(query, time_field="published", field_map={}):
                 if operation == "all":
                     # NOTE: is there a better way to express this?
                     for value in values:
-                        group_f &= F(**{field_name: value})
+                        group_f &= Term(**{field_name: value})
                 elif operation == "any":
-                    group_f &= F(**{field_name + "__in": values})
+                    group_f &= Terms(**{field_name: value})
                 elif operation == "none":
-                    group_f &= ~F(**{field_name + "__in": values})
+                    group_f &= ~Terms(**{field_name: value})
         date_range = group.get("time")
         if date_range:
             group_f &= date_range_filter(date_range)
@@ -153,4 +153,4 @@ def date_range_filter(range_name):
         dt = timedelta(num_days)
         start_time = timezone.now() - dt
         return Published(after=start_time)
-    return F()
+    return MatchAll()
