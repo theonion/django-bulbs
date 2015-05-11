@@ -7,7 +7,7 @@ from django.test.client import Client
 
 from bulbs.sections.models import Section
 
-from bulbs.utils.test import  BaseAPITestCase, JsonEncoder
+from bulbs.utils.test import BaseAPITestCase, JsonEncoder
 
 
 class SectionsApiTestCase(BaseAPITestCase):
@@ -92,11 +92,13 @@ class SectionsApiTestCase(BaseAPITestCase):
         }
 
         # post new listing
-        self.client.post(
+        response = self.client.post(
             reverse("section-list"),
             json.dumps(data_section, cls=JsonEncoder),
             content_type="application/json"
         )
+        print(response.content)
+        assert response.status_code == 201
 
         self.assertIsInstance(Section.objects.get(name="something").query, dict)
 

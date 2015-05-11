@@ -9,7 +9,7 @@ from .models import Section
 class SectionSerializer(serializers.ModelSerializer):
 
     query = JSONField(required=False, default={})
-    section_logo = ImageFieldSerializer(required=False)
+    section_logo = ImageFieldSerializer(required=False, allow_null=True)
 
     class Meta:
         model = Section

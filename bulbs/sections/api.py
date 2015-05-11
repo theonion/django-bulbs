@@ -6,7 +6,7 @@ from .serializers import SectionSerializer
 
 
 class SectionViewSet(viewsets.ModelViewSet):
-    model = Section
+    queryset = Section.objects.all()
     serializer_class = SectionSerializer
     filter_backends = (filters.SearchFilter, filters.OrderingFilter,)
     search_fields = ("name",)

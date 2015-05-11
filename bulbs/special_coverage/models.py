@@ -43,7 +43,7 @@ class SpecialCoverage(models.Model):
     def _save_percolator(self):
         """saves the query field as an elasticsearch percolator
         """
-        index = Content.mapping.index
+        index = Content.search_objects.mapping.index
         query_filter = self.get_content().build_search()
 
         q = {}
@@ -74,7 +74,7 @@ class SpecialCoverage(models.Model):
         )
 
     def _delete_percolator(self):
-        index = Content.mapping.index
+        index = Content.search_objects.mapping.index
         es.delete(index=index, doc_type=".percolator", id=self.es_id, refresh=True, ignore=404)
 
     def get_content(self):

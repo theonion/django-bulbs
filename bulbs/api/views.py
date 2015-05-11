@@ -4,7 +4,6 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models.loading import get_models
 from django.http import Http404
-from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from djes.apps import indexable_registry
@@ -31,7 +30,6 @@ from bulbs.content.serializers import (
     TagSerializer, UserSerializer, FeatureTypeSerializer,
     ObfuscatedUrlInfoSerializer
 )
-from bulbs.content.filters import Published, Status, Tags, FeatureTypes
 
 from bulbs.contributions.serializers import ContributionSerializer
 from bulbs.contributions.models import Contribution

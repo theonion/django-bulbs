@@ -16,19 +16,49 @@ class ContributorRoleSerializer(serializers.ModelSerializer):
         model = ContributorRole
 
 
+class ContributionListSerializer(serializers.ListSerializer):
+
+    contributor = UserSerializer()
+
+    def update(self, instance, validated_data):
+        # Maps for id->instance and id->data item.
+        contribution_mapping = {c.id: c for c in instance}
+        data_mapping = {item['id']: item for item in validated_data if "id" in item}
+
+        # Perform creations and updates.
+        ret = []
+        for data in validated_data:
+            contribution = None
+            if "id" in data:
+                contribution = contribution_mapping.get(data["id"], None)
+
+            if contribution is None:
+                ret.append(self.child.create(data))
+            else:
+                ret.append(self.child.update(contribution, data))
+
+        # Perform deletions.
+        for contribution_id, contribution in contribution_mapping.items():
+            if contribution_id not in data_mapping:
+                contribution.delete()
+
+        return ret
+
+
 class ContributionSerializer(serializers.ModelSerializer):
 
     contributor = UserSerializer()
 
     class Meta:
         model = Contribution
+        list_serializer_class = ContributionListSerializer
 
 
 class ContributionReportingSerializer(serializers.ModelSerializer):
 
-    user = serializers.SerializerMethodField("get_user")
-    content = serializers.SerializerMethodField("get_content")
-    role = serializers.SerializerMethodField("get_role")
+    user = serializers.SerializerMethodField()
+    content = serializers.SerializerMethodField()
+    role = serializers.SerializerMethodField()
 
     class Meta:
         model = Contribution
@@ -64,18 +94,18 @@ class ContributorRoleField(serializers.Field):
         self.role = role
         self.source = "*"
 
-    def to_native(self, obj):
-        qs = Contribution.objects.filter(content=obj, role=self.role).select_related("user")
+    def to_representation(self, obj):
+        qs = Contribution.objects.filter(content=obj, role=self.role).select_related("contributor")
         return ",".join([contribution.contributor.get_full_name() for contribution in qs])
 
 
 class ContentReportingSerializer(serializers.ModelSerializer):
 
-    content_type = serializers.SerializerMethodField("get_content_type")
-    published = serializers.SerializerMethodField("get_published")
-    feature_type = serializers.SerializerMethodField("get_feature_type")
+    content_type = serializers.SerializerMethodField()
+    published = serializers.SerializerMethodField()
+    feature_type = serializers.SerializerMethodField()
     url = serializers.URLField(source="get_absolute_url")
-    authors = serializers.SerializerMethodField("get_authors")
+    authors = serializers.SerializerMethodField()
 
     class Meta:
         model = Content

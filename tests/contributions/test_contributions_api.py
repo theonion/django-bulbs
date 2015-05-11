@@ -74,7 +74,7 @@ class ContributionApiTestCase(BaseAPITestCase):
             "contributor": {
                 "username": self.admin.username,
                 "id": self.admin.id
-                },
+            },
             "content": content.id
         }]
         response = client.post(endpoint, json.dumps(data), content_type="application/json")
@@ -87,7 +87,7 @@ class ContributionApiTestCase(BaseAPITestCase):
             "contributor": {
                 "username": self.admin.username,
                 "id": self.admin.id
-                },
+            },
             "role": self.roles["writer"].id,
             "content": content.id
         }]

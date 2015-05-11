@@ -6,7 +6,7 @@ from .serializers import SpecialCoverageSerializer
 
 
 class SpecialCoverageViewSet(viewsets.ModelViewSet):
-    model = SpecialCoverage
+    queryset = SpecialCoverage.objects.all()
     serializer_class = SpecialCoverageSerializer
     filter_backends = (filters.SearchFilter, filters.OrderingFilter, filters.DjangoFilterBackend,)
     filter_fields = ("active", "promoted")
