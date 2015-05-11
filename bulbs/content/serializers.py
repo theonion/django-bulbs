@@ -352,12 +352,14 @@ class ObfuscatedUrlInfoSerializer(serializers.ModelSerializer):
 
     expire_date = serializers.DateTimeField()
     create_date = serializers.DateTimeField()
-    url_uuid = serializers.CharField(min_length=32, max_length=32)
+    url_uuid = serializers.CharField(min_length=32, max_length=32, required=False)
 
-    def validate(self, attrs):
-        if attrs["expire_date"] < attrs["create_date"]:
+    def validate(self, value):
+        super(ObfuscatedUrlInfoSerializer, self).validate(value)
+        if value["expire_date"] < value["create_date"]:
             raise serializers.ValidationError(
                 "Start date must occur before expiration date.")
+        return value
 
     class Meta:
         model = ObfuscatedUrlInfo

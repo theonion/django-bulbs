@@ -16,7 +16,7 @@ class CampaignFilter(FilterSet):
 
 
 class CampaignViewSet(viewsets.ModelViewSet):
-    model = Campaign
+    queryset = Campaign.objects.all()
     serializer_class = CampaignSerializer
     paginate_by = 10
     # filters

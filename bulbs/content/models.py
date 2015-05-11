@@ -294,7 +294,6 @@ class Content(PolymorphicModel, Indexable):
                 return True
         return False
 
-
     def ordered_tags(self):
         """gets the related tags
 

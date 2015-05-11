@@ -216,13 +216,17 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         :return: `rest_framework.response.Response`
         """
 
-        data = ObfuscatedUrlInfoSerializer(ObfuscatedUrlInfo.objects.create(
-            content=self.get_object(),
-            create_date=request.DATA["create_date"],
-            expire_date=request.DATA["expire_date"]
-        )).data
+        data = {
+            "content": self.get_object().id,
+            "create_date": request.DATA["create_date"],
+            "expire_date": request.DATA["expire_date"]
+        }
+        serializer = ObfuscatedUrlInfoSerializer(data=data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST, content_type="application/json")
+        serializer.save()
 
-        return Response(data, status=status.HTTP_200_OK, content_type="application/json")
+        return Response(serializer.data, status=status.HTTP_200_OK, content_type="application/json")
 
     @detail_route(methods=["get"], permission_classes=[CanEditContent])
     def list_tokens(self, request, **kwargs):
@@ -252,35 +256,54 @@ class TagViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
     paginate_by = 50
 
     def list(self, request, *args, **kwargs):
-        """I'm overriding this so that the listing pages can be driven from ElasticSearch
+        """Modified list view to driving listing from ES"""
 
-        :param request: a WSGI request object
-        :param args: inline arguments (optional)
-        :param kwargs: keyword arguments (optional)
-        :return: `rest_framework.response.Response`
-        """
-
-        search_query = Tag.search_objects.search()
+        queryset = Tag.search_objects.search()
         if "search" in request.REQUEST:
-            search_query = search_query.query(
+            queryset = queryset.query(
                 "match_phrase", name=request.REQUEST["search"]
             ).query(
                 "term", name=request.REQUEST["search"]
             )
 
-        if "types" in request.REQUEST:
-            search_query = search_query.doc_type(*request.REQUEST.getlist("types"))
-
-        self.object_list = search_query
-
-        # Switch between paginated or standard style responses
-        page = self.paginate_queryset(self.object_list)
+        page = self.paginate_queryset(queryset)
         if page is not None:
-            serializer = self.get_pagination_serializer(page)
-        else:
-            serializer = self.get_serializer(self.object_list, many=True)
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
 
+        serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+    # def list(self, request, *args, **kwargs):
+    #     """I'm overriding this so that the listing pages can be driven from ElasticSearch
+
+    #     :param request: a WSGI request object
+    #     :param args: inline arguments (optional)
+    #     :param kwargs: keyword arguments (optional)
+    #     :return: `rest_framework.response.Response`
+    #     """
+
+        # search_query = Tag.search_objects.search()
+        # if "search" in request.REQUEST:
+        #     search_query = search_query.query(
+        #         "match_phrase", name=request.REQUEST["search"]
+        #     ).query(
+        #         "term", name=request.REQUEST["search"]
+        #     )
+
+    #     if "types" in request.REQUEST:
+    #         search_query = search_query.doc_type(*request.REQUEST.getlist("types"))
+
+    #     self.object_list = search_query
+
+    #     # Switch between paginated or standard style responses
+    #     page = self.paginate_queryset(self.object_list)
+    #     if page is not None:
+    #         serializer = self.get_pagination_serializer(page)
+    #     else:
+    #         serializer = self.get_serializer(self.object_list, many=True)
+
+    #     return Response(serializer.data)
 
 
 class UserViewSet(UncachedResponse, viewsets.ModelViewSet):
@@ -371,6 +394,7 @@ class FeatureTypeViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
     serializer_class = FeatureTypeSerializer
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
     search_fields = ("name", )
+    queryset = FeatureType.objects.all()
 
 
 class MeViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):

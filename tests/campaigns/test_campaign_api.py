@@ -5,12 +5,21 @@ from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import Client
+from django.utils import timezone
 
 from bulbs.campaigns.models import Campaign, CampaignPixel
 
 
-START_DATE = datetime(2015, 3, 19, 19, 0, 5)
-END_DATE = datetime(2015, 3, 20, 20, 0, 5)
+START_DATE = timezone.now() - timedelta(days=5)
+END_DATE = START_DATE + timedelta(days=5)
+
+
+def get_drf_iso(value):
+    # DRF formats dates with Z's
+    value = value.isoformat()
+    if value.endswith('+00:00'):
+        value = value[:-6] + 'Z'
+    return value
 
 
 class CampaignApiCase(TestCase):
@@ -73,19 +82,19 @@ class CampaignApiCase(TestCase):
         self.assertEqual(pixel.url, data["pixels"][0]["url"])
 
         # check that all the fields went through
-        self.assertEqual({"id": campaign.id,
-                          "sponsor_name": "Acme",
-                          "sponsor_logo": {'id': 123},
-                          "sponsor_url": "http://example.com",
-                          "campaign_label": "Test Label",
-                          "impression_goal": 1000,
-                          "start_date": START_DATE,
-                          "end_date": END_DATE,
-                          "pixels": [{"id": pixel.id,
-                                      "url": "http://example.com/pixel/1",
-                                      "pixel_type": "Logo"}],
-                          },
-                         response.data)
+        assert response.data == {
+            "id": campaign.id,
+            "sponsor_name": "Acme",
+            "sponsor_logo": {'id': 123},
+            "sponsor_url": "http://example.com",
+            "campaign_label": "Test Label",
+            "impression_goal": 1000,
+            "start_date": get_drf_iso(START_DATE),
+            "end_date": get_drf_iso(END_DATE),
+            "pixels": [{"id": pixel.id,
+                        "url": "http://example.com/pixel/1",
+                        "pixel_type": "Logo"}],
+        }
 
     def test_update_campaign(self):
         campaign = Campaign.objects.create(sponsor_name="Original Name",
@@ -124,8 +133,8 @@ class CampaignApiCase(TestCase):
                           "sponsor_url": "http://example.com",
                           "campaign_label": "Test Label",
                           "impression_goal": 1000,
-                          "start_date": START_DATE,
-                          "end_date": END_DATE,
+                          "start_date": get_drf_iso(START_DATE),
+                          "end_date": get_drf_iso(END_DATE),
                           "pixels": [{"id": pixel.id,
                                       "url": "http://example.com/pixel/1",
                                       "pixel_type": "Logo"}],
@@ -168,8 +177,8 @@ class CampaignApiCase(TestCase):
                           "sponsor_url": "http://example.com",
                           "campaign_label": "Test Label",
                           "impression_goal": 1000,
-                          "start_date": START_DATE,
-                          "end_date": END_DATE,
+                          "start_date": get_drf_iso(START_DATE),
+                          "end_date": get_drf_iso(END_DATE),
                           "pixels": [],
                           },
                          response.data)
