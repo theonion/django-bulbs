@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 
 from django.db import models, migrations
 import djbetty.fields
-import elastimorphic.base
 import django.utils.timezone
 from django.conf import settings
 
@@ -32,8 +31,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'permissions': (('publish_own_content', 'Can publish their own content'), ('publish_content', 'Can publish content'), ('promote_content', 'Can promote content')),
-            },
-            bases=(elastimorphic.base.PolymorphicIndexable, models.Model),
+            }
         ),
         migrations.CreateModel(
             name='FeatureType',
@@ -84,8 +82,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'abstract': False,
-            },
-            bases=(elastimorphic.base.PolymorphicIndexable, models.Model),
+            }
         ),
         migrations.AddField(
             model_name='content',

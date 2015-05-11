@@ -32,7 +32,7 @@
 from datetime import timedelta
 
 from django.utils import timezone
-from elasticutils import F
+# from elasticutils import F
 
 from bulbs.conf import settings
 

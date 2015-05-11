@@ -16,11 +16,10 @@ author_email = "csinchok@theonion.com"
 license = "BSD"
 requires = [
     "Django>=1.8",
-    "South==0.8.1",
     "django-betty-cropper>=0.1.4",
     "djangorestframework==3.1.1",
     "django-polymorphic==0.7.1",
-    "djes==0.0.1a7",
+    "djes==0.0.1a9",
     "django-filter==0.9.2",
     "django-json-field==0.5.5",
     "djangorestframework-csv==1.3.3",
@@ -33,8 +32,8 @@ requires = [
 ]
 
 dev_requires = [
-    "Sphinx==1.2b1",
     "pylint==1.0.0",
+    "mock==1.0.1",
     "httmock==1.0.5",
     "model-mommy==1.2.4",
     "psycopg2==2.5.1",

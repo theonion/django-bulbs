@@ -3,7 +3,7 @@ python:
   - '2.7'
 install:
   - travis_retry pip install -e .
-  - travis_retry pip install file://$(pwd)#egg=django-bulbs[dev]
+  - travis_retry pip install "file://$(pwd)#egg=django-bulbs[dev]"
 services:
   - postgresql
   - elasticsearch
