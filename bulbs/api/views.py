@@ -462,6 +462,17 @@ class CustomSearchContentViewSet(viewsets.GenericViewSet):
         "content-type": "_type"
     }
 
+    # def list(self, request, *args, **kwargs):
+    #     queryset = self.filter_queryset(self.get_queryset())
+
+    #     page = self.paginate_queryset(queryset)
+    #     if page is not None:
+    #         serializer = self.get_serializer(page, many=True)
+    #         return self.get_paginated_response(serializer.data)
+
+    #     serializer = self.get_serializer(queryset, many=True)
+    #     return Response(serializer.data)
+
     def list(self, request, *args, **kwargs):
         """Filter Content with a custom search.
         {
@@ -472,14 +483,14 @@ class CustomSearchContentViewSet(viewsets.GenericViewSet):
         items that would normally be removed due to "excluded_ids".
         """
 
-        self.object_list = self.get_filtered_queryset(request.DATA)
+        queryset = self.get_filtered_queryset(request.DATA)
         # Switch between paginated or standard style responses
-        page = self.paginate_queryset(self.object_list)
+        page = self.paginate_queryset(queryset)
         if page is not None:
-            serializer = self.get_pagination_serializer(page)
-        else:
-            serializer = self.get_serializer(self.object_list, many=True)
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
 
+        serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
