@@ -112,7 +112,7 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    @detail_route(permission_classes=[CanPublishContent])
+    @detail_route(permission_classes=[CanPublishContent], methods=['post'])
     def publish(self, request, **kwargs):
         """sets the `published` value of the `Content`
 
@@ -139,7 +139,7 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         LogEntry.objects.log(request.user, content, content.get_status())
         return Response({"status": content.get_status(), "published": content.published})
 
-    @detail_route(permission_classes=[CanPublishContent])
+    @detail_route(permission_classes=[CanPublishContent], methods=['post'])
     def trash(self, request, **kwargs):
         """destroys a `Content` instance and removes it from the ElasticSearch index
 
@@ -153,10 +153,13 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         content.indexed = False
         content.save()
 
+        index = content.__class__.search_objects.mapping.index
+        doc_type = content.__class__.search_objects.mapping.doc_type
+
         try:
             Content.search_objects.client.delete(
-                index=content.mapping.index,
-                doc_type=content.mapping.doc_type,
+                index=index,
+                doc_type=doc_type,
                 id=content.id)
             LogEntry.objects.log(request.user, content, "Trashed")
             return Response({"status": "Trashed"})
@@ -383,7 +386,7 @@ class MeViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
         :param kwargs: keyword arguments (optional)
         :return: `rest_framework.response.Response`
         """
-        data = UserSerializer().to_native(request.user)
+        data = UserSerializer().to_representation(request.user)
 
         # add superuser flag only if user is a superuser, putting it here so users can only
         # tell if they are themselves superusers

@@ -92,7 +92,6 @@ class TestCreateContentAPI(BaseAPITestCase):
         content_rest_url = reverse("content-list") + "?doctype=testcontent_testcontentobj"
         response = client.post(content_rest_url, json.dumps(data), content_type="application/json")
         # ensure it was created and got an id
-        print(response.content)
         self.assertEqual(response.status_code, 201)  # 201 Created
         response_data = response.data
         self.assertIn("id", response_data, data)
@@ -446,8 +445,10 @@ class TestTrashContentAPI(BaseAPITestCase):
     def test_trash(self):
         content = make_content()
         self.assertTrue(content.indexed)
-        data = self.es.get(index=content.mapping.index, doc_type=content.mapping.doc_type,
-                           id=content.id)
+        index = content.__class__.search_objects.mapping.index
+        doc_type = content.__class__.search_objects.mapping.doc_type
+
+        data = self.es.get(index=index, doc_type=doc_type, id=content.id)
         self.assertEqual(data["_source"]["title"], content.title)
 
         client = Client()
@@ -468,15 +469,15 @@ class TestTrashContentAPI(BaseAPITestCase):
 
         with self.assertRaises(elasticsearch.exceptions.NotFoundError):
             Content.search_objects.client.get(
-                index=content.mapping.index,
-                doc_type=content.mapping.doc_type,
+                index=index,
+                doc_type=doc_type,
                 id=content.id)
 
         content.save()
         with self.assertRaises(elasticsearch.exceptions.NotFoundError):
             Content.search_objects.client.get(
-                index=content.mapping.index,
-                doc_type=content.mapping.doc_type,
+                index=index,
+                doc_type=doc_type,
                 id=content.id)
 
     def test_trash_404(self):
