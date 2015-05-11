@@ -32,9 +32,10 @@
 from datetime import timedelta
 
 from django.utils import timezone
-# from elasticutils import F
+from elasticutils import F
 
 from bulbs.conf import settings
+from .filters import Published
 
 
 def custom_search_model(model, query, preview=False, published=False,
@@ -50,8 +51,7 @@ def custom_search_model(model, query, preview=False, published=False,
     f = func(query, id_field=id_field, time_field=time_field, field_map=field_map)
     # filter by published
     if published:
-        now = timezone.now()
-        f &= F(**{time_field + "__lte": now})
+        f &= Published()
     qs = model.search_objects.search().filter(f)
     # possibly include a text query
     if query.get("query"):

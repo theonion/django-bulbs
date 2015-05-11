@@ -200,7 +200,7 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
                 groups=makeGroups([
                     [
                         ("content-type", "all", [
-                            TestContentObjTwo.get_mapping_type_name()
+                            TestContentObjTwo.search_objects.mapping.doc_type
                         ])
                     ]
                 ])

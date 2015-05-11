@@ -12,3 +12,4 @@ before_script:
 script: py.test --cov bulbs --cov-report term-missing
 after_success:
   - coveralls
+sudo: false

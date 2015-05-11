@@ -11,7 +11,6 @@ from djes.apps import indexable_registry
 import elasticsearch
 
 from rest_framework import (
-    decorators,
     filters,
     status,
     viewsets,

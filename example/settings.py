@@ -57,7 +57,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.request"
 )
 
-# django 1.7 drops some of the necessary middleware to make elastimorphic work
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

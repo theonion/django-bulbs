@@ -1,9 +1,6 @@
 """Base models for "Content", including the indexing and search features
 that we want any piece of content to have."""
 
-import datetime
-import dateutil.parser
-import dateutil.tz
 import uuid
 
 from django.conf import settings
@@ -15,7 +12,6 @@ from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django.utils.html import strip_tags
 from djes.models import Indexable, IndexableManager
-# from elasticutils import F
 from elasticsearch_dsl import field
 from polymorphic import PolymorphicModel
 from djbetty import ImageField
@@ -25,11 +21,9 @@ from .filters import Published, Status, Tags, FeatureTypes
 
 try:
     from bulbs.content.tasks import index as index_task  # noqa
-    from bulbs.content.tasks import update as update_task  # noqa
     CELERY_ENABLED = True
 except ImportError:
     index_task = lambda *x: x
-    update_task = lambda *x: x
     CELERY_ENABLED = False
 
 
@@ -121,12 +115,12 @@ class TemplateType(models.Model):
 
 class ContentManager(IndexableManager):
     """
-    a specialized version of `elastimorphic.base.SearchManager` for `bulbs.content.Content`
+    a specialized version of `djes.models.SearchManager` for `bulbs.content.Content`
     """
 
     def search(self, **kwargs):
         """
-        Queries using ElasticSearch, returning an elasticutils queryset.
+        Queries using ElasticSearch, returning an elasticsearch queryset.
 
         :param kwargs: keyword arguments (optional)
          * query : ES Query spec
@@ -161,19 +155,6 @@ class ContentManager(IndexableManager):
 
         feature_type_filter = FeatureTypes(kwargs.get("feature_types", []))
         search_query = search_query.filter(feature_type_filter)
-
-        # TODO: reimplement this somehow. Probably at the top of this function?
-        # only use valid subtypes
-        # types = kwargs.pop("types", [])
-        # model_types = self.model.get_mapping_type_names()
-        # if types:
-        #     results = results.doctypes(*[
-        #         type_classname for type_classname
-        #         in types
-        #         if type_classname in model_types
-        #     ])
-        # else:
-        #     results = results.doctypes(*model_types)
 
         # Is this good enough? Are we even using this feature at all?
         types = kwargs.pop("types", [])
@@ -327,82 +308,6 @@ class Content(PolymorphicModel, Indexable):
                 kwargs = {}
             kwargs["index"] = False
         return super(Content, self).save(*args, **kwargs)
-
-    # class methods ##############################
-    @classmethod
-    def get_mapping_properties(cls):
-        """creates the mapping for ElasticSearch
-
-        :return: `dict`
-        """
-        properties = super(Content, cls).get_mapping_properties()
-        properties.update({
-            "published": {"type": "date"},
-            "last_modified": {"type": "date"},
-            "title": {"type": "string", "analyzer": "snowball", "_boost": 2.0},
-            "slug": {"type": "string"},
-            "description": {"type": "string", },
-            "thumbnail": {"type": "integer"},
-            "feature_type": {
-                "properties": {
-                    "name": {
-                        "type": "multi_field",
-                        "fields": {
-                            "name": {"type": "string", "index": "not_analyzed"},
-                            "autocomplete": {"type": "string", "analyzer": "autocomplete"}
-                        }
-                    },
-                    "slug": {"type": "string", "index": "not_analyzed"}
-                }
-            },
-            "authors": {
-                "properties": {
-                    "first_name": {"type": "string"},
-                    "id": {"type": "long"},
-                    "last_name": {"type": "string"},
-                    "username": {"type": "string", "index": "not_analyzed"}
-                }
-            },
-            "tags": {
-                "properties": Tag.get_mapping_properties()
-            },
-            "absolute_url": {"type": "string"},
-            "status": {"type": "string", "index": "not_analyzed"}
-        })
-        return properties
-
-    def extract_document(self):
-        """maps data returned from ElasticSearch into a dict for instantiating an object
-
-        :return: `dict`
-        """
-        data = super(Content, self).extract_document()
-        data.update({
-            "published": self.published,
-            "last_modified": self.last_modified,
-            "title": self.title,
-            "slug": self.slug,
-            "description": self.description,
-            "thumbnail": self.thumbnail.id if self.thumbnail else None,
-            "authors": [
-                {
-                    "first_name": author.first_name,
-                    "id": author.id,
-                    "last_name": author.last_name,
-                    "username": author.username
-                }
-                for author in self.authors.all()
-            ],
-            "tags": [tag.extract_document() for tag in self.ordered_tags()],
-            "absolute_url": self.get_absolute_url(),
-            "status": self.get_status()
-        })
-        if self.feature_type:
-            data["feature_type"] = {
-                "name": self.feature_type.name,
-                "slug": self.feature_type.slug
-            }
-        return data
 
     @classmethod
     def get_serializer_class(cls):

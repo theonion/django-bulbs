@@ -4,7 +4,7 @@ import datetime
 import dateutil.parser
 import dateutil.tz
 from django.utils import timezone
-from elasticsearch_dsl.filter import Term, Terms, Range, Filter, F, MatchAll, Nested
+from elasticsearch_dsl.filter import Term, Terms, Range, MatchAll, Nested
 from six import string_types, text_type, binary_type
 
 
@@ -29,7 +29,7 @@ def parse_datetime(value):
         raise ValueError('Value must be parsable to datetime object. Got `{}`'.format(type(value)))
 
 
-def Published(before=None, after=None):
+def Published(before=None, after=None):  # noqa
     published_params = {}
     if after is not None:
         published_params["gte"] = parse_datetime(after)
@@ -42,14 +42,14 @@ def Published(before=None, after=None):
     return Range(published=published_params)
 
 
-def Status(status):
+def Status(status):  # noqa
     if status:
         return Term(status=status)
     else:
         return MatchAll()
 
 
-def Tags(slugs):
+def Tags(slugs):  # noqa
     included = []
     excluded = []
     for slug in slugs:
@@ -67,7 +67,7 @@ def Tags(slugs):
     return f
 
 
-def FeatureTypes(slugs):
+def FeatureTypes(slugs):  # noqa
     included = []
     excluded = []
     for slug in slugs:
@@ -83,8 +83,3 @@ def FeatureTypes(slugs):
         f &= ~Nested(path="feature_type", filter=Terms(**{"feature_type.slug": excluded}))
 
     return f
-
-
-# class Tags(Term):
-
-#   def __init__()
