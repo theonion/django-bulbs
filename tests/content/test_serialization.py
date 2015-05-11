@@ -5,11 +5,18 @@ import datetime
 from django.utils import timezone
 
 from bulbs.content.models import Content, Tag, FeatureType
+from bulbs.content.serializers import ContentSerializer
+
+
 from example.testcontent.models import TestContentObj
 from bulbs.utils.test import BaseIndexableTestCase
 
 
 class SerializerTestCase(BaseIndexableTestCase):
+
+    def test_content_serializer(self):
+        pass
+
 
     def test_tag_serializer(self):
         # avoid the app register hell for the user model

@@ -20,7 +20,7 @@ class TestContentObjTwoSerializer(ContentSerializer):
 class TestContentDetailImageSerializer(ContentSerializer):
     """Serializes the ExternalLink model."""
 
-    detail_image = ImageFieldSerializer(caption_field="detail_alt", alt_field="detail_alt")
+    detail_image = ImageFieldSerializer(caption_field="detail_caption", alt_field="detail_alt")
 
     class Meta:
         model = TestContentDetailImage

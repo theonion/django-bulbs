@@ -67,6 +67,8 @@ class TestThumbnailing(BaseIndexableTestCase):
 
         # Hmmm, let's change the main image...
         content_data["detail_image"]["id"] = 1
+        content_data["detail_image"]["alt"] = "cool alt"
+        content_data["detail_image"]["caption"] = "super cool caption"
 
         # Let's POST an update
         response = client.put(
@@ -74,15 +76,15 @@ class TestThumbnailing(BaseIndexableTestCase):
             data=json.dumps(content_data, cls=JsonEncoder),
             content_type="application/json"
         )
-        print(response.content)
-        print(content_data)
         self.assertEqual(response.status_code, 200)
 
         # Refresh the content object from the db
         content = Content.objects.get(id=content.id)
 
-        # Detail image should have an id of 1
+        # Check the new detail image data
         self.assertEqual(content.detail_image.id, 1)
+        self.assertEqual(content.detail_image.alt, "cool alt")
+        self.assertEqual(content.detail_image.caption, "super cool caption")
 
         # The thumbnail property should return the new value
         self.assertEqual(content.thumbnail.id, 1)

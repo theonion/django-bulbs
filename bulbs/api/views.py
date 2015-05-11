@@ -31,6 +31,8 @@ from bulbs.content.serializers import (
     TagSerializer, UserSerializer, FeatureTypeSerializer,
     ObfuscatedUrlInfoSerializer
 )
+from bulbs.content.filters import Published, Status, Tags, FeatureTypes
+
 from bulbs.contributions.serializers import ContributionSerializer
 from bulbs.contributions.models import Contribution
 
@@ -48,8 +50,7 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
     serializer_class = PolymorphicContentSerializer
     include_base_doctype = False
     paginate_by = 20
-    filter_fields = ("tags", "authors", "feature_types", "published", "types")
-    search_fields = ("title", "description")
+    filter_fields = ("search", "before", "after", "status", "feature_types", "published", "tags", "types")
     permission_classes = [IsAdminUser, CanEditContent]
 
     def get_serializer_class(self):
@@ -59,8 +60,10 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         """
         klass = None
 
-        if getattr(self, "object", None):
-            klass = self.object.__class__
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+        if lookup_url_kwarg in self.kwargs:
+            # Looks like this is a detail...
+            klass = self.get_object().__class__
         elif "doctype" in self.request.REQUEST:
             base = self.model.get_base_class()
             doctypes = indexable_registry.families[base]
@@ -91,52 +94,22 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         return super(ContentViewSet, self).post_save(obj, created=created)
 
     def list(self, request, *args, **kwargs):
-        """I'm overriding this so that the listing pages can be driven from ElasticSearch
-
-        :param request: a WSGI request object
-        :param args: inline arguments (optional)
-        :param kwargs: keyword arguments (optional)
-        :return: `rest_framework.response.Response`
-        """
-
-        # check for a text query
+        """Modified list view to driving listing from ES"""
         search_kwargs = {"published": False}
-        search_query = request.QUERY_PARAMS.get("search", None)
-        if search_query:
-            search_kwargs["query"] = search_query
 
-        if "before" in request.QUERY_PARAMS:
-            search_kwargs["before"] = parse_datetime(request.QUERY_PARAMS["before"])
+        for field_name in ("search", "before", "after", "status", "feature_types", "published", "tags", "types"):
 
-        if "after" in request.QUERY_PARAMS:
-            search_kwargs["after"] = parse_datetime(request.QUERY_PARAMS["after"])
+            if field_name in self.request.QUERY_PARAMS:
+                search_kwargs[field_name] = self.request.QUERY_PARAMS[field_name]
 
-        if "status" in request.QUERY_PARAMS:
-            search_kwargs["status"] = request.QUERY_PARAMS["status"]
-            del search_kwargs["published"]
+        queryset = Content.search_objects.search(**search_kwargs)
 
-        # filter on specific fields using `filter_fields` on your view
-        filter_fields = getattr(self, "filter_fields", None)
-        if filter_fields:
-            for field_name in filter_fields:
-                filter_query = request.QUERY_PARAMS.getlist(field_name, None)
-                if filter_query:
-
-                    # We need to figure out how to match on a slug, not a name
-                    if field_name == "feature_types":
-                        filter_query = [slugify(f) for f in filter_query]
-
-                    search_kwargs[field_name] = filter_query
-
-        self.object_list = self.model.search_objects.search(**search_kwargs).full()
-
-        # Switch between paginated or standard style responses
-        page = self.paginate_queryset(self.object_list)
+        page = self.paginate_queryset(queryset)
         if page is not None:
-            serializer = self.get_pagination_serializer(page)
-        else:
-            serializer = self.get_serializer(self.object_list, many=True)
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
 
+        serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
     @detail_route(permission_classes=[CanPublishContent])

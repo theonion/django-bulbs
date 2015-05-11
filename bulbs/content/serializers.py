@@ -2,11 +2,12 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
-from django.db import transaction
 from django.template.defaultfilters import slugify
 
-from rest_framework import serializers
+from rest_framework.utils import model_meta
 from rest_framework import relations
+from rest_framework import serializers
+
 
 from .models import Content, Tag, LogEntry, FeatureType, TemplateType, ObfuscatedUrlInfo
 
@@ -55,9 +56,9 @@ class ImageFieldSerializer(serializers.Field):
         :param kwargs: keyword arguments (optional)
         :return: `serializers.WriteableField`
         """
-        super(ImageFieldSerializer, self).__init__(**kwargs)
         self.caption_field = caption_field
         self.alt_field = alt_field
+        super(ImageFieldSerializer, self).__init__(**kwargs)
 
     def to_representation(self, obj):
         if obj is None or obj.id is None:
@@ -70,8 +71,21 @@ class ImageFieldSerializer(serializers.Field):
             data["caption"] = obj.caption
         return data
 
+    def get_value(self, dictionary):
+        image_data = dictionary.get(self.field_name, {})
+        if not image_data:
+            return None
+
+        # This is kinda horrible, but we're basically setting the caption/alt at this step
+        if self.alt_field:
+            setattr(self.parent.instance, self.alt_field, image_data.get("alt"))
+
+        if self.caption_field:
+            setattr(self.parent.instance, self.caption_field, image_data.get("caption"))
+
+        return image_data
+
     def to_internal_value(self, data):
-        raise Exception(data)
         if data is None:
             return None
         image_id = data.get("id")
@@ -79,18 +93,6 @@ class ImageFieldSerializer(serializers.Field):
         if image_id is not None:
             return int(image_id)
         return None
-
-    # def field_to_internal_value(self, data, files, field_name, into):
-    #     super(ImageFieldSerializer, self).field_from_native(data, files, field_name, into)
-    #     image_data = data.get(field_name, {})
-    #     if image_data is None:
-    #         return
-
-    #     if self.alt_field and "alt" in image_data:
-    #         into[self.alt_field] = image_data["alt"]
-
-    #     if self.caption_field and "caption" in image_data:
-    #         into[self.caption_field] = image_data["caption"]
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -203,6 +205,18 @@ class DefaultUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
 
+    # def run_validation(self, data={}):
+    #     value = self.to_internal_value(data)
+    #     return value
+
+    # def create(self, validated_data):
+    #     raise Exception(validated_data)
+    #     pass
+
+    # def update(self, instance, validated_data):
+    #     print(validated_data)
+    #     pass
+
     def to_representation(self, obj):
 
         json = {
@@ -217,7 +231,7 @@ class DefaultUserSerializer(serializers.ModelSerializer):
 
         return json
 
-    def from_representation(self, data, files):
+    def to_internal_value(self, data):
         """Basically, each author dict must include either a username or id."""
         # model = get_user_model()
         model = self.Meta.model
@@ -239,18 +253,60 @@ AUTHOR_FILTER = getattr(settings, "BULBS_AUTHOR_FILTER", {"is_staff": True})
 class ContentSerializer(serializers.ModelSerializer):
 
     polymorphic_ctype = ContentTypeField(source="polymorphic_ctype_id", read_only=True)
-    tags = TagField(allow_null=True, many=True, queryset=Tag.objects.all())
+    tags = TagField(allow_null=True, many=True, queryset=Tag.objects.all(), required=False)
     feature_type = FeatureTypeField(allow_null=True, queryset=FeatureType.objects.all())
-    authors = UserSerializer(many=True, read_only=True)
+    authors = UserSerializer(many=True, allow_null=True, required=False)
     thumbnail = ImageFieldSerializer(allow_null=True, read_only=True)
     first_image = ImageFieldSerializer(allow_null=True, read_only=True)
     thumbnail_override = ImageFieldSerializer(allow_null=True)
     absolute_url = serializers.ReadOnlyField(source="get_absolute_url")
     status = serializers.ReadOnlyField(source="get_status")
-    template_type = serializers.SlugRelatedField(slug_field="slug", allow_null=True, queryset=TemplateType.objects.all())
+    template_type = serializers.SlugRelatedField(
+        slug_field="slug",
+        allow_null=True,
+        queryset=TemplateType.objects.all(),
+        required=False)
 
     class Meta:
         model = Content
+
+    # def create(self, validated_data):
+    #     ModelClass = self.Meta.model
+
+    #     # Remove many-to-many relationships from validated_data.
+    #     # They are not valid arguments to the default `.create()` method,
+    #     # as they require that the instance has already been saved.
+    #     info = model_meta.get_field_info(ModelClass)
+    #     many_to_many = {}
+    #     for field_name, relation_info in info.relations.items():
+    #         if relation_info.to_many and (field_name in validated_data):
+    #             many_to_many[field_name] = validated_data.pop(field_name)
+
+    #     try:
+    #         instance = ModelClass.objects.create(**validated_data)
+    #     except TypeError as exc:
+    #         msg = (
+    #             'Got a `TypeError` when calling `%s.objects.create()`. '
+    #             'This may be because you have a writable field on the '
+    #             'serializer class that is not a valid argument to '
+    #             '`%s.objects.create()`. You may need to make the field '
+    #             'read-only, or override the %s.create() method to handle '
+    #             'this correctly.\nOriginal exception text was: %s.' %
+    #             (
+    #                 ModelClass.__name__,
+    #                 ModelClass.__name__,
+    #                 self.__class__.__name__,
+    #                 exc
+    #             )
+    #         )
+    #         raise TypeError(msg)
+
+    #     # Save many-to-many relationships after the instance is created.
+    #     if many_to_many:
+    #         for field_name, value in many_to_many.items():
+    #             setattr(instance, field_name, value)
+
+    #     return instance
 
 
 class LogEntrySerializer(serializers.ModelSerializer):
