@@ -19,7 +19,7 @@ class ContentTypeField(serializers.Field):
         content_type = ContentType.objects.get_for_id(value)
         return "_".join(content_type.natural_key())
 
-    def from_representation(self, value):
+    def to_internal_value(self, value):
         """Convert to integer id."""
         natural_key = value.split("_")
         content_type = ContentType.objects.get_by_natural_key(*natural_key)

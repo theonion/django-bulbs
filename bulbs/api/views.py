@@ -197,8 +197,7 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
             serializer = ContributionSerializer(
                 queryset,
                 data=request.DATA,
-                many=True,
-                allow_add_remove=True)
+                many=True)
             if not serializer.is_valid():
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             serializer.save()

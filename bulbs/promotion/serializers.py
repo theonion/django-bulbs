@@ -8,14 +8,22 @@ from .operations import PZoneOperation, InsertOperation, DeleteOperation, Replac
 
 
 class PZoneField(serializers.Field):
-    def field_to_native(self, obj, field_name):
-        data = []
-        for content in obj:
-            data.append(ContentSerializer(instance=content).data)
+    # def field_to_native(self, obj, field_name):
+    #     data = []
+    #     for content in obj:
+    #         data.append(ContentSerializer(instance=content).data)
 
+    #     return data
+
+    def to_representation(self, obj):
+        data = []
+        bulk_content = Content.objects.in_bulk([content_data["id"] for content_data in obj])
+        for content_data in obj:
+            content = bulk_content[content_data["id"]]
+            data.append(ContentSerializer(instance=content).data)
         return data
 
-    def from_native(self, data):
+    def to_internal_value(self, data):
         return [{"id": content_data["id"]} for content_data in data]
 
 
@@ -35,7 +43,7 @@ class _PZoneOperationSerializer(serializers.ModelSerializer):
     when = serializers.DateTimeField()
     applied = serializers.BooleanField(default=False)
     content = serializers.PrimaryKeyRelatedField(queryset=Content.objects.all())
-    content_title = serializers.SerializerMethodField('get_content_title')
+    content_title = serializers.SerializerMethodField()
 
     class Meta:
         model = PZoneOperation

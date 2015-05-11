@@ -15,7 +15,7 @@ from bulbs.content.models import Content
 
 
 class ContributorRoleViewSet(viewsets.ModelViewSet):
-    model = ContributorRole
+    queryset = ContributorRole.objects.all()
     serializer_class = ContributorRoleSerializer
 
 

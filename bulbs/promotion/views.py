@@ -97,7 +97,7 @@ class OperationsViewSet(APIView):
             serialized = serializer(data=data)
             if serialized.is_valid():
                 # object is valid, save it
-                serialized.object.save()
+                serialized.save()
 
                 # set response data
                 json_obj.append(serialized.data)
@@ -148,20 +148,20 @@ class OperationsViewSet(APIView):
 class PZoneViewSet(UncachedResponse, viewsets.ModelViewSet):
     """Uncached viewset for `bulbs.promotions.PZone` model."""
 
-    model = PZone
+    queryset = PZone.objects.all()
     serializer_class = PZoneSerializer
     paginate_by = 20
     permission_classes = [IsAdminUser, CanPromoteContent]
 
-    def post_save(self, obj, created=False):
+    def perform_update(self, serializer):
         """creates a record in the `bulbs.promotion.PZoneHistory`
 
         :param obj: the instance saved
         :param created: boolean expressing if the object was newly created (`False` if updated)
         """
-
+        instance = serializer.save()
         # create history object
-        obj.history.create(data=obj.data)
+        instance.history.create(data=instance.data)
 
     def retrieve(self, request, *args, **kwargs):
         """Retrieve pzone as a preview or applied if no preview is provided."""
