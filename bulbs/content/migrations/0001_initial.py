@@ -2,16 +2,15 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
-import djbetty.fields
-import django.utils.timezone
 from django.conf import settings
+import djbetty.fields
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('contenttypes', '0002_remove_content_type_name'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('contenttypes', '0001_initial'),
     ]
 
     operations = [
@@ -20,7 +19,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('published', models.DateTimeField(null=True, blank=True)),
-                ('last_modified', models.DateTimeField(default=django.utils.timezone.now, auto_now=True)),
+                ('last_modified', models.DateTimeField(auto_now=True)),
                 ('title', models.CharField(max_length=512)),
                 ('slug', models.SlugField(default=b'', blank=True)),
                 ('description', models.TextField(default=b'', max_length=1024, blank=True)),
@@ -31,7 +30,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'permissions': (('publish_own_content', 'Can publish their own content'), ('publish_content', 'Can publish content'), ('promote_content', 'Can promote content')),
-            }
+            },
         ),
         migrations.CreateModel(
             name='FeatureType',
@@ -41,8 +40,8 @@ class Migration(migrations.Migration):
                 ('slug', models.SlugField(unique=True)),
             ],
             options={
+                'abstract': False,
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='LogEntry',
@@ -57,7 +56,6 @@ class Migration(migrations.Migration):
             options={
                 'ordering': ('-action_time',),
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='ObfuscatedUrlInfo',
@@ -68,9 +66,6 @@ class Migration(migrations.Migration):
                 ('url_uuid', models.CharField(unique=True, max_length=32, editable=False)),
                 ('content', models.ForeignKey(to='content.Content')),
             ],
-            options={
-            },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='Tag',
@@ -78,28 +73,39 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=255)),
                 ('slug', models.SlugField(unique=True)),
-                ('polymorphic_ctype', models.ForeignKey(related_name='polymorphic_content.tag_set', editable=False, to='contenttypes.ContentType', null=True)),
+                ('polymorphic_ctype', models.ForeignKey(related_name='polymorphic_content.tag_set+', editable=False, to='contenttypes.ContentType', null=True)),
             ],
             options={
                 'abstract': False,
-            }
+            },
+        ),
+        migrations.CreateModel(
+            name='TemplateType',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(max_length=255)),
+                ('slug', models.SlugField(unique=True)),
+                ('content_type', models.ForeignKey(to='contenttypes.ContentType')),
+            ],
         ),
         migrations.AddField(
             model_name='content',
             name='feature_type',
             field=models.ForeignKey(blank=True, to='content.FeatureType', null=True),
-            preserve_default=True,
         ),
         migrations.AddField(
             model_name='content',
             name='polymorphic_ctype',
-            field=models.ForeignKey(related_name='polymorphic_content.content_set', editable=False, to='contenttypes.ContentType', null=True),
-            preserve_default=True,
+            field=models.ForeignKey(related_name='polymorphic_content.content_set+', editable=False, to='contenttypes.ContentType', null=True),
         ),
         migrations.AddField(
             model_name='content',
             name='tags',
             field=models.ManyToManyField(to='content.Tag', blank=True),
-            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='content',
+            name='template_type',
+            field=models.ForeignKey(blank=True, to='content.TemplateType', null=True),
         ),
     ]

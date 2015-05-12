@@ -8,7 +8,7 @@ import djbetty.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('content', '0004_auto_20150508_1210'),
+        ('content', '0002_add_groups'),
     ]
 
     operations = [
