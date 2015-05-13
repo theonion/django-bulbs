@@ -10,6 +10,7 @@ from bulbs.content.serializers import ContentSerializer
 
 
 from example.testcontent.models import TestContentObj
+from example.testcontent.serializers import TestContentDetailImageSerializer
 from bulbs.utils.test import BaseIndexableTestCase
 
 
@@ -24,6 +25,24 @@ class SerializerTestCase(BaseIndexableTestCase):
         content = serializer.save()
         assert content.id > 0
         assert content.title == "testing"
+
+    def test_image_field(self):
+        data = {
+            "title": "testing",
+            "foo": "fighters",
+            "detail_image": {
+                "id": 3,
+                "alt": "some alt",
+                "caption": "some pig"
+            }
+        }
+        serializer = TestContentDetailImageSerializer(data=data)
+        serializer.is_valid()
+        content = serializer.save()
+        assert content.id > 0
+        assert content.title == "testing"
+        assert content.detail_image.alt == "some alt"
+        assert content.detail_image.caption == "some pig"
 
     def test_feature_type_field(self):
         # Make sure we can create new Feature Types by just posting in a name

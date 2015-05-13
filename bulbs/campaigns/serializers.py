@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.utils import model_meta
 
-from bulbs.content.serializers import ImageFieldSerializer
+from djbetty.serializers import ImageFieldSerializer
 
 from .models import Campaign, CampaignPixel
 

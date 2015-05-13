@@ -92,6 +92,7 @@ class TestCreateContentAPI(BaseAPITestCase):
         content_rest_url = reverse("content-list") + "?doctype=testcontent_testcontentobj"
         response = client.post(content_rest_url, json.dumps(data), content_type="application/json")
         # ensure it was created and got an id
+        print(response.content)
         self.assertEqual(response.status_code, 201)  # 201 Created
         response_data = response.data
         self.assertIn("id", response_data, data)

@@ -8,6 +8,7 @@ from rest_framework.utils import model_meta
 from rest_framework import relations
 from rest_framework import serializers
 
+from djbetty.serializers import ImageFieldSerializer
 
 from .models import Content, Tag, LogEntry, FeatureType, TemplateType, ObfuscatedUrlInfo
 
@@ -41,58 +42,6 @@ class PolymorphicSerializerMixin(object):
             return serializer.to_representation(value)
         else:
             return super(PolymorphicSerializerMixin, self).to_representation(value)
-
-
-class ImageFieldSerializer(serializers.Field):
-    """
-    serializer field type for images
-    """
-
-    def __init__(self, caption_field=None, alt_field=None, **kwargs):
-        """instantiates object
-
-        :param caption_field: caption
-        :param alt_field: alt value
-        :param kwargs: keyword arguments (optional)
-        :return: `serializers.WriteableField`
-        """
-        self.caption_field = caption_field
-        self.alt_field = alt_field
-        super(ImageFieldSerializer, self).__init__(**kwargs)
-
-    def to_representation(self, obj):
-        if obj is None or obj.id is None:
-            return None
-        data = {
-            "id": obj.id,
-        }
-        if self.caption_field:
-            data["alt"] = obj.alt
-            data["caption"] = obj.caption
-        return data
-
-    def get_value(self, dictionary):
-        image_data = dictionary.get(self.field_name, {})
-        if not image_data:
-            return None
-
-        # This is kinda horrible, but we're basically setting the caption/alt at this step
-        if self.alt_field:
-            setattr(self.parent.instance, self.alt_field, image_data.get("alt"))
-
-        if self.caption_field:
-            setattr(self.parent.instance, self.caption_field, image_data.get("caption"))
-
-        return image_data
-
-    def to_internal_value(self, data):
-        if data is None:
-            return None
-        image_id = data.get("id")
-        # Just in case a string gets passed in
-        if image_id is not None:
-            return int(image_id)
-        return None
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -287,7 +236,7 @@ class ContentSerializer(serializers.ModelSerializer):
     authors = AuthorField(many=True, allow_null=True, queryset=get_user_model().objects.filter(**AUTHOR_FILTER), required=False)
     thumbnail = ImageFieldSerializer(allow_null=True, read_only=True)
     first_image = ImageFieldSerializer(allow_null=True, read_only=True)
-    thumbnail_override = ImageFieldSerializer(allow_null=True)
+    thumbnail_override = ImageFieldSerializer(allow_null=True, required=False)
     absolute_url = serializers.ReadOnlyField(source="get_absolute_url")
     status = serializers.ReadOnlyField(source="get_status")
     template_type = serializers.SlugRelatedField(
