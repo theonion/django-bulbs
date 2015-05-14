@@ -94,10 +94,15 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         """Modified list view to driving listing from ES"""
         search_kwargs = {"published": False}
 
-        for field_name in ("search", "before", "after", "status", "feature_types", "published", "tags", "types"):
+        for field_name in ("search", "before", "after", "status", "published"):
 
             if field_name in self.request.QUERY_PARAMS:
-                search_kwargs[field_name] = self.request.QUERY_PARAMS[field_name]
+                search_kwargs[field_name] = self.request.QUERY_PARAMS.get(field_name)
+
+        for field_name in ("tags", "types", "feature_types"):
+
+            if field_name in self.request.QUERY_PARAMS:
+                search_kwargs[field_name] = self.request.QUERY_PARAMS.getlist(field_name)
 
         queryset = Content.search_objects.search(**search_kwargs)
 
@@ -269,37 +274,6 @@ class TagViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
-
-    # def list(self, request, *args, **kwargs):
-    #     """I'm overriding this so that the listing pages can be driven from ElasticSearch
-
-    #     :param request: a WSGI request object
-    #     :param args: inline arguments (optional)
-    #     :param kwargs: keyword arguments (optional)
-    #     :return: `rest_framework.response.Response`
-    #     """
-
-        # search_query = Tag.search_objects.search()
-        # if "search" in request.REQUEST:
-        #     search_query = search_query.query(
-        #         "match_phrase", name=request.REQUEST["search"]
-        #     ).query(
-        #         "term", name=request.REQUEST["search"]
-        #     )
-
-    #     if "types" in request.REQUEST:
-    #         search_query = search_query.doc_type(*request.REQUEST.getlist("types"))
-
-    #     self.object_list = search_query
-
-    #     # Switch between paginated or standard style responses
-    #     page = self.paginate_queryset(self.object_list)
-    #     if page is not None:
-    #         serializer = self.get_pagination_serializer(page)
-    #     else:
-    #         serializer = self.get_serializer(self.object_list, many=True)
-
-    #     return Response(serializer.data)
 
 
 class UserViewSet(UncachedResponse, viewsets.ModelViewSet):
