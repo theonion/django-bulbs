@@ -79,15 +79,6 @@ class Migration(migrations.Migration):
                 'abstract': False,
             },
         ),
-        migrations.CreateModel(
-            name='TemplateType',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('name', models.CharField(max_length=255)),
-                ('slug', models.SlugField(unique=True)),
-                ('content_type', models.ForeignKey(to='contenttypes.ContentType')),
-            ],
-        ),
         migrations.AddField(
             model_name='content',
             name='feature_type',
@@ -102,10 +93,5 @@ class Migration(migrations.Migration):
             model_name='content',
             name='tags',
             field=models.ManyToManyField(to='content.Tag', blank=True),
-        ),
-        migrations.AddField(
-            model_name='content',
-            name='template_type',
-            field=models.ForeignKey(blank=True, to='content.TemplateType', null=True),
         ),
     ]
