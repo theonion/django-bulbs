@@ -3,6 +3,7 @@ import json
 from django.core.urlresolvers import reverse
 from django.test.client import Client
 
+from bulbs.content.models import Content
 from bulbs.contributions.models import Contribution, ContributorRole
 from bulbs.utils.test import BaseAPITestCase, make_content
 
@@ -29,6 +30,7 @@ class ContributionApiTestCase(BaseAPITestCase):
         client.login(username="admin", password="secret")
 
         content = make_content()
+        Content.objects.get(id=content.id)
 
         endpoint = reverse("content-contributions", kwargs={"pk": content.pk})
         response = client.get(endpoint)
@@ -67,6 +69,7 @@ class ContributionApiTestCase(BaseAPITestCase):
         client.login(username="admin", password="secret")
 
         content = make_content()
+        Content.search_objects.refresh()
         self.assertEqual(Contribution.objects.filter(content=content).count(), 0)
         endpoint = reverse("content-contributions", kwargs={"pk": content.pk})
 
@@ -78,7 +81,6 @@ class ContributionApiTestCase(BaseAPITestCase):
             "content": content.id
         }]
         response = client.post(endpoint, json.dumps(data), content_type="application/json")
-        print(response.content)
         self.assertEqual(response.status_code, 400)
 
         self.assertEqual(Contribution.objects.filter(content=content).count(), 0)
@@ -92,6 +94,7 @@ class ContributionApiTestCase(BaseAPITestCase):
             "content": content.id
         }]
         response = client.post(endpoint, json.dumps(data), content_type="application/json")
+        print(response.content)
         self.assertEqual(response.status_code, 200)
 
         self.assertEqual(Contribution.objects.filter(content=content).count(), 1)

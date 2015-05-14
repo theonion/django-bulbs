@@ -48,6 +48,7 @@ class ContributionListSerializer(serializers.ListSerializer):
 class ContributionSerializer(serializers.ModelSerializer):
 
     contributor = UserSerializer()
+    content = serializers.PrimaryKeyRelatedField(queryset=Content.objects.all())
 
     class Meta:
         model = Contribution

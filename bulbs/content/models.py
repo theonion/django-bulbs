@@ -13,7 +13,7 @@ from django.utils import timezone
 from django.utils.html import strip_tags
 from djes.models import Indexable, IndexableManager
 from elasticsearch_dsl import field
-from polymorphic import PolymorphicModel
+from polymorphic import PolymorphicModel, PolymorphicManager
 from djbetty import ImageField
 
 from bulbs.content import TagCache
@@ -33,6 +33,10 @@ class ElasticsearchImageField(field.Integer):
         return data.id
 
 
+class TagManager(PolymorphicManager, IndexableManager):
+    pass
+
+
 class Tag(PolymorphicModel, Indexable):
     """Model for tagging up Content.
     """
@@ -42,6 +46,8 @@ class Tag(PolymorphicModel, Indexable):
 
     class Mapping:
         name = field.String(analyzer="autocomplete")
+
+    search_objects = TagManager()
 
     def __unicode__(self):
         """unicode friendly name
@@ -113,10 +119,15 @@ class TemplateType(models.Model):
     content_type = models.ForeignKey(ContentType)
 
 
-class ContentManager(IndexableManager):
+class ContentManager(PolymorphicManager, IndexableManager):
     """
     a specialized version of `djes.models.SearchManager` for `bulbs.content.Content`
     """
+
+    # def __getattr__(self, name):
+    #     if name.startswith('__'):
+    #         return super(PolymorphicManager, self).__getattr__(self, name)
+    #     return getattr(self.all(), name)
 
     def search(self, **kwargs):
         """
