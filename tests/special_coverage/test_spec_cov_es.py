@@ -4,11 +4,9 @@ from django.utils import timezone
 from elasticsearch.exceptions import TransportError
 from model_mommy import mommy
 
-from bulbs.content.models import Content, FeatureType, Tag
+from bulbs.content.models import Content
 from bulbs.special_coverage.models import SpecialCoverage
-from bulbs.utils.test import BaseIndexableTestCase, make_content
-
-from example.testcontent.models import TestContentObjTwo
+from bulbs.utils.test import BaseIndexableTestCase
 
 
 class SpecialCoverageQueryTests(BaseIndexableTestCase):
@@ -50,11 +48,11 @@ class SpecialCoverageQueryTests(BaseIndexableTestCase):
         sc._save_percolator()
 
         response = self.es.get(
-            index=Content.get_index_name(),
+            index=Content.search_objects.mapping.index,
             doc_type=".percolator",
             id="specialcoverage.93"
         )
-        assert response["_source"]["query"]["filtered"]["filter"] == sc.get_content().build_search()["filter"]
+        assert response["_source"]["query"] == sc.get_content().to_dict()["query"]
 
         # Now let's update the query
         obama_condition = {
@@ -77,11 +75,11 @@ class SpecialCoverageQueryTests(BaseIndexableTestCase):
 
         # Did the query change take?
         response = self.es.get(
-            index=Content.get_index_name(),
+            index=Content.search_objects.mapping.index,
             doc_type=".percolator",
             id="specialcoverage.93"
         )
-        assert response["_source"]["query"]["filtered"]["filter"] == sc.get_content().build_search()["filter"]
+        assert response["_source"]["query"] == sc.get_content().to_dict()["query"]
 
     def test_delete_percolator(self):
         sc = SpecialCoverage(
@@ -90,7 +88,7 @@ class SpecialCoverageQueryTests(BaseIndexableTestCase):
             description="Classic Joeseph Biden"
         )
         self.es.index(
-            index=Content.get_index_name(),
+            index=Content.search_objects.mapping.index,
             doc_type=".percolator",
             id="specialcoverage.93",
             body={
@@ -102,20 +100,20 @@ class SpecialCoverageQueryTests(BaseIndexableTestCase):
                     }
                 }
             }
-        )        
+        )
         response = self.es.get(
-            index=Content.get_index_name(),
+            index=Content.search_objects.mapping.index,
             doc_type=".percolator",
             id="specialcoverage.93"
         )
         assert isinstance(response, dict)
         assert response["_id"] == "specialcoverage.93"
 
-        sc._delete_percolator()
+        sc.delete()
 
         with self.assertRaises(TransportError):
             response = self.es.get(
-                index=Content.get_index_name(),
+                index=Content.search_objects.mapping.index,
                 doc_type=".percolator",
                 id="specialcoverage.93"
             )
@@ -123,7 +121,7 @@ class SpecialCoverageQueryTests(BaseIndexableTestCase):
     def test_sponsored_special_coverage(self):
         joe_biden_condition = {
             "values": [{
-                "value": "joe-biden", 
+                "value": "joe-biden",
                 "label": "Joe Biden"
             }],
             "type": "all",
@@ -152,11 +150,10 @@ class SpecialCoverageQueryTests(BaseIndexableTestCase):
         sc._save_percolator()
 
         response = self.es.get(
-            index=Content.get_index_name(),
+            index=Content.search_objects.mapping.index,
             doc_type=".percolator",
             id="specialcoverage.93"
         )
-        assert response["_source"].get("sponsored") == True
+        assert response["_source"].get("sponsored")is True
         assert response["_source"]["start_date"] == yesterday.isoformat()
         assert response["_source"]["end_date"] == tomorrow.isoformat()
-

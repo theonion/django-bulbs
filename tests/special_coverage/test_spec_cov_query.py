@@ -4,7 +4,6 @@ from datetime import timedelta
 from django.utils import timezone
 
 from bulbs.content.models import Content, FeatureType, Tag
-from bulbs.content.shallow import ShallowContentResult
 from bulbs.special_coverage.models import SpecialCoverage
 
 from example.testcontent.models import TestContentObjTwo
@@ -197,7 +196,7 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
                 groups=makeGroups([
                     [
                         ("content-type", "all", [
-                            TestContentObjTwo.mapping.doc_type
+                            TestContentObjTwo.search_objects.mapping.doc_type
                         ])
                     ]
                 ])
@@ -434,7 +433,7 @@ class SpecialCoverageQueryTests(BaseCustomSearchFilterTests):
         )
         res = sc.get_content()
         for content in res:
-            self.assertIsInstance(content, ShallowContentResult)
+            self.assertIsInstance(content, Content)
 
     def test_has_pinned_content(self):
         """tests that the .has_pinned_content accurately returns True or False"""
@@ -471,4 +470,4 @@ class SpecialCoverageQueryTests(BaseCustomSearchFilterTests):
 
         self.assertTrue(hasattr(sc, "contents"))
         for content in sc.contents:
-            self.assertIsInstance(content, ShallowContentResult)
+            self.assertIsInstance(content, Content)
