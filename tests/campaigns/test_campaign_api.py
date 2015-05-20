@@ -31,6 +31,9 @@ class CampaignApiCase(TestCase):
         pixel = CampaignPixel.objects.create(url="http://example.com/1",
                                              campaign=campaign,
                                              pixel_type=CampaignPixel.LOGO)
+        homepage_pixel = CampaignPixel.objects.create(url="http://example.com/2",
+                                                      campaign=campaign,
+                                                      pixel_type=CampaignPixel.HOMEPAGE)
 
         campaign_detail_endpoint = reverse("campaign-detail", kwargs=dict(pk=campaign.pk))
         response = self.client.get(campaign_detail_endpoint, content_type="application/json")
@@ -39,12 +42,18 @@ class CampaignApiCase(TestCase):
         data = json.loads(response.content)
 
         self.assertEqual(data["id"], campaign.id)
-        self.assertEqual(len(data["pixels"]), 1)
+        self.assertEqual(len(data["pixels"]), 2)
         self.assertEqual(data["pixels"][0],
                          {"id": pixel.id,
                           "url": "http://example.com/1",
                           "pixel_type": "Logo"},
                          )
+        self.assertEqual(data["pixels"][1],
+                        {
+                          "id": homepage_pixel.id,
+                          "url": "http://example.com/2",
+                          "pixel_type": "Homepage",
+                        })
 
     def test_create_campaign(self):
         data = {

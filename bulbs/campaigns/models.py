@@ -17,8 +17,10 @@ class Campaign(models.Model):
 class CampaignPixel(models.Model):
 
     LOGO = 0
+    HOMEPAGE = 1
     PIXEL_TYPES = (
         (LOGO, 'Logo'),
+        (HOMEPAGE, 'Homepage'),
     )
 
     campaign = models.ForeignKey(Campaign, related_name='pixels')
