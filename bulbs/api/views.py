@@ -105,7 +105,7 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
                 search_kwargs[field_name] = self.request.QUERY_PARAMS.getlist(field_name)
 
         if "search" in self.request.QUERY_PARAMS:
-            search_kwargs[query] = self.request.QUERY_PARAMS.get("search")
+            search_kwargs["query"] = self.request.QUERY_PARAMS.get("search")
 
         queryset = Content.search_objects.search(**search_kwargs)
 
