@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.db.models.signals import pre_delete
 from django.db import models
 from django.template.defaultfilters import slugify
 from elasticsearch import Elasticsearch
@@ -10,7 +11,6 @@ from bulbs.content.models import Content
 
 
 es = Elasticsearch(settings.ES_URLS)
-index = Content.get_index_name()
 
 
 class SpecialCoverage(models.Model):
@@ -44,18 +44,13 @@ class SpecialCoverage(models.Model):
     def _save_percolator(self):
         """saves the query field as an elasticsearch percolator
         """
-        query_filter = self.get_content().build_search()
+        index = Content.search_objects.mapping.index
+        query_filter = self.get_content().to_dict()
 
         q = {}
 
-        if "filter" in query_filter:
-            q = {
-                "query": {
-                    "filtered": {
-                        "filter": query_filter.get("filter", {})
-                    }
-                }
-            }
+        if "query" in query_filter:
+            q = {"query": query_filter.get("query", {})}
         else:
             # We don't know how to save this
             return
@@ -74,6 +69,7 @@ class SpecialCoverage(models.Model):
         )
 
     def _delete_percolator(self):
+        index = Content.search_objects.mapping.index
         es.delete(index=index, doc_type=".percolator", id=self.es_id, refresh=True, ignore=404)
 
     def get_content(self):
@@ -113,3 +109,9 @@ class SpecialCoverage(models.Model):
         if "pinned_ids" in q:
             return bool(len(q.get("pinned_ids", [])))
         return False
+
+
+def remove_percolator(sender, instance, *args, **kwargs):
+    instance._delete_percolator()
+
+pre_delete.connect(remove_percolator, sender=SpecialCoverage)

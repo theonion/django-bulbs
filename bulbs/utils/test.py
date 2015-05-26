@@ -1,38 +1,17 @@
-# from django.test import TestCase
-# from elasticsearch_dsl.connections import connections
-# from djes.management.commands.sync_es import get_indexes, sync_index
-
-
-# class BaseIndexableTestCase(TestCase):
-#     """A TestCase which handles setup and teardown of elasticsearch indexes."""
-
-#     def setUp(self):
-#         self.es = connections.get_connection("default")
-#         self.indexes = get_indexes()
-
-#         for index in list(self.indexes):
-#             self.es.indices.delete_alias("{}_*".format(index), "_all", ignore=[404])
-#             self.es.indices.delete("{}_*".format(index), ignore=[404])
-
-#         for index, body in self.indexes.items():
-#             sync_index(index, body)
-
-#     def tearDown(self):
-#         for index in list(self.indexes):
-#             self.es.indices.delete_alias("{}_*".format(index), "_all", ignore=[404])
-#             self.es.indices.delete("{}_*".format(index), ignore=[404])
-
-
 import json
 import random
 
-from six import PY3
-from elastimorphic.tests.base import BaseIndexableTestCase
-from elastimorphic.models import polymorphic_indexable_registry
+from elasticsearch_dsl.connections import connections
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
+from django.test import TestCase
+from djes.apps import indexable_registry
+from djes.management.commands.sync_es import get_indexes, sync_index
+
 from model_mommy import mommy
 from rest_framework.test import APIClient
+from six import PY3
 
 from bulbs.content.models import Content
 
@@ -44,10 +23,10 @@ def make_content(*args, **kwargs):
     if len(args) == 1:
         klass = args[0]
     else:
-        models = polymorphic_indexable_registry.families[Content]
+        models = indexable_registry.families[Content]
         model_keys = [key for key in models.keys() if key != "content_content"]
         key = random.choice(model_keys)
-        klass = polymorphic_indexable_registry.all_models[key]
+        klass = indexable_registry.all_models[key]
 
     content = mommy.make(klass, **kwargs)
     return content
@@ -77,6 +56,26 @@ def _iso_datetime(value):
             return value.isoformat()
         else:
             return '%sT00:00:00' % value.isoformat()
+
+
+class BaseIndexableTestCase(TestCase):
+    """A TestCase which handles setup and teardown of elasticsearch indexes."""
+
+    def setUp(self):
+        self.es = connections.get_connection("default")
+        self.indexes = get_indexes()
+
+        for index in list(self.indexes):
+            self.es.indices.delete_alias("{}_*".format(index), "_all", ignore=[404])
+            self.es.indices.delete("{}_*".format(index), ignore=[404])
+
+        for index, body in self.indexes.items():
+            sync_index(index, body)
+
+    def tearDown(self):
+        for index in list(self.indexes):
+            self.es.indices.delete_alias("{}_*".format(index), "_all", ignore=[404])
+            self.es.indices.delete("{}_*".format(index), ignore=[404])
 
 
 class BaseAPITestCase(BaseIndexableTestCase):

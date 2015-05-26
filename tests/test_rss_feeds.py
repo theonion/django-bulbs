@@ -1,6 +1,6 @@
 from django.core.urlresolvers import reverse
 from django.test.client import Client
-from elastimorphic.tests.base import BaseIndexableTestCase
+from bulbs.utils.test import BaseIndexableTestCase
 
 from bulbs.utils.test import make_content
 

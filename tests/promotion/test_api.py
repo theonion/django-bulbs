@@ -140,14 +140,14 @@ class PromotionApiTestCase(BaseAPITestCase):
         self.assertEqual(operations[0]["pzone"], self.pzone.pk)
         self.assertEqual(operations[0]["index"], 0)
         self.assertEqual(operations[0]["content_title"], new_content_1.title)
-        self.assertEqual(operations[0]["when"], test_time)
+        self.assertEqual(operations[0]["when"], test_time.isoformat().replace("+00:00", "Z"))
         # check second operation made it in
         self.assertEqual(operations[1]["type_name"], op_2_type)
         self.assertEqual(operations[1]["content"], new_content_2.pk)
         self.assertEqual(operations[1]["pzone"], self.pzone.pk)
         self.assertEqual(operations[1]["index"], 0)
         self.assertEqual(operations[1]["content_title"], new_content_2.title)
-        self.assertEqual(operations[1]["when"], test_time)
+        self.assertEqual(operations[1]["when"], test_time.isoformat().replace("+00:00", "Z"))
 
     def test_get_operations_404(self):
         """Test that a 404 is thrown when an id not associated with a pzone
@@ -223,14 +223,14 @@ class PromotionApiTestCase(BaseAPITestCase):
         self.assertNotEqual(operations[0]["id"], None)
         self.assertEqual(operations[0]["type_name"], "promotion_replaceoperation")
         self.assertEqual(operations[0]["pzone"], self.pzone.pk)
-        self.assertEqual(operations[0]["when"], test_time)
+        self.assertEqual(operations[0]["when"], test_time.isoformat().replace("+00:00", "Z"))
         self.assertEqual(operations[0]["index"], 1)
         self.assertEqual(operations[0]["content"], test_content_1.id)
 
         assert operations[1]["id"] > operations[0]["id"]
         self.assertEqual(operations[1]["type_name"], "promotion_replaceoperation")
         self.assertEqual(operations[1]["pzone"], self.pzone.pk)
-        self.assertEqual(operations[1]["when"], test_time)
+        self.assertEqual(operations[1]["when"], test_time.isoformat().replace("+00:00", "Z"))
         self.assertEqual(operations[1]["index"], 2)
         self.assertEqual(operations[1]["content"], test_content_2.id)
 
@@ -267,7 +267,7 @@ class PromotionApiTestCase(BaseAPITestCase):
         self.assertNotEqual(operation["id"], None)
         self.assertEqual(operation["type_name"], "promotion_replaceoperation")
         self.assertEqual(operation["pzone"], self.pzone.pk)
-        self.assertEqual(operation["when"], test_time)
+        self.assertEqual(operation["when"], test_time.isoformat().replace("+00:00", "Z"))
         self.assertEqual(operation["index"], 0)
         self.assertEqual(operation["content"], 1)
 

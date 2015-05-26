@@ -1,9 +1,6 @@
 """Base models for "Content", including the indexing and search features
 that we want any piece of content to have."""
 
-import datetime
-import dateutil.parser
-import dateutil.tz
 import uuid
 
 from django.conf import settings
@@ -14,54 +11,43 @@ from django.db.models import Model
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django.utils.html import strip_tags
-import elasticsearch
-from elasticutils import F
-from elastimorphic.base import (
-    PolymorphicIndexable,
-    PolymorphicMappingType,
-    SearchManager,
-)
-from polymorphic import PolymorphicModel
+from djes.models import Indexable, IndexableManager
+from elasticsearch_dsl import field
+from polymorphic import PolymorphicModel, PolymorphicManager
 from djbetty import ImageField
-from six import string_types, text_type, binary_type
 
 from bulbs.content import TagCache
-from .shallow import ShallowContentS, ShallowContentResult
+from .filters import Published, Status, Tags, FeatureTypes
 
 try:
     from bulbs.content.tasks import index as index_task  # noqa
-    from bulbs.content.tasks import update as update_task  # noqa
     CELERY_ENABLED = True
 except ImportError:
     index_task = lambda *x: x
-    update_task = lambda *x: x
     CELERY_ENABLED = False
 
 
-def parse_datetime(value):
-    if isinstance(value, (string_types, text_type, binary_type)):
-        value = dateutil.parser.parse(value)
-        value.replace(tzinfo=dateutil.tz.tzutc())
-        return value
-    elif isinstance(value, datetime.datetime):
-        value.replace(tzinfo=dateutil.tz.tzutc())
-        return value
-    elif isinstance(value, datetime.date):
-        value = datetime.datetime(value.year, value.month, value.day)
-        value.replace(tzinfo=dateutil.tz.tzutc())
-        return value
-    else:
-        raise ValueError('Value must be parsable to datetime object. Got `{}`'.format(type(value)))
+class ElasticsearchImageField(field.Integer):
+
+    def to_es(self, data):
+        return data.id
 
 
-class Tag(PolymorphicIndexable, PolymorphicModel):
+class TagManager(PolymorphicManager, IndexableManager):
+    pass
+
+
+class Tag(PolymorphicModel, Indexable):
     """Model for tagging up Content.
     """
 
     name = models.CharField(max_length=255)
     slug = models.SlugField(unique=True)
-    # additional manager to handle querying with ElasticSearch
-    search_objects = SearchManager()
+
+    class Mapping:
+        name = field.String(analyzer="autocomplete")
+
+    search_objects = TagManager()
 
     def __unicode__(self):
         """unicode friendly name
@@ -86,33 +72,6 @@ class Tag(PolymorphicIndexable, PolymorphicModel):
         return TagCache.count(self.slug)
 
     @classmethod
-    def get_mapping_properties(cls):
-        """provides mapping information for ElasticSearch
-
-        :return: `dict`
-        """
-        props = super(Tag, cls).get_mapping_properties()
-        props.update({
-            "name": {"type": "string", "analyzer": "autocomplete"},
-            "slug": {"type": "string", "index": "not_analyzed"},
-            "type": {"type": "string", "index": "not_analyzed"}
-        })
-        return props
-
-    def extract_document(self):
-        """instantiates a dict representation of the object from ElasticSearch
-
-        :return: `dict`
-        """
-        data = super(Tag, self).extract_document()
-        data.update({
-            "name": self.name,
-            "slug": self.slug,
-            "type": self.get_mapping_type_name()
-        })
-        return data
-
-    @classmethod
     def get_serializer_class(cls):
         """gets the serializer class for the model
 
@@ -122,13 +81,16 @@ class Tag(PolymorphicIndexable, PolymorphicModel):
         return TagSerializer
 
 
-class FeatureType(models.Model):
+class FeatureType(Indexable):
     """
     special model for featured content
     """
 
     name = models.CharField(max_length=255)
     slug = models.SlugField(unique=True)
+
+    class Mapping:
+        name = field.String(analyzer="autocomplete")
 
     def __unicode__(self):
         """unicode friendly name
@@ -157,127 +119,68 @@ class TemplateType(models.Model):
     content_type = models.ForeignKey(ContentType)
 
 
-class ContentManager(SearchManager):
+class ContentManager(PolymorphicManager, IndexableManager):
     """
-    a specialized version of `elastimorphic.base.SearchManager` for `bulbs.content.Content`
+    a specialized version of `djes.models.SearchManager` for `bulbs.content.Content`
     """
 
-    def s(self):
-        """Returns a ShallowContentS() instance, using an ES URL from the settings, and an index
-        from this manager's model
-        """
-
-        base_polymorphic_class = self.model.get_base_class()
-        type_ = type(
-            '%sMappingType' % base_polymorphic_class.__name__,
-            (PolymorphicMappingType,),
-            {"base_polymorphic_class": base_polymorphic_class})
-
-        return ShallowContentS(type_=type_).es(urls=settings.ES_URLS)
+    # def __getattr__(self, name):
+    #     if name.startswith('__'):
+    #         return super(PolymorphicManager, self).__getattr__(self, name)
+    #     return getattr(self.all(), name)
 
     def search(self, **kwargs):
         """
-        Queries using ElasticSearch, returning an elasticutils queryset.
+        Queries using ElasticSearch, returning an elasticsearch queryset.
 
         :param kwargs: keyword arguments (optional)
          * query : ES Query spec
          * tags : content tags
          * types : content types
          * feature_types : featured types
-         * authors : authors
          * published : date range
         """
-        results = self.s()
+        search_query = super(ContentManager, self).search()
 
         if "query" in kwargs:
-            results = results.query(_all__match=kwargs.get("query"))
+            search_query = search_query.query("match", _all=kwargs.get("query"))
         else:
-            results = results.order_by('-published', '-last_modified')
+            search_query = search_query.sort('-published', '-last_modified')
 
         # Right now we have "Before", "After" (datetimes),
         # and "published" (a boolean). Should simplify this in the future.
         if "before" in kwargs or "after" in kwargs:
-            if "before" in kwargs and "after" in kwargs:
-                before = parse_datetime(kwargs["before"])
-                after = parse_datetime(kwargs["after"])
-                # raise Exception((before, after))
-                results = results.query(published__lte=before, published__gte=after, must=True)
-
-            elif "before" in kwargs:
-                before = parse_datetime(kwargs["before"])
-                # raise Exception(before)
-                results = results.query(published__lte=before, must=True)
-
-            elif "after" in kwargs:
-                after = parse_datetime(kwargs["after"])
-                # raise Exception(after)
-                results = results.query(published__gte=after, must=True)
+            published_filter = Published(before=kwargs.get("before"), after=kwargs.get("after"))
+            search_query = search_query.filter(published_filter)
         else:
             # TODO: kill this "published" param. it sucks
             if kwargs.get("published", True) and "status" not in kwargs:
-                now = timezone.now()
-                results = results.query(published__lte=now, must=True)
+                published_filter = Published()
+                search_query = search_query.filter(published_filter)
 
         if "status" in kwargs:
-            results = results.filter(status=kwargs.get("status"))
+            search_query = search_query.filter(Status(kwargs["status"]))
 
-        f = F()
-        for tag in kwargs.get("tags", []):
-            if tag.startswith("-"):
-                f &= ~F(**{"tags.slug": tag[1:]})
-            else:
-                f |= F(**{"tags.slug": tag})
+        tag_filter = Tags(kwargs.get("tags", []))
+        search_query = search_query.filter(tag_filter)
 
-        for feature_type in kwargs.get("feature_types", []):
-            if feature_type.startswith("-"):
-                f &= ~F(**{"feature_type.slug": feature_type[1:]})
-            else:
-                f |= F(**{"feature_type.slug": feature_type})
+        feature_type_filter = FeatureTypes(kwargs.get("feature_types", []))
+        search_query = search_query.filter(feature_type_filter)
 
-        for author in kwargs.get("authors", []):
-            if author.startswith("-"):
-                f &= ~F(**{"authors.username": author})
-            else:
-                f |= F(**{"authors.username": author})
-
-        results = results.filter(f)
-
-        # only use valid subtypes
+        # Is this good enough? Are we even using this feature at all?
         types = kwargs.pop("types", [])
-        model_types = self.model.get_mapping_type_names()
         if types:
-            results = results.doctypes(*[
-                type_classname for type_classname
-                in types
-                if type_classname in model_types
-            ])
-        else:
-            results = results.doctypes(*model_types)
-        return results
-
-    def in_bulk(self, pks):
-        """performs a GET from ElasticSearch en masse
-
-        :param pks: iterable of object primary keys
-        :return: `list`
-        """
-        results = self.es.multi_get(pks, index=self.model.get_index_name())
-        ret = []
-        for r in results["docs"]:
-            if "_source" in r:
-                ret.append(ShallowContentResult(r["_source"]))
-            else:
-                ret.append(None)
-        return ret
+            search_query._doc_type = types
+        return search_query
 
 
-class Content(PolymorphicIndexable, PolymorphicModel):
+class Content(PolymorphicModel, Indexable):
     """
     The base content model from which all other content derives.
     """
 
     published = models.DateTimeField(blank=True, null=True)
-    last_modified = models.DateTimeField(auto_now=True, default=timezone.now)
+    last_modified = models.DateTimeField(auto_now=True)
     title = models.CharField(max_length=512)
     slug = models.SlugField(blank=True, default='')
     template_type = models.ForeignKey(TemplateType, blank=True, null=True)
@@ -303,6 +206,13 @@ class Content(PolymorphicIndexable, PolymorphicModel):
             ("publish_content", "Can publish content"),
             ("promote_content", "Can promote content"),
         )
+
+    class Mapping:
+        title = field.String(analyzer="snowball", _boost=2.0)
+        slug = field.String(index="not_analyzed")
+        status = field.String(index="not_analyzed")
+        thumbnail_override = ElasticsearchImageField()
+        # TODO: authors?
 
     def __unicode__(self):
         """unicode friendly name
@@ -332,10 +242,10 @@ class Content(PolymorphicIndexable, PolymorphicModel):
         not the thumbnail override field.
         """
         # loop through image fields and grab the first non-none one
-        for field in self._meta.fields:
-            if isinstance(field, ImageField):
-                if field.name is not 'thumbnail_override':
-                    field_value = getattr(self, field.name)
+        for model_field in self._meta.fields:
+            if isinstance(model_field, ImageField):
+                if model_field.name is not 'thumbnail_override':
+                    field_value = getattr(self, model_field.name)
                     if field_value.id is not None:
                         return field_value
 
@@ -362,6 +272,7 @@ class Content(PolymorphicIndexable, PolymorphicModel):
         if self.published:
             return "final"  # The published time has been set
         return "draft"  # No published time has been set
+    status = property(get_status)
 
     @property
     def is_published(self):
@@ -374,14 +285,6 @@ class Content(PolymorphicIndexable, PolymorphicModel):
             if now >= self.published:
                 return True
         return False
-
-    @property
-    def type(self):
-        """gets the ElasticSearch mapping name
-
-        :return: `str`
-        """
-        return self.get_mapping_type_name()
 
     def ordered_tags(self):
         """gets the related tags
@@ -416,82 +319,6 @@ class Content(PolymorphicIndexable, PolymorphicModel):
                 kwargs = {}
             kwargs["index"] = False
         return super(Content, self).save(*args, **kwargs)
-
-    # class methods ##############################
-    @classmethod
-    def get_mapping_properties(cls):
-        """creates the mapping for ElasticSearch
-
-        :return: `dict`
-        """
-        properties = super(Content, cls).get_mapping_properties()
-        properties.update({
-            "published": {"type": "date"},
-            "last_modified": {"type": "date"},
-            "title": {"type": "string", "analyzer": "snowball", "_boost": 2.0},
-            "slug": {"type": "string"},
-            "description": {"type": "string", },
-            "thumbnail": {"type": "integer"},
-            "feature_type": {
-                "properties": {
-                    "name": {
-                        "type": "multi_field",
-                        "fields": {
-                            "name": {"type": "string", "index": "not_analyzed"},
-                            "autocomplete": {"type": "string", "analyzer": "autocomplete"}
-                        }
-                    },
-                    "slug": {"type": "string", "index": "not_analyzed"}
-                }
-            },
-            "authors": {
-                "properties": {
-                    "first_name": {"type": "string"},
-                    "id": {"type": "long"},
-                    "last_name": {"type": "string"},
-                    "username": {"type": "string", "index": "not_analyzed"}
-                }
-            },
-            "tags": {
-                "properties": Tag.get_mapping_properties()
-            },
-            "absolute_url": {"type": "string"},
-            "status": {"type": "string", "index": "not_analyzed"}
-        })
-        return properties
-
-    def extract_document(self):
-        """maps data returned from ElasticSearch into a dict for instantiating an object
-
-        :return: `dict`
-        """
-        data = super(Content, self).extract_document()
-        data.update({
-            "published": self.published,
-            "last_modified": self.last_modified,
-            "title": self.title,
-            "slug": self.slug,
-            "description": self.description,
-            "thumbnail": self.thumbnail.id if self.thumbnail else None,
-            "authors": [
-                {
-                    "first_name": author.first_name,
-                    "id": author.id,
-                    "last_name": author.last_name,
-                    "username": author.username
-                }
-                for author in self.authors.all()
-            ],
-            "tags": [tag.extract_document() for tag in self.ordered_tags()],
-            "absolute_url": self.get_absolute_url(),
-            "status": self.get_status()
-        })
-        if self.feature_type:
-            data["feature_type"] = {
-                "name": self.feature_type.name,
-                "slug": self.feature_type.slug
-            }
-        return data
 
     @classmethod
     def get_serializer_class(cls):
@@ -570,12 +397,11 @@ def content_deleted(sender, instance=None, **kwargs):
     """removes content from the ES index when deleted from DB
     """
     if getattr(instance, "_index", True):
-        index = instance.get_index_name()
-        klass = instance.get_real_instance_class()
-        try:
-            klass.search_objects.es.delete(index, klass.get_mapping_type_name(), instance.id)
-        except elasticsearch.exceptions.NotFoundError:
-            pass
+        cls = instance.get_real_instance_class()
+        index = cls.search_objects.mapping.index
+        doc_type = cls.search_objects.mapping.doc_type
+
+        cls.search_objects.client.delete(index, doc_type, instance.id, ignore=[404])
 
 
 ##

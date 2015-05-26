@@ -3,8 +3,8 @@ import json
 from datetime import timedelta
 
 from django.core.urlresolvers import reverse
-from django.utils import timezone
-from elastimorphic.tests.base import BaseIndexableTestCase
+from django.utils import timezone, dateparse
+from bulbs.utils.test import BaseIndexableTestCase
 from rest_framework.test import APIClient
 
 from bulbs.content.models import Content, FeatureType, Tag
@@ -200,7 +200,7 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
                 groups=makeGroups([
                     [
                         ("content-type", "all", [
-                            TestContentObjTwo.get_mapping_type_name()
+                            TestContentObjTwo.search_objects.mapping.doc_type
                         ])
                     ]
                 ])
@@ -408,15 +408,12 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
         self.pinned_expectations = (
             (s_pinned, (
                 content_list[-1].id,
-                content_list[0].id, content_list[1].id,
             )),
             (s_pinned_2, (
                 content_list[-2].id, content_list[-1].id,
-                content_list[0].id, content_list[1].id,
             )),
             (s_pinned_2_groups, (
                 content_list[-2].id, content_list[-1].id,
-                content_list[0].id, content_list[1].id,
             )),
         )
 
@@ -481,8 +478,9 @@ class CustomSearchModelTests(BaseIndexableTestCase):
         q = custom_search_model(Content, query, field_map=self.field_map).full()
         self.assertEqual(len(content), q.count())
         # Sorted by pinned, then published
-        self.assertEqual([pinned] + content[:-1],
-                         q.all().objects)
+
+        sorted_ids = [c.id for c in [pinned] + content[:-1]]
+        self.assertEqual(sorted_ids, [c.id for c in q])
 
     def test_two_pinned(self):
         content = self.make_content(4)
@@ -492,8 +490,7 @@ class CustomSearchModelTests(BaseIndexableTestCase):
         )
         q = custom_search_model(Content, query, field_map=self.field_map).full()
         # First two pinned bubble to top (sorted by published), then other two sorted by published
-        self.assertEqual([content[i] for i in [1, 3, 0, 2]],
-                         q.all().objects)
+        self.assertSequenceEqual(set([content[i].id for i in [3, 1]]), set([c.id for c in q[:2]]))
 
     def test_pinned_and_tagged(self):
         # Verify that pin bubbling logic still works with addtional query rules.
@@ -519,9 +516,9 @@ class CustomSearchModelTests(BaseIndexableTestCase):
         )
 
         q = custom_search_model(Content, query, field_map=self.field_map).full()
-        self.assertEqual([content[3],  # Tagged + Pinned
-                          content[1]], # Tagged
-                         q.all().objects)
+        sorted_ids = [content[3].id, content[1].id]
+
+        self.assertEqual(sorted_ids, [c.id for c in q])
 
     def test_chain_additional_query(self):
         # Ensure that custom_search_model() queries can chain additional queries.
@@ -531,10 +528,9 @@ class CustomSearchModelTests(BaseIndexableTestCase):
         query = dict(
             pinned_ids=[content[3].id]
         )
-        q = custom_search_model(Content, query, field_map=self.field_map).full()
+        q = custom_search_model(Content, query, field_map=self.field_map)
         # Simulate SpecialCoverage behavior to get all content except first pinned result
-        self.assertEqual(content[:3],
-                         q.query(id=content[3].id, must_not=True).all().objects)
+        self.assertEqual(content[3].id, q.query('ids', values=[content[3].id])[0].id)
 
 
 class BaseCustomSearchApiTests(BaseAPITestCase, BaseCustomSearchFilterTests):
@@ -592,8 +588,9 @@ class ResultsApiTests(BaseCustomSearchApiTests):
         self.assertEqual(r.status_code, 200)
         results = r.data.get("results", [])
         for res in results:
-            self.assertLessEqual(res["published"], date)
-            date = res["published"]
+            parsed_published = dateparse.parse_datetime(res["published"])
+            self.assertLessEqual(parsed_published, date)
+            date = parsed_published
 
     def test_all_ordering(self):
         for s, _ in self.published_expectations:
@@ -611,8 +608,12 @@ class ResultsApiTests(BaseCustomSearchApiTests):
         published_results = r.data["results"][len(sliced_ids):]
         date = timezone.now() + timedelta(days=100000)
         for res in published_results:
-            self.assertLessEqual(res["published"], date)
-            date = res["published"]
+            parsed_published = dateparse.parse_datetime(res["published"])
+            if parsed_published >= date:
+                print(pinned_ids)
+                print(res)
+            assert parsed_published < date
+            date = parsed_published
 
 
 class CountsApiTests(BaseCustomSearchApiTests):

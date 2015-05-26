@@ -1,7 +1,7 @@
 import datetime
 
 from django.utils import timezone
-from elastimorphic.tests.base import BaseIndexableTestCase
+from bulbs.utils.test import BaseIndexableTestCase
 from mock import patch
 
 from bulbs.promotion.models import PZone, update_pzone

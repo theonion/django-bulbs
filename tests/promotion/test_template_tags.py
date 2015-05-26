@@ -3,7 +3,7 @@ import datetime
 from django.template import Template, Context
 from django.utils import timezone
 
-from elastimorphic.tests.base import BaseIndexableTestCase
+from bulbs.utils.test import BaseIndexableTestCase
 
 from bulbs.promotion.models import PZone, InsertOperation
 from bulbs.utils.test import make_content

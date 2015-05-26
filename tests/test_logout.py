@@ -3,8 +3,7 @@ from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 # from django.db.models.loading import get_model
 from django.test import Client
-from elastimorphic.tests.base import BaseIndexableTestCase
-
+from bulbs.utils.test import BaseIndexableTestCase
 
 # User = get_user_model()
 # User = get_model(*settings.AUTH_USER_MODEL.split("."))

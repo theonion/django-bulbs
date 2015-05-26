@@ -1,6 +1,6 @@
 from django.db import models
 
-from bulbs.content.models import Content, Tag
+from bulbs.content.models import Content, Tag, ElasticsearchImageField
 from djbetty.fields import ImageField
 
 
@@ -15,6 +15,9 @@ class TestContentObj(Content):
     def get_serializer_class(cls):
         from .serializers import TestContentObjSerializer
         return TestContentObjSerializer
+
+    class Mapping(Content.Mapping):
+        thumbnail_override = ElasticsearchImageField()
 
 
 class TestContentObjTwo(Content):
@@ -38,8 +41,14 @@ class TestContentDetailImage(TestContentObj):
 
     detail_image = ImageField(null=True, blank=True, caption_field="detail_caption", alt_field="detail_alt")
 
+    class Mapping(Content.Mapping):
+
+        class Meta:
+            excludes = ("detail_alt", "detail_caption", "detail_image")
+
+        thumbnail_override = ElasticsearchImageField()
+
     @classmethod
     def get_serializer_class(cls):
         from .serializers import TestContentDetailImageSerializer
         return TestContentDetailImageSerializer
-

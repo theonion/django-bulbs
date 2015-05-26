@@ -2,12 +2,15 @@ from __future__ import absolute_import
 
 import itertools
 import datetime
+import time
+import pytest
+
 
 from django.utils import timezone
 from django.test.client import Client
 from django.template.defaultfilters import slugify
-from elastimorphic.tests.base import BaseIndexableTestCase
 
+from bulbs.utils.test import BaseIndexableTestCase
 from bulbs.content.models import Content, Tag, FeatureType
 from example.testcontent.models import TestContentObj, TestContentObjTwo
 from bulbs.utils.test import make_content
@@ -30,6 +33,7 @@ class PolyContentTestCase(BaseIndexableTestCase):
         self.all_tags = []
         ft_one = FeatureType.objects.create(name="Obj one", slug="obj-one")
         ft_two = FeatureType.objects.create(name="Obj two", slug="obj-two")
+
         for i, combo in enumerate(self.combos):
             tags = []
             for atom in combo:
@@ -51,10 +55,7 @@ class PolyContentTestCase(BaseIndexableTestCase):
             foo="bar",
             feature_type=ft_one
         )
-
-        # We need to let the index refresh
-        TestContentObj.search_objects.refresh()
-        TestContentObjTwo.search_objects.refresh()
+        Content.search_objects.refresh()
 
     def test_filter_search_content(self):
 
@@ -67,13 +68,15 @@ class PolyContentTestCase(BaseIndexableTestCase):
         self.assertEqual(q.count(), 6)
 
         q = Content.search_objects.search(tags=["spam"])
+        self.assertEqual(len(q), 6)
         self.assertEqual(q.count(), 6)
-        for content in q.full():
-            self.assertTrue("spam" in content.tags.values_list("slug", flat=True))
+        for content in q:
+            slugs = [tag.slug for tag in content.tags.all()]
+            self.assertTrue("spam" in slugs)
 
         q = Content.search_objects.search(feature_types=["obj-one"])
         self.assertEqual(q.count(), 6)
-        for content in q.full():
+        for content in q:
             self.assertEqual("Obj one", content.feature_type.name)
 
         q = Content.search_objects.search(types=["testcontent_testcontentobj"])
@@ -143,7 +146,7 @@ class PolyContentTestCase(BaseIndexableTestCase):
         self.assertEqual(q.count(), 0)
         # /date range tests
 
-        q = Content.search_objects.search(types=["testcontent_testcontentobjtwo"]).full()
+        q = Content.search_objects.search(types=["testcontent_testcontentobjtwo"])
         self.assertEqual(q.count(), 6)
 
         q = Content.search_objects.search(types=[
@@ -163,7 +166,7 @@ class PolyContentTestCase(BaseIndexableTestCase):
 
         q = Content.search_objects.search(feature_types=["-obj-one"])
         self.assertEqual(q.count(), 6)
-        for content in q.full():
+        for content in q:
             self.assertNotEqual("Obj one", content.feature_type.name)
 
     def test_content_subclasses(self):
@@ -179,30 +182,17 @@ class PolyContentTestCase(BaseIndexableTestCase):
         self.assertEqual(
             len(response.context['object_list']), len(self.combos) * self.num_subclasses)
 
-    def test_num_polymorphic_queries(self):
-        with self.assertNumQueries(1 + self.num_subclasses):
-            for content in Content.objects.all():
-                self.assertIsInstance(content, (TestContentObj, TestContentObjTwo))
-
     def test_add_remove_tags(self):
-        content = Content.objects.all()[0]
+        content = make_content()
         original_tag_count = len(content.tags.all())
         new_tag = Tag.objects.create(name='crankdat')
         content.tags.add(new_tag)
         self.assertEqual(len(content.tags.all()), original_tag_count + 1)
-        self.assertEqual(len(content.tags.all()), len(content.extract_document()['tags']))
+        self.assertEqual(len(content.tags.all()), len(content.to_dict()["tags"]))
 
     def test_search_exact_name_tags(self):
-        Tag.objects.create(name='Beeftank')
+        Tag.objects.create(name="Beeftank")
         Tag.search_objects.refresh()
-        results = Tag.search_objects.query(name__match='beeftank').full()
-        self.assertTrue(len(results) > 0)
-        tag_result = results[0]
-        self.assertIsInstance(tag_result, Tag)
-
-    def test_in_bulk_performs_polymorphic_query(self):
-        content_ids = [c.id for c in Content.objects.all()]
-        results = Content.objects.in_bulk(content_ids)
-        subclasses = tuple(Content.__subclasses__())
-        for result in results.values():
-            self.assertIsInstance(result, subclasses)
+        results = Tag.search_objects.search().query({"match": {"name": "Beeftank"}})
+        assert results.count() == 1
+        assert isinstance(results[0], Tag)

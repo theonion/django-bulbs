@@ -7,7 +7,7 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('contenttypes', '0001_initial'),
+        ('contenttypes', '0002_remove_content_type_name'),
         ('content', '0002_add_groups'),
     ]
 
@@ -20,14 +20,10 @@ class Migration(migrations.Migration):
                 ('slug', models.SlugField(unique=True)),
                 ('content_type', models.ForeignKey(to='contenttypes.ContentType')),
             ],
-            options={
-            },
-            bases=(models.Model,),
         ),
         migrations.AddField(
             model_name='content',
             name='template_type',
             field=models.ForeignKey(blank=True, to='content.TemplateType', null=True),
-            preserve_default=True,
         ),
     ]

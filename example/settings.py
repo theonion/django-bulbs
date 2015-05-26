@@ -25,7 +25,7 @@ INSTALLED_APPS = (
     "django.contrib.sessions",
     # third parties
     "djbetty",
-    "elastimorphic",
+    "djes",
     "rest_framework",
     "polymorphic",
     # local apps
@@ -34,7 +34,6 @@ INSTALLED_APPS = (
     "bulbs.feeds",
     "bulbs.redirects",
     "bulbs.cms_notifications",
-    "bulbs.videos",
     "bulbs.content",
     "bulbs.contributions",
     "bulbs.promotion",
@@ -57,7 +56,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.request"
 )
 
-# django 1.7 drops some of the necessary middleware to make elastimorphic work
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -83,3 +81,30 @@ SECRET_KEY = "no-op"
 ES_DISABLED = False
 
 ES_URLS = ['http://localhost:9200']
+ES_INDEX = "django-bulbs"
+
+ES_INDEX_SETTINGS = {
+    "django-bulbs": {
+        "index": {
+            "analysis": {
+                "filter": {
+                    "autocomplete_filter": {
+                        "type":     "edge_ngram",
+                        "min_gram": 1,
+                        "max_gram": 20
+                    }
+                },
+                "analyzer": {
+                    "autocomplete": {
+                        "type":      "custom",
+                        "tokenizer": "standard",
+                        "filter": [
+                            "lowercase",
+                            "autocomplete_filter" 
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}

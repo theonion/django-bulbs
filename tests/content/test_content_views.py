@@ -5,9 +5,9 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.test import Client
 from django.utils import timezone
-from elastimorphic.tests.base import BaseIndexableTestCase
+from bulbs.utils.test import BaseIndexableTestCase
 
-from bulbs.content.models import FeatureType, ObfuscatedUrlInfo
+from bulbs.content.models import FeatureType, ObfuscatedUrlInfo, Content
 from example.testcontent.models import TestContentObj, TestContentObjTwo
 from bulbs.utils.test import make_content
 
@@ -24,9 +24,7 @@ class TestContentViews(BaseIndexableTestCase):
 
     def test_unpublished_article(self):
         content = TestContentObj.objects.create(title="Testing Content")
-        print(reverse("published", kwargs={"pk": content.id}))
         response = self.client.get(reverse("published", kwargs={"pk": content.id}))
-        print(response["Location"])
         self.assertEqual(response.status_code, 302)
 
         # But this should work when we login
@@ -43,9 +41,8 @@ class TestContentViews(BaseIndexableTestCase):
         ft = FeatureType.objects.create(name="Feature", slug="feature")
         content = make_content(TestContentObj, feature_type=ft, published=timezone.now() - timedelta(hours=2))
         content_two = make_content(TestContentObjTwo, feature_type=ft, published=timezone.now() - timedelta(hours=2))
+        Content.search_objects.refresh()
         # make sure we get all content with this list
-        TestContentObj.search_objects.refresh()
-        TestContentObjTwo.search_objects.refresh()
         r = self.client.get(reverse("example.testcontent.views.test_all_content_list"))
         self.assertEqual(r.status_code, 200)
         self.assertEqual(2, len(r.context_data["content_list"]))
@@ -54,7 +51,7 @@ class TestContentViews(BaseIndexableTestCase):
         self.assertEqual(r.status_code, 200)
         self.assertEqual(1, len(r.context_data["content_list"]))
         item = r.context_data["content_list"][0]
-        ctype = ContentType.objects.get_for_id(item.polymorphic_ctype)
+        ctype = ContentType.objects.get_for_id(item.polymorphic_ctype_id)
         self.assertIs(ctype.model_class(), TestContentObjTwo)
 
     def test_base_content_detail_view_tokenized_url(self):

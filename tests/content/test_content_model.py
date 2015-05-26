@@ -1,7 +1,7 @@
 import datetime
 
 from django.utils import timezone
-from elastimorphic.tests.base import BaseIndexableTestCase
+from bulbs.utils.test import BaseIndexableTestCase
 import elasticsearch
 
 from bulbs.content.models import Content
@@ -31,30 +31,26 @@ class SerializerTestCase(BaseIndexableTestCase):
 
     def test_content_deletion(self):
         content = make_content(published=None)
+        content.__class__.search_objects.refresh()
 
-        Content.search_objects.refresh()
+        index = content.__class__.search_objects.mapping.index
+        doc_type = content.__class__.search_objects.mapping.doc_type
 
-        q = Content.search_objects.query(_id=content.id)
-        self.assertEqual(q.count(), 1)
-
-        c = Content.search_objects.es.get(
-            index=content.get_index_name(),
-            doc_type=content.get_mapping_type_name(),
+        response = self.es.get(
+            index=index,
+            doc_type=doc_type,
             id=content.id)
-        self.assertTrue(c.get("found"), True)
+        assert response["found"] is True
 
         content.delete()
 
         with self.assertRaises(elasticsearch.exceptions.NotFoundError):
-            Content.search_objects.es.get(
-                index=content.get_index_name(),
-                doc_type=content.get_mapping_type_name(),
+            response = self.es.get(
+                index=index,
+                doc_type=doc_type,
                 id=content.id)
 
         Content.search_objects.refresh()
-
-        q = Content.search_objects.query(_id=content.id)
-        self.assertEqual(q.count(), 0)
 
     def test_first_image_none(self):
         content = make_content(published=None)
@@ -62,4 +58,3 @@ class SerializerTestCase(BaseIndexableTestCase):
         content.thumbnail_override = 666
 
         self.assertNotEqual(content.first_image, content.thumbnail_override)
-

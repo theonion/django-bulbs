@@ -4,15 +4,8 @@ from bulbs.cms_notifications.models import CmsNotification
 
 from django.core.urlresolvers import reverse
 from django.test import Client
-from elastimorphic.tests.base import BaseIndexableTestCase
-from bulbs.utils.test import  JsonEncoder
+from bulbs.utils.test import JsonEncoder, BaseIndexableTestCase
 from django.contrib.auth import get_user_model
-
-
-# User = get_user_model()
-# from django.conf import settings
-# from django.db.models.loading import get_model
-# User = get_model(*settings.AUTH_USER_MODEL.split("."))
 
 
 class TestAPI(BaseIndexableTestCase):
@@ -165,13 +158,14 @@ class TestAPI(BaseIndexableTestCase):
         post_response = self.client.post(reverse("notifications"),
                                          json_data,
                                          content_type="application/json")
-        put_response = self.client.put(reverse("notifications", kwargs={"pk": 0}),
+        notification_id = post_response.data["id"]
+        put_response = self.client.put(reverse("notifications", kwargs={"pk": notification_id}),
                                        json_data,
                                        content_type="application/json")
         get_response = self.client.get(reverse("notifications"))
-        delete_response = self.client.delete(reverse("notifications", kwargs={"pk": 0}))
+        delete_response = self.client.delete(reverse("notifications", kwargs={"pk": notification_id}))
 
         self.assertEqual(post_response.status_code, 201)
-        self.assertEqual(put_response.status_code, 201)
+        self.assertEqual(put_response.status_code, 200)
         self.assertEqual(get_response.status_code, 200)
         self.assertEqual(delete_response.status_code, 204)

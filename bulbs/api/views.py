@@ -4,16 +4,13 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models.loading import get_models
 from django.http import Http404
-from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
+from djes.apps import indexable_registry
 
-from elastimorphic.models import polymorphic_indexable_registry
-from elasticutils.contrib.django import get_es
 import elasticsearch
 
 from rest_framework import (
-    decorators,
     filters,
     status,
     viewsets,
@@ -32,6 +29,7 @@ from bulbs.content.serializers import (
     TagSerializer, UserSerializer, FeatureTypeSerializer,
     ObfuscatedUrlInfoSerializer
 )
+
 from bulbs.contributions.serializers import ContributionSerializer
 from bulbs.contributions.models import Contribution
 
@@ -45,12 +43,11 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
     """
 
     model = Content
-    queryset = Content.objects.select_related("tags").all()
+    queryset = Content.objects.all()
     serializer_class = PolymorphicContentSerializer
     include_base_doctype = False
     paginate_by = 20
-    filter_fields = ("tags", "authors", "feature_types", "published", "types")
-    search_fields = ("title", "description")
+    filter_fields = ("search", "before", "after", "status", "feature_types", "published", "tags", "types")
     permission_classes = [IsAdminUser, CanEditContent]
 
     def get_serializer_class(self):
@@ -60,11 +57,15 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         """
         klass = None
 
-        if getattr(self, "object", None):
-            klass = self.object.__class__
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+        if lookup_url_kwarg in self.kwargs:
+            # Looks like this is a detail...
+            klass = self.get_object().__class__
         elif "doctype" in self.request.REQUEST:
+            base = self.model.get_base_class()
+            doctypes = indexable_registry.families[base]
             try:
-                klass = Content.get_doctypes()[self.request.REQUEST["doctype"]]
+                klass = doctypes[self.request.REQUEST["doctype"]]
             except KeyError:
                 raise Http404
 
@@ -90,55 +91,30 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         return super(ContentViewSet, self).post_save(obj, created=created)
 
     def list(self, request, *args, **kwargs):
-        """I'm overriding this so that the listing pages can be driven from ElasticSearch
-
-        :param request: a WSGI request object
-        :param args: inline arguments (optional)
-        :param kwargs: keyword arguments (optional)
-        :return: `rest_framework.response.Response`
-        """
-
-        # check for a text query
+        """Modified list view to driving listing from ES"""
         search_kwargs = {"published": False}
-        search_query = request.QUERY_PARAMS.get("search", None)
-        if search_query:
-            search_kwargs["query"] = search_query
 
-        if "before" in request.QUERY_PARAMS:
-            search_kwargs["before"] = parse_datetime(request.QUERY_PARAMS["before"])
+        for field_name in ("search", "before", "after", "status", "published"):
 
-        if "after" in request.QUERY_PARAMS:
-            search_kwargs["after"] = parse_datetime(request.QUERY_PARAMS["after"])
+            if field_name in self.request.QUERY_PARAMS:
+                search_kwargs[field_name] = self.request.QUERY_PARAMS.get(field_name)
 
-        if "status" in request.QUERY_PARAMS:
-            search_kwargs["status"] = request.QUERY_PARAMS["status"]
-            del search_kwargs["published"]
+        for field_name in ("tags", "types", "feature_types"):
 
-        # filter on specific fields using `filter_fields` on your view
-        filter_fields = getattr(self, "filter_fields", None)
-        if filter_fields:
-            for field_name in filter_fields:
-                filter_query = request.QUERY_PARAMS.getlist(field_name, None)
-                if filter_query:
+            if field_name in self.request.QUERY_PARAMS:
+                search_kwargs[field_name] = self.request.QUERY_PARAMS.getlist(field_name)
 
-                    # We need to figure out how to match on a slug, not a name
-                    if field_name == "feature_types":
-                        filter_query = [slugify(f) for f in filter_query]
+        queryset = Content.search_objects.search(**search_kwargs)
 
-                    search_kwargs[field_name] = filter_query
-
-        self.object_list = self.model.search_objects.search(**search_kwargs).full()
-
-        # Switch between paginated or standard style responses
-        page = self.paginate_queryset(self.object_list)
+        page = self.paginate_queryset(queryset)
         if page is not None:
-            serializer = self.get_pagination_serializer(page)
-        else:
-            serializer = self.get_serializer(self.object_list, many=True)
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
 
+        serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    @decorators.action(permission_classes=[CanPublishContent])
+    @detail_route(permission_classes=[CanPublishContent], methods=['post'])
     def publish(self, request, **kwargs):
         """sets the `published` value of the `Content`
 
@@ -165,7 +141,7 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         LogEntry.objects.log(request.user, content, content.get_status())
         return Response({"status": content.get_status(), "published": content.published})
 
-    @decorators.action(permission_classes=[CanPublishContent])
+    @detail_route(permission_classes=[CanPublishContent], methods=['post'])
     def trash(self, request, **kwargs):
         """destroys a `Content` instance and removes it from the ElasticSearch index
 
@@ -179,16 +155,20 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         content.indexed = False
         content.save()
 
-        es = get_es(urls=settings.ES_URLS)
+        index = content.__class__.search_objects.mapping.index
+        doc_type = content.__class__.search_objects.mapping.doc_type
+
         try:
-            es.delete(index=content.get_index_name(), doc_type=content.get_mapping_type_name(),
-                      id=content.id)
+            Content.search_objects.client.delete(
+                index=index,
+                doc_type=doc_type,
+                id=content.id)
             LogEntry.objects.log(request.user, content, "Trashed")
             return Response({"status": "Trashed"})
         except elasticsearch.exceptions.NotFoundError:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-    @decorators.link()
+    @detail_route(methods=["get"])
     def status(self, request, **kwargs):
         """This endpoint returns a status text, currently one of:
           - "Draft" (If no publish date is set, and no item exists in the editor queue)
@@ -219,8 +199,7 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
             serializer = ContributionSerializer(
                 queryset,
                 data=request.DATA,
-                many=True,
-                allow_add_remove=True)
+                many=True)
             if not serializer.is_valid():
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             serializer.save()
@@ -238,13 +217,17 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         :return: `rest_framework.response.Response`
         """
 
-        data = ObfuscatedUrlInfoSerializer(ObfuscatedUrlInfo.objects.create(
-            content=self.get_object(),
-            create_date=request.DATA["create_date"],
-            expire_date=request.DATA["expire_date"]
-        )).data
+        data = {
+            "content": self.get_object().id,
+            "create_date": request.DATA["create_date"],
+            "expire_date": request.DATA["expire_date"]
+        }
+        serializer = ObfuscatedUrlInfoSerializer(data=data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST, content_type="application/json")
+        serializer.save()
 
-        return Response(data, status=status.HTTP_200_OK, content_type="application/json")
+        return Response(serializer.data, status=status.HTTP_200_OK, content_type="application/json")
 
     @detail_route(methods=["get"], permission_classes=[CanEditContent])
     def list_tokens(self, request, **kwargs):
@@ -274,45 +257,22 @@ class TagViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
     paginate_by = 50
 
     def list(self, request, *args, **kwargs):
-        """I'm overriding this so that the listing pages can be driven from ElasticSearch
+        """Modified list view to driving listing from ES"""
 
-        :param request: a WSGI request object
-        :param args: inline arguments (optional)
-        :param kwargs: keyword arguments (optional)
-        :return: `rest_framework.response.Response`
-        """
-
-        search_query = Tag.search_objects.s()
+        queryset = Tag.search_objects.search()
         if "search" in request.REQUEST:
-            search_query = search_query.query(
-                name__match_phrase=request.REQUEST["search"], should=True
+            queryset = queryset.query(
+                "match_phrase", name=request.REQUEST["search"]
             ).query(
-                name__term=request.REQUEST["search"], should=True
+                "term", name=request.REQUEST["search"]
             )
 
-        if "types" in request.REQUEST:
-            search_query = search_query.doctypes(*request.REQUEST.getlist("types"))
-
-        # HACK ALERT. I changed the edge ngram to go from 3 to 10, so "TV" got screwed
-        if len(request.REQUEST.get("search", [])) < 3:
-            self.object_list = Tag.objects.filter(
-                name__istartswith=request.REQUEST["search"].lower()
-            )
-            if "types" in request.REQUEST:
-                type_classes = [polymorphic_indexable_registry.all_models[type_name] for type_name
-                                in request.REQUEST.getlist("types")]
-                print(type_classes)
-                self.object_list = self.object_list.instance_of(*type_classes)
-        else:
-            self.object_list = search_query.full()
-
-        # Switch between paginated or standard style responses
-        page = self.paginate_queryset(self.object_list)
+        page = self.paginate_queryset(queryset)
         if page is not None:
-            serializer = self.get_pagination_serializer(page)
-        else:
-            serializer = self.get_serializer(self.object_list, many=True)
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
 
+        serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
 
@@ -404,6 +364,7 @@ class FeatureTypeViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
     serializer_class = FeatureTypeSerializer
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
     search_fields = ("name", )
+    queryset = FeatureType.objects.all()
 
 
 class MeViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
@@ -419,7 +380,7 @@ class MeViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
         :param kwargs: keyword arguments (optional)
         :return: `rest_framework.response.Response`
         """
-        data = UserSerializer().to_native(request.user)
+        data = UserSerializer().to_representation(request.user)
 
         # add superuser flag only if user is a superuser, putting it here so users can only
         # tell if they are themselves superusers
@@ -449,7 +410,8 @@ class ContentTypeViewSet(viewsets.ViewSet):
         """Search the doctypes for this model."""
         query = request.QUERY_PARAMS.get("search", "")
         results = []
-        doctypes = self.model.get_doctypes()
+        base = self.model.get_base_class()
+        doctypes = indexable_registry.families[base]
         for doctype, klass in doctypes.items():
             name = klass._meta.verbose_name.title()
             if query.lower() in name.lower():
@@ -464,7 +426,7 @@ class ContentTypeViewSet(viewsets.ViewSet):
 class CustomSearchContentViewSet(viewsets.GenericViewSet):
     """This is for searching with a custom search filter."""
     model = Content
-    queryset = Content.objects.select_related("tags").all()
+    queryset = Content.objects.all()
     serializer_class = ContentSerializer
     paginate_by = 20
     permission_classes = [IsAdminUser, CanEditContent]
@@ -484,14 +446,14 @@ class CustomSearchContentViewSet(viewsets.GenericViewSet):
         items that would normally be removed due to "excluded_ids".
         """
 
-        self.object_list = self.get_filtered_queryset(request.DATA)
+        queryset = self.get_filtered_queryset(request.DATA)
         # Switch between paginated or standard style responses
-        page = self.paginate_queryset(self.object_list)
+        page = self.paginate_queryset(queryset)
         if page is not None:
-            serializer = self.get_pagination_serializer(page)
-        else:
-            serializer = self.get_serializer(self.object_list, many=True)
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
 
+        serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):

@@ -1,6 +1,6 @@
 import json
 
-from elastimorphic.tests.base import BaseIndexableTestCase
+from bulbs.utils.test import BaseIndexableTestCase
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.test.client import Client
@@ -67,6 +67,8 @@ class TestThumbnailing(BaseIndexableTestCase):
 
         # Hmmm, let's change the main image...
         content_data["detail_image"]["id"] = 1
+        content_data["detail_image"]["alt"] = "cool alt"
+        content_data["detail_image"]["caption"] = "super cool caption"
 
         # Let's POST an update
         response = client.put(
@@ -79,8 +81,10 @@ class TestThumbnailing(BaseIndexableTestCase):
         # Refresh the content object from the db
         content = Content.objects.get(id=content.id)
 
-        # Detail image should have an id of 1
+        # Check the new detail image data
         self.assertEqual(content.detail_image.id, 1)
+        self.assertEqual(content.detail_image.alt, "cool alt")
+        self.assertEqual(content.detail_image.caption, "super cool caption")
 
         # The thumbnail property should return the new value
         self.assertEqual(content.thumbnail.id, 1)

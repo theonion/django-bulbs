@@ -3,7 +3,7 @@ import urlparse
 from django.core.urlresolvers import reverse
 from django.test import Client
 
-from elastimorphic.tests.base import BaseIndexableTestCase
+from bulbs.utils.test import BaseIndexableTestCase
 
 from example.testcontent.models import TestContentObj
 
