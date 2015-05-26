@@ -94,7 +94,7 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         """Modified list view to driving listing from ES"""
         search_kwargs = {"published": False}
 
-        for field_name in ("search", "before", "after", "status", "published"):
+        for field_name in ("before", "after", "status", "published"):
 
             if field_name in self.request.QUERY_PARAMS:
                 search_kwargs[field_name] = self.request.QUERY_PARAMS.get(field_name)
@@ -103,6 +103,9 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
 
             if field_name in self.request.QUERY_PARAMS:
                 search_kwargs[field_name] = self.request.QUERY_PARAMS.getlist(field_name)
+
+        if "search" in self.request.QUERY_PARAMS:
+            search_kwargs[query] = self.request.QUERY_PARAMS.get("search")
 
         queryset = Content.search_objects.search(**search_kwargs)
 
