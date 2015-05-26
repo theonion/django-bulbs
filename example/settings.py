@@ -34,7 +34,6 @@ INSTALLED_APPS = (
     "bulbs.feeds",
     "bulbs.redirects",
     "bulbs.cms_notifications",
-    "bulbs.videos",
     "bulbs.content",
     "bulbs.contributions",
     "bulbs.promotion",
