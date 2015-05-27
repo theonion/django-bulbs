@@ -299,6 +299,7 @@ class PolymorphicContentSerializer(PolymorphicSerializerMixin, ContentSerializer
 
 class ObfuscatedUrlInfoSerializer(serializers.ModelSerializer):
 
+    content = serializers.PrimaryKeyRelatedField(queryset=Content.objects.all())
     expire_date = serializers.DateTimeField()
     create_date = serializers.DateTimeField()
     url_uuid = serializers.CharField(min_length=32, max_length=32, required=False)
