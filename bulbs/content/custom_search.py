@@ -32,7 +32,7 @@
 from datetime import timedelta
 
 from django.utils import timezone
-from elasticsearch_dsl.filter import Term, Terms, MatchAll, Ids, Nested, Range
+from elasticsearch_dsl.filter import Term, Terms, MatchAll, Nested, Range
 from elasticsearch_dsl import query as es_query
 
 from bulbs.conf import settings
@@ -70,7 +70,7 @@ def custom_search_model(model, query, preview=False, published=False,
         pinned_query = es_query.FunctionScore(
             boost_mode="multiply",
             functions=[{
-                "filter": Ids(values=pinned_ids),
+                "filter": Terms(id=pinned_ids),
                 "weight": 2
             }]
         )
@@ -90,9 +90,9 @@ def preview_filter_from_query(query, id_field="id", field_map={}):
     included_ids = query.get("included_ids")
     if included_ids:
         if f:
-            f |= Ids(values=included_ids)
+            f |= Terms(pk=included_ids)
         else:
-            f = Ids(values=included_ids)
+            f = Terms(pk=included_ids)
     return f
 
 
@@ -106,15 +106,15 @@ def filter_from_query(query, id_field="id", field_map={}):
 
     if included_ids:  # include these, please
         if f is None:
-            f = Ids(values=included_ids)
+            f = Terms(pk=included_ids)
         else:
-            f |= Ids(values=included_ids)
+            f |= Terms(pk=included_ids)
 
     if excluded_ids:  # exclude these
         if f is None:
             f = MatchAll()
 
-        f &= ~Ids(values=excluded_ids)
+        f &= ~Terms(pk=excluded_ids)
     return f
 
 

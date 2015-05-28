@@ -208,6 +208,7 @@ class Content(PolymorphicModel, Indexable):
         )
 
     class Mapping:
+        pk = field.Integer()
         title = field.String(analyzer="snowball", _boost=2.0)
         slug = field.String(index="not_analyzed")
         status = field.String(index="not_analyzed")
