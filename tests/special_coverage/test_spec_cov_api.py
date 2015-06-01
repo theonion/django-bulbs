@@ -29,7 +29,6 @@ class SpecialCoverageApiTestCase(BaseAPITestCase):
             slug="jackz-linkz-coveragez",
             description="Stuff about jerky.",
             query={},
-            videos=[]
         )
 
         endpoint = reverse(
@@ -37,8 +36,11 @@ class SpecialCoverageApiTestCase(BaseAPITestCase):
             kwargs={"pk": special_coverage.id})
         response = self.client.get(endpoint)
 
+        response_data = json.loads(response.content)
+
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data["id"], special_coverage.id)
+        self.assertEqual(response_data["id"], special_coverage.id)
+        self.assertTrue(isinstance(response_data["videos"], list))
 
     def test_special_coverage_detail_permissions(self):
         """Ensure there is no unauthorized access to special coverage cms endpoints."""
