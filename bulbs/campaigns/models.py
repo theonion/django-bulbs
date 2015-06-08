@@ -2,8 +2,12 @@ from django.db import models
 
 from djbetty import ImageField
 
+from djes.models import Indexable
 
-class Campaign(models.Model):
+from bulbs.content.models import ElasticsearchImageField
+
+
+class Campaign(Indexable):
 
     sponsor_name = models.CharField(max_length=255)
     sponsor_logo = ImageField(null=True, blank=True)
@@ -12,6 +16,9 @@ class Campaign(models.Model):
     end_date = models.DateTimeField(null=True, blank=True)
     campaign_label = models.CharField(max_length=255)
     impression_goal = models.IntegerField(null=True, blank=True)
+
+    class Mapping:
+        sponsor_logo = ElasticsearchImageField()
 
 
 class CampaignPixel(models.Model):

@@ -8,6 +8,7 @@ from django.test.client import Client
 from django.utils import timezone
 
 from bulbs.campaigns.models import Campaign, CampaignPixel
+from bulbs.utils.test import BaseIndexableTestCase
 
 
 START_DATE = timezone.now() - timedelta(days=5)
@@ -22,9 +23,10 @@ def get_drf_iso(value):
     return value
 
 
-class CampaignApiCase(TestCase):
+class CampaignApiCase(BaseIndexableTestCase):
 
     def setUp(self):
+        super(CampaignApiCase, self).setUp()
 
         User = get_user_model()
         admin = User.objects.create_user("admin", "tech@theonion.com", "secret")

@@ -433,6 +433,8 @@ class CustomSearchFilterTests(BaseCustomSearchFilterTests):
     def check_filtered_count(self, query, expected_count):
         qs = custom_search_model(Content, query, field_map=self.field_map)
         self.assertEqual(qs.count(), expected_count)
+        results = qs.execute()
+        self.assertEqual(len(results), expected_count)
 
     def test_preview_counts_correct(self):
         for s, count in self.preview_expectations:
