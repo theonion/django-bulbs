@@ -21,6 +21,14 @@ class Campaign(Indexable):
         sponsor_logo = ElasticsearchImageField()
 
 
+    @property
+    def pixel_dict(self):
+        data = {}
+        for pixel in self.pixels.all():
+            data[pixel.get_pixel_type_display()] = pixel.url
+        return data
+
+
 class CampaignPixel(models.Model):
 
     LOGO = 0
