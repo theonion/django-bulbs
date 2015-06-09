@@ -30,14 +30,17 @@ class Campaign(Indexable):
 
 
 class CampaignPixel(models.Model):
-
-    LOGO = 0
-    HOMEPAGE = 1
+    """Right now, there are two types of pixels, "Listing" and "Detail". The
+    intention here is that the "Listing" pixel is fired anywhere a sponsor's
+    logo shows up on a listing page, or a sidebar. The "Detail" pixel is to 
+    be fired only when viewing a piece of content connected to that campaign"""
+    LISTING = 0
+    DETAIL = 1
     PIXEL_TYPES = (
-        (LOGO, 'Logo'),
-        (HOMEPAGE, 'Homepage'),
+        (LISTING, 'Listing'),
+        (DETAIL, 'Detail'),
     )
 
     campaign = models.ForeignKey(Campaign, related_name='pixels')
     url = models.URLField()
-    pixel_type = models.IntegerField(choices=PIXEL_TYPES, default=LOGO)
+    pixel_type = models.IntegerField(choices=PIXEL_TYPES, default=LISTING)

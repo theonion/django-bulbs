@@ -41,10 +41,10 @@ class CampaignApiCase(BaseIndexableTestCase):
                                            campaign_label="Label")
         pixel = CampaignPixel.objects.create(url="http://example.com/1",
                                              campaign=campaign,
-                                             pixel_type=CampaignPixel.LOGO)
+                                             pixel_type=CampaignPixel.LISTING)
         homepage_pixel = CampaignPixel.objects.create(url="http://example.com/2",
                                                       campaign=campaign,
-                                                      pixel_type=CampaignPixel.HOMEPAGE)
+                                                      pixel_type=CampaignPixel.DETAIL)
 
         campaign_detail_endpoint = reverse("campaign-detail", kwargs=dict(pk=campaign.pk))
         response = self.client.get(campaign_detail_endpoint, content_type="application/json")
@@ -57,13 +57,13 @@ class CampaignApiCase(BaseIndexableTestCase):
         self.assertEqual(data["pixels"][0],
                          {"id": pixel.id,
                           "url": "http://example.com/1",
-                          "pixel_type": "Logo"},
+                          "pixel_type": "Listing"},
                          )
         self.assertEqual(data["pixels"][1],
                         {
                           "id": homepage_pixel.id,
                           "url": "http://example.com/2",
-                          "pixel_type": "Homepage",
+                          "pixel_type": "Detail",
                         })
 
     def test_create_campaign(self):
@@ -76,7 +76,7 @@ class CampaignApiCase(BaseIndexableTestCase):
             "campaign_label": "Test Label",
             "impression_goal": 1000,
             "pixels": [{"url": "http://example.com/pixel/1",
-                        "pixel_type": "Logo"}],
+                        "pixel_type": "Listing"}],
         }
 
         campaign_detail_endpoint = reverse("campaign-list")
@@ -104,7 +104,7 @@ class CampaignApiCase(BaseIndexableTestCase):
             "end_date": get_drf_iso(END_DATE),
             "pixels": [{"id": pixel.id,
                         "url": "http://example.com/pixel/1",
-                        "pixel_type": "Logo"}],
+                        "pixel_type": "Listing"}],
         }
 
     def test_update_campaign(self):
@@ -121,7 +121,7 @@ class CampaignApiCase(BaseIndexableTestCase):
             "campaign_label": "Test Label",
             "impression_goal": 1000,
             "pixels": [{"url": "http://example.com/pixel/1",
-                        "pixel_type": "Logo"}],
+                        "pixel_type": "Listing"}],
         }
 
         campaign_detail_endpoint = reverse("campaign-detail", kwargs=dict(pk=campaign.pk))
@@ -148,7 +148,7 @@ class CampaignApiCase(BaseIndexableTestCase):
                           "end_date": get_drf_iso(END_DATE),
                           "pixels": [{"id": pixel.id,
                                       "url": "http://example.com/pixel/1",
-                                      "pixel_type": "Logo"}],
+                                      "pixel_type": "Listing"}],
                           },
                          response.data)
 
@@ -157,7 +157,7 @@ class CampaignApiCase(BaseIndexableTestCase):
                                            campaign_label="Original Label")
         CampaignPixel.objects.create(url="http://example.com/pixel/1",
                                      campaign=campaign,
-                                     pixel_type=CampaignPixel.LOGO)
+                                     pixel_type=CampaignPixel.LISTING)
 
         data = {
             "id": campaign.id,

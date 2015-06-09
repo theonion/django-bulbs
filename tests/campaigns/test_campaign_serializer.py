@@ -9,7 +9,7 @@ class PixelTypeFieldCase(TestCase):
         # TODO: top-level import causes Travis test to fail
         from bulbs.campaigns.serializers import PixelTypeField
         field = PixelTypeField()
-        self.assertEqual(CampaignPixel.LOGO, field.to_internal_value('Logo'))
+        self.assertEqual(CampaignPixel.LISTING, field.to_internal_value('Listing'))
         with self.assertRaises(KeyError):
             field.to_internal_value(None)
 
@@ -17,6 +17,6 @@ class PixelTypeFieldCase(TestCase):
         # TODO: top-level import causes Travis test to fail
         from bulbs.campaigns.serializers import PixelTypeField
         field = PixelTypeField()
-        self.assertEqual('Logo', field.to_representation(CampaignPixel.LOGO))
+        self.assertEqual('Listing', field.to_representation(CampaignPixel.LISTING))
         with self.assertRaises(KeyError):
             field.to_representation(None)

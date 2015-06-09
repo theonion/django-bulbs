@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='campaignpixel',
             name='pixel_type',
-            field=models.IntegerField(default=0, choices=[(0, b'Logo'), (1, b'Homepage')]),
+            field=models.IntegerField(default=0, choices=[(0, b'Listing'), (1, b'Detail')]),
         ),
     ]
