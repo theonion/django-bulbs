@@ -196,3 +196,7 @@ class PolyContentTestCase(BaseIndexableTestCase):
         results = Tag.search_objects.search().query({"match": {"name": "Beeftank"}})
         assert results.count() == 1
         assert isinstance(results[0], Tag)
+
+    def test_tag_cache_count(self):
+        tags = Tag.objects.all()
+        assert tags.first().count() == 6
