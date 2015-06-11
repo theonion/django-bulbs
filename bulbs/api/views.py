@@ -261,7 +261,7 @@ class TagViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         queryset = Tag.search_objects.search()
         if "search" in self.request.REQUEST:
-            query_string = self.request.REQUEST["search"]
+            query_string = self.request.REQUEST["search"].lower()
             queryset = queryset.query(Q("match", **{"name.autocomplete": query_string}) | Q("prefix", name=query_string))
         return queryset
 
@@ -355,7 +355,7 @@ class FeatureTypeViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         queryset = FeatureType.search_objects.search()
         if "search" in self.request.REQUEST:
-            query_string = self.request.REQUEST["search"]
+            query_string = self.request.REQUEST["search"].lower()
             queryset = queryset.query(Q("match", **{"name.autocomplete": query_string}) | Q("prefix", name=query_string))
         return queryset
 

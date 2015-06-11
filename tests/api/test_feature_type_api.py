@@ -23,3 +23,6 @@ class FeatureTypeApiTestCase(BaseAPITestCase):
 
         response = client.get(reverse("feature-type-list"), {"search": "blec"}, content_type="application/json")
         self.assertEqual(len(response.data), 1)
+
+        response = client.get(reverse("feature-type-list"), {"search": "Blemish"}, content_type="application/json")
+        self.assertEqual(len(response.data), 1)
