@@ -40,7 +40,7 @@ class TagTestCase(BaseIndexableTestCase):
         self.assertEqual(response.data.get("count", 0), 4)
 
         response = client.get(reverse("tag-list"), {"search": "bler"}, content_type="application/json")
-        self.assertEqual(response.data.get("count", 0), 1)
+        self.assertEqual(response.data["results"][0]["name"], "Blergh")
 
         response = client.get(reverse("tag-list"), {"search": "Blemish"}, content_type="application/json")
-        self.assertEqual(response.data.get("count", 0), 1)
+        self.assertEqual(response.data["results"][0]["name"], "Blemish")

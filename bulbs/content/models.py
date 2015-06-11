@@ -45,7 +45,7 @@ class Tag(PolymorphicModel, Indexable):
     slug = models.SlugField(unique=True)
 
     class Mapping:
-        name = field.String(analyzer="autocomplete")
+        name = field.String(index="not_analyzed", fields={"autocomplete": field.String(analyzer="autocomplete")})
 
     search_objects = TagManager()
 
@@ -90,7 +90,7 @@ class FeatureType(Indexable):
     slug = models.SlugField(unique=True)
 
     class Mapping:
-        name = field.String(analyzer="autocomplete")
+        name = field.String(index="not_analyzed", fields={"autocomplete": field.String(analyzer="autocomplete")})
 
     def __unicode__(self):
         """unicode friendly name

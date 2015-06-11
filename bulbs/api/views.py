@@ -10,6 +10,7 @@ from djes.apps import indexable_registry
 
 import elasticsearch
 from elasticsearch_dsl.query import Q
+from elasticsearch_dsl.filter import F
 
 from rest_framework import (
     filters,
@@ -262,7 +263,7 @@ class TagViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
         queryset = Tag.search_objects.search()
         if "search" in self.request.REQUEST:
             query_string = self.request.REQUEST["search"].lower()
-            queryset = queryset.query(Q("match", **{"name.autocomplete": query_string}) | Q("prefix", name=query_string))
+            queryset = queryset.query(Q("match", **{"name.autocomplete": query_string}) | Q("match", name=query_string))
         return queryset
 
 class UserViewSet(UncachedResponse, viewsets.ModelViewSet):
@@ -351,12 +352,13 @@ class FeatureTypeViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
 
     model = FeatureType
     serializer_class = FeatureTypeSerializer
+    paginate_by = 50
 
     def get_queryset(self):
         queryset = FeatureType.search_objects.search()
         if "search" in self.request.REQUEST:
             query_string = self.request.REQUEST["search"].lower()
-            queryset = queryset.query(Q("match", **{"name.autocomplete": query_string}) | Q("prefix", name=query_string))
+            queryset = queryset.query(Q("match", **{"name.autocomplete": query_string}) | Q("match", name=query_string))
         return queryset
 
 
