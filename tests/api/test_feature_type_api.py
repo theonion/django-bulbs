@@ -13,6 +13,7 @@ class FeatureTypeApiTestCase(BaseAPITestCase):
         FeatureType.objects.create(name="Blergh")
         FeatureType.objects.create(name="Blech")
         FeatureType.objects.create(name="Blemish")
+        FeatureType.search_objects.refresh()
 
         client = Client()
         client.login(username="admin", password="secret")

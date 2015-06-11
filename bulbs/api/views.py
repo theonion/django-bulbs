@@ -9,6 +9,7 @@ from django.utils.dateparse import parse_datetime
 from djes.apps import indexable_registry
 
 import elasticsearch
+from elasticsearch_dsl.query import Q
 
 from rest_framework import (
     filters,
@@ -254,30 +255,15 @@ class TagViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
     """
 
     model = Tag
-    queryset = Tag.objects.all()
     serializer_class = TagSerializer
-    search_fields = ("name",)
     paginate_by = 50
 
-    def list(self, request, *args, **kwargs):
-        """Modified list view to driving listing from ES"""
-
+    def get_queryset(self):
         queryset = Tag.search_objects.search()
-        if "search" in request.REQUEST:
-            queryset = queryset.query(
-                "match_phrase", name=request.REQUEST["search"]
-            ).query(
-                "term", name=request.REQUEST["search"]
-            )
-
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-
+        if "search" in self.request.REQUEST:
+            query_string = self.request.REQUEST["search"]
+            queryset = queryset.query(Q("match", **{"name.autocomplete": query_string}) | Q("prefix", name=query_string))
+        return queryset
 
 class UserViewSet(UncachedResponse, viewsets.ModelViewSet):
     """
@@ -305,7 +291,7 @@ class LogEntryViewSet(UncachedResponse, viewsets.ModelViewSet):
 
         :return: an instance of `django.db.models.QuerySet`
         """
-        qs = super(LogEntryViewSet, self).get_queryset()
+        qs = LogEntry.objects.all()
         content_id = self.request.QUERY_PARAMS.get("content", None)
         if content_id:
             qs = qs.filter(object_id=content_id)
@@ -365,9 +351,13 @@ class FeatureTypeViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
 
     model = FeatureType
     serializer_class = FeatureTypeSerializer
-    filter_backends = (filters.SearchFilter, filters.OrderingFilter)
-    search_fields = ("name", )
-    queryset = FeatureType.objects.all()
+
+    def get_queryset(self):
+        queryset = FeatureType.search_objects.search()
+        if "search" in self.request.REQUEST:
+            query_string = self.request.REQUEST["search"]
+            queryset = queryset.query(Q("match", **{"name.autocomplete": query_string}) | Q("prefix", name=query_string))
+        return queryset
 
 
 class MeViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
