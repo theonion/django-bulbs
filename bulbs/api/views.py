@@ -263,7 +263,7 @@ class TagViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
         queryset = Tag.search_objects.search()
         if "search" in self.request.REQUEST:
             query_string = self.request.REQUEST["search"].lower()
-            queryset = queryset.query(Q("match", **{"name.autocomplete": query_string}) | Q("match", name=query_string))
+            queryset = queryset.query(Q("match", name=query_string) | Q("match", **{"name.raw": query_string}))
         return queryset
 
 class UserViewSet(UncachedResponse, viewsets.ModelViewSet):
@@ -358,7 +358,7 @@ class FeatureTypeViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
         queryset = FeatureType.search_objects.search()
         if "search" in self.request.REQUEST:
             query_string = self.request.REQUEST["search"].lower()
-            queryset = queryset.query(Q("match", **{"name.autocomplete": query_string}) | Q("match", name=query_string))
+            queryset = queryset.query(Q("match", name=query_string) | Q("match", **{"name.raw": query_string}))
         return queryset
 
 
