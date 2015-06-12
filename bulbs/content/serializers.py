@@ -50,7 +50,7 @@ class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
 
-    def to_native(self, obj):
+    def to_representation(self, obj):
         return {
             "id": obj.pk,
             "name": obj.name,
