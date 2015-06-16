@@ -1,6 +1,8 @@
 from django.db import models
 from django.template.defaultfilters import slugify
 
+from bulbs.content.custom_search import custom_search_model
+from bulbs.content.models import Content
 from djbetty import ImageField
 from json_field import JSONField
 
@@ -25,3 +27,23 @@ class Section(models.Model):
             self.slug = slugify(self.name)
 
         return super(Section, self).save(*args, **kwargs)
+
+    # def _save_percolator(self):
+    #     """saves the query field as an elasticsearch percolator
+    #     """
+    #     index = Content.search_objects.mapping.index
+    #     query_filter = self.get_content.
+
+    def get_content(self):
+        """performs es search and gets content objects
+        """
+        if "query" in self.query:
+            q = self.query["query"]
+        else:
+            q = self.query
+        search = custom_search_model(Content, q, field_map={
+            # "feature-type": "feature_type.slug",
+            "tag": "tags.slug",
+            "content-type": "_type",
+            })
+        return search
