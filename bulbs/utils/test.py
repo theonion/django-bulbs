@@ -66,16 +66,16 @@ class BaseIndexableTestCase(TestCase):
         self.indexes = get_indexes()
 
         for index in list(self.indexes):
-            self.es.indices.delete_alias("{}_*".format(index), "_all", ignore=[404])
-            self.es.indices.delete("{}_*".format(index), ignore=[404])
+            self.es.indices.delete_alias("{}*".format(index), "_all", ignore=[404])
+            self.es.indices.delete("{}*".format(index), ignore=[404])
 
         for index, body in self.indexes.items():
             sync_index(index, body)
 
     def tearDown(self):
         for index in list(self.indexes):
-            self.es.indices.delete_alias("{}_*".format(index), "_all", ignore=[404])
-            self.es.indices.delete("{}_*".format(index), ignore=[404])
+            self.es.indices.delete_alias("{}*".format(index), "_all", ignore=[404])
+            self.es.indices.delete("{}*".format(index), ignore=[404])
 
 
 class BaseAPITestCase(BaseIndexableTestCase):
