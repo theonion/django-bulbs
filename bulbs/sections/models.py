@@ -26,13 +26,16 @@ class Section(models.Model):
         if not self.slug:
             self.slug = slugify(self.name)
 
+        # if self.query and self.query != {}:
+        #     self._save_percolator()
+
         return super(Section, self).save(*args, **kwargs)
 
     # def _save_percolator(self):
     #     """saves the query field as an elasticsearch percolator
     #     """
     #     index = Content.search_objects.mapping.index
-    #     query_filter = self.get_content.
+    #     query_filter = self.get_content().to_dict()
 
     def get_content(self):
         """performs es search and gets content objects

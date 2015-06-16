@@ -27,6 +27,10 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
                 tags=[1,],
             ),
             dict(
+                title="Jebbin it",
+                tags=[1,],
+            ),
+            dict(
                 title="Derrick Rose found healthy",
                 tags=[2,],
             ),
@@ -37,6 +41,10 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
             dict(
                 title="Exelon goes green",
                 tags=[4,],
+            ),
+            dict(
+                title="Koch Brothers fund area man's rock opera",
+                tags=[3, 4]
             ),
             dict(
                 title="Shania Twain unimpressed",
@@ -51,7 +59,7 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
         publish_offset = timezone.timedelta(hours=1)
         published = timezone.now() + timezone.timedelta(days=5)
         content_list = []
-        queries = []
+        queries = {}
         for data in content_data:
             data["published"] = published
             data["tags"] = [tags[tag_index] for tag_index in data.pop("tags")]
@@ -60,35 +68,40 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
             content.index()
             published -= publish_offset
 
-            query = {
-                'label': data['tags'][0].name,
-                'query': {
-                    'groups': [
-                        {
-                            'conditions': [
-                                {
-                                    'type': 'all',
-                                    'field': 'tag',
-                                    'values': [
-                                        {
-                                            'value': data['tags'][0].slug,
-                                            'label': data['tags'][0].slug
-                                        }
-                                    ]
-                                }         
-                            ]
-                        },
-                    ]
+            for t in data['tags']:
+                query = {
+                    'label': t.name,
+                    'query': {
+                        'groups': [
+                            {
+                                'conditions': [
+                                    {
+                                        'type': 'all',
+                                        'field': 'tag',
+                                        'values': [
+                                            {
+                                                'value': t.slug,
+                                                'label': t.slug
+                                            }
+                                        ]
+                                    }         
+                                ]
+                            },
+                        ]
+                    }
                 }
-            }
-            queries.append(query)
+                if query['label'] in queries:
+                    queries[query['label']]['count'] += 1
+                else:
+                    queries[query['label']] = {
+                        'query': query,
+                        'count': 1
+                    }
 
+        self.queries = queries
         self.content_list = content_list
         self.tags = tags
         Content.search_objects.refresh()
-
-        search_list = [(q, 1) for q in queries]
-        self.search_expectations = tuple(search_list)
 
 
 class SectionQueryTests(BaseCustomSearchFilterTests):
@@ -97,7 +110,7 @@ class SectionQueryTests(BaseCustomSearchFilterTests):
         super(SectionQueryTests, self).setUp()
 
     def test_get_content(self):
-        query, count = self.search_expectations[1]
+        query = self.queries['Video']['query']
         section = Section.objects.create(
             name="Video",
             description="meh",
@@ -105,8 +118,85 @@ class SectionQueryTests(BaseCustomSearchFilterTests):
         
         )
         res = section.get_content()
-        self.assertEqual(res.count(), count)
+        self.assertEqual(res.count(), 1)
         tag_name = query['label']
         tag = Tag.objects.get(name=tag_name)
         self.assertIn(tag, res[0].tags.all())
+
+        query = self.queries['Politics']['query']
+        section = Section.objects.create(
+            name="Politics",
+            description="meh",
+            query = query
         
+        )
+        res = section.get_content()
+        self.assertEqual(res.count(), 2)
+        tag_name = query['label']
+        tag = Tag.objects.get(name=tag_name)
+        self.assertIn(tag, res[0].tags.all())
+
+        query = self.queries['Sports']['query']
+        section = Section.objects.create(
+            name="Sports",
+            description="meh",
+            query = query
+        
+        )
+        res = section.get_content()
+        self.assertEqual(res.count(), 1)
+        tag_name = query['label']
+        tag = Tag.objects.get(name=tag_name)
+        self.assertIn(tag, res[0].tags.all())
+
+        query = self.queries['Local']['query']
+        section = Section.objects.create(
+            name="Local",
+            description="meh",
+            query = query
+        
+        )
+        res = section.get_content()
+        self.assertEqual(res.count(), 2)
+        tag_name = query['label']
+        tag = Tag.objects.get(name=tag_name)
+        self.assertIn(tag, res[0].tags.all())
+
+        query = self.queries['Business']['query']
+        section = Section.objects.create(
+            name="Business",
+            description="meh",
+            query = query
+        
+        )
+        res = section.get_content()
+        self.assertEqual(res.count(), 2)
+        tag_name = query['label']
+        tag = Tag.objects.get(name=tag_name)
+        self.assertIn(tag, res[0].tags.all())
+
+        query = self.queries['Entertainment']['query']
+        section = Section.objects.create(
+            name="Entertainment",
+            description="meh",
+            query = query
+        
+        )
+        res = section.get_content()
+        self.assertEqual(res.count(), 1)
+        tag_name = query['label']
+        tag = Tag.objects.get(name=tag_name)
+        self.assertIn(tag, res[0].tags.all())
+
+        query = self.queries['Science & Technology']['query']
+        section = Section.objects.create(
+            name="Science & Technology",
+            description="meh",
+            query = query
+        
+        )
+        res = section.get_content()
+        self.assertEqual(res.count(), 1)
+        tag_name = query['label']
+        tag = Tag.objects.get(name=tag_name)
+        self.assertIn(tag, res[0].tags.all())
