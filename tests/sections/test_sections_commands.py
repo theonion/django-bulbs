@@ -65,14 +65,6 @@ class CommandsTestCase(BaseIndexableTestCase):
         call_command('index_sections')
         query_sections = Section.objects.exclude(id__in=db_empty_section_ids)
 
-        section = query_sections.first()
-
-        # response = self.es.get(
-        #     index=Content.search_objects.mapping.index,
-        #     doc_type='.percolator',
-        #     id=section.es_id
-        # )
-
         for section in query_sections:
             response = self.es.get(
                 index=Content.search_objects.mapping.index,
