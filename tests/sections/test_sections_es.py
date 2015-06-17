@@ -39,3 +39,29 @@ class SpecialCoverageQueryTests(BaseIndexableTestCase):
         )
         assert response["_source"]["query"] == section.get_content().to_dict()["query"]
 
+        # Update the query
+        sports_condition = {
+            "values": [{
+                "value": "sports",
+                "label": "Sports",
+            }],
+            "type": "all",
+            "field": "tag",
+        }
+        section.query = {
+            "label": "Sports",
+            "query": {
+                "groups": [{
+                    "conditions": [sports_condition],
+                }]
+            },
+        }
+        section._save_percolator()
+
+        response = self.es.get(
+            index=Content.search_objects.mapping.index,
+            doc_type=".percolator",
+            id="politics.777"
+        )
+        assert response["_source"]["query"] == section.get_content().to_dict()["query"]
+
