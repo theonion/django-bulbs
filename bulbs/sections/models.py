@@ -76,7 +76,7 @@ class Section(models.Model):
 
     @property
     def es_id(self):
-        return "{}.{}".format(self.slug, self.id)
+        return "section.{}".format(self.id)
 
     @property
     def contents(self):
