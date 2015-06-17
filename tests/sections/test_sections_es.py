@@ -12,7 +12,7 @@ class SpecialCoverageQueryTests(BaseIndexableTestCase):
 
     def test_es_id(self):
         section = Section.objects.create(name='Politics', id=666)
-        assert section.es_id == "politics.666"
+        assert section.es_id == "section.666"
 
     def test_save_percolator(self):
         politics_condition = {
@@ -36,7 +36,7 @@ class SpecialCoverageQueryTests(BaseIndexableTestCase):
         response = self.es.get(
             index=Content.search_objects.mapping.index,
             doc_type=".percolator",
-            id="politics.777",
+            id="section.777",
         )
         assert response["_source"]["query"] == section.get_content().to_dict()["query"]
 
@@ -62,7 +62,7 @@ class SpecialCoverageQueryTests(BaseIndexableTestCase):
         response = self.es.get(
             index=Content.search_objects.mapping.index,
             doc_type=".percolator",
-            id="politics.777"
+            id="section.777"
         )
         assert response["_source"]["query"] == section.get_content().to_dict()["query"]
 
@@ -71,7 +71,7 @@ class SpecialCoverageQueryTests(BaseIndexableTestCase):
         self.es.index(
             index=Content.search_objects.mapping.index,
             doc_type=".percolator",
-            id="business.999",
+            id="section.999",
             body={
                 "query": {
                     "filtered": {
@@ -85,10 +85,10 @@ class SpecialCoverageQueryTests(BaseIndexableTestCase):
         response = self.es.get(
             index=Content.search_objects.mapping.index,
             doc_type=".percolator",
-            id="business.999"
+            id="section.999"
         )
         assert isinstance(response, dict)
-        assert response["_id"] == "business.999"
+        assert response["_id"] == "section.999"
 
         section.delete()
 
@@ -96,7 +96,7 @@ class SpecialCoverageQueryTests(BaseIndexableTestCase):
             response = self.es.get(
                 index=Content.search_objects.mapping.index,
                 doc_type=".percolator",
-                id="business.999"
+                id="section.999"
             )
 
 
