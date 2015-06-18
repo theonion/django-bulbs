@@ -342,3 +342,25 @@ class SpecialCoverageApiTestCase(BaseAPITestCase):
         self.assertEqual(resp.data["slug"], special_coverage.slug)
         self.assertEqual(resp.data["description"], special_coverage.description)
         self.assertIsNone(resp.data["campaign"])
+
+    def test_active_and_promoted_lowercase_boolean(self):
+        """Tests that filter backend can correctly evaluate 'true' and 'false'."""
+
+        special_coverage_1 = SpecialCoverage.objects.create(name="Promoted",
+                                                            active=True,
+                                                            promoted=True)
+        special_coverage_2 = SpecialCoverage.objects.create(name="Not active or promoted",
+                                                            active=False,
+                                                            promoted=False)
+
+        response = self.client.get(reverse("special-coverage-list"),
+                                   data={"active": "true", "promoted": "true"})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data["results"]), 1)
+        self.assertEqual(response.data["results"][0]["id"], special_coverage_1.pk)
+
+        response = self.client.get(reverse("special-coverage-list"),
+                                   data={"active": "false", "promoted": "false"})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data["results"]), 1)
+        self.assertEqual(response.data["results"][0]["id"], special_coverage_2.pk)
