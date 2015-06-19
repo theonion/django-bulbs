@@ -23,6 +23,8 @@ class SpecialCoverageViewSet(viewsets.ModelViewSet):
     )
     ordering_fields = (
         "name",
+        "active",
+        "promoted",
         "campaign__campaign_label",
         "campaign__sponsor_name"
     )

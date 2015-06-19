@@ -279,6 +279,31 @@ class SpecialCoverageApiTestCase(BaseAPITestCase):
         """Test that special coverage search results can be ordered by their status."""
 
         special_coverage_1 = SpecialCoverage.objects.create(name="Promoted",
+                                                            active=False,
+                                                            promoted=False)
+        special_coverage_2 = SpecialCoverage.objects.create(name="Active but not promoted",
+                                                            active=False,
+                                                            promoted=True)
+        special_coverage_3 = SpecialCoverage.objects.create(name="Not active",
+                                                            active=True,
+                                                            promoted=False)
+        special_coverage_4 = SpecialCoverage.objects.create(name="Not really a valid state",
+                                                            active=True,
+                                                            promoted=True)
+
+        response = self.client.get(reverse("special-coverage-list"),
+                                   data={"ordering": "active,promoted"})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["results"][0]["id"], special_coverage_1.pk)
+        self.assertEqual(response.data["results"][1]["id"], special_coverage_2.pk)
+        self.assertEqual(response.data["results"][2]["id"], special_coverage_3.pk)
+        self.assertEqual(response.data["results"][3]["id"], special_coverage_4.pk)
+
+    def test_special_coverage_ordering_by_status_reverse(self):
+        """Test that special coverage search results can be ordered by their status
+        in reverse."""
+
+        special_coverage_1 = SpecialCoverage.objects.create(name="Promoted",
                                                             active=True,
                                                             promoted=True)
         special_coverage_2 = SpecialCoverage.objects.create(name="Active but not promoted",
@@ -286,13 +311,13 @@ class SpecialCoverageApiTestCase(BaseAPITestCase):
                                                             promoted=False)
         special_coverage_3 = SpecialCoverage.objects.create(name="Not active",
                                                             active=False,
-                                                            promoted=False)
+                                                            promoted=True)
         special_coverage_4 = SpecialCoverage.objects.create(name="Not really a valid state",
                                                             active=False,
-                                                            promoted=True)
+                                                            promoted=False)
 
         response = self.client.get(reverse("special-coverage-list"),
-                                   data={"ordering": "active,promoted"})
+                                   data={"ordering": "-active,-promoted"})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["results"][0]["id"], special_coverage_1.pk)
         self.assertEqual(response.data["results"][1]["id"], special_coverage_2.pk)
