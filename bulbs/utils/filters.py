@@ -17,10 +17,10 @@ class CaseInsensitiveBooleanFilter(filters.BaseFilterBackend):
         boolean_filters = {}
         for field in boolean_fields:
             if field in request.QUERY_PARAMS:
-                val = request.QUERY_PARAMS[field]
-                if val in ['true', 'True']:
+                val = request.QUERY_PARAMS[field].lower()
+                if val == 'true':
                     boolean_filters[field] = True
-                elif val in ['false', 'False']:
+                elif val == 'false':
                     boolean_filters[field] = False
 
         if len(boolean_filters) > 0:
