@@ -3,7 +3,6 @@ import json
 
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
-from django.test import TestCase
 from django.test.client import Client
 from django.utils import timezone
 
@@ -315,7 +314,9 @@ class CampaignApiCase(BaseIndexableTestCase):
         self.assertEqual(response.data["results"][2]["id"], campaign_2.pk)
 
     def test_campaign_filter_by_active(self):
-        """Test that we can filter campaigns by start date/end date."""
+        """Test that we can filter campaigns by active, which is equivalent to
+        start_date <= now < end_date."""
+
         now = datetime.now()
 
         campaign_1 = Campaign.objects.create(
@@ -323,27 +324,54 @@ class CampaignApiCase(BaseIndexableTestCase):
             start_date=now - timedelta(days=2),
             end_date=now + timedelta(days=2)
         )
-        _ = Campaign.objects.create(
+        Campaign.objects.create(
             campaign_label="abc3",
             start_date=now - timedelta(days=20),
             end_date=now - timedelta(days=15)
         )
-        _ = Campaign.objects.create(
+        Campaign.objects.create(
             campaign_label="abc2",
             start_date=now + timedelta(days=20),
             end_date=now + timedelta(days=25)
         )
 
-        url = reverse("campaign-list")
-        data = {
-            "start_date": now.strftime("%Y-%m-%d"),
-            "end_date": now.strftime("%Y-%m-%d"),
-        }
-        response = self.client.get(url, data=data)
+        response = self.client.get(reverse("campaign-list"), data={"active": "true"})
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data["results"]), 1)
         self.assertEqual(response.data["results"][0]["id"], campaign_1.pk)
+
+    def test_campaign_filter_by_inactive(self):
+        """Test that we can filter campaigns by inactive, which is equivalent to
+        now < start_date || now >= end_date."""
+
+        now = datetime.now()
+
+        # active, within dates
+        Campaign.objects.create(
+            campaign_label="abc1",
+            start_date=now - timedelta(days=2),
+            end_date=now + timedelta(days=2)
+        )
+        # inactive, start_date not passed yet
+        campaign_1 = Campaign.objects.create(
+            campaign_label="abc3",
+            start_date=now - timedelta(days=20),
+            end_date=now - timedelta(days=15)
+        )
+        # inactive, end_date already passed
+        campaign_2 = Campaign.objects.create(
+            campaign_label="abc2",
+            start_date=now + timedelta(days=20),
+            end_date=now + timedelta(days=25)
+        )
+
+        response = self.client.get(reverse("campaign-list"), data={"active": "false"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data["results"]), 2)
+        self.assertEqual(response.data["results"][0]["id"], campaign_1.pk)
+        self.assertEqual(response.data["results"][1]["id"], campaign_2.pk)
 
     def test_campaign_detail_permissions(self):
         """Ensure there is no unauthorized access to campaign cms endpoints."""

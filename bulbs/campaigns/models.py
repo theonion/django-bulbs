@@ -20,7 +20,6 @@ class Campaign(Indexable):
     class Mapping:
         sponsor_logo = ElasticsearchImageField()
 
-
     @property
     def pixel_dict(self):
         data = {}
@@ -32,8 +31,9 @@ class Campaign(Indexable):
 class CampaignPixel(models.Model):
     """Right now, there are two types of pixels, "Listing" and "Detail". The
     intention here is that the "Listing" pixel is fired anywhere a sponsor's
-    logo shows up on a listing page, or a sidebar. The "Detail" pixel is to 
+    logo shows up on a listing page, or a sidebar. The "Detail" pixel is to
     be fired only when viewing a piece of content connected to that campaign"""
+
     LISTING = 0
     DETAIL = 1
     PIXEL_TYPES = (
