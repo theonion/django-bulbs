@@ -25,6 +25,9 @@ class ContributionApiTestCase(BaseAPITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 2)
 
+        payment_type = response.data[0].get('payment_type', None)
+        self.assertEqual(payment_type, 3)
+
     def test_contributions_list_api(self):
         client = Client()
         client.login(username="admin", password="secret")
@@ -46,6 +49,7 @@ class ContributionApiTestCase(BaseAPITestCase):
         response = client.get(endpoint)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
+        self.assertIsNone(response.data.get('minutes_worked'))
 
     # def test_contributions_list_api(self):
     # client = Client()
