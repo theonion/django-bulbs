@@ -7,14 +7,14 @@ from bulbs.content.models import Content, FeatureType
 # User = get_model(*settings.AUTH_USER_MODEL.split("."))
 
 FLAT_RATE = 0
-FEATURE_TYPE = 1
+FEATURETYPE = 1
 HOURLY = 2
 MANUAL = 3
 OVERRIDE = 4
 
 ROLE_PAYMENT_TYPES = (
     (FLAT_RATE, 'Flat Rate'),
-    (FEATURE_TYPE, 'FeatureType'),
+    (FEATURETYPE, 'FeatureType'),
     (HOURLY, 'Hourly'),
     (MANUAL, 'Manual')
 )
@@ -25,7 +25,7 @@ RATE_PAYMENT_TYPES = ROLE_PAYMENT_TYPES + ((OVERRIDE, 'Override'),)
 class ContributorRole(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
-    payment_type = models.CharField(choices=ROLE_PAYMENT_TYPES, default=MANUAL, max_length=255)
+    payment_type = models.IntegerField(choices=ROLE_PAYMENT_TYPES, default=MANUAL, max_length=255)
 
 
 class Contribution(models.Model):
@@ -36,33 +36,25 @@ class Contribution(models.Model):
     minutes_worked = models.IntegerField(null=True)
 
     def get_rate(self):
-        payment_type = self.get_payment_type()
+        if self.rates.filter(name=OVERRIDE).count() > 0:
+            return self.rates.filter(name=OVERRIDE).first()
 
-        if payment_type == 'Override':
-            return self.rates.filter(name=payment_type).first()
-
-        if payment_type == 'Manual':
+        payment_type = self.role.payment_type
+        if payment_type == MANUAL:
             return self.rates.all().first()
 
-        if payment_type == 'Flat Rate':
-            return self.role.rates.filter(name='Flat Rate').first()
+        if payment_type == FLAT_RATE:
+            return self.role.rates.filter(name=payment_type).first()
 
-        if payment_type == 'FeatureType':
+        if payment_type == FEATURETYPE:
             return self.content.feature_type.rates.all().first()
 
-        if payment_type == 'Hourly':
-            return self.role.rates.filter(name='Hourly').first()
-
-    def get_payment_type(self):
-        if self.rates.filter(name='Override').count() > 0:
-            return 'Override'
-        if not self.role.payment_type.isdigit():
-            return self.role.payment_type
-        return dict((value, label) for value, label in ROLE_PAYMENT_TYPES)[int(self.role.payment_type)]
+        if payment_type == HOURLY:
+            return self.role.rates.filter(name=payment_type).first()
 
 
 class Rate(models.Model):
-    name = models.CharField(choices=RATE_PAYMENT_TYPES, default=MANUAL, max_length=255)
+    name = models.IntegerField(choices=RATE_PAYMENT_TYPES, default=MANUAL, max_length=255)
     updated_on = models.DateTimeField(auto_now=True)
     rate = models.IntegerField()
 

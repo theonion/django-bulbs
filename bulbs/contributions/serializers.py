@@ -10,29 +10,12 @@ from rest_framework import serializers
 from .models import Contribution, ContributorRole, Rate, RATE_PAYMENT_TYPES, ROLE_PAYMENT_TYPES
 
 
-class RolePaymentTypeField(serializers.Field):
+class PaymentTypeField(serializers.Field):
     """
     payment type objects serialized to/from label/identifer
     """
     def to_representation(self, obj):
-        if not isinstance(obj, int) and obj.isdigit():
-            return dict(ROLE_PAYMENT_TYPES)[int(obj)]
-        return dict(ROLE_PAYMENT_TYPES)[obj]
-
-    def to_internal_value(self, data):
-        if isinstance(data, int):
-            return data
-        return dict((label, value) for value, label in ROLE_PAYMENT_TYPES)[data]
-
-
-class RatePaymentTypeField(serializers.Field):
-    """
-    rate object type serialized to/from label/identifier
-    """
-    def to_representation(self, obj):
-        if not isinstance(obj, int) and obj.isdigit():
-            return dict(ROLE_PAYMENT_TYPES)[int(obj)]
-        return dict(ROLE_PAYMENT_TYPES)[obj]
+        return dict(RATE_PAYMENT_TYPES)[obj]
 
     def to_internal_value(self, data):
         if isinstance(data, int):
@@ -42,7 +25,7 @@ class RatePaymentTypeField(serializers.Field):
 
 class RateSerializer(serializers.ModelSerializer):
 
-    name = RatePaymentTypeField()
+    name = PaymentTypeField()
 
     class Meta:
         model = Rate
@@ -51,7 +34,7 @@ class RateSerializer(serializers.ModelSerializer):
 class ContributorRoleSerializer(serializers.ModelSerializer):
 
     rates = RateSerializer(many=True, read_only=False)
-    payment_type = RolePaymentTypeField()
+    payment_type = PaymentTypeField()
 
     class Meta:
         model = ContributorRole
@@ -101,11 +84,7 @@ class ContributionSerializer(serializers.ModelSerializer):
         rate = obj.get_rate()
         if not rate:
             return None
-        return {
-            'id': rate.id,
-            'name': rate.name,
-            'rate': rate.rate,
-        }        
+        return RateSerializer(rate).data
 
 
 class ContributionReportingSerializer(serializers.ModelSerializer):

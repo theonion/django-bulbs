@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
             name='Rate',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('name', models.CharField(default=3, max_length=255, choices=[(0, b'Flat Rate'), (1, b'Feature Type'), (2, b'Hourly'), (3, b'Manual'), (4, b'Override')])),
+                ('name', models.IntegerField(default=3, max_length=255, choices=[(0, b'Flat Rate'), (1, b'FeatureType'), (2, b'Hourly'), (3, b'Manual'), (4, b'Override')])),
                 ('updated_on', models.DateTimeField(auto_now=True)),
                 ('rate', models.IntegerField()),
             ],
@@ -32,7 +32,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='contributorrole',
             name='payment_type',
-            field=models.CharField(default=3, max_length=255, choices=[(0, b'Flat Rate'), (1, b'Feature Type'), (2, b'Hourly'), (3, b'Manual')]),
+            field=models.IntegerField(default=3, max_length=255, choices=[(0, b'Flat Rate'), (1, b'FeatureType'), (2, b'Hourly'), (3, b'Manual')]),
         ),
         migrations.CreateModel(
             name='ContributionRate',

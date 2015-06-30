@@ -5,8 +5,12 @@ from django.test.client import Client
 
 from bulbs.content.models import Content, FeatureType
 from bulbs.contributions.models import (Contribution, ContributorRole, ContributionRate, 
-    ContributorRoleRate, FeatureTypeRate, RATE_PAYMENT_TYPES)
+    ContributorRoleRate, FeatureTypeRate, Rate, RATE_PAYMENT_TYPES)
+from bulbs.contributions.serializers import RateSerializer
 from bulbs.utils.test import BaseAPITestCase, make_content
+
+
+PAYMENT_TYPES = dict((label, value) for value, label in RATE_PAYMENT_TYPES)
 
 
 class ContributionApiTestCase(BaseAPITestCase):
@@ -69,6 +73,63 @@ class ContributionApiTestCase(BaseAPITestCase):
         self.assertEqual(len(response.data), 1)
         self.assertIsNone(response.data[0].get('minutes_worked'))
 
+    def test_rate_serialization(self):
+        content = make_content()
+        editor = self.roles['editor']
+        contribution = Contribution.objects.create(
+            content=content,
+            contributor=self.admin,
+            role=editor
+        )
+        feature = FeatureType.objects.create(name='MyFavorite')
+        content.feature_type = feature
+        content.save()
+
+        regular_rate = Rate.objects.create(name=PAYMENT_TYPES['Manual'], rate=1000)
+        serializer_data = RateSerializer(regular_rate).data
+        self.assertEqual(serializer_data['id'], regular_rate.id)
+        self.assertEqual(serializer_data['rate'], 1000)
+        self.assertEqual(serializer_data['name'], 'Manual')
+        self.assertIsNotNone(serializer_data['updated_on'])
+
+        flat_rate = ContributorRoleRate.objects.create(name=PAYMENT_TYPES['Flat Rate'], rate=555, role=editor)        
+        serializer_data = RateSerializer(flat_rate).data
+        self.assertEqual(serializer_data['id'], flat_rate.id)
+        self.assertEqual(serializer_data['rate'], 555)
+        self.assertEqual(serializer_data['name'], 'Flat Rate')
+        self.assertIsNotNone(serializer_data['updated_on'])
+
+        hourly_rate = ContributorRoleRate.objects.create(name=PAYMENT_TYPES['Hourly'], rate=557, role=editor)
+        serializer_data = RateSerializer(hourly_rate).data
+        self.assertEqual(serializer_data['id'], hourly_rate.id)
+        self.assertEqual(serializer_data['rate'], 557)
+        self.assertEqual(serializer_data['name'], 'Hourly')
+        self.assertIsNotNone(serializer_data['updated_on'])
+
+        manual_rate = ContributionRate.objects.create(
+            name=PAYMENT_TYPES['Manual'], rate=666, contribution=contribution)
+        serializer_data = RateSerializer(manual_rate).data
+        self.assertEqual(serializer_data['id'], manual_rate.id)
+        self.assertEqual(serializer_data['rate'], 666)
+        self.assertEqual(serializer_data['name'], 'Manual')
+        self.assertIsNotNone(serializer_data['updated_on'])
+
+        override_rate = ContributionRate.objects.create(
+            name=PAYMENT_TYPES['Override'], rate=777, contribution=contribution)
+        serializer_data = RateSerializer(override_rate).data
+        self.assertEqual(serializer_data['id'], override_rate.id)
+        self.assertEqual(serializer_data['rate'], 777)
+        self.assertEqual(serializer_data['name'], 'Override')
+        self.assertIsNotNone(serializer_data['updated_on'])
+
+        feature_rate = FeatureTypeRate.objects.create(
+            feature_type=feature, name=PAYMENT_TYPES['FeatureType'], rate=888)
+        serializer_data = RateSerializer(feature_rate).data
+        self.assertEqual(serializer_data['id'], feature_rate.id)
+        self.assertEqual(serializer_data['rate'], 888)
+        self.assertEqual(serializer_data['name'], 'FeatureType')
+        self.assertIsNotNone(serializer_data['updated_on'])
+
     def test_get_contribution_rate(self):
         client = Client()
         client.login(username="admin", password="secret")
@@ -91,54 +152,66 @@ class ContributionApiTestCase(BaseAPITestCase):
         self.assertIsNone(rate)
         
         # Add Flat Rate, should not return
-        flat = ContributorRoleRate.objects.create(name='Flat Rate', rate=1, role=editor)
+        flat = ContributorRoleRate.objects.create(name=PAYMENT_TYPES['Flat Rate'], rate=1, role=editor)
         response = client.get(endpoint)
         rate = response.data[0].get('rate')
         self.assertIsNone(rate)
 
         # Add a Manual rate
-        manual = ContributionRate.objects.create(name='Manual', rate=2, contribution=contribution)
+        manual = ContributionRate.objects.create(name=PAYMENT_TYPES['Manual'], rate=2, contribution=contribution)
         response = client.get(endpoint)
         rate = response.data[0].get('rate')
+        updated = rate.pop('updated_on')
+        self.assertIsNotNone(updated)
         self.assertEqual(rate, {'id': manual.id, 'rate': 2, 'name': 'Manual'})
 
         # change to Flat Rate
-        editor.payment_type = 'Flat Rate'
+        editor.payment_type = PAYMENT_TYPES['Flat Rate']
         editor.save()
         response = client.get(endpoint)
         rate = response.data[0].get('rate')
+        updated = rate.pop('updated_on')
+        self.assertIsNotNone(updated)
         self.assertEqual(rate, {'id': flat.id, 'rate': 1, 'name': 'Flat Rate'})
 
+        # change to FeatureType
         feature = FeatureType.objects.create(name='A Fun Feature For Kids!')
         content.feature_type = feature
         content.save()
-        feature_rate = FeatureTypeRate.objects.create(name='FeatureType', feature_type=feature, rate=50)
+        feature_rate = FeatureTypeRate.objects.create(name=PAYMENT_TYPES['FeatureType'], feature_type=feature, rate=50)
 
-        editor.payment_type = 'FeatureType'
+        editor.payment_type = PAYMENT_TYPES['FeatureType']
         editor.save()
         response = client.get(endpoint)
         rate = response.data[0].get('rate')
+        updated = rate.pop('updated_on')
+        self.assertIsNotNone(updated)
         self.assertEqual(rate, {'id': feature_rate.id, 'rate': 50, 'name': 'FeatureType'})
 
         # change to Hourly
-        editor.payment_type = 'Hourly'
+        editor.payment_type = PAYMENT_TYPES['Hourly']
         editor.save()
-        hourly = ContributorRoleRate.objects.create(name='Hourly', rate=66, role=editor)
+        hourly = ContributorRoleRate.objects.create(
+            name=PAYMENT_TYPES['Hourly'], rate=66, role=editor)
         response = client.get(endpoint)
         rate = response.data[0].get('rate')
+        updated = rate.pop('updated_on')
+        self.assertIsNotNone(updated)
         self.assertEqual(rate, {'id': hourly.id, 'rate': 66, 'name': 'Hourly'})
+
 
         # Override the rate
         override = ContributionRate.objects.create(
-            name='Override', rate=1000, contribution=contribution)
+            name=PAYMENT_TYPES['Override'], rate=1000, contribution=contribution)
 
         response = client.get(endpoint)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
         
         rate = response.data[0].get('rate')
+        updated = rate.pop('updated_on')
+        self.assertIsNotNone(updated)
         self.assertEqual(rate, {'id': override.id, 'rate': 1000, 'name': 'Override'})
-
 
     # def test_contributions_list_api(self):
     # client = Client()
