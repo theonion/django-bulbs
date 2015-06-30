@@ -7,13 +7,55 @@ from bulbs.content.serializers import UserSerializer
 
 from rest_framework import serializers
 
-from .models import Contribution, ContributorRole
+from .models import Contribution, ContributorRole, Rate, RATE_PAYMENT_TYPES, ROLE_PAYMENT_TYPES
+
+
+class RolePaymentTypeField(serializers.Field):
+    """
+    payment type objects serialized to/from label/identifer
+    """
+    def to_representation(self, obj):
+        if not isinstance(obj, int) and obj.isdigit():
+            return dict(ROLE_PAYMENT_TYPES)[int(obj)]
+        return dict(ROLE_PAYMENT_TYPES)[obj]
+
+    def to_internal_value(self, data):
+        if isinstance(data, int):
+            return data
+        return dict((label, value) for value, label in ROLE_PAYMENT_TYPES)[data]
+
+
+class RatePaymentTypeField(serializers.Field):
+    """
+    rate object type serialized to/from label/identifier
+    """
+    def to_representation(self, obj):
+        if not isinstance(obj, int) and obj.isdigit():
+            return dict(ROLE_PAYMENT_TYPES)[int(obj)]
+        return dict(ROLE_PAYMENT_TYPES)[obj]
+        
+    def to_internal_value(self, data):
+        if isinstance(data, int):
+            return data
+        return dict((label, value) for value, label in RATE_PAYMENT_TYPES)[data]
+
+
+class RateSerializer(serializers.ModelSerializer):
+
+    name = RatePaymentTypeField()
+
+    class Meta:
+        model = Rate
 
 
 class ContributorRoleSerializer(serializers.ModelSerializer):
 
+    rates = RateSerializer(many=True, read_only=False)
+    payment_type = RolePaymentTypeField()
+
     class Meta:
         model = ContributorRole
+        # fields = ('id', 'name', 'description', 'payment_type', 'rates')
 
 
 class ContributionListSerializer(serializers.ListSerializer):

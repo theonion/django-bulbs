@@ -4,7 +4,8 @@ from django.core.urlresolvers import reverse
 from django.test.client import Client
 
 from bulbs.content.models import Content
-from bulbs.contributions.models import Contribution, ContributorRole
+from bulbs.contributions.models import (Contribution, ContributorRole, ContributorRoleRate, 
+    RATE_PAYMENT_TYPES)
 from bulbs.utils.test import BaseAPITestCase, make_content
 
 
@@ -26,7 +27,24 @@ class ContributionApiTestCase(BaseAPITestCase):
         self.assertEqual(len(response.data), 2)
 
         payment_type = response.data[0].get('payment_type', None)
-        self.assertEqual(payment_type, 3)
+        self.assertEqual(payment_type, 'Manual')
+        rates = response.data[0].get('rates')
+        self.assertEqual(rates, list())
+
+        # Add some rates
+        editor = self.roles.get("editor")
+        editor_rate = ContributorRoleRate.objects.create(name=0, rate=100, role=editor)
+        self.assertIsNotNone(editor_rate.updated_on)
+
+        response = client.get(endpoint)
+        self.assertEqual(response.status_code, 200)
+
+        rates = response.data[0].get('rates')
+        self.assertEqual(len(rates), 1)
+        self.assertEqual(rates[0]['id'], editor_rate.id)
+        self.assertEqual(rates[0]['name'], 'Flat Rate')
+        self.assertEqual(rates[0]['rate'], 100)
+        self.assertIsNotNone(rates[0]['updated_on'])
 
     def test_contributions_list_api(self):
         client = Client()
@@ -49,7 +67,7 @@ class ContributionApiTestCase(BaseAPITestCase):
         response = client.get(endpoint)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
-        self.assertIsNone(response.data.get('minutes_worked'))
+        self.assertIsNone(response.data[0].get('minutes_worked'))
 
     # def test_contributions_list_api(self):
     # client = Client()
