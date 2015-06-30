@@ -3,9 +3,9 @@ import json
 from django.core.urlresolvers import reverse
 from django.test.client import Client
 
-from bulbs.content.models import Content
-from bulbs.contributions.models import (Contribution, ContributorRole, ContributorRoleRate, 
-    RATE_PAYMENT_TYPES)
+from bulbs.content.models import Content, FeatureType
+from bulbs.contributions.models import (Contribution, ContributorRole, ContributionRate, 
+    ContributorRoleRate, FeatureTypeRate, RATE_PAYMENT_TYPES)
 from bulbs.utils.test import BaseAPITestCase, make_content
 
 
@@ -68,6 +68,77 @@ class ContributionApiTestCase(BaseAPITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
         self.assertIsNone(response.data[0].get('minutes_worked'))
+
+    def test_get_contribution_rate(self):
+        client = Client()
+        client.login(username="admin", password="secret")
+
+        content = make_content()
+        Content.objects.get(id=content.id)
+        endpoint = reverse("content-contributions", kwargs={"pk": content.pk})
+
+        editor = self.roles["editor"]        
+        contribution = Contribution.objects.create(            
+            content=content,
+            contributor=self.admin,
+            role=editor
+        )
+
+        response = client.get(endpoint)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
+        rate = response.data[0].get('rate')
+        self.assertIsNone(rate)
+        
+        # Add Flat Rate, should not return
+        flat = ContributorRoleRate.objects.create(name='Flat Rate', rate=1, role=editor)
+        response = client.get(endpoint)
+        rate = response.data[0].get('rate')
+        self.assertIsNone(rate)
+
+        # Add a Manual rate
+        manual = ContributionRate.objects.create(name='Manual', rate=2, contribution=contribution)
+        response = client.get(endpoint)
+        rate = response.data[0].get('rate')
+        self.assertEqual(rate, {'id': manual.id, 'rate': 2, 'name': 'Manual'})
+
+        # change to Flat Rate
+        editor.payment_type = 'Flat Rate'
+        editor.save()
+        response = client.get(endpoint)
+        rate = response.data[0].get('rate')
+        self.assertEqual(rate, {'id': flat.id, 'rate': 1, 'name': 'Flat Rate'})
+
+        feature = FeatureType.objects.create(name='A Fun Feature For Kids!')
+        content.feature_type = feature
+        content.save()
+        feature_rate = FeatureTypeRate.objects.create(name='FeatureType', feature_type=feature, rate=50)
+
+        editor.payment_type = 'FeatureType'
+        editor.save()
+        response = client.get(endpoint)
+        rate = response.data[0].get('rate')
+        self.assertEqual(rate, {'id': feature_rate.id, 'rate': 50, 'name': 'FeatureType'})
+
+        # change to Hourly
+        editor.payment_type = 'Hourly'
+        editor.save()
+        hourly = ContributorRoleRate.objects.create(name='Hourly', rate=66, role=editor)
+        response = client.get(endpoint)
+        rate = response.data[0].get('rate')
+        self.assertEqual(rate, {'id': hourly.id, 'rate': 66, 'name': 'Hourly'})
+
+        # Override the rate
+        override = ContributionRate.objects.create(
+            name='Override', rate=1000, contribution=contribution)
+
+        response = client.get(endpoint)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
+        
+        rate = response.data[0].get('rate')
+        self.assertEqual(rate, {'id': override.id, 'rate': 1000, 'name': 'Override'})
+
 
     # def test_contributions_list_api(self):
     # client = Client()

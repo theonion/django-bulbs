@@ -14,7 +14,7 @@ OVERRIDE = 4
 
 ROLE_PAYMENT_TYPES = (
     (FLAT_RATE, 'Flat Rate'),
-    (FEATURE_TYPE, 'Feature Type'),
+    (FEATURE_TYPE, 'FeatureType'),
     (HOURLY, 'Hourly'),
     (MANUAL, 'Manual')
 )
@@ -34,6 +34,31 @@ class Contribution(models.Model):
     content = models.ForeignKey(Content)
     notes = models.TextField(null=True, blank=True)
     minutes_worked = models.IntegerField(null=True)
+
+    def get_rate(self):
+        payment_type = self.get_payment_type()
+
+        if payment_type == 'Override':
+            return self.rates.filter(name=payment_type).first()
+
+        if payment_type == 'Manual':
+            return self.rates.all().first()
+
+        if payment_type == 'Flat Rate':
+            return self.role.rates.filter(name='Flat Rate').first()
+
+        if payment_type == 'FeatureType':
+            return self.content.feature_type.rates.all().first()
+
+        if payment_type == 'Hourly':
+            return self.role.rates.filter(name='Hourly').first()
+
+    def get_payment_type(self):
+        if self.rates.filter(name='Override').count() > 0:
+            return 'Override'
+        if not self.role.payment_type.isdigit():
+            return self.role.payment_type
+        return dict((value, label) for value, label in ROLE_PAYMENT_TYPES)[int(self.role.payment_type)]
 
 
 class Rate(models.Model):

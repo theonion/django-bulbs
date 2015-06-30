@@ -33,7 +33,7 @@ class RatePaymentTypeField(serializers.Field):
         if not isinstance(obj, int) and obj.isdigit():
             return dict(ROLE_PAYMENT_TYPES)[int(obj)]
         return dict(ROLE_PAYMENT_TYPES)[obj]
-        
+
     def to_internal_value(self, data):
         if isinstance(data, int):
             return data
@@ -90,11 +90,22 @@ class ContributionListSerializer(serializers.ListSerializer):
 class ContributionSerializer(serializers.ModelSerializer):
 
     contributor = UserSerializer()
+    rate = serializers.SerializerMethodField()
     content = serializers.PrimaryKeyRelatedField(queryset=Content.objects.all())
 
     class Meta:
         model = Contribution
         list_serializer_class = ContributionListSerializer
+
+    def get_rate(self, obj):
+        rate = obj.get_rate()
+        if not rate:
+            return None
+        return {
+            'id': rate.id,
+            'name': rate.name,
+            'rate': rate.rate,
+        }        
 
 
 class ContributionReportingSerializer(serializers.ModelSerializer):
