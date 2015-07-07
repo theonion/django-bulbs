@@ -6,8 +6,10 @@ from bulbs.content.models import Content
 from bulbs.content.serializers import UserSerializer
 
 from rest_framework import serializers
+from rest_framework.utils import model_meta
 
-from .models import Contribution, ContributorRole, Rate, RATE_PAYMENT_TYPES, ROLE_PAYMENT_TYPES
+from .models import (Contribution, ContributorRole, ContributorRoleRate, ContributionRate,
+    FeatureTypeRate, Rate, RATE_PAYMENT_TYPES, ROLE_PAYMENT_TYPES)
 
 
 class PaymentTypeField(serializers.Field):
@@ -29,6 +31,33 @@ class RateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Rate
+
+
+class RateField(serializers.Field):
+    """
+    Returns the appropriate rate to represent
+    Creates a new rate 
+    """
+    def get_attribute(self, obj):
+        return obj.get_rate()
+
+    def to_representation(self, obj):
+        return RateSerializer(obj).data
+
+    def to_internal_value(self, data):
+        name = data.get('name', None)
+        if name:
+            data['name'] = dict((label, value) for value, label in RATE_PAYMENT_TYPES)[name]
+        if hasattr(data, 'role'):
+            rate = ContributorRoleRate(**data)
+        elif hasattr(data, 'contribution'):
+            rate = ContributionRate(**data)
+        elif hasattr(data, 'feature_type'):
+            rate = FeatureTypeRate(**data)
+        else:
+            rate = Rate(**data)
+        rate.save()
+        return rate
 
 
 class ContributorRoleSerializer(serializers.ModelSerializer):
@@ -73,7 +102,7 @@ class ContributionListSerializer(serializers.ListSerializer):
 class ContributionSerializer(serializers.ModelSerializer):
 
     contributor = UserSerializer()
-    rate = serializers.SerializerMethodField()
+    rate = RateField(required=False)
     content = serializers.PrimaryKeyRelatedField(queryset=Content.objects.all())
 
     class Meta:
@@ -85,6 +114,25 @@ class ContributionSerializer(serializers.ModelSerializer):
         if not rate:
             return None
         return RateSerializer(rate).data
+
+    def create(self, validated_data):
+        ModelClass = self.Meta.model
+
+        info = model_meta.get_field_info(ModelClass)
+        many_to_many = {}
+        for field_name, relation_info in info.relations.items():
+            if relation_info.to_many and (field_name in validated_data):
+                many_to_many[field_name] = validated_data.pop(field_name)
+
+        instance = ModelClass.objects.create(**validated_data)
+
+        if many_to_many:
+            rate_serializer = RateField(data=many_to_many["rate"], many=True)
+            if not rate_serializer.is_valid():
+                raise Exception("Invalid rate data")
+            rate_serializer.save(contribution=instance)
+
+        return instance
 
 
 class ContributionReportingSerializer(serializers.ModelSerializer):
