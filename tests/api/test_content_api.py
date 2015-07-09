@@ -386,7 +386,7 @@ class TestImageAPI(BaseAPITestCase):
 
         response = client.get(content_detail_url, content_type="application/json")
         self.assertEqual(response.status_code, 200)
-        data = json.loads(response.content)
+        data = json.loads(response.content.decode("utf8"))
         self.assertEqual(data["thumbnail"], None)
         self.assertEqual(data["detail_image"], None)
 
@@ -523,7 +523,7 @@ class TestTokenAPI(BaseAPITestCase):
         )
 
         # test that what we expect to happen happened
-        json_response = json.loads(response.content)
+        json_response = json.loads(response.content.decode("utf8"))
         self.assertEquals(len(json_response["url_uuid"]), 32)
         self.assertEquals(json_response["content"], 1)
         self.assertEquals(ObfuscatedUrlInfo.objects.count(), 1)
@@ -558,7 +558,7 @@ class TestTokenAPI(BaseAPITestCase):
         response = self.client.get(reverse("content-list-tokens", kwargs={"pk": content.id}))
 
         # check out stuff
-        json_response = json.loads(response.content)
+        json_response = json.loads(response.content.decode("utf8"))
         self.assertEqual(len(json_response), 3)
         self.assertEqual(json_response[0]["id"], info_1.id)
         self.assertEqual(json_response[0]["url_uuid"], info_1.url_uuid)

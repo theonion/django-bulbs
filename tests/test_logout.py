@@ -1,12 +1,10 @@
-from django.contrib.auth import get_user_model
-# from django.conf import settings
-from django.core.urlresolvers import reverse
-# from django.db.models.loading import get_model
-from django.test import Client
-from bulbs.utils.test import BaseIndexableTestCase
+from __future__ import print_function
 
-# User = get_user_model()
-# User = get_model(*settings.AUTH_USER_MODEL.split("."))
+from django.contrib.auth import get_user_model
+from django.core.urlresolvers import reverse
+from django.test import Client
+
+from bulbs.utils.test import BaseIndexableTestCase
 
 
 class TestLogoutApi(BaseIndexableTestCase):
@@ -28,7 +26,7 @@ class TestLogoutApi(BaseIndexableTestCase):
         # check that user is logged in
         self.assertTrue(client.session['_auth_user_id'], user.pk)
 
-        print client.session['_auth_user_id']
+        print(client.session['_auth_user_id'])
 
         # log user out via endpoint
         request = client.get(

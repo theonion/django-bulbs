@@ -165,9 +165,9 @@ def groups_filter_from_query(query, field_map={}):
 def date_range_filter(range_name):
     """Create a filter from a named date range."""
 
-    filter_days = filter(
+    filter_days = list(filter(
         lambda time: time["label"] == range_name,
-        settings.CUSTOM_SEARCH_TIME_PERIODS)
+        settings.CUSTOM_SEARCH_TIME_PERIODS))
     num_days = filter_days[0]["days"] if len(filter_days) else None
 
     if num_days:

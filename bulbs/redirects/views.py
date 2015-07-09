@@ -1,4 +1,7 @@
-import urllib
+try:
+    from urllib import urlencode
+except ImportError:
+    from urllib.parse import urlencode
 
 from bulbs.content.models import Content
 
@@ -34,7 +37,7 @@ def utm_redirect(request, pk, source=None, medium=None, name=None):
 
     # UTM Tracking only works if all three are present...
     if source and medium and name:
-        query_string = urllib.urlencode({
+        query_string = urlencode({
             "utm_source": utm_source.get(source, "none"),
             "utm_medium": utm_medium.get(medium, "none"),
             "utm_campaign": utm_campaign.get("utm_campaign", "default")
