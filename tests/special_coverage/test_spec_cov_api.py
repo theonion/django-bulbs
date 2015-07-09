@@ -36,7 +36,7 @@ class SpecialCoverageApiTestCase(BaseAPITestCase):
             kwargs={"pk": special_coverage.id})
         response = self.client.get(endpoint)
 
-        response_data = json.loads(response.content)
+        response_data = json.loads(response.content.decode("utf8"))
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response_data["id"], special_coverage.id)

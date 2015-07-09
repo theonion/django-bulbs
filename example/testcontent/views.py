@@ -22,7 +22,7 @@ class TestContentCustomSearchListView(ContentCustomSearchListView):
         return self.get(*args, **kwargs)
 
     def get_search_query(self):
-        params = json.loads(self.request.body)
+        params = json.loads(self.request.body.decode("utf8"))
         query = params.get("query", {})
         return query
 

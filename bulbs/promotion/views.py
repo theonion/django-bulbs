@@ -82,7 +82,7 @@ class OperationsViewSet(APIView):
         json_obj = []
         http_status = 500
 
-        json_op = json.loads(request.body)
+        json_op = json.loads(request.body.decode("utf8"))
         if not isinstance(json_op, list):
             json_op = [json_op]
 

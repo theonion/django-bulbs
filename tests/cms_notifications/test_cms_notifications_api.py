@@ -47,7 +47,7 @@ class TestAPI(BaseIndexableTestCase):
         response = self.client.get(reverse("notifications"))
         self.assertEqual(response.status_code, 200)
 
-        resp_cms_notification = json.loads(response.content)
+        resp_cms_notification = json.loads(response.content.decode("utf8"))
 
         self.assertEqual(len(resp_cms_notification), 1)
         self.assertTrue("id" in resp_cms_notification[0])
@@ -65,7 +65,7 @@ class TestAPI(BaseIndexableTestCase):
         response = self.client.get(reverse("notifications"))
         self.assertEqual(response.status_code, 200)
 
-        up_resp_cms_notification = json.loads(response.content)
+        up_resp_cms_notification = json.loads(response.content.decode("utf8"))
 
         self.assertEqual(len(up_resp_cms_notification), 1)
         self.assertEqual(up_cms_notification["title"], up_resp_cms_notification[0]["title"])
@@ -120,13 +120,13 @@ class TestAPI(BaseIndexableTestCase):
             content_type="application/json"
         )
 
-        errors = json.loads(response.content)
+        errors = json.loads(response.content.decode("utf8"))
 
         self.assertEquals(errors["non_field_errors"][0], "Post date must occur before promotion end date.")
 
         response = self.client.get(reverse("notifications"))
 
-        self.assertEqual(len(json.loads(response.content)), 0)
+        self.assertEqual(len(json.loads(response.content.decode("utf8"))), 0)
 
     def test_permissions(self):
         """Test that only super users can PUT/POST."""
