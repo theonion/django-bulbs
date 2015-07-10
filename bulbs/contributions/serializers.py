@@ -48,11 +48,11 @@ class RateField(serializers.Field):
         name = data.get('name', None)
         if name:
             data['name'] = dict((label, value) for value, label in RATE_PAYMENT_TYPES)[name]
-        if hasattr(data, 'role'):
+        if 'role' in data:
             rate = ContributorRoleRate(**data)
-        elif hasattr(data, 'contribution'):
+        elif 'contribution' in data:
             rate = ContributionRate(**data)
-        elif hasattr(data, 'feature_type'):
+        elif 'feature_type' in data:
             rate = FeatureTypeRate(**data)
         else:
             rate = Rate(**data)
@@ -115,24 +115,26 @@ class ContributionSerializer(serializers.ModelSerializer):
             return None
         return RateSerializer(rate).data
 
+    def to_internal_value(self, data):
+        rate_data = data.pop('rate', None)
+        data = super(ContributionSerializer, self).to_internal_value(data)
+        if rate_data:
+            data['rate'] = rate_data
+        return data
+        
     def create(self, validated_data):
         ModelClass = self.Meta.model
-
         info = model_meta.get_field_info(ModelClass)
         many_to_many = {}
+        rate_data = validated_data.pop('rate', None)
         for field_name, relation_info in info.relations.items():
             if relation_info.to_many and (field_name in validated_data):
                 many_to_many[field_name] = validated_data.pop(field_name)
-
-        instance = ModelClass.objects.create(**validated_data)
-
-        if many_to_many:
-            rate_serializer = RateField(data=many_to_many["rate"], many=True)
-            if not rate_serializer.is_valid():
-                raise Exception("Invalid rate data")
-            rate_serializer.save(contribution=instance)
-
-        return instance
+        contribution = ModelClass.objects.create(**validated_data)
+        if rate_data:
+            rate_data['contribution'] = contribution
+            RateField().to_internal_value(rate_data)
+        return contribution
 
 
 class ContributionReportingSerializer(serializers.ModelSerializer):

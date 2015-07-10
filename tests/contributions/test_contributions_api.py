@@ -239,8 +239,8 @@ class ContributionApiTestCase(BaseAPITestCase):
         endpoint = reverse("content-contributions", kwargs={"pk": content.pk})
 
         rate_data = {
-            'name': 'Flat Rate',
-            'rate': 666
+            'name': 'Manual',
+            'rate': 667
         }
         contributor_data = {
             "username": self.admin.username,
@@ -255,7 +255,16 @@ class ContributionApiTestCase(BaseAPITestCase):
 
         response = client.post(
             endpoint, json.dumps(contribution_data), content_type="application/json")
-        import pdb; pdb.set_trace()
+        contribution = response.data[0]
+        contributor = contribution.get('contributor')
+        rate = contribution.get('rate')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(contributor['username'], 'admin')
+        self.assertEqual(contributor['id'], self.admin.id)
+        self.assertEqual(rate['rate'], 667)
+        self.assertEqual(rate['name'], 'Manual')
+        self.assertEqual(contribution['content'], content.id),
+        self.assertEqual(contribution['role'], 1)
 
     def test_contributions_create_api(self):
         client = Client()
@@ -289,6 +298,4 @@ class ContributionApiTestCase(BaseAPITestCase):
         response = client.post(endpoint, json.dumps(data), content_type="application/json")
         print(response.content)
         self.assertEqual(response.status_code, 200)
-
-        import pdb; pdb.set_trace()
         self.assertEqual(Contribution.objects.filter(content=content).count(), 1)
