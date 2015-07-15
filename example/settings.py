@@ -100,7 +100,7 @@ ES_INDEX_SETTINGS = {
                         "tokenizer": "standard",
                         "filter": [
                             "lowercase",
-                            "autocomplete_filter" 
+                            "autocomplete_filter"
                         ]
                     }
                 }
