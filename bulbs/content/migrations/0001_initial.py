@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import django
 from django.db import models, migrations
 from django.conf import settings
 import djbetty.fields
@@ -10,8 +11,11 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('contenttypes', '0002_remove_content_type_name'),
     ]
+    
+    if django.VERSION >= (1, 8, 0):
+        dependencies.insert(0,
+            ('contenttypes', '0002_remove_content_type_name'))
 
     operations = [
         migrations.CreateModel(
