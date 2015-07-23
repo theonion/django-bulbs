@@ -91,6 +91,7 @@ class FeatureType(Indexable):
 
     class Mapping:
         name = field.String(analyzer="autocomplete", fields={"raw": field.String(index="not_analyzed")})
+        slug = field.String(index="not_analyzed")
 
     def __unicode__(self):
         """unicode friendly name
