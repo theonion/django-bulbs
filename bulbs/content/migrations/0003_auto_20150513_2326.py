@@ -1,15 +1,19 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import django
 from django.db import models, migrations
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('contenttypes', '0002_remove_content_type_name'),
         ('content', '0002_add_groups'),
     ]
+
+    if django.VERSION >= (1, 8, 0):
+        dependencies.insert(0,
+            ('contenttypes', '0002_remove_content_type_name'))
 
     operations = [
         migrations.CreateModel(
