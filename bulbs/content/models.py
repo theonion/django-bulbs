@@ -391,7 +391,6 @@ class ObfuscatedUrlInfo(Model):
             self.url_uuid = str(uuid.uuid4()).replace("-", "")
         super(ObfuscatedUrlInfo, self).save(*args, **kwargs)
 
-
 ##
 # signal functions
 

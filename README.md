@@ -8,17 +8,25 @@ This project very much under active development, and is currently not as reusabl
 ## Configuring for Development
 
 First, enter any virtualenv, etc, that you plan on developing in.
+```bash
+$ pip install -e .
+$ pip install "file://$(pwd)#egg=django-bulbs[dev]"
+```
 
-    > pip install -e .
-    > pip install "file://$(pwd)#egg=django-bulbs[dev]"
+## Running Tests
 
-## Running tests:
+1. Clone [django-elastimorphic](https://github.com/theonion/django-elastimorphic) into a sibiling directory
+2. Install dev requirements
+```bash
+$ pip install -e ".[dev]"
+```
+3. Run tests
+```bash
+$ py.test tests/
+```
 
-First, you'll need an ElasticSearch server running on http://localhost:9200, then install `requirements-dev.txt`, and:
-
-    > py.test tests/
-
-## Building docs
-
-    > cd docs
-    > make html
+## Building Docs
+```bash
+$ cd docs
+$ make html
+```
