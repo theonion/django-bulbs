@@ -34,10 +34,11 @@ def Published(before=None, after=None):  # noqa
     if after is not None:
         published_params["gte"] = parse_datetime(after)
 
-    if before is None:
-        published_params["lte"] = timezone.now()
-    else:
+    if before is not None:
         published_params["lte"] = parse_datetime(before)
+
+    if before is None and after is None:
+        published_params["lte"] = timezone.now()
 
     return Range(published=published_params)
 
