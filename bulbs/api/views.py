@@ -25,6 +25,7 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
 from bulbs.content.custom_search import custom_search_model
+from bulbs.content.filters import Authors
 from bulbs.content.models import Content, Tag, LogEntry, FeatureType, ObfuscatedUrlInfo
 from bulbs.content.serializers import (
     ContentSerializer, LogEntrySerializer, PolymorphicContentSerializer,
@@ -49,7 +50,7 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
     serializer_class = PolymorphicContentSerializer
     include_base_doctype = False
     paginate_by = 20
-    filter_fields = ("search", "before", "after", "status", "feature_types", "published", "tags", "types")
+    filter_fields = ("search", "before", "after", "status", "feature_types", "published", "tags", "authors", "types")
     permission_classes = [IsAdminUser, CanEditContent]
 
     def get_serializer_class(self):
@@ -110,6 +111,10 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
             search_kwargs["query"] = self.request.QUERY_PARAMS.get("search")
 
         queryset = Content.search_objects.search(**search_kwargs)
+
+        if "authors" in self.request.QUERY_PARAMS:
+            authors = self.request.QUERY_PARAMS.getlist("authors")
+            queryset = queryset.filter(Authors(authors))
 
         page = self.paginate_queryset(queryset)
         if page is not None:

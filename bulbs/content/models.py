@@ -4,6 +4,7 @@ that we want any piece of content to have."""
 import uuid
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import NoReverseMatch, reverse
 from django.db import models
@@ -17,7 +18,7 @@ from polymorphic import PolymorphicModel, PolymorphicManager
 from djbetty import ImageField
 
 from bulbs.content import TagCache
-from .filters import Published, Status, Tags, FeatureTypes
+from .filters import Authors, Published, Status, Tags, FeatureTypes
 
 try:
     from bulbs.content.tasks import index as index_task  # noqa
@@ -165,6 +166,9 @@ class ContentManager(PolymorphicManager, IndexableManager):
         tag_filter = Tags(kwargs.get("tags", []))
         search_query = search_query.filter(tag_filter)
 
+        author_filter = Authors(kwargs.get("authors", []))
+        search_query = search_query.filter(author_filter)
+
         feature_type_filter = FeatureTypes(kwargs.get("feature_types", []))
         search_query = search_query.filter(feature_type_filter)
 
@@ -214,7 +218,6 @@ class Content(PolymorphicModel, Indexable):
         slug = field.String(index="not_analyzed")
         status = field.String(index="not_analyzed")
         thumbnail_override = ElasticsearchImageField()
-        # TODO: authors?
 
     def __unicode__(self):
         """unicode friendly name

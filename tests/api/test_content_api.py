@@ -30,7 +30,6 @@ class TestContentListingAPI(BaseAPITestCase):
         Content.search_objects.refresh()
 
     def test_list_final(self):
-
         q = Content.search_objects.search(status="final")
         self.assertEqual(q.count(), 79)
 
@@ -42,6 +41,7 @@ class TestContentListingAPI(BaseAPITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["count"], 79)
         self.assertEqual(len(response.data["results"]), 20)
+
 
 
 class TestContentStatusAPI(BaseAPITestCase):
