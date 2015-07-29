@@ -49,7 +49,7 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
     serializer_class = PolymorphicContentSerializer
     include_base_doctype = False
     paginate_by = 20
-    filter_fields = ("search", "before", "after", "status", "feature_types", "published", "tags", "types")
+    filter_fields = ("search", "before", "after", "status", "feature_types", "published", "tags", "authors", "types")
     permission_classes = [IsAdminUser, CanEditContent]
 
     def get_serializer_class(self):
@@ -101,7 +101,7 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
             if field_name in self.request.QUERY_PARAMS:
                 search_kwargs[field_name] = self.request.QUERY_PARAMS.get(field_name)
 
-        for field_name in ("tags", "types", "feature_types"):
+        for field_name in ("tags", "authors", "types", "feature_types"):
 
             if field_name in self.request.QUERY_PARAMS:
                 search_kwargs[field_name] = self.request.QUERY_PARAMS.getlist(field_name)

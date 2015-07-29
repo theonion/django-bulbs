@@ -49,6 +49,22 @@ def Status(status):  # noqa
         return MatchAll()
 
 
+def Authors(usernames):  # noqa
+    included = []
+    excluded = []
+    for username in usernames:
+        if username.startswith("-"):
+            excluded.append(username[1:])
+        else:
+            included.append(username)
+    f = MatchAll()
+    if included:
+        f &= Terms(**{"authors.username": included})
+    if excluded:
+        f &= Terms(**{"authors.username": excluded})
+    return f
+
+
 def Tags(slugs):  # noqa
     included = []
     excluded = []
