@@ -269,6 +269,8 @@ class TagViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
         if "search" in self.request.REQUEST:
             query_string = self.request.REQUEST["search"].lower()
             queryset = queryset.query(Q("match", name=query_string) | Q("match", **{"name.raw": query_string}))
+        if "types" in self.request.REQUEST:
+            queryset._doc_type = self.request.REQUEST["types"]
         return queryset
 
 class UserViewSet(UncachedResponse, viewsets.ModelViewSet):
@@ -364,9 +366,6 @@ class FeatureTypeViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
         if "search" in self.request.REQUEST:
             query_string = self.request.REQUEST["search"].lower()
             queryset = queryset.query(Q("match", name=query_string) | Q("match", **{"name.raw": query_string}))
-        if "types" in self.request.REQUEST:
-            queryset._doc_type = self.request.REQUEST["types"]
-
         return queryset
 
 
