@@ -21,6 +21,7 @@ from rest_framework import (
 from firebase_token_generator import create_token
 
 from rest_framework.decorators import detail_route, list_route
+from rest_framework.metadata import BaseMetadata
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
@@ -40,6 +41,13 @@ from .mixins import UncachedResponse
 from .permissions import CanEditContent, CanPublishContent
 
 
+class ContentViewMetaData(BaseMetadata):
+    def determine_metadata(self, request, view):
+        return {
+            'status': 'ok',
+        }
+
+
 class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
     """
     uncached viewset for the `bulbs.content.Content` model
@@ -52,7 +60,7 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
     paginate_by = 20
     filter_fields = ("search", "before", "after", "status", "feature_types", "published", "tags", "authors", "types")
     permission_classes = [IsAdminUser, CanEditContent]
-    metadata_class = None
+    metadata_class = ContentViewMetaData
 
     def get_serializer_class(self):
         """gets the class type of the serializer
