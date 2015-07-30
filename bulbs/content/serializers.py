@@ -50,11 +50,12 @@ class TagSerializer(serializers.ModelSerializer):
         model = Tag
 
     def to_representation(self, obj):
+        doc_type = obj.get_real_instance().mapping.doc_type
         return {
             "id": obj.pk,
             "name": obj.name,
             "slug": obj.slug,
-            "type": obj.mapping.doc_type
+            "type": doc_type
         }
 
 
