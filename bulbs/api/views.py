@@ -270,9 +270,9 @@ class TagViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
             query_string = self.request.REQUEST["search"].lower()
             queryset = queryset.query(Q("match", name=query_string) | Q("match", **{"name.raw": query_string}))
 
-            types = self.request.QUERY_PARAMS.getlist("types", None)
-            if types:
-                queryset._doc_type = self.request.REQUEST["types"]
+        types = self.request.QUERY_PARAMS.getlist("types", None)
+        if types:
+            queryset._doc_type = self.request.REQUEST["types"]
         return queryset
 
 
