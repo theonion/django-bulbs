@@ -52,6 +52,7 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
     paginate_by = 20
     filter_fields = ("search", "before", "after", "status", "feature_types", "published", "tags", "authors", "types")
     permission_classes = [IsAdminUser, CanEditContent]
+    metadata_class = None
 
     def get_serializer_class(self):
         """gets the class type of the serializer
