@@ -3,13 +3,13 @@ from collections import OrderedDict
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 
-from bulbs.content.models import Content
-from bulbs.content.serializers import UserSerializer
+from bulbs.content.models import Content, FeatureType
+from bulbs.content.serializers import FeatureTypeField, UserSerializer
 
 from rest_framework import serializers
 from rest_framework.utils import model_meta
 
-from .models import (Contribution, ContributorRole, ContributorRoleRate, ContributionRate, FeatureTypeRate, LineItem, Override, Rate, RoleOverride, RATE_PAYMENT_TYPES)
+from .models import (Contribution, ContributorRole, ContributorRoleRate, ContributionRate, FeatureTypeRate, FeatureTypeOverride, LineItem, Override, Rate, RoleOverride, RATE_PAYMENT_TYPES)
 
 
 class PaymentTypeField(serializers.Field):
@@ -124,6 +124,15 @@ class ContributorRoleField(serializers.Field):
         return None
 
 
+class FeatureTypeOverrideSerializer(serializers.ModelSerializer):
+
+    contributor = ContributorField()
+    feature_type = FeatureTypeField(queryset=FeatureType.objects.all())
+
+    class Meta:
+        model = FeatureTypeOverride
+
+
 class RoleOverrideSerializer(serializers.ModelSerializer):
 
     contributor = ContributorField()
@@ -135,24 +144,33 @@ class RoleOverrideSerializer(serializers.ModelSerializer):
 
 class OverrideSerializer(serializers.ModelSerializer):
 
+    contributor = ContributorField()
+    role = ContributorRoleField()
+
     class Meta:
         model = Override
 
     def create(self, validated_data):
         if "role" in validated_data:
             return RoleOverrideSerializer().create(validated_data)
+        elif "feature_type" in validated_data:
+            return FeatureTypeOverrideSerializer().create(validated_data)
         else:
             return super(OverrideSerializer, self).create(validated_data)
 
     def to_internal_value(self, data):
         if "role" in data:
             return RoleOverrideSerializer().to_internal_value(data)
+        elif "feature_type" in data:
+            return FeatureTypeOverrideSerializer().to_internal_value(data)
         else:
             return super(OverrideSerializer, self).to_internal_value(data)
 
     def to_representation(self, obj):
         if isinstance(obj, RoleOverride):
             return RoleOverrideSerializer(obj).to_representation(obj)
+        elif isinstance(obj, FeatureTypeOverride):
+            return FeatureTypeOverrideSerializer(obj).to_representation(obj)
         else:
             return super(OverrideSerializer, self).to_representation(obj)
 

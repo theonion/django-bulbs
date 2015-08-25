@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 from django.test.client import Client
 
 from bulbs.content.models import Content, FeatureType
-from bulbs.contributions.models import (Contribution, ContributorRole, ContributionRate, ContributorRoleRate, FeatureTypeRate, LineItem, Rate,
+from bulbs.contributions.models import (Contribution, ContributorRole, ContributionRate, ContributorRoleRate, FeatureTypeOverride, FeatureTypeRate, LineItem, Rate,
     RoleOverride, RATE_PAYMENT_TYPES)
 from bulbs.contributions.serializers import RateSerializer
 from bulbs.utils.test import BaseAPITestCase, make_content
@@ -188,6 +188,47 @@ class ContributionApiTestCase(BaseAPITestCase):
         self.assertEqual(
             resp.data.get("contributor").get("id"), override.contributor.id
         )
+
+    def test_feature_type_override_list_success(self):
+        client = Client()
+        client.login(username="admin", password="secret")
+        endpoint = reverse("rate-overrides-list")
+        f1 = FeatureType.objects.create(name="ha ha!")
+        f2 = FeatureType.objects.create(name="no no.")
+        FeatureTypeOverride.objects.create(
+            rate=55,
+            feature_type=f1,
+            contributor=self.contributors["jarvis"]
+        )
+        FeatureTypeOverride.objects.create(
+            rate=55,
+            feature_type=f2,
+            contributor=self.contributors["marvin"]
+        )
+        resp = client.get(endpoint)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 2)
+
+    def test_feature_type_post_success(self):
+        client = Client()
+        client.login(username="admin", password="secret")
+        endpoint = reverse("rate-overrides-list")
+        f1 = FeatureType.objects.create(name="ha ha!")
+        data = {
+            "rate": 88,
+            "contributor": {
+                "id": self.contributors["jarvis"].id
+            },
+            "feature_type": {
+                "id": f1.id
+            }
+        }
+        resp = client.post(
+            endpoint,
+            json.dumps(data),
+            content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, 201)
 
     def test_contributions_list_api(self):
         client = Client()
