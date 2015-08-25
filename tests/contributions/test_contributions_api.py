@@ -4,7 +4,7 @@ from django.core.urlresolvers import reverse
 from django.test.client import Client
 
 from bulbs.content.models import Content, FeatureType
-from bulbs.contributions.models import (Contribution, ContributorRole, ContributionRate, 
+from bulbs.contributions.models import (Contribution, ContributorRole, ContributionRate,
     ContributorRoleRate, FeatureTypeRate, Rate, RATE_PAYMENT_TYPES)
 from bulbs.contributions.serializers import RateSerializer
 from bulbs.utils.test import BaseAPITestCase, make_content
@@ -25,7 +25,7 @@ class ContributionApiTestCase(BaseAPITestCase):
         client = Client()
         client.login(username="admin", password="secret")
 
-        endpoint = reverse("contributorrole-list", )
+        endpoint = reverse("contributorrole-list")
         response = client.get(endpoint)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 2)
@@ -49,6 +49,32 @@ class ContributionApiTestCase(BaseAPITestCase):
         self.assertEqual(rates[0]['name'], 'Flat Rate')
         self.assertEqual(rates[0]['rate'], 100)
         self.assertIsNotNone(rates[0]['updated_on'])
+
+    def test_post_contributionrole_success(self):
+        client = Client()
+        client.login(username="admin", password="secret")
+        endpoint = reverse("contributorrole-list")
+        data = {
+            "name": "Programmer",
+            "description": "Ballers of the biz",
+            "payment_type": 'Flat Rate'
+        }
+
+        resp = client.post(
+            endpoint,
+            json.dumps(data),
+            content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, 201)
+
+        id = resp.data.get("id", None)
+        self.assertIsNotNone(id)
+        self.assertEqual(resp.data.get("payment_type"), "Flat Rate")
+
+        role = ContributorRole.objects.get(id=int(id))
+        self.assertEqual(role.name, data["name"])
+        self.assertEqual(role.description, data["description"])
+        self.assertEqual(role.payment_type, 0)
 
     def test_contributions_list_api(self):
         client = Client()
@@ -92,7 +118,7 @@ class ContributionApiTestCase(BaseAPITestCase):
         self.assertEqual(serializer_data['name'], 'Manual')
         self.assertIsNotNone(serializer_data['updated_on'])
 
-        flat_rate = ContributorRoleRate.objects.create(name=PAYMENT_TYPES['Flat Rate'], rate=555, role=editor)        
+        flat_rate = ContributorRoleRate.objects.create(name=PAYMENT_TYPES['Flat Rate'], rate=555, role=editor)
         serializer_data = RateSerializer(flat_rate).data
         self.assertEqual(serializer_data['id'], flat_rate.id)
         self.assertEqual(serializer_data['rate'], 555)
@@ -138,8 +164,8 @@ class ContributionApiTestCase(BaseAPITestCase):
         Content.objects.get(id=content.id)
         endpoint = reverse("content-contributions", kwargs={"pk": content.pk})
 
-        editor = self.roles["editor"]        
-        contribution = Contribution.objects.create(            
+        editor = self.roles["editor"]
+        contribution = Contribution.objects.create(
             content=content,
             contributor=self.admin,
             role=editor
@@ -150,7 +176,7 @@ class ContributionApiTestCase(BaseAPITestCase):
         self.assertEqual(len(response.data), 1)
         rate = response.data[0].get('rate')
         self.assertIsNone(rate)
-        
+
         # Add Flat Rate, should not return
         flat = ContributorRoleRate.objects.create(name=PAYMENT_TYPES['Flat Rate'], rate=1, role=editor)
         response = client.get(endpoint)
@@ -199,7 +225,6 @@ class ContributionApiTestCase(BaseAPITestCase):
         self.assertIsNotNone(updated)
         self.assertEqual(rate, {'id': hourly.id, 'rate': 66, 'name': 'Hourly'})
 
-
         # Override the rate
         override = ContributionRate.objects.create(
             name=PAYMENT_TYPES['Override'], rate=1000, contribution=contribution)
@@ -207,7 +232,7 @@ class ContributionApiTestCase(BaseAPITestCase):
         response = client.get(endpoint)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
-        
+
         rate = response.data[0].get('rate')
         updated = rate.pop('updated_on')
         self.assertIsNotNone(updated)

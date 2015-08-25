@@ -36,7 +36,7 @@ class RateSerializer(serializers.ModelSerializer):
 class RateField(serializers.Field):
     """
     Returns the appropriate rate to represent
-    Creates a new rate 
+    Creates a new rate
     """
     def get_attribute(self, obj):
         return obj.get_rate()
@@ -62,12 +62,11 @@ class RateField(serializers.Field):
 
 class ContributorRoleSerializer(serializers.ModelSerializer):
 
-    rates = RateSerializer(many=True, read_only=False)
+    rates = RateSerializer(required=False, many=True, read_only=False)
     payment_type = PaymentTypeField()
 
     class Meta:
         model = ContributorRole
-        # fields = ('id', 'name', 'description', 'payment_type', 'rates')
 
 
 class ContributionListSerializer(serializers.ListSerializer):
@@ -121,7 +120,7 @@ class ContributionSerializer(serializers.ModelSerializer):
         if rate_data:
             data['rate'] = rate_data
         return data
-        
+
     def create(self, validated_data):
         ModelClass = self.Meta.model
         info = model_meta.get_field_info(ModelClass)
