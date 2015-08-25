@@ -21,10 +21,12 @@ from rest_framework import (
 from firebase_token_generator import create_token
 
 from rest_framework.decorators import detail_route, list_route
+from rest_framework.metadata import BaseMetadata
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
 from bulbs.content.custom_search import custom_search_model
+from bulbs.content.filters import Authors
 from bulbs.content.models import Content, Tag, LogEntry, FeatureType, ObfuscatedUrlInfo
 from bulbs.content.serializers import (
     ContentSerializer, LogEntrySerializer, PolymorphicContentSerializer,
@@ -39,6 +41,13 @@ from .mixins import UncachedResponse
 from .permissions import CanEditContent, CanPublishContent
 
 
+class ContentViewMetaData(BaseMetadata):
+    def determine_metadata(self, request, view):
+        return {
+            'status': 'ok',
+        }
+
+
 class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
     """
     uncached viewset for the `bulbs.content.Content` model
@@ -49,8 +58,9 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
     serializer_class = PolymorphicContentSerializer
     include_base_doctype = False
     paginate_by = 20
-    filter_fields = ("search", "before", "after", "status", "feature_types", "published", "tags", "types")
+    filter_fields = ("search", "before", "after", "status", "feature_types", "published", "tags", "authors", "types")
     permission_classes = [IsAdminUser, CanEditContent]
+    metadata_class = ContentViewMetaData
 
     def get_serializer_class(self):
         """gets the class type of the serializer
@@ -110,6 +120,10 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
             search_kwargs["query"] = self.request.QUERY_PARAMS.get("search")
 
         queryset = Content.search_objects.search(**search_kwargs)
+
+        if "authors" in self.request.QUERY_PARAMS:
+            authors = self.request.QUERY_PARAMS.getlist("authors")
+            queryset = queryset.filter(Authors(authors))
 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -264,7 +278,12 @@ class TagViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
         if "search" in self.request.REQUEST:
             query_string = self.request.REQUEST["search"].lower()
             queryset = queryset.query(Q("match", name=query_string) | Q("match", **{"name.raw": query_string}))
+
+        types = self.request.QUERY_PARAMS.getlist("types", None)
+        if types:
+            queryset._doc_type = self.request.REQUEST["types"]
         return queryset
+
 
 class UserViewSet(UncachedResponse, viewsets.ModelViewSet):
     """

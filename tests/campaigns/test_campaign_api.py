@@ -49,7 +49,7 @@ class CampaignApiCase(BaseIndexableTestCase):
         response = self.client.get(campaign_detail_endpoint, content_type="application/json")
         self.assertEqual(response.status_code, 200)
 
-        data = json.loads(response.content)
+        data = json.loads(response.content.decode("utf8"))
 
         self.assertEqual(data["id"], campaign.id)
         self.assertEqual(len(data["pixels"]), 2)

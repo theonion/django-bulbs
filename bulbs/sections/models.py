@@ -69,6 +69,7 @@ class Section(models.Model):
         else:
             q = self.query
         search = custom_search_model(Content, q, field_map={
+            "feature-type": "feature_type.slug",
             "tag": "tags.slug",
             "content-type": "_type",
             })
@@ -80,7 +81,7 @@ class Section(models.Model):
 
     @property
     def contents(self):
-        """Caches the results of the get_content method    
+        """Caches the results of the get_content method
         """
         if not hasattr(self, "_content"):
             self._content = self.get_content()

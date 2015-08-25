@@ -30,7 +30,7 @@ class InsertOperation(PZoneOperation):
         if self.content.published and self.when >= self.content.published:
             # content has a published date, and that date is before when this
 
-            filtered = filter(lambda content: content["id"] == self.content.pk, data)
+            filtered = list(filter(lambda content: content["id"] == self.content.pk, data))
             if len(filtered) == 0:
                 # content doesn't already exist in list
                 data.insert(self.index, {
@@ -66,7 +66,7 @@ class ReplaceOperation(PZoneOperation):
             # content has a published date, and that date is before when this
             #   operation is occurring
             try:
-                filtered = filter(lambda content: content["id"] == self.content.pk, data)
+                filtered = list(filter(lambda content: content["id"] == self.content.pk, data))
                 if len(filtered) == 0:
                     # content doesn't already exist in list
                     data[self.index] = {

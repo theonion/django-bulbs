@@ -1,15 +1,16 @@
-import urlparse
+try:
+    import urlparse
+except ImportError:
+    import urllib.parse as urlparse
 
 from django.core.urlresolvers import reverse
 from django.test import Client
-
 from bulbs.utils.test import BaseIndexableTestCase
 
 from example.testcontent.models import TestContentObj
 
 
 class RedirectTestCase(BaseIndexableTestCase):
-
     def setUp(self):
         super(RedirectTestCase, self).setUp()
         self.test_obj = TestContentObj.objects.create(title="Testing redirects")
@@ -24,13 +25,14 @@ class RedirectTestCase(BaseIndexableTestCase):
 
     def test_utm_redirect(self):
         client = Client()
-        endpoint = reverse("utm-redirect-tracking",
-                           kwargs={
-                               "pk": self.test_obj.id,
-                               "source": "tsd",
-                               "medium": "",
-                               "name": ""
-                           })
+        endpoint = reverse(
+            "utm-redirect-tracking",
+            kwargs={
+                "pk": self.test_obj.id,
+                "source": "tsd",
+                "medium": "",
+                "name": ""
+            })
         response = client.get(endpoint)
         self.assertEqual(response.status_code, 301)
 

@@ -3,12 +3,11 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.template.defaultfilters import slugify
-
+from djbetty.serializers import ImageFieldSerializer
 from rest_framework.utils import model_meta
 from rest_framework import relations
 from rest_framework import serializers
-
-from djbetty.serializers import ImageFieldSerializer
+from six import string_types
 
 from .models import Content, Tag, LogEntry, FeatureType, TemplateType, ObfuscatedUrlInfo
 
@@ -51,11 +50,12 @@ class TagSerializer(serializers.ModelSerializer):
         model = Tag
 
     def to_representation(self, obj):
+        doc_type = obj.get_real_instance().mapping.doc_type
         return {
             "id": obj.pk,
             "name": obj.name,
             "slug": obj.slug,
-            "type": obj.mapping.doc_type
+            "type": doc_type
         }
 
 
@@ -140,7 +140,7 @@ class FeatureTypeField(relations.RelatedField):
         if value == "":
             return None
 
-        if isinstance(value, basestring):
+        if isinstance(value, string_types):
             slug = slugify(value)
             feature_type, created = FeatureType.objects.get_or_create(
                 slug=slug,

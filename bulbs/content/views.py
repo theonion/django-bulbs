@@ -41,8 +41,11 @@ class ContentListView(ListView):
             if not isinstance(tags, list):
                 tags = [tags]
             search_kwargs["tags"] = tags
-        if self.tags > 0:
-            search_kwargs["tags"] = self.tags
+        try:
+            if self.tags > 0:
+                search_kwargs["tags"] = self.tags
+        except TypeError:
+            pass
 
         if "types" in self.request.GET:
             search_kwargs["types"] = self.request.GET.getlist("types", [])
@@ -51,8 +54,12 @@ class ContentListView(ListView):
 
         if "types" in self.kwargs:
             search_kwargs["types"] = self.kwargs["types"]
-        if self.types > 0:
-            search_kwargs["types"] = self.types
+
+        try:
+            if self.types > 0:
+                search_kwargs["types"] = self.types
+        except TypeError:
+            pass
 
         if "feature_types" in self.request.GET:
             search_kwargs["feature_types"] = self.request.GET.getlist("feature_types", [])
@@ -61,8 +68,11 @@ class ContentListView(ListView):
 
         if "feature_types" in self.kwargs:
             search_kwargs["feature_types"] = self.kwargs["feature_types"]
-        if self.feature_types > 0:
-            search_kwargs["feature_types"] = self.feature_types
+        try:
+            if self.feature_types > 0:
+                search_kwargs["feature_types"] = self.feature_types
+        except TypeError:
+            pass
 
         if "published" in self.kwargs:
             search_kwargs["published"] = self.kwargs["published"]

@@ -27,9 +27,16 @@ class SpecialCoverage(models.Model):
     def __unicode__(self):
         return self.name
 
+    def clean(self):
+        super(SpecialCoverage, self).clean()
+        if self.query and self.query != {}:
+            for key, value in self.query.items():
+                if isinstance(value, list) and None in value:
+                    self.query[key] = [v for v in value if v is not None]
+
     def save(self, *args, **kwargs):
         """Saving ensures that the slug, if not set, is set to the slugified name."""
-
+        self.clean()
         if not self.slug:
             self.slug = slugify(self.name)
 

@@ -100,3 +100,31 @@ class SpecialCoverageApiTestCase(BaseAPITestCase):
         )
 
         self.assertIsInstance(SpecialCoverage.objects.all()[0].query, dict)
+
+    def test_query_string_filters_null_values_when_saving(self):
+        """Andrew Kos comments on tests. I however, do not."""
+
+        data = {
+            "name": "special boy cammy",
+            "query": {
+                "pinned_ids": [1, 2, 3, None],
+                "excluded_ids": [4, 5, 6, None],
+                "groups": ["fun guys", None],
+                "included_ids": [7, 8, 9, None]
+            }
+        }
+
+        resp = self.client.post(
+            reverse("special-coverage-list"),
+            json.dumps(data, cls=JsonEncoder),
+            content_type="application/json"
+        )
+        query = resp.data.get("query")
+        pinned_ids = query.get("pinned_ids")
+        excluded_ids = query.get("excluded_ids")
+        groups = query.get("groups")
+        included_ids = query.get("included_ids")
+        self.assertEqual(pinned_ids, [1, 2, 3])
+        self.assertEqual(excluded_ids, [4, 5, 6])
+        self.assertEqual(groups, ["fun guys"])
+        self.assertEqual(included_ids, [7, 8, 9])

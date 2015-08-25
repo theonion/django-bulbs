@@ -1,6 +1,10 @@
 import datetime
 import csv
-import StringIO
+
+try:
+    import StringIO
+except ImportError:
+    import io as StringIO
 
 from django.core.urlresolvers import reverse
 from django.test.client import Client
@@ -72,7 +76,7 @@ class ContributionReportingTestCase(BaseAPITestCase):
         response = client.get(endpoint,
                               data={"start": start_date.strftime("%Y-%m-%d"), "format": "csv"})
         self.assertEqual(response.status_code, 200)
-        csvreader = csv.DictReader(StringIO.StringIO(response.content))
+        csvreader = csv.DictReader(StringIO.StringIO(response.content.decode("utf8")))
         self.assertEqual(len(csvreader.fieldnames), 12)
         for line in csvreader:
             pass
