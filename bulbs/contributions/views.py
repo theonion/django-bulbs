@@ -9,14 +9,20 @@ from rest_framework.settings import api_settings
 
 from rest_framework_csv.renderers import CSVRenderer
 
-from .models import ContributorRole, Contribution
-from .serializers import ContributorRoleSerializer, ContributionReportingSerializer, ContentReportingSerializer
+from .models import ContributorRole, Contribution, RoleRateOverride
+from .serializers import (ContributorRoleSerializer, ContributionReportingSerializer, ContentReportingSerializer,
+    RoleRateOverrideSerializer)
 from bulbs.content.models import Content
 
 
 class ContributorRoleViewSet(viewsets.ModelViewSet):
     queryset = ContributorRole.objects.all()
     serializer_class = ContributorRoleSerializer
+
+
+class RoleRateOverrideViewSet(viewsets.ModelViewSet):
+    queryset = RoleRateOverride.objects.all()
+    serializer_class = RoleRateOverrideSerializer
 
 
 class ContentReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
@@ -78,5 +84,6 @@ class ReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 
 api_v1_router = routers.DefaultRouter()
 api_v1_router.register(r"role", ContributorRoleViewSet, base_name="contributorrole")
+api_v1_router.register(r"rate-overrides", RoleRateOverrideViewSet, base_name="rate-overrides")
 api_v1_router.register(r"reporting", ReportingViewSet, base_name="contributionreporting")
 api_v1_router.register(r"contentreporting", ContentReportingViewSet, base_name="contentreporting")

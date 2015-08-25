@@ -25,7 +25,7 @@ RATE_PAYMENT_TYPES = ROLE_PAYMENT_TYPES + ((OVERRIDE, 'Override'),)
 class ContributorRole(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
-    payment_type = models.IntegerField(choices=ROLE_PAYMENT_TYPES, default=MANUAL, max_length=255)
+    payment_type = models.IntegerField(choices=ROLE_PAYMENT_TYPES, default=MANUAL)
 
 
 class Contribution(models.Model):
@@ -54,7 +54,7 @@ class Contribution(models.Model):
 
 
 class Rate(models.Model):
-    name = models.IntegerField(choices=RATE_PAYMENT_TYPES, default=MANUAL, max_length=255)
+    name = models.IntegerField(choices=RATE_PAYMENT_TYPES, null=True)
     updated_on = models.DateTimeField(auto_now=True)
     rate = models.IntegerField()
 
@@ -63,12 +63,18 @@ class Rate(models.Model):
 
 
 class ContributorRoleRate(Rate):
-    role = models.ForeignKey(ContributorRole, related_name='rates')
+    role = models.ForeignKey(ContributorRole, related_name="rates")
+
+
+class RoleRateOverride(Rate):
+    """Model to override the rate for a user given a particular role"""
+    role = models.ForeignKey(ContributorRole, related_name="rate_override")
+    contributor = models.ForeignKey(settings.AUTH_USER_MODEL)
 
 
 class ContributionRate(Rate):
-    contribution = models.ForeignKey(Contribution, related_name='rates')
+    contribution = models.ForeignKey(Contribution, related_name="rates")
 
 
 class FeatureTypeRate(Rate):
-    feature_type = models.ForeignKey(FeatureType, related_name='rates')
+    feature_type = models.ForeignKey(FeatureType, related_name="rates")

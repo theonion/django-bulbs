@@ -1,11 +1,12 @@
 import json
 
+from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.test.client import Client
 
 from bulbs.content.models import Content, FeatureType
-from bulbs.contributions.models import (Contribution, ContributorRole, ContributionRate,
-    ContributorRoleRate, FeatureTypeRate, Rate, RATE_PAYMENT_TYPES)
+from bulbs.contributions.models import (Contribution, ContributorRole, ContributionRate, ContributorRoleRate, FeatureTypeRate, Rate,
+    RoleRateOverride, RATE_PAYMENT_TYPES)
 from bulbs.contributions.serializers import RateSerializer
 from bulbs.utils.test import BaseAPITestCase, make_content
 
@@ -16,9 +17,23 @@ PAYMENT_TYPES = dict((label, value) for value, label in RATE_PAYMENT_TYPES)
 class ContributionApiTestCase(BaseAPITestCase):
     def setUp(self):
         super(ContributionApiTestCase, self).setUp()
+        Contributor = get_user_model()
         self.roles = {
             "editor": ContributorRole.objects.create(name="Editor"),
             "writer": ContributorRole.objects.create(name="Writer")
+        }
+
+        self.contributors = {
+            "jarvis": Contributor.objects.create(
+                first_name="jarvis",
+                last_name="monster",
+                username="arduous"
+            ),
+            "marvin": Contributor.objects.create(
+                first_name="marvin",
+                last_name="complete",
+                username="argyle"
+            ),
         }
 
     def test_contributionrole_api(self):
@@ -75,6 +90,63 @@ class ContributionApiTestCase(BaseAPITestCase):
         self.assertEqual(role.name, data["name"])
         self.assertEqual(role.description, data["description"])
         self.assertEqual(role.payment_type, 0)
+
+    def test_rate_overrides_list_api(self):
+        client = Client()
+        client.login(username="admin", password="secret")
+        endpoint = reverse("rate-overrides-list")
+        override1 = RoleRateOverride.objects.create(
+            rate=60,
+            role=self.roles["editor"],
+            contributor=self.contributors["jarvis"]
+        )
+        override2 = RoleRateOverride.objects.create(
+            rate=50,
+            role=self.roles["writer"],
+            contributor=self.contributors["marvin"]
+        )
+
+        resp = self.client.get(endpoint)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 2)
+
+        overrides = sorted(resp.data, key=lambda override: override["id"])
+        o1, o2 = overrides[0], overrides[1]
+        o1c, o1r = o1.get("contributor"), o1.get("role")
+        o2c, o2r = o2.get("contributor"), o2.get("role")
+        self.assertEqual(o1.get("rate"), override1.rate)
+        self.assertEqual(o1c.get("full_name"), "jarvis monster")
+        self.assertEqual(o1r.get("name"), "Editor")
+        self.assertEqual(o2.get("rate"), override2.rate)
+        self.assertEqual(o2c.get("full_name"), "marvin complete")
+        self.assertEqual(o2r.get("name"), "Writer")
+
+    def test_rate_overrides_post_api_success(self):
+        client = Client()
+        client.login(username="admin", password="secret")
+        endpoint = reverse("rate-overrides-list")
+        data = {
+            "rate": 70,
+            "contributor": {
+                "id": self.contributors["jarvis"].id
+            },
+            "role": {
+                "id": self.roles["editor"].id
+            }
+        }
+        resp = client.post(
+            endpoint,
+            json.dumps(data),
+            content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, 201)
+        override = RoleRateOverride.objects.get(id=resp.data.get("id"))
+        self.assertEqual(resp.data.get("rate"), 70)
+        self.assertEqual(resp.data.get("rate"), override.rate)
+        self.assertEqual(resp.data.get("role").get("id"), override.role.id)
+        self.assertEqual(
+            resp.data.get("contributor").get("id"), override.contributor.id
+        )
 
     def test_contributions_list_api(self):
         client = Client()

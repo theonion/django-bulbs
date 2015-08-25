@@ -1,5 +1,6 @@
 from collections import OrderedDict
 
+from django.contrib.auth import get_user_model
 from django.utils import timezone
 
 from bulbs.content.models import Content
@@ -8,8 +9,7 @@ from bulbs.content.serializers import UserSerializer
 from rest_framework import serializers
 from rest_framework.utils import model_meta
 
-from .models import (Contribution, ContributorRole, ContributorRoleRate, ContributionRate,
-    FeatureTypeRate, Rate, RATE_PAYMENT_TYPES, ROLE_PAYMENT_TYPES)
+from .models import (Contribution, ContributorRole, ContributorRoleRate, ContributionRate, FeatureTypeRate, Rate, RoleRateOverride, RATE_PAYMENT_TYPES)
 
 
 class PaymentTypeField(serializers.Field):
@@ -23,6 +23,39 @@ class PaymentTypeField(serializers.Field):
         if isinstance(data, int):
             return data
         return dict((label, value) for value, label in RATE_PAYMENT_TYPES)[data]
+
+
+class ContributorSerializer(serializers.ModelSerializer):
+
+    full_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = get_user_model()
+        fields = ("id", "first_name", "last_name", "full_name")
+
+    def get_full_name(self, contributor):
+        if hasattr(contributor, "get_full_name"):
+            return contributor.get_full_name()
+        elif hasattr(contributor, "full_name"):
+            return contributor.full_name
+        else:
+            return contributor.first_name + " " + contributor.last_name
+
+
+class ContributorField(serializers.Field):
+
+    def to_representation(self, obj):
+        return ContributorSerializer(obj).data
+
+    def to_internal_value(self, data):
+        Contributor = get_user_model()
+        if isinstance(data, int):
+            return Contributor.objects.get(id=data)
+        elif isinstance(data, dict):
+            id = data.get("id", None)
+            if id is not None:
+                return Contributor.objects.get(id=id)
+        return None
 
 
 class RateSerializer(serializers.ModelSerializer):
@@ -67,6 +100,29 @@ class ContributorRoleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ContributorRole
+
+
+class ContributorRoleField(serializers.Field):
+
+    def to_representation(self, obj):
+        return ContributorRoleSerializer(obj).data
+
+    def to_internal_value(self, data):
+        if isinstance(data, int):
+            return ContributorRole.objects.get(id=data)
+        elif isinstance(data, dict):
+            id = data.get("id", None)
+            return ContributorRole.objects.get(id=id)
+        return None
+
+
+class RoleRateOverrideSerializer(serializers.ModelSerializer):
+
+    contributor = ContributorField()
+    role = ContributorRoleField()
+
+    class Meta:
+        model = RoleRateOverride
 
 
 class ContributionListSerializer(serializers.ListSerializer):
