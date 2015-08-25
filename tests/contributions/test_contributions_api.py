@@ -6,8 +6,7 @@ from django.core.urlresolvers import reverse
 from django.test.client import Client
 
 from bulbs.content.models import Content, FeatureType
-from bulbs.contributions.models import (Contribution, ContributorRole, ContributionRate, ContributorRoleRate, FeatureTypeOverride, FeatureTypeRate, LineItem, Rate,
-    RoleOverride, RATE_PAYMENT_TYPES)
+from bulbs.contributions.models import (Contribution, ContributorRole, ContributionRate, ContributorRoleRate, FeatureTypeOverride, FeatureTypeRate, LineItem, Override, Rate, RATE_PAYMENT_TYPES)
 from bulbs.contributions.serializers import RateSerializer
 from bulbs.utils.test import BaseAPITestCase, make_content
 
@@ -136,12 +135,12 @@ class ContributionApiTestCase(BaseAPITestCase):
         client = Client()
         client.login(username="admin", password="secret")
         endpoint = reverse("rate-overrides-list")
-        override1 = RoleOverride.objects.create(
+        override1 = Override.objects.create(
             rate=60,
             role=self.roles["editor"],
             contributor=self.contributors["jarvis"]
         )
-        override2 = RoleOverride.objects.create(
+        override2 = Override.objects.create(
             rate=50,
             role=self.roles["writer"],
             contributor=self.contributors["marvin"]
@@ -181,7 +180,7 @@ class ContributionApiTestCase(BaseAPITestCase):
             content_type="application/json"
         )
         self.assertEqual(resp.status_code, 201)
-        override = RoleOverride.objects.get(id=resp.data.get("id"))
+        override = Override.objects.get(id=resp.data.get("id"))
         self.assertEqual(resp.data.get("rate"), 70)
         self.assertEqual(resp.data.get("rate"), override.rate)
         self.assertEqual(resp.data.get("role").get("id"), override.role.id)
@@ -198,11 +197,13 @@ class ContributionApiTestCase(BaseAPITestCase):
         FeatureTypeOverride.objects.create(
             rate=55,
             feature_type=f1,
+            role=self.roles["editor"],
             contributor=self.contributors["jarvis"]
         )
         FeatureTypeOverride.objects.create(
             rate=55,
             feature_type=f2,
+            role=self.roles["writer"],
             contributor=self.contributors["marvin"]
         )
         resp = client.get(endpoint)
@@ -218,6 +219,9 @@ class ContributionApiTestCase(BaseAPITestCase):
             "rate": 88,
             "contributor": {
                 "id": self.contributors["jarvis"].id
+            },
+            "role": {
+                "id": self.roles["editor"].id,
             },
             "feature_type": {
                 "id": f1.id

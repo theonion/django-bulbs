@@ -79,12 +79,9 @@ class Override(PolymorphicModel, Rate):
     contributor = models.ForeignKey(
         settings.AUTH_USER_MODEL, related_name="overrides"
     )
-    objects = PolymorphicManager()
-
-
-class RoleOverride(Override):
-    """Model to override the rate for a user given a particular role"""
     role = models.ForeignKey(ContributorRole, related_name="overrides")
+
+    objects = PolymorphicManager()
 
 
 class FeatureTypeOverride(Override):

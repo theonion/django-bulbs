@@ -9,7 +9,7 @@ from rest_framework.settings import api_settings
 
 from rest_framework_csv.renderers import CSVRenderer
 
-from .models import (ContributorRole, Contribution, LineItem, Override, RoleOverride)
+from .models import (ContributorRole, Contribution, LineItem, Override)
 from .serializers import (ContributorRoleSerializer, ContributionReportingSerializer, ContentReportingSerializer, LineItemSerializer, OverrideSerializer)
 from bulbs.content.models import Content
 
@@ -22,11 +22,6 @@ class LineItemViewSet(viewsets.ModelViewSet):
 class ContributorRoleViewSet(viewsets.ModelViewSet):
     queryset = ContributorRole.objects.all()
     serializer_class = ContributorRoleSerializer
-
-
-# class RoleOverrideViewSet(viewsets.ModelViewSet):
-#     queryset = RoleOverride.objects.all()
-#     serializer_class = RoleOverrideSerializer
 
 
 class OverrideViewSet(viewsets.ModelViewSet):

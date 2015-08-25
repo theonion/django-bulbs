@@ -48,17 +48,6 @@ class Migration(migrations.Migration):
             },
             bases=('contributions.override',),
         ),
-        migrations.CreateModel(
-            name='RoleOverride',
-            fields=[
-                ('override_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='contributions.Override')),
-                ('role', models.ForeignKey(related_name='overrides', to='contributions.ContributorRole')),
-            ],
-            options={
-                'abstract': False,
-            },
-            bases=('contributions.override',),
-        ),
         migrations.DeleteModel(
             name='RoleRateOverride',
         ),
@@ -71,5 +60,10 @@ class Migration(migrations.Migration):
             model_name='override',
             name='polymorphic_ctype',
             field=models.ForeignKey(related_name='polymorphic_contributions.override_set+', editable=False, to='contenttypes.ContentType', null=True),
+        ),
+        migrations.AddField(
+            model_name='override',
+            name='role',
+            field=models.ForeignKey(related_name='overrides', to='contributions.ContributorRole'),
         ),
     ]
