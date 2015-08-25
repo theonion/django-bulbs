@@ -9,7 +9,7 @@ from bulbs.content.serializers import UserSerializer
 from rest_framework import serializers
 from rest_framework.utils import model_meta
 
-from .models import (Contribution, ContributorRole, ContributorRoleRate, ContributionRate, FeatureTypeRate, Rate, RoleRateOverride, RATE_PAYMENT_TYPES)
+from .models import (Contribution, ContributorRole, ContributorRoleRate, ContributionRate, FeatureTypeRate, LineItem, Rate, RoleRateOverride, RATE_PAYMENT_TYPES)
 
 
 class PaymentTypeField(serializers.Field):
@@ -56,6 +56,14 @@ class ContributorField(serializers.Field):
             if id is not None:
                 return Contributor.objects.get(id=id)
         return None
+
+
+class LineItemSerializer(serializers.ModelSerializer):
+
+    contributor = ContributorField()
+
+    class Meta:
+        model = LineItem
 
 
 class RateSerializer(serializers.ModelSerializer):

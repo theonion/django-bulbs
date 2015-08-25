@@ -1,11 +1,12 @@
 import json
 
+from django.utils import timezone
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.test.client import Client
 
 from bulbs.content.models import Content, FeatureType
-from bulbs.contributions.models import (Contribution, ContributorRole, ContributionRate, ContributorRoleRate, FeatureTypeRate, Rate,
+from bulbs.contributions.models import (Contribution, ContributorRole, ContributionRate, ContributorRoleRate, FeatureTypeRate, LineItem, Rate,
     RoleRateOverride, RATE_PAYMENT_TYPES)
 from bulbs.contributions.serializers import RateSerializer
 from bulbs.utils.test import BaseAPITestCase, make_content
@@ -90,6 +91,46 @@ class ContributionApiTestCase(BaseAPITestCase):
         self.assertEqual(role.name, data["name"])
         self.assertEqual(role.description, data["description"])
         self.assertEqual(role.payment_type, 0)
+
+    def test_line_item_list_api(self):
+        client = Client()
+        client.login(username="admin", password="secret")
+        endpoint = reverse("line-items-list")
+        LineItem.objects.create(
+            contributor=self.contributors["jarvis"],
+            amount=50,
+            note="eyyy good lookin out",
+            payment_date=timezone.now() - timezone.timedelta(days=1)
+        )
+        LineItem.objects.create(
+            contributor=self.contributors["marvin"],
+            amount=60,
+            note="c'mon buster",
+            payment_date=timezone.now() - timezone.timedelta(days=3)
+        )
+        resp = client.get(endpoint)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 2)
+
+    def test_line_item_post_success(self):
+        client = Client()
+        client.login(username="admin", password="secret")
+        endpoint = reverse("line-items-list")
+        data = {
+            "contributor": {
+                "id": self.contributors["jarvis"].id
+            },
+            "amount": 66,
+            "note": "eyyyyy",
+            "payment_date": (
+                timezone.now() - timezone.timedelta(days=2)).isoformat()
+        }
+        resp = client.post(
+            endpoint,
+            json.dumps(data),
+            content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, 201)
 
     def test_rate_overrides_list_api(self):
         client = Client()

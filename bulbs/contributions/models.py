@@ -22,6 +22,13 @@ ROLE_PAYMENT_TYPES = (
 RATE_PAYMENT_TYPES = ROLE_PAYMENT_TYPES + ((OVERRIDE, 'Override'),)
 
 
+class LineItem(models.Model):
+    contributor = models.ForeignKey(settings.AUTH_USER_MODEL)
+    amount = models.IntegerField(default=0)
+    note = models.TextField()
+    payment_date = models.DateTimeField(auto_now_add=True)
+
+
 class ContributorRole(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
