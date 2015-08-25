@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.db import models
 
+from polymorphic import PolymorphicModel, PolymorphicManager
+
 from bulbs.content.models import Content, FeatureType
 
 # User = get_user_model()
@@ -73,10 +75,21 @@ class ContributorRoleRate(Rate):
     role = models.ForeignKey(ContributorRole, related_name="rates")
 
 
-class RoleRateOverride(Rate):
+class Override(PolymorphicModel, Rate):
+    contributor = models.ForeignKey(
+        settings.AUTH_USER_MODEL, related_name="overrides"
+    )
+    objects = PolymorphicManager()
+
+
+class RoleOverride(Override):
     """Model to override the rate for a user given a particular role"""
-    role = models.ForeignKey(ContributorRole, related_name="rate_override")
-    contributor = models.ForeignKey(settings.AUTH_USER_MODEL)
+    role = models.ForeignKey(ContributorRole, related_name="overrides")
+
+
+class FeatureTypeOverride(Override):
+    """Overrides the rate for a user given a particular FeatureType."""
+    feature_type = models.ForeignKey(FeatureType, related_name="overrides")
 
 
 class ContributionRate(Rate):

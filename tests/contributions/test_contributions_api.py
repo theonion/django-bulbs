@@ -7,7 +7,7 @@ from django.test.client import Client
 
 from bulbs.content.models import Content, FeatureType
 from bulbs.contributions.models import (Contribution, ContributorRole, ContributionRate, ContributorRoleRate, FeatureTypeRate, LineItem, Rate,
-    RoleRateOverride, RATE_PAYMENT_TYPES)
+    RoleOverride, RATE_PAYMENT_TYPES)
 from bulbs.contributions.serializers import RateSerializer
 from bulbs.utils.test import BaseAPITestCase, make_content
 
@@ -136,12 +136,12 @@ class ContributionApiTestCase(BaseAPITestCase):
         client = Client()
         client.login(username="admin", password="secret")
         endpoint = reverse("rate-overrides-list")
-        override1 = RoleRateOverride.objects.create(
+        override1 = RoleOverride.objects.create(
             rate=60,
             role=self.roles["editor"],
             contributor=self.contributors["jarvis"]
         )
-        override2 = RoleRateOverride.objects.create(
+        override2 = RoleOverride.objects.create(
             rate=50,
             role=self.roles["writer"],
             contributor=self.contributors["marvin"]
@@ -181,7 +181,7 @@ class ContributionApiTestCase(BaseAPITestCase):
             content_type="application/json"
         )
         self.assertEqual(resp.status_code, 201)
-        override = RoleRateOverride.objects.get(id=resp.data.get("id"))
+        override = RoleOverride.objects.get(id=resp.data.get("id"))
         self.assertEqual(resp.data.get("rate"), 70)
         self.assertEqual(resp.data.get("rate"), override.rate)
         self.assertEqual(resp.data.get("role").get("id"), override.role.id)

@@ -9,7 +9,7 @@ from bulbs.content.serializers import UserSerializer
 from rest_framework import serializers
 from rest_framework.utils import model_meta
 
-from .models import (Contribution, ContributorRole, ContributorRoleRate, ContributionRate, FeatureTypeRate, LineItem, Rate, RoleRateOverride, RATE_PAYMENT_TYPES)
+from .models import (Contribution, ContributorRole, ContributorRoleRate, ContributionRate, FeatureTypeRate, LineItem, Override, Rate, RoleOverride, RATE_PAYMENT_TYPES)
 
 
 class PaymentTypeField(serializers.Field):
@@ -124,13 +124,37 @@ class ContributorRoleField(serializers.Field):
         return None
 
 
-class RoleRateOverrideSerializer(serializers.ModelSerializer):
+class RoleOverrideSerializer(serializers.ModelSerializer):
 
     contributor = ContributorField()
     role = ContributorRoleField()
 
     class Meta:
-        model = RoleRateOverride
+        model = RoleOverride
+
+
+class OverrideSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Override
+
+    def create(self, validated_data):
+        if "role" in validated_data:
+            return RoleOverrideSerializer().create(validated_data)
+        else:
+            return super(OverrideSerializer, self).create(validated_data)
+
+    def to_internal_value(self, data):
+        if "role" in data:
+            return RoleOverrideSerializer().to_internal_value(data)
+        else:
+            return super(OverrideSerializer, self).to_internal_value(data)
+
+    def to_representation(self, obj):
+        if isinstance(obj, RoleOverride):
+            return RoleOverrideSerializer(obj).to_representation(obj)
+        else:
+            return super(OverrideSerializer, self).to_representation(obj)
 
 
 class ContributionListSerializer(serializers.ListSerializer):
