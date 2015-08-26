@@ -36,6 +36,7 @@ class RSSView(ContentListView):
 
         # OK, so this is kinda brutal. Stay with me here.
         for content in context["page_obj"].object_list:
+            # HERE?
             feed_path = content.get_absolute_url() + "?" + self.utm_params
             content.feed_url = self.request.build_absolute_uri(feed_path)
 

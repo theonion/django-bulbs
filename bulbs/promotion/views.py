@@ -15,6 +15,8 @@ from rest_framework.views import APIView
 from bulbs.api.permissions import CanPromoteContent
 from bulbs.api.mixins import UncachedResponse
 
+from bulbs.utils.methods import get_query_params
+
 from .models import PZone
 from .operations import PZoneOperation, InsertOperation, DeleteOperation, ReplaceOperation
 from .serializers import PZoneSerializer, InsertOperationSerializer, DeleteOperationSerializer, ReplaceOperationSerializer
@@ -166,7 +168,7 @@ class PZoneViewSet(UncachedResponse, viewsets.ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         """Retrieve pzone as a preview or applied if no preview is provided."""
 
-        when_param = self.request.QUERY_PARAMS.get("preview", None)
+        when_param = get_query_params(self.request).get("preview", None)
         pk = self.kwargs["pk"]
 
         when = None

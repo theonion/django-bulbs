@@ -145,6 +145,7 @@ class ContentCustomSearchListView(ListView):
 
 
 class BaseContentDetailView(DetailView):
+class BaseContentDetailView(DetailView):
     """Should be used as the base for all content detail views."""
 
     model = Content
