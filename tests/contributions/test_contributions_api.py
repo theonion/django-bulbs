@@ -74,7 +74,11 @@ class ContributionApiTestCase(BaseAPITestCase):
                 "Flat Rate": {
                   "updated_on": "2015-07-13T20:14:48.573940Z",
                   "rate": 100
-                }
+                },
+                'Hourly': {
+                  "updated_on": '2015-07-14T20:14:48.573940Z',
+                  "rate": 60
+                },
             }
         }
 

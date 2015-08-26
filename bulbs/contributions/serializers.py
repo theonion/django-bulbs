@@ -9,7 +9,7 @@ from bulbs.content.serializers import FeatureTypeField, UserSerializer
 from rest_framework import serializers
 from rest_framework.utils import model_meta
 
-from .models import (Contribution, ContributorRole, FlatRate, ManualRate, FeatureTypeRate, FeatureTypeOverride, LineItem, Override, Rate, RATE_PAYMENT_TYPES)
+from .models import (Contribution, ContributorRole, HourlyRate, FlatRate, ManualRate, FeatureTypeRate, FeatureTypeOverride, LineItem, Override, Rate, RATE_PAYMENT_TYPES)
 
 
 class PaymentTypeField(serializers.Field):
@@ -111,10 +111,16 @@ class ContributorRoleSerializer(serializers.ModelSerializer):
     def to_representation(self, obj):
         data = super(ContributorRoleSerializer, self).to_representation(obj)
         rates = {}
-        flat_rate = FlatRate.objects.last()
+        flat_rate = FlatRate.objects.first()
         if flat_rate:
             rates["Flat Rate"] = {
                 "rate": flat_rate.rate,
+                "updated_on": flat_rate.updated_on.isoformat()
+            }
+        hourly = HourlyRate.objects.first()
+        if hourly:
+            rates["Hourly"] = {
+                "rate": hourly.rate,
                 "updated_on": flat_rate.updated_on.isoformat()
             }
         data["rates"] = rates
@@ -132,6 +138,9 @@ class ContributorRoleSerializer(serializers.ModelSerializer):
         flat_rate = rates.get("Flat Rate", None)
         if flat_rate:
             FlatRate.objects.create(role=instance, **flat_rate)
+        hourly = rates.get("Hourly", None)
+        if hourly:
+            HourlyRate.objects.create(role=instance, **flat_rate)
         return instance
 
 
