@@ -37,6 +37,8 @@ from bulbs.content.serializers import (
 from bulbs.contributions.serializers import ContributionSerializer
 from bulbs.contributions.models import Contribution
 
+from bulbs.utils.methods import get_query_params
+
 from .mixins import UncachedResponse
 from .permissions import CanEditContent, CanPublishContent
 
@@ -108,21 +110,21 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
 
         for field_name in ("before", "after", "status", "published"):
 
-            if field_name in self.request.QUERY_PARAMS:
-                search_kwargs[field_name] = self.request.QUERY_PARAMS.get(field_name)
+            if field_name in get_query_params(self.request):
+                search_kwargs[field_name] = get_query_params(self.request).get(field_name)
 
         for field_name in ("tags", "types", "feature_types"):
 
-            if field_name in self.request.QUERY_PARAMS:
-                search_kwargs[field_name] = self.request.QUERY_PARAMS.getlist(field_name)
+            if field_name in get_query_params(self.request):
+                search_kwargs[field_name] = get_query_params(self.request).getlist(field_name)
 
-        if "search" in self.request.QUERY_PARAMS:
-            search_kwargs["query"] = self.request.QUERY_PARAMS.get("search")
+        if "search" in get_query_params(self.request):
+            search_kwargs["query"] = get_query_params(self.request).get("search")
 
         queryset = Content.search_objects.search(**search_kwargs)
 
-        if "authors" in self.request.QUERY_PARAMS:
-            authors = self.request.QUERY_PARAMS.getlist("authors")
+        if "authors" in get_query_params(self.request):
+            authors = get_query_params(self.request).getlist("authors")
             queryset = queryset.filter(Authors(authors))
 
         page = self.paginate_queryset(queryset)
@@ -279,7 +281,7 @@ class TagViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
             query_string = self.request.REQUEST["search"].lower()
             queryset = queryset.query(Q("match", name=query_string) | Q("match", **{"name.raw": query_string}))
 
-        types = self.request.QUERY_PARAMS.getlist("types", None)
+        types = get_query_params(self.request).getlist("types", None)
         if types:
             queryset._doc_type = self.request.REQUEST["types"]
         return queryset
@@ -312,7 +314,7 @@ class LogEntryViewSet(UncachedResponse, viewsets.ModelViewSet):
         :return: an instance of `django.db.models.QuerySet`
         """
         qs = LogEntry.objects.all()
-        content_id = self.request.QUERY_PARAMS.get("content", None)
+        content_id = get_query_params(self.request).get("content", None)
         if content_id:
             qs = qs.filter(object_id=content_id)
         return qs
@@ -422,7 +424,7 @@ class ContentTypeViewSet(viewsets.ViewSet):
 
     def list(self, request):
         """Search the doctypes for this model."""
-        query = request.QUERY_PARAMS.get("search", "")
+        query = get_query_params(request).get("search", "")
         results = []
         base = self.model.get_base_class()
         doctypes = indexable_registry.families[base]

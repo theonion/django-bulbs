@@ -1,5 +1,6 @@
 from rest_framework import filters
 
+from bulbs.utils.methods import get_query_params
 
 class CaseInsensitiveBooleanFilter(filters.BaseFilterBackend):
     """Set a boolean_fields tuple on the viewset and set this class as a
@@ -16,8 +17,8 @@ class CaseInsensitiveBooleanFilter(filters.BaseFilterBackend):
 
         boolean_filters = {}
         for field in boolean_fields:
-            if field in request.QUERY_PARAMS:
-                val = request.QUERY_PARAMS[field].lower()
+            if field in get_query_params(request):
+                val = get_query_params(request)[field].lower()
                 if val == 'true':
                     boolean_filters[field] = True
                 elif val == 'false':
