@@ -9,7 +9,7 @@ from bulbs.content.serializers import FeatureTypeField, UserSerializer
 from rest_framework import serializers
 from rest_framework.utils import model_meta
 
-from .models import (Contribution, ContributorRole, ContributorRoleRate, ContributionRate, FeatureTypeRate, FeatureTypeOverride, LineItem, Override, Rate, RATE_PAYMENT_TYPES)
+from .models import (Contribution, ContributorRole, FlatRate, ManualRate, FeatureTypeRate, FeatureTypeOverride, LineItem, Override, Rate, RATE_PAYMENT_TYPES)
 
 
 class PaymentTypeField(serializers.Field):
@@ -90,9 +90,9 @@ class RateField(serializers.Field):
         if name:
             data['name'] = dict((label, value) for value, label in RATE_PAYMENT_TYPES)[name]
         if 'role' in data:
-            rate = ContributorRoleRate(**data)
+            rate = FlatRate(**data)
         elif 'contribution' in data:
-            rate = ContributionRate(**data)
+            rate = ManualRate(**data)
         elif 'feature_type' in data:
             rate = FeatureTypeRate(**data)
         else:
@@ -111,11 +111,12 @@ class ContributorRoleSerializer(serializers.ModelSerializer):
     def to_representation(self, obj):
         data = super(ContributorRoleSerializer, self).to_representation(obj)
         rates = {}
-        flat_rate = ContributorRoleRate.objects.last()
-        rates["Flat Rate"] = {
-            "rate": flat_rate.rate,
-            "updated_on": flat_rate.updated_on.isoformat()
-        }
+        flat_rate = FlatRate.objects.last()
+        if flat_rate:
+            rates["Flat Rate"] = {
+                "rate": flat_rate.rate,
+                "updated_on": flat_rate.updated_on.isoformat()
+            }
         data["rates"] = rates
         return data
 
@@ -130,7 +131,7 @@ class ContributorRoleSerializer(serializers.ModelSerializer):
         instance = super(ContributorRoleSerializer, self).save()
         flat_rate = rates.get("Flat Rate", None)
         if flat_rate:
-            ContributorRoleRate.objects.create(role=instance, **flat_rate)
+            FlatRate.objects.create(role=instance, **flat_rate)
         return instance
 
 

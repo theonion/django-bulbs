@@ -45,21 +45,21 @@ class Contribution(models.Model):
     minutes_worked = models.IntegerField(null=True)
 
     def get_rate(self):
-        if self.rates.filter(name=OVERRIDE).count() > 0:
-            return self.rates.filter(name=OVERRIDE).first()
+        if self.manual_rates.filter(name=OVERRIDE).count() > 0:
+            return self.manual_rates.filter(name=OVERRIDE).first()
 
         payment_type = self.role.payment_type
         if payment_type == MANUAL:
-            return self.rates.all().first()
+            return self.manual_rates.all().first()
 
         if payment_type == FLAT_RATE:
-            return self.role.rates.filter(name=payment_type).first()
+            return self.role.flat_rates.filter(name=payment_type).first()
 
         if payment_type == FEATURETYPE:
-            return self.content.feature_type.rates.all().first()
+            return self.content.feature_type.feature_type_rates.all().first()
 
         if payment_type == HOURLY:
-            return self.role.rates.filter(name=payment_type).first()
+            return self.role.hourly_rates.filter(name=payment_type).first()
 
 
 class Rate(models.Model):
@@ -71,8 +71,21 @@ class Rate(models.Model):
         ordering = ('-updated_on',)
 
 
-class ContributorRoleRate(Rate):
-    role = models.ForeignKey(ContributorRole, related_name="rates")
+class FlatRate(Rate):
+    role = models.ForeignKey(ContributorRole, related_name="flat_rates")
+
+
+class HourlyRate(Rate):
+    role = models.ForeignKey(ContributorRole, related_name="hourly_rates")
+
+
+class ManualRate(Rate):
+    contribution = models.ForeignKey(Contribution, related_name="manual_rates")
+
+
+class FeatureTypeRate(Rate):
+    role = models.ForeignKey(ContributorRole, null=True, related_name="feature_type_rates")
+    feature_type = models.ForeignKey(FeatureType, related_name="feature_type_rates")
 
 
 class Override(PolymorphicModel, Rate):
@@ -87,11 +100,3 @@ class Override(PolymorphicModel, Rate):
 class FeatureTypeOverride(Override):
     """Overrides the rate for a user given a particular FeatureType."""
     feature_type = models.ForeignKey(FeatureType, related_name="overrides")
-
-
-class ContributionRate(Rate):
-    contribution = models.ForeignKey(Contribution, related_name="rates")
-
-
-class FeatureTypeRate(Rate):
-    feature_type = models.ForeignKey(FeatureType, related_name="rates")
