@@ -70,9 +70,15 @@ class ContributionApiTestCase(BaseAPITestCase):
         client.login(username="admin", password="secret")
         endpoint = reverse("contributorrole-list")
         data = {
-            "name": "Programmer",
-            "description": "Ballers of the biz",
-            "payment_type": 'Flat Rate'
+            "name": "Author",
+            "description": "good guy stuff",
+            "payment_type": "Flat Rate",
+            "rates": {
+                "Flat Rate": {
+                  "updated_on": "2015-07-13T20:14:48.573940Z",
+                  "rate": 100
+                }
+            }
         }
 
         resp = client.post(

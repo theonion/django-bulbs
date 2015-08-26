@@ -103,11 +103,35 @@ class RateField(serializers.Field):
 
 class ContributorRoleSerializer(serializers.ModelSerializer):
 
-    rates = RateSerializer(required=False, many=True, read_only=False)
     payment_type = PaymentTypeField()
 
     class Meta:
         model = ContributorRole
+
+    def to_representation(self, obj):
+        data = super(ContributorRoleSerializer, self).to_representation(obj)
+        rates = {}
+        flat_rate = ContributorRoleRate.objects.last()
+        rates["Flat Rate"] = {
+            "rate": flat_rate.rate,
+            "updated_on": flat_rate.updated_on.isoformat()
+        }
+        data["rates"] = rates
+        return data
+
+    def to_internal_value(self, data):
+        rates = data.pop("rates", {})
+        data = super(ContributorRoleSerializer, self).to_internal_value(data)
+        data["rates"] = rates
+        return data
+
+    def save(self):
+        rates = self.validated_data.pop("rates", None)
+        instance = super(ContributorRoleSerializer, self).save()
+        flat_rate = rates.get("Flat Rate", None)
+        if flat_rate:
+            ContributorRoleRate.objects.create(role=instance, **flat_rate)
+        return instance
 
 
 class ContributorRoleField(serializers.Field):
