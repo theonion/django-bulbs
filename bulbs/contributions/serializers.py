@@ -1,6 +1,7 @@
 from collections import OrderedDict
 
 from django.contrib.auth import get_user_model
+from django.template.defaultfilters import slugify
 from django.utils import timezone
 
 from bulbs.content.models import Content, FeatureType
@@ -111,18 +112,36 @@ class ContributorRoleSerializer(serializers.ModelSerializer):
     def to_representation(self, obj):
         data = super(ContributorRoleSerializer, self).to_representation(obj)
         rates = {}
-        flat_rate = FlatRate.objects.first()
+
+        flat_rate = FlatRate.objects.filter(role=obj).first()
         if flat_rate:
             rates["Flat Rate"] = {
                 "rate": flat_rate.rate,
                 "updated_on": flat_rate.updated_on.isoformat()
             }
-        hourly = HourlyRate.objects.first()
+
+        hourly = HourlyRate.objects.filter(role=obj).first()
         if hourly:
             rates["Hourly"] = {
                 "rate": hourly.rate,
-                "updated_on": flat_rate.updated_on.isoformat()
+                "updated_on": hourly.updated_on.isoformat()
             }
+
+        feature_types = []
+        slugs = FeatureTypeRate.objects.filter(
+                role=obj
+            ).values(
+                "feature_type__name", "rate", "updated_on"
+            ).distinct()
+        for slug in slugs:
+            feature_types.append({
+                "feature_type": slug["feature_type__name"],
+                "rate": slug["rate"],
+                "updated_on": slug["updated_on"]
+            })
+        if feature_types:
+            rates["FeatureType"] = feature_types
+
         data["rates"] = rates
         return data
 
@@ -135,12 +154,31 @@ class ContributorRoleSerializer(serializers.ModelSerializer):
     def save(self):
         rates = self.validated_data.pop("rates", None)
         instance = super(ContributorRoleSerializer, self).save()
+
         flat_rate = rates.get("Flat Rate", None)
         if flat_rate:
             FlatRate.objects.create(role=instance, **flat_rate)
+
         hourly = rates.get("Hourly", None)
         if hourly:
-            HourlyRate.objects.create(role=instance, **flat_rate)
+            HourlyRate.objects.create(role=instance, **hourly)
+
+        feature_types = rates.get("FeatureType")
+        if feature_types:
+            for feature_type in feature_types:
+                name = feature_type.pop("feature_type", None)
+                if name:
+                    slug = slugify(name)
+                    ft, created = FeatureType.objects.get_or_create(
+                        slug=slug,
+                        defaults={"name": name}
+                    )
+                    FeatureTypeRate.objects.create(
+                        role=instance,
+                        feature_type=ft,
+                        **feature_type
+                    )
+
         return instance
 
 

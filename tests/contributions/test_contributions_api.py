@@ -79,6 +79,27 @@ class ContributionApiTestCase(BaseAPITestCase):
                   "updated_on": '2015-07-14T20:14:48.573940Z',
                   "rate": 60
                 },
+                'FeatureType': [{
+                        "feature_type": '100 Episodes',
+                        "updated_on": '2015-07-14T20:14:48.573940Z',
+                        "rate": 100
+                    }, {
+                        "feature_type": '11 Question',
+                        "updated_on": '2015-07-14T20:14:48.573940Z',
+                        "rate": 11
+                    }, {
+                        "feature_type": '13 Days of Christmas',
+                        "updated_on": '2015-07-14T20:14:48.573940Z',
+                        "rate": 13
+                    }, {
+                        "feature_type": '15 Minutes or Less',
+                        "updated_on": '2015-07-14T20:14:48.573940Z',
+                        "rate": 15
+                    }, {
+                        "feature_type": '24 Hours Of',
+                        "updated_on": '2015-07-14T20:14:48.573940Z',
+                        "rate": 5
+                }]
             }
         }
 
