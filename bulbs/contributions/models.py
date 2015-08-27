@@ -28,7 +28,7 @@ class LineItem(models.Model):
     contributor = models.ForeignKey(settings.AUTH_USER_MODEL)
     amount = models.IntegerField(default=0)
     note = models.TextField()
-    payment_date = models.DateTimeField(auto_now_add=True)
+    payment_date = models.DateTimeField(null=True, blank=True)
 
 
 class ContributorRole(models.Model):
