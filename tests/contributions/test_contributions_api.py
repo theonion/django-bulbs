@@ -119,6 +119,21 @@ class ContributionApiTestCase(BaseAPITestCase):
         self.assertEqual(role.description, data["description"])
         self.assertEqual(role.payment_type, 0)
 
+        # Make a PUT request
+        endpoint = reverse("contributorrole-detail", kwargs={"pk": role.id})
+        data["rates"]["Flat Rate"]["rate"] = 120
+        data["rates"]["Hourly"]["rate"] = 100
+        data["rates"]["FeatureType"][0]["rate"] = 300
+        resp = client.put(
+            endpoint,
+            json.dumps(data),
+            content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data["rates"]["Flat Rate"], 120)
+        self.assertEqual(resp.data["rates"]["Hourly"], 100)
+        self.assertEqual(resp.data["rates"]["FeatureType"][0]["rate"], 300)
+
     def test_line_item_list_api(self):
         client = Client()
         client.login(username="admin", password="secret")
