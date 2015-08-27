@@ -115,14 +115,14 @@ class ContributorRoleSerializer(serializers.ModelSerializer):
 
         flat_rate = FlatRate.objects.filter(role=obj).first()
         if flat_rate:
-            rates["Flat Rate"] = {
+            rates["flat_rate"] = {
                 "rate": flat_rate.rate,
                 "updated_on": flat_rate.updated_on.isoformat()
             }
 
         hourly = HourlyRate.objects.filter(role=obj).first()
         if hourly:
-            rates["Hourly"] = {
+            rates["hourly"] = {
                 "rate": hourly.rate,
                 "updated_on": hourly.updated_on.isoformat()
             }
@@ -143,7 +143,7 @@ class ContributorRoleSerializer(serializers.ModelSerializer):
                 "updated_on": ft.updated_on.isoformat()
             })
         if feature_types:
-            rates["FeatureType"] = feature_types
+            rates["feature_type"] = feature_types
 
         data["rates"] = rates
         return data
@@ -158,15 +158,15 @@ class ContributorRoleSerializer(serializers.ModelSerializer):
         rates = self.validated_data.pop("rates", None)
         instance = super(ContributorRoleSerializer, self).save()
 
-        flat_rate = rates.get("Flat Rate", None)
+        flat_rate = rates.get("flat_rate", None)
         if flat_rate:
             FlatRate.objects.create(role=instance, **flat_rate)
 
-        hourly = rates.get("Hourly", None)
+        hourly = rates.get("hourly", None)
         if hourly:
             HourlyRate.objects.create(role=instance, **hourly)
 
-        feature_types = rates.get("FeatureType")
+        feature_types = rates.get("feature_type")
         if feature_types:
             for feature_type in feature_types:
                 name = feature_type.pop("feature_type", None)

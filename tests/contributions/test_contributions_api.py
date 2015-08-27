@@ -59,8 +59,26 @@ class ContributionApiTestCase(BaseAPITestCase):
         self.assertEqual(response.status_code, 200)
 
         rates = response.data[0].get('rates')
-        self.assertEqual(rates["Flat Rate"]['rate'], 100)
-        self.assertIsNotNone(rates["Flat Rate"]['updated_on'])
+        self.assertEqual(rates["flat_rate"]['rate'], 100)
+        self.assertIsNotNone(rates["flat_rate"]['updated_on'])
+
+    def test_contributionrole_flat_rate_dict(self):
+        client = Client()
+        client.login(username="admin", password="secret")
+        endpoint = reverse("contributorrole-list")
+        data = {
+            "name": "Big Fella",
+            "payment_type": "FeatureType",
+            "rates": {
+                "flat_rate": {"rate": 50}
+            }
+        }
+        resp = client.post(
+            endpoint,
+            json.dumps(data),
+            content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, 201)
 
     def test_post_contributionrole_success(self):
         client = Client()
@@ -71,15 +89,15 @@ class ContributionApiTestCase(BaseAPITestCase):
             "description": "good guy stuff",
             "payment_type": "Flat Rate",
             "rates": {
-                "Flat Rate": {
+                "flat_rate": {
                   "updated_on": "2015-07-13T20:14:48.573940Z",
                   "rate": 100
                 },
-                'Hourly': {
+                'hourly': {
                   "updated_on": '2015-07-14T20:14:48.573940Z',
                   "rate": 60
                 },
-                'FeatureType': [{
+                'feature_type': [{
                         "feature_type": '100 Episodes',
                         "updated_on": '2015-07-14T20:14:48.573940Z',
                         "rate": 100
@@ -121,18 +139,18 @@ class ContributionApiTestCase(BaseAPITestCase):
 
         # Make a PUT request
         endpoint = reverse("contributorrole-detail", kwargs={"pk": role.id})
-        data["rates"]["Flat Rate"]["rate"] = 120
-        data["rates"]["Hourly"]["rate"] = 100
-        data["rates"]["FeatureType"][0]["rate"] = 300
+        data["rates"]["flat_rate"]["rate"] = 120
+        data["rates"]["hourly"]["rate"] = 100
+        data["rates"]["feature_type"][0]["rate"] = 300
         resp = client.put(
             endpoint,
             json.dumps(data),
             content_type="application/json"
         )
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.data["rates"]["Flat Rate"]["rate"], 120)
-        self.assertEqual(resp.data["rates"]["Hourly"]["rate"], 100)
-        self.assertEqual(resp.data["rates"]["FeatureType"][0]["rate"], 300)
+        self.assertEqual(resp.data["rates"]["flat_rate"]["rate"], 120)
+        self.assertEqual(resp.data["rates"]["hourly"]["rate"], 100)
+        self.assertEqual(resp.data["rates"]["feature_type"][0]["rate"], 300)
 
     def test_line_item_list_api(self):
         client = Client()
@@ -164,8 +182,7 @@ class ContributionApiTestCase(BaseAPITestCase):
             },
             "amount": 66,
             "note": "eyyyyy",
-            "payment_date": (
-                timezone.now() - timezone.timedelta(days=2)).isoformat()
+            "payment_date": "2015-08-27T15:36:52.574182Z"
         }
         resp = client.post(
             endpoint,
@@ -176,7 +193,8 @@ class ContributionApiTestCase(BaseAPITestCase):
 
         # Make a PUT request
         endpoint = reverse("line-items-detail", kwargs={"pk": resp.data.get("id")})
-        data["payment_date"] = (timezone.now() + timezone.timedelta(days=10)).isoformat()
+        data.update(resp.data)
+        data["payment_date"] = "2015-09-28T16:56:56.266Z"
         data["amount"] = 77
         resp = client.put(
             endpoint,
