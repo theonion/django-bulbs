@@ -37,7 +37,7 @@ from bulbs.content.serializers import (
 from bulbs.contributions.serializers import ContributionSerializer
 from bulbs.contributions.models import Contribution
 
-from bulbs.utils.methods import get_query_params
+from bulbs.utils.methods import get_query_params, get_request_data
 
 from .mixins import UncachedResponse
 from .permissions import CanEditContent, CanPublishContent
@@ -145,11 +145,11 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         """
         content = self.get_object()
 
-        if "published" in request.DATA:
-            if not request.DATA["published"]:
+        if "published" in get_request_data(request):
+            if not get_request_data(request)["published"]:
                 content.published = None
             else:
-                publish_dt = parse_datetime(request.DATA["published"])
+                publish_dt = parse_datetime(get_request_data(request)["published"])
                 if publish_dt:
                     publish_dt = publish_dt.astimezone(timezone.utc)
                 else:
@@ -219,7 +219,7 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         if request.method == "POST":
             serializer = ContributionSerializer(
                 queryset,
-                data=request.DATA,
+                data=get_request_data(request),
                 many=True)
             if not serializer.is_valid():
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -240,8 +240,8 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
 
         data = {
             "content": self.get_object().id,
-            "create_date": request.DATA["create_date"],
-            "expire_date": request.DATA["expire_date"]
+            "create_date": get_request_data(request)["create_date"],
+            "expire_date": get_request_data(request)["expire_date"]
         }
         serializer = ObfuscatedUrlInfoSerializer(data=data)
         if not serializer.is_valid():
@@ -330,7 +330,7 @@ class LogEntryViewSet(UncachedResponse, viewsets.ModelViewSet):
         :return: `rest_framework.response.Response`
         :raise: 400
         """
-        data = request.DATA.copy()
+        data = get_request_data(request).copy()
         data["user"] = request.user.id
         serializer = self.get_serializer(data=data, files=request.FILES)
 
@@ -462,7 +462,7 @@ class CustomSearchContentViewSet(viewsets.GenericViewSet):
         items that would normally be removed due to "excluded_ids".
         """
 
-        queryset = self.get_filtered_queryset(request.DATA)
+        queryset = self.get_filtered_queryset(get_request_data(request))
         # Switch between paginated or standard style responses
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -490,14 +490,14 @@ class CustomSearchContentViewSet(viewsets.GenericViewSet):
 
     @list_route(methods=["get", "post"])
     def count(self, request, **kwargs):
-        qs = self.get_filtered_queryset(request.DATA, sort_pinned=False)
+        qs = self.get_filtered_queryset(get_request_data(request), sort_pinned=False)
         return Response(dict(count=qs.count()))
 
     @list_route(methods=["get", "post"])
     def group_count(self, request, **kwargs):
         params = dict(
             groups=[
-                dict(request.DATA)
+                dict(get_request_data(request))
             ]
         )
         qs = self.get_filtered_queryset(params, sort_pinned=False)
