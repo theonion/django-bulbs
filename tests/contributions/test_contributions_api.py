@@ -127,7 +127,6 @@ class ContributionApiTestCase(BaseAPITestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data.get("payment_type"), "Hourly")
         resp = client.get(detail_endpoint)
-        import pdb; pdb.set_trace()
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data.get("payment_type"), "Hourly")
         data.update(resp.data)
