@@ -62,6 +62,7 @@ class ContributorField(serializers.Field):
 class LineItemSerializer(serializers.ModelSerializer):
 
     contributor = ContributorField()
+    payment_date = serializers.DateTimeField()
 
     class Meta:
         model = LineItem

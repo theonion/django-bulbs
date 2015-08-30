@@ -80,6 +80,72 @@ class ContributionApiTestCase(BaseAPITestCase):
         )
         self.assertEqual(resp.status_code, 201)
 
+    def test_update_payment_types(self):
+        client = Client()
+        client.login(username="admin", password="secret")
+
+        endpoint = reverse("contributorrole-list")
+        data = {
+            "name": "the best fella",
+            "payment_type": "Flat Rate"
+        }
+        resp = client.post(
+            endpoint,
+            json.dumps(data),
+            content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, 201)
+        data.update(resp.data)
+        detail_endpoint = reverse("contributorrole-detail", kwargs={"pk": resp.data.get("id")})
+
+        # Confirm flat rate returns
+        resp = client.get(detail_endpoint)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data.get("payment_type"), "Flat Rate")
+
+        # Update to FeatureType
+        data["payment_type"] = "FeatureType"
+        resp = client.put(
+            detail_endpoint,
+            json.dumps(data),
+            content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data.get("payment_type"), "FeatureType")
+        resp = client.get(detail_endpoint)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data.get("payment_type"), "FeatureType")
+        data.update(resp.data)
+
+        # Update to Hourly
+        data["payment_type"] = "Hourly"
+        resp = client.put(
+            detail_endpoint,
+            json.dumps(data),
+            content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data.get("payment_type"), "Hourly")
+        resp = client.get(detail_endpoint)
+        import pdb; pdb.set_trace()
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data.get("payment_type"), "Hourly")
+        data.update(resp.data)
+
+        # Update to Manual
+        data["payment_type"] = "Manual"
+        resp = client.put(
+            detail_endpoint,
+            json.dumps(data),
+            content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data.get("payment_type"), "Manual")
+        resp = client.get(detail_endpoint)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data.get("payment_type"), "Manual")
+        data.update(resp.data)
+
     def test_post_contributionrole_success(self):
         client = Client()
         client.login(username="admin", password="secret")
