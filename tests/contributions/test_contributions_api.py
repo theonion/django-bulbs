@@ -217,6 +217,18 @@ class ContributionApiTestCase(BaseAPITestCase):
         self.assertEqual(resp.data["rates"]["hourly"]["rate"], 100)
         self.assertEqual(resp.data["rates"]["feature_type"][0]["rate"], 300)
 
+        # Test Hourlyr
+        endpoint = reverse("contributorrole-list")
+        data = {
+            "name": "Good Fella",
+            "payment_type": "Hourly"
+        }
+        resp = client.post(
+            endpoint,
+            json.dumps(data),
+            content_type="application/json"
+        )
+
     def test_line_item_list_api(self):
         client = Client()
         client.login(username="admin", password="secret")
@@ -584,7 +596,7 @@ class ContributionApiTestCase(BaseAPITestCase):
         self.assertEqual(rate['rate'], 667)
         self.assertEqual(rate['name'], 'Manual')
         self.assertEqual(contribution['content'], content.id),
-        self.assertEqual(contribution['role'], 1)
+        self.assertEqual(contribution['role']['id'], 1)
 
     def test_contributions_create_api(self):
         client = Client()

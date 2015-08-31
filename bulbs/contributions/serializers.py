@@ -186,7 +186,7 @@ class ContributorRoleSerializer(serializers.ModelSerializer):
         return instance
 
 
-class ContributorRoleField(serializers.Field):
+class RoleField(serializers.Field):
 
     def to_representation(self, obj):
         return ContributorRoleSerializer(obj).data
@@ -203,7 +203,7 @@ class ContributorRoleField(serializers.Field):
 class FeatureTypeOverrideSerializer(serializers.ModelSerializer):
 
     contributor = ContributorField()
-    role = ContributorRoleField()
+    role = RoleField()
     feature_type = FeatureTypeField(queryset=FeatureType.objects.all())
 
     class Meta:
@@ -213,7 +213,7 @@ class FeatureTypeOverrideSerializer(serializers.ModelSerializer):
 class OverrideSerializer(serializers.ModelSerializer):
 
     contributor = ContributorField()
-    role = ContributorRoleField()
+    role = RoleField()
 
     class Meta:
         model = Override
@@ -270,6 +270,7 @@ class ContributionSerializer(serializers.ModelSerializer):
 
     contributor = UserSerializer()
     rate = RateField(required=False)
+    role = RoleField()
     content = serializers.PrimaryKeyRelatedField(queryset=Content.objects.all())
 
     class Meta:
