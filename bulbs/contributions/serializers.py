@@ -18,7 +18,8 @@ class PaymentTypeField(serializers.Field):
     payment type objects serialized to/from label/identifer
     """
     def to_representation(self, obj):
-        return dict(RATE_PAYMENT_TYPES)[obj]
+        data = dict(RATE_PAYMENT_TYPES)[obj]
+        return data
 
     def to_internal_value(self, data):
         if isinstance(data, int):
@@ -94,7 +95,7 @@ class RateField(serializers.Field):
         if 'role' in data:
             rate = FlatRate(**data)
         elif 'contribution' in data:
-            rate = ManualRate(**data)
+            rate = ManualRate(name=3, **data)
         elif 'feature_type' in data:
             rate = FeatureTypeRate(**data)
         else:
@@ -321,7 +322,9 @@ class ContributionSerializer(serializers.ModelSerializer):
                 many_to_many[field_name] = validated_data.pop(field_name)
         contribution = ModelClass.objects.create(**validated_data)
         if rate_data:
-            rate_data['contribution'] = contribution
+            if isinstance(rate_data, int):
+                rate_data = {"rate": rate_data}
+            rate_data["contribution"] = contribution
             RateField().to_internal_value(rate_data)
         if override_rate_data:
             ContributionOverride.objects.create(
