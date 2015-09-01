@@ -23,6 +23,9 @@ class Section(models.Model):
     promoted = models.BooleanField(default=False)
     query = JSONField(default={}, blank=True)
 
+    class Mapping:
+        name = field.String(analyzer="autocomplete", fields={"raw": field.String(index="not_analyzed")})
+
     def __unicode__(self):
         return self.name
 
