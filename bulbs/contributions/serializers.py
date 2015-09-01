@@ -10,7 +10,7 @@ from bulbs.content.serializers import FeatureTypeField, UserSerializer
 from rest_framework import serializers
 from rest_framework.utils import model_meta
 
-from .models import (Contribution, ContributorRole, HourlyRate, FlatRate, ManualRate, FeatureTypeRate, FeatureTypeOverride, LineItem, Override, Rate, RATE_PAYMENT_TYPES)
+from .models import (Contribution, ContributorRole, ContributionOverride, HourlyRate, FlatRate, ManualRate, FeatureTypeRate, FeatureTypeOverride, LineItem, Override, Rate, RATE_PAYMENT_TYPES)
 
 
 class PaymentTypeField(serializers.Field):
@@ -237,6 +237,15 @@ class OverrideSerializer(serializers.ModelSerializer):
             return super(OverrideSerializer, self).to_representation(obj)
 
 
+class ContributionOverrideField(serializers.Field):
+
+    def get_attribute(self, obj):
+        return obj.overrides.all().first()
+
+    def to_representation(self, obj):
+        return obj.rate
+
+
 class ContributionListSerializer(serializers.ListSerializer):
 
     contributor = UserSerializer()
@@ -271,6 +280,7 @@ class ContributionSerializer(serializers.ModelSerializer):
     contributor = UserSerializer()
     rate = RateField(required=False)
     role = RoleField()
+    override_rate = ContributionOverrideField(read_only=True)
     content = serializers.PrimaryKeyRelatedField(queryset=Content.objects.all())
 
     class Meta:
@@ -285,9 +295,15 @@ class ContributionSerializer(serializers.ModelSerializer):
 
     def to_internal_value(self, data):
         rate_data = data.pop('rate', None)
+        override_rate_data = data.pop("override_rate", None)
         data = super(ContributionSerializer, self).to_internal_value(data)
+
         if rate_data:
             data['rate'] = rate_data
+
+        if override_rate_data:
+            data["override_rate"] = override_rate_data
+
         return data
 
     def create(self, validated_data):
@@ -295,6 +311,7 @@ class ContributionSerializer(serializers.ModelSerializer):
         info = model_meta.get_field_info(ModelClass)
         many_to_many = {}
         rate_data = validated_data.pop('rate', None)
+        override_rate_data = validated_data.pop("override_rate", None)
         for field_name, relation_info in info.relations.items():
             if relation_info.to_many and (field_name in validated_data):
                 many_to_many[field_name] = validated_data.pop(field_name)
@@ -302,6 +319,11 @@ class ContributionSerializer(serializers.ModelSerializer):
         if rate_data:
             rate_data['contribution'] = contribution
             RateField().to_internal_value(rate_data)
+        if override_rate_data:
+            ContributionOverride.objects.create(
+                contribution=contribution,
+                rate=override_rate_data
+            )
         return contribution
 
 

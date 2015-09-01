@@ -598,6 +598,39 @@ class ContributionApiTestCase(BaseAPITestCase):
         self.assertEqual(contribution['content'], content.id),
         self.assertEqual(contribution['role']['id'], 1)
 
+    def test_contribution_post_override_api(self):
+        client = Client()
+        client.login(username="admin", password="secret")
+
+        content = make_content()
+        Content.objects.get(id=content.id)
+        endpoint = reverse("content-contributions", kwargs={"pk": content.pk})
+
+        rate_data = {
+            'name': 'Flat Rate',
+            'rate': 667
+        }
+        contributor_data = {
+            "username": self.admin.username,
+            "id": self.admin.id
+        }
+        contribution_data = [{
+            "rate": rate_data,
+            "override_rate": 70,
+            "contributor": contributor_data,
+            "content": content.id,
+            "role": self.roles["editor"].id
+        }]
+
+        response = client.post(
+            endpoint, json.dumps(contribution_data), content_type="application/json")
+        override_rate = response.data[0].get("override_rate")
+        self.assertEqual(override_rate, 70)
+
+        response = client.get(endpoint)
+        override_rate = response.data[0].get("override_rate")
+        self.assertEqual(override_rate, 70)
+
     def test_contributions_create_api(self):
         client = Client()
         client.login(username="admin", password="secret")

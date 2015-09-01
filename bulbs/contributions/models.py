@@ -90,11 +90,15 @@ class FeatureTypeRate(Rate):
 
 class Override(PolymorphicModel, Rate):
     contributor = models.ForeignKey(
-        settings.AUTH_USER_MODEL, related_name="overrides"
+        settings.AUTH_USER_MODEL, related_name="overrides", null=True
     )
-    role = models.ForeignKey(ContributorRole, related_name="overrides")
+    role = models.ForeignKey(ContributorRole, related_name="overrides", null=True)
 
     objects = PolymorphicManager()
+
+
+class ContributionOverride(Override):
+    contribution = models.ForeignKey(Contribution, related_name="overrides")
 
 
 class FeatureTypeOverride(Override):
