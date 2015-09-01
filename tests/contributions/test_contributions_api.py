@@ -579,6 +579,7 @@ class ContributionApiTestCase(BaseAPITestCase):
             "rate": rate_data,
             "contributor": contributor_data,
             "content": content.id,
+            "force_payment": True,
             "role": self.roles["editor"].id
         }]
 
@@ -593,6 +594,7 @@ class ContributionApiTestCase(BaseAPITestCase):
         self.assertEqual(rate['rate'], 667)
         self.assertEqual(rate['name'], 'Manual')
         self.assertEqual(contribution['content'], content.id),
+        self.assertEqual(contribution["force_payment"], True)
         self.assertEqual(contribution['role']['id'], 1)
 
     def test_contribution_post_override_api(self):

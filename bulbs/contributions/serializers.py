@@ -95,7 +95,8 @@ class RateField(serializers.Field):
         if 'role' in data:
             rate = FlatRate(**data)
         elif 'contribution' in data:
-            rate = ManualRate(name=3, **data)
+            data["name"] = 3
+            rate = ManualRate(**data)
         elif 'feature_type' in data:
             rate = FeatureTypeRate(**data)
         else:

@@ -43,6 +43,8 @@ class Contribution(models.Model):
     content = models.ForeignKey(Content)
     notes = models.TextField(null=True, blank=True)
     minutes_worked = models.IntegerField(null=True)
+    force_payment = models.BooleanField(default=False)
+    payment_date = models.DateTimeField(null=True, blank=True)
 
     def get_rate(self):
         if self.manual_rates.filter(name=OVERRIDE).count() > 0:
