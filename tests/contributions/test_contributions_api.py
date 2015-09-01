@@ -570,7 +570,7 @@ class ContributionApiTestCase(BaseAPITestCase):
         Content.objects.get(id=content.id)
         endpoint = reverse("content-contributions", kwargs={"pk": content.pk})
 
-        rate_data =  667
+        rate_data =  "667"
         contributor_data = {
             "username": self.admin.username,
             "id": self.admin.id

@@ -325,6 +325,9 @@ class ContributionSerializer(serializers.ModelSerializer):
         if rate_data:
             if isinstance(rate_data, int):
                 rate_data = {"rate": rate_data}
+            if isinstance(rate_data, unicode) or isinstance(rate_data, str):
+                if rate_data.isdigit():
+                    rate_data = {"rate": int(rate_data)}
             rate_data["contribution"] = contribution
             RateField().to_internal_value(rate_data)
         if override_rate_data:
