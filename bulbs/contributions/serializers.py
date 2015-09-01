@@ -6,9 +6,9 @@ from django.utils import timezone
 
 from bulbs.content.models import Content, FeatureType
 from bulbs.content.serializers import FeatureTypeField, UserSerializer
-
 from rest_framework import serializers
 from rest_framework.utils import model_meta
+import six
 
 from .models import (Contribution, ContributorRole, ContributionOverride, HourlyRate, FlatRate, ManualRate, FeatureTypeRate, FeatureTypeOverride, LineItem, Override, Rate, RATE_PAYMENT_TYPES)
 
@@ -325,7 +325,7 @@ class ContributionSerializer(serializers.ModelSerializer):
         if rate_data:
             if isinstance(rate_data, int):
                 rate_data = {"rate": rate_data}
-            if isinstance(rate_data, unicode) or isinstance(rate_data, str):
+            if isinstance(rate_data, six.text_type) or isinstance(rate_data, str):
                 if rate_data.isdigit():
                     rate_data = {"rate": int(rate_data)}
             rate_data["contribution"] = contribution
