@@ -98,7 +98,7 @@ class Override(PolymorphicModel, Rate):
 
 
 class ContributionOverride(Override):
-    contribution = models.ForeignKey(Contribution, related_name="overrides")
+    contribution = models.ForeignKey(Contribution, related_name="overrides", null=True, blank=True)
 
 
 class FeatureTypeOverride(Override):

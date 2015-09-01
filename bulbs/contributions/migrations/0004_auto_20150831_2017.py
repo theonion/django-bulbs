@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
             name='ContributionOverride',
             fields=[
                 ('override_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='contributions.Override')),
-                ('contribution', models.ForeignKey(related_name='overrides', to='contributions.Contribution')),
+                ('contribution', models.ForeignKey(related_name='overrides', blank=True, to='contributions.Contribution', null=True)),
             ],
             options={
                 'abstract': False,

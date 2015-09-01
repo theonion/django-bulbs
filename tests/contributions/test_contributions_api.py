@@ -631,6 +631,18 @@ class ContributionApiTestCase(BaseAPITestCase):
         override_rate = response.data[0].get("override_rate")
         self.assertEqual(override_rate, 70)
 
+        # Update the rate
+        contribution_data[0]["override_rate"] = 100
+        response = client.post(
+            endpoint,
+            json.dumps(contribution_data),
+            content_type="application/json"
+        )
+        self.assertEqual(response.status_code, 200)
+        override_rate = response.data[0].get("override_rate")
+        self.assertEqual(override_rate, 100)
+
+
     def test_contributions_create_api(self):
         client = Client()
         client.login(username="admin", password="secret")
