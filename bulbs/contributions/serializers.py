@@ -402,15 +402,15 @@ class ContentReportingSerializer(serializers.ModelSerializer):
         model = Content
         fields = ("id", "title", "url", "content_type", "feature_type", "published", "authors")
 
-    def get_fields(self):
+    # def get_fields(self):
 
-        fields = super(ContentReportingSerializer, self).get_fields()
+    #     fields = super(ContentReportingSerializer, self).get_fields()
 
-        self._roles = {}
-        for role in ContributorRole.objects.all():
-            fields[role.name.lower()] = ContributorRoleField(role)
+    #     self._roles = {}
+    #     for role in ContributorRole.objects.all():
+    #         fields[role.name.lower()] = ContributorRoleField(role)
 
-        return fields
+    #     return fields
 
     def get_contributors(self, obj, rolename):
         pass
