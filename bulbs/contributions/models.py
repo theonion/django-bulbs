@@ -24,6 +24,25 @@ ROLE_PAYMENT_TYPES = (
 RATE_PAYMENT_TYPES = ROLE_PAYMENT_TYPES + ((OVERRIDE, 'Override'),)
 
 
+class FreelanceProfile(models.Model):
+    contributor = models.ForeignKey(settings.AUTH_USER_MODEL)
+    payment_date = models.DateTimeField(null=True, blank=True)
+
+    def get_pay(self, start=None, end=None):
+        qs = self.contributor.contributions.all()
+        if start:
+            qs = qs.filter(payment_date__gt=start)
+        if end:
+            qs = qs.filter(payment_date__lt=end)
+
+        pay = 0
+        for contribution in qs.all():
+            rate = contribution.get_rate()
+            if rate and hasattr(rate, "rate"):
+                pay += rate.rate
+        return pay
+
+
 class LineItem(models.Model):
     contributor = models.ForeignKey(settings.AUTH_USER_MODEL)
     amount = models.IntegerField(default=0)
@@ -39,7 +58,7 @@ class ContributorRole(models.Model):
 
 class Contribution(models.Model):
     role = models.ForeignKey(ContributorRole)
-    contributor = models.ForeignKey(settings.AUTH_USER_MODEL)
+    contributor = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="contributions")
     content = models.ForeignKey(Content)
     notes = models.TextField(null=True, blank=True)
     minutes_worked = models.IntegerField(null=True)

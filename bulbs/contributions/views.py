@@ -9,8 +9,8 @@ from rest_framework.settings import api_settings
 
 from rest_framework_csv.renderers import CSVRenderer
 
-from .models import (ContributorRole, Contribution, LineItem, Override)
-from .serializers import (ContributorRoleSerializer, ContributionReportingSerializer, ContentReportingSerializer, LineItemSerializer, OverrideSerializer)
+from .models import (ContributorRole, Contribution, FreelanceProfile, LineItem, Override)
+from .serializers import (ContributorRoleSerializer, ContributionReportingSerializer, ContentReportingSerializer, FreelanceProfileSerializer, LineItemSerializer, OverrideSerializer)
 from bulbs.content.models import Content
 
 
@@ -88,9 +88,42 @@ class ReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
         return contributions.order_by(order_options[ordering])
 
 
+class FreelanceReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
+
+    renderer_classes = (CSVRenderer, ) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
+    serializer_class = FreelanceProfileSerializer
+
+    def get_queryset(self):
+        now = timezone.now()
+
+        start_date = datetime.datetime(
+            year=now.year,
+            month=now.month,
+            day=1,
+            tzinfo=now.tzinfo
+        )
+        if "start" in self.request.GET:
+            start_date = dateparse.parse_date(self.request.GET["start"])
+
+        end_date = now
+        if "end" in self.request.GET:
+            end_date = dateparse.parse_date(self.request.GET["end"])
+
+        qs = FreelanceProfile.objects.all()
+
+        # if start_date:
+        #     qs = qs.filter(payment_date__gt=start_date)
+        # if end_date:
+        #     qs = qs.filter(payment_date__lt=end_date)
+
+        return qs
+
+
+
 api_v1_router = routers.DefaultRouter()
 api_v1_router.register(r"line-items", LineItemViewSet, base_name="line-items")
 api_v1_router.register(r"role", ContributorRoleViewSet, base_name="contributorrole")
 api_v1_router.register(r"rate-overrides", OverrideViewSet, base_name="rate-overrides")
 api_v1_router.register(r"reporting", ReportingViewSet, base_name="contributionreporting")
 api_v1_router.register(r"contentreporting", ContentReportingViewSet, base_name="contentreporting")
+api_v1_router.register(r"freelancereporting", FreelanceReportingViewSet, base_name="freelancereporting")

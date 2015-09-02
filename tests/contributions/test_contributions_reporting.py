@@ -12,7 +12,7 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 
 from bulbs.content.models import FeatureType
-from bulbs.contributions.models import Contribution, ContributorRole
+from bulbs.contributions.models import Contribution, ContributorRole, FreelanceProfile
 from bulbs.utils.test import BaseAPITestCase, make_content
 
 
@@ -153,3 +153,47 @@ class ContributionReportingTestCase(BaseAPITestCase):
 
         # self.assertEqual(response.data[0]["editor"], "Chris Sinchok,Mike Wnuk")
         # self.assertEqual(response.data[0]["writer"], "Mike Wnuk")
+
+    def test_freelance_reporting(self):
+        client = Client()
+        client.login(username="admin", password="secret")
+
+        endpoint = reverse("freelancereporting-list")
+        start_date = timezone.now() - datetime.timedelta(days=4)
+
+        topdog = User.objects.create(
+            username="topdog",
+            first_name="Top",
+            last_name="Dog",
+            is_staff=True
+        )
+        FreelanceProfile.objects.create(contributor=topdog)
+
+        otherdog = User.objects.create(
+            username="otherdog",
+            first_name="Other",
+            last_name="Dog",
+            is_staff=True
+        )
+        FreelanceProfile.objects.create(contributor=otherdog)
+
+        content_one = make_content(published=timezone.now() - datetime.timedelta(days=1))
+
+        Contribution.objects.create(
+            content=content_one,
+            contributor=topdog,
+            role=self.roles["editor"]
+        )
+        Contribution.objects.create(
+            content=content_one,
+            contributor=otherdog,
+            role=self.roles["editor"]
+        )
+        Contribution.objects.create(
+            content=content_one,
+            contributor=topdog,
+            role=self.roles["writer"]
+        )
+
+        response = client.get(endpoint, data={"start": start_date.strftime("%Y-%m-%d")})
+        self.assertEqual(response.status_code, 200)

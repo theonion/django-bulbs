@@ -10,7 +10,7 @@ from rest_framework import serializers
 from rest_framework.utils import model_meta
 import six
 
-from .models import (Contribution, ContributorRole, ContributionOverride, HourlyRate, FlatRate, ManualRate, FeatureTypeRate, FeatureTypeOverride, LineItem, Override, Rate, RATE_PAYMENT_TYPES)
+from .models import (Contribution, ContributorRole, ContributionOverride, HourlyRate, FlatRate, FreelanceProfile, ManualRate, FeatureTypeRate, FeatureTypeOverride, LineItem, Override, Rate, RATE_PAYMENT_TYPES)
 
 
 class PaymentTypeField(serializers.Field):
@@ -58,6 +58,20 @@ class ContributorField(serializers.Field):
             if id is not None:
                 return Contributor.objects.get(id=id)
         return None
+
+
+class FreelanceProfileSerializer(serializers.Serializer):
+
+    contributor = ContributorField()
+    payment_date = serializers.DateTimeField()
+    pay = serializers.SerializerMethodField()
+    contributions_count = serializers.SerializerMethodField("get_contribution_count")
+
+    def get_pay(self, obj):
+        return obj.get_pay()
+
+    def get_contribution_count(self, obj):
+        return obj.contributor.contributions.count()
 
 
 class LineItemSerializer(serializers.ModelSerializer):
