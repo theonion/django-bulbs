@@ -6,6 +6,7 @@ from django.template.defaultfilters import slugify
 from bulbs.content.custom_search import custom_search_model
 from bulbs.content.models import Content
 from elasticsearch import Elasticsearch
+from elasticsearch_dsl import field
 from djbetty import ImageField
 from json_field import JSONField
 
