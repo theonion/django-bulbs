@@ -286,10 +286,6 @@ class ContributionListSerializer(serializers.ListSerializer):
         # Perform deletions.
         for contribution_id, contribution in contribution_mapping.items():
             if contribution_id not in data_mapping:
-                # Current hacky way of circumventing polymorphic bug
-                for override in contribution.overrides.all():
-                    override.contribution = None
-                    override.save()
                 contribution.delete()
 
         return ret

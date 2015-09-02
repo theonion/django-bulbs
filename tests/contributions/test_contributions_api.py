@@ -337,6 +337,23 @@ class ContributionApiTestCase(BaseAPITestCase):
             resp.data.get("contributor").get("id"), override.contributor.id
         )
 
+    def test_override_delete_success(self):
+        client = Client()
+        client.login(username="admin", password="secret")
+        override = Override.objects.create(
+            rate=100,
+            contributor=self.contributors["jarvis"],
+            role=self.roles["editor"]
+        )
+
+        endpoint = reverse("rate-overrides-detail", kwargs={"pk": override.id})
+        resp = client.get(endpoint)
+        self.assertEqual(resp.status_code, 200)
+
+        resp = client.delete(endpoint)
+        self.assertEqual(resp.status_code, 204)
+
+
     def test_feature_type_override_list_success(self):
         client = Client()
         client.login(username="admin", password="secret")

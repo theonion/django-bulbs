@@ -106,7 +106,10 @@ class FeatureTypeRate(Rate):
     feature_type = models.ForeignKey(FeatureType, related_name="feature_type_rates")
 
 
-class Override(PolymorphicModel, Rate):
+class Override(PolymorphicModel):
+    name = models.IntegerField(choices=RATE_PAYMENT_TYPES, null=True)
+    updated_on = models.DateTimeField(auto_now=True)
+    rate = models.IntegerField()
     contributor = models.ForeignKey(
         settings.AUTH_USER_MODEL, related_name="overrides", null=True
     )
