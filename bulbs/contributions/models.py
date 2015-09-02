@@ -47,21 +47,21 @@ class Contribution(models.Model):
     payment_date = models.DateTimeField(null=True, blank=True)
 
     def get_rate(self):
-        if self.manual_rates.filter(name=OVERRIDE).count() > 0:
-            return self.manual_rates.filter(name=OVERRIDE).first()
+        if self.manual_rates.filter().count() > 0:
+            return self.manual_rates.filter().first()
 
         payment_type = self.role.payment_type
         if payment_type == MANUAL:
             return self.manual_rates.all().first()
 
         if payment_type == FLAT_RATE:
-            return self.role.flat_rates.filter(name=payment_type).first()
+            return self.role.flat_rates.filter().first()
 
-        if payment_type == FEATURETYPE:
+        if self.content.feature_type and payment_type == FEATURETYPE:
             return self.content.feature_type.feature_type_rates.all().first()
 
         if payment_type == HOURLY:
-            return self.role.hourly_rates.filter(name=payment_type).first()
+            return self.role.hourly_rates.filter().first()
 
 
 class Rate(models.Model):

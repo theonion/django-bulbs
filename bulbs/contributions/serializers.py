@@ -343,10 +343,11 @@ class ContributionReportingSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
     content = serializers.SerializerMethodField()
     role = serializers.SerializerMethodField()
+    rate = serializers.SerializerMethodField()
 
     class Meta:
         model = Contribution
-        fields = ("id", "content", "user", "role", "notes")
+        fields = ("id", "content", "user", "role", "rate", "notes")
 
     def get_content(self, obj):
         return OrderedDict([
@@ -367,6 +368,12 @@ class ContributionReportingSerializer(serializers.ModelSerializer):
 
     def get_role(self, obj):
         return obj.role.name
+
+    def get_rate(self, obj):
+        rate = obj.get_rate()
+        if rate and hasattr(rate, "rate"):
+            return rate.rate
+        return None
 
 
 class ContributorRoleField(serializers.Field):

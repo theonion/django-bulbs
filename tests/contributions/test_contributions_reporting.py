@@ -19,9 +19,11 @@ class ContributionReportingTestCase(BaseAPITestCase):
     def setUp(self):
         super(ContributionReportingTestCase, self).setUp()
         self.roles = {
-            "editor": ContributorRole.objects.create(name="Editor"),
-            "writer": ContributorRole.objects.create(name="Writer")
+            "editor": ContributorRole.objects.create(name="Editor", payment_type=0),
+            "writer": ContributorRole.objects.create(name="Writer", payment_type=1)
         }
+        self.roles["editor"].flat_rates.create(rate=60)
+
         self.chris = User.objects.create(
             username="csinchok",
             first_name="Chris",
@@ -59,6 +61,10 @@ class ContributionReportingTestCase(BaseAPITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 4)
 
+        c1 = response.data[0]
+        rate = c1.get("rate")
+        self.assertEqual(rate, 60)
+
         # Now lets order by something else
         response = client.get(endpoint,
                               data={"start": start_date.strftime("%Y-%m-%d"), "ordering": "user"})
@@ -77,7 +83,7 @@ class ContributionReportingTestCase(BaseAPITestCase):
                               data={"start": start_date.strftime("%Y-%m-%d"), "format": "csv"})
         self.assertEqual(response.status_code, 200)
         csvreader = csv.DictReader(StringIO.StringIO(response.content.decode("utf8")))
-        self.assertEqual(len(csvreader.fieldnames), 12)
+        self.assertEqual(len(csvreader.fieldnames), 13)
         for line in csvreader:
             pass
         self.assertEqual(csvreader.line_num, 5)  # Header + 4 items
