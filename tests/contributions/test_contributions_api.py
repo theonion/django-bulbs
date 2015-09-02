@@ -532,19 +532,6 @@ class ContributionApiTestCase(BaseAPITestCase):
         self.assertIsNotNone(updated)
         self.assertEqual(rate, {'id': hourly.id, 'rate': 66, 'name': 'Hourly'})
 
-        # Override the rate
-        override = ManualRate.objects.create(
-            name=PAYMENT_TYPES['Override'], rate=1000, contribution=contribution)
-
-        response = client.get(endpoint)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 1)
-
-        rate = response.data[0].get('rate')
-        updated = rate.pop('updated_on')
-        self.assertIsNotNone(updated)
-        self.assertEqual(rate, {'id': override.id, 'rate': 1000, 'name': 'Override'})
-
     # def test_contributions_list_api(self):
     # client = Client()
     #     client.login(username="admin", password="secret")

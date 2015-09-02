@@ -47,9 +47,6 @@ class Contribution(models.Model):
     payment_date = models.DateTimeField(null=True, blank=True)
 
     def get_rate(self):
-        if self.manual_rates.filter().count() > 0:
-            return self.manual_rates.filter().first()
-
         payment_type = self.role.payment_type
         if payment_type == MANUAL:
             return self.manual_rates.all().first()

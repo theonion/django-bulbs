@@ -11,6 +11,7 @@ from django.test.client import Client
 from django.utils import timezone
 from django.contrib.auth.models import User
 
+from bulbs.content.models import FeatureType
 from bulbs.contributions.models import Contribution, ContributorRole
 from bulbs.utils.test import BaseAPITestCase, make_content
 
@@ -18,11 +19,15 @@ from bulbs.utils.test import BaseAPITestCase, make_content
 class ContributionReportingTestCase(BaseAPITestCase):
     def setUp(self):
         super(ContributionReportingTestCase, self).setUp()
+
+        self.tvclub =  FeatureType.objects.create(name="TV Club")
         self.roles = {
             "editor": ContributorRole.objects.create(name="Editor", payment_type=0),
             "writer": ContributorRole.objects.create(name="Writer", payment_type=1)
         }
+
         self.roles["editor"].flat_rates.create(rate=60)
+        self.roles["writer"].feature_type_rates.create(feature_type=self.tvclub, rate=70)
 
         self.chris = User.objects.create(
             username="csinchok",
@@ -37,7 +42,10 @@ class ContributionReportingTestCase(BaseAPITestCase):
 
     def test_reporting_api(self):
 
-        content_one = make_content(published=timezone.now() - datetime.timedelta(days=1))
+        content_one = make_content(
+            published=timezone.now() - datetime.timedelta(days=1),
+            feature_type=self.tvclub
+        )
         content_two = make_content(published=timezone.now() - datetime.timedelta(days=3))
         for content in content_one, content_two:
             Contribution.objects.create(
@@ -64,6 +72,10 @@ class ContributionReportingTestCase(BaseAPITestCase):
         c1 = response.data[0]
         rate = c1.get("rate")
         self.assertEqual(rate, 60)
+
+        c4 = response.data[3]
+        rate = c4.get("rate")
+        self.assertEqual(rate, 70)
 
         # Now lets order by something else
         response = client.get(endpoint,
