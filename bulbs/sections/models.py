@@ -28,6 +28,7 @@ class Section(Indexable):
 
     class Mapping:
         name = field.String(analyzer="autocomplete", fields={"raw": field.String(index="not_analyzed")})
+        slug = field.String(index="not_analyzed")
         section_logo = ElasticsearchImageField()
         query = field.Object(enabled=False)
 
