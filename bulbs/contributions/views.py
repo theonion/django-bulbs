@@ -51,7 +51,7 @@ class ContentReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
         if "end" in self.request.GET:
             end_date = dateparse.parse_date(self.request.GET["end"])
 
-        content = Content.objects.filter(published__range=(start_date, end_date)).prefetch_related("authors", "contribution_set").select_related("feature_type")
+        content = Content.objects.filter(published__range=(start_date, end_date)).prefetch_related("authors", "contributions").select_related("feature_type")
 
         return content
 

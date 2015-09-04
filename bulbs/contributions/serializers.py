@@ -406,21 +406,21 @@ class ContentReportingSerializer(serializers.ModelSerializer):
     published = serializers.SerializerMethodField()
     feature_type = serializers.SerializerMethodField()
     url = serializers.URLField(source="get_absolute_url")
+    article_cost = serializers.SerializerMethodField()
     authors = serializers.SerializerMethodField()
 
     class Meta:
         model = Content
-        fields = ("id", "title", "url", "content_type", "feature_type", "published", "authors")
+        fields = ("id", "title", "url", "content_type", "feature_type", "published", "authors", "article_cost")
 
-    # def get_fields(self):
-
-    #     fields = super(ContentReportingSerializer, self).get_fields()
-
-    #     self._roles = {}
-    #     for role in ContributorRole.objects.all():
-    #         fields[role.name.lower()] = ContributorRoleField(role)
-
-    #     return fields
+    def get_article_cost(self, obj):
+        contributions = obj.contributions.all()
+        total_cost = 0
+        for contribution in contributions:
+            cost = contribution.get_rate()
+            if cost:
+                total_cost += cost.rate
+        return total_cost
 
     def get_contributors(self, obj, rolename):
         pass

@@ -59,7 +59,7 @@ class ContributorRole(models.Model):
 class Contribution(models.Model):
     role = models.ForeignKey(ContributorRole)
     contributor = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="contributions")
-    content = models.ForeignKey(Content)
+    content = models.ForeignKey(Content, related_name="contributions")
     notes = models.TextField(null=True, blank=True)
     minutes_worked = models.IntegerField(null=True)
     force_payment = models.BooleanField(default=False)

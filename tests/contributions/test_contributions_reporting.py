@@ -117,9 +117,6 @@ class ContributionReportingTestCase(BaseAPITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
 
-        # self.assertEqual(response.data[0]["editor"], "")
-        # self.assertEqual(response.data[0]["authors"], "")
-
         Contribution.objects.create(
             content=content_one,
             contributor=self.chris,
@@ -148,6 +145,7 @@ class ContributionReportingTestCase(BaseAPITestCase):
         response = client.get(endpoint, data={"start": start_date.strftime("%Y-%m-%d")})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["article_cost"], 120)
 
         self.assertEqual(response.data[0]["authors"], "Chris Sinchok,Jenny Crowley")
 
