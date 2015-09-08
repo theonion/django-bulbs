@@ -12,7 +12,8 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 
 from bulbs.content.models import FeatureType
-from bulbs.contributions.models import Contribution, ContributorRole, FreelanceProfile
+from bulbs.contributions.models import (Contribution, ContributorRole, FreelanceProfile,
+    FeatureTypeRate, FeatureTypeOverride)
 from bulbs.utils.test import BaseAPITestCase, make_content
 
 
@@ -195,3 +196,24 @@ class ContributionReportingTestCase(BaseAPITestCase):
 
         response = client.get(endpoint, data={"start": start_date.strftime("%Y-%m-%d")})
         self.assertEqual(response.status_code, 200)
+
+    def test_feature_type_rate_override_dependency(self):
+        FeatureTypeOverride.objects.delete()
+        rate = FeatureTypeRate.objects.create(
+            rate=60,
+            role=self.roles["editor"],
+            feature_type=self.tvclub
+        )
+        overrides = FeatureTypeOverride.objects.filter(
+            role=rate.role,
+            feature_type=rate.feature_type
+        )
+        self.assertEqual(overrides.count(), 1)
+
+        override = overrides.first()
+        self.assertEqual(override.role, rate.role)
+        self.assertEqual(override.feature_type, rate.feature_type)
+
+        rate.delete()
+        overrides = FeatureTypeOverride.objects.all()
+        self.assertEqual(overrides.count(), 0)

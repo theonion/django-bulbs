@@ -80,6 +80,27 @@ class Contribution(models.Model):
             return self.role.hourly_rates.filter().first()
 
 
+class Override(PolymorphicModel):
+    name = models.IntegerField(choices=RATE_PAYMENT_TYPES, null=True)
+    updated_on = models.DateTimeField(auto_now=True)
+    rate = models.IntegerField()
+    contributor = models.ForeignKey(
+        settings.AUTH_USER_MODEL, related_name="overrides", null=True
+    )
+    role = models.ForeignKey(ContributorRole, related_name="overrides", null=True)
+
+    objects = PolymorphicManager()
+
+
+class ContributionOverride(Override):
+    contribution = models.ForeignKey(Contribution, related_name="overrides", null=True, blank=True)
+
+
+class FeatureTypeOverride(Override):
+    """Overrides the rate for a user given a particular FeatureType."""
+    feature_type = models.ForeignKey(FeatureType, related_name="overrides")
+
+
 class Rate(models.Model):
     name = models.IntegerField(choices=RATE_PAYMENT_TYPES, null=True)
     updated_on = models.DateTimeField(auto_now=True)
@@ -105,23 +126,22 @@ class FeatureTypeRate(Rate):
     role = models.ForeignKey(ContributorRole, null=True, related_name="feature_type_rates")
     feature_type = models.ForeignKey(FeatureType, related_name="feature_type_rates")
 
+    def save(self, *args, **kwargs):
+        super(FeatureTypeRate, self).save(*args, **kwargs)
+        override = FeatureTypeOverride.objects.create(
+            role=self.role,
+            feature_type=self.feature_type,
+            rate=0
+        )
+        override.save()
 
-class Override(PolymorphicModel):
-    name = models.IntegerField(choices=RATE_PAYMENT_TYPES, null=True)
-    updated_on = models.DateTimeField(auto_now=True)
-    rate = models.IntegerField()
-    contributor = models.ForeignKey(
-        settings.AUTH_USER_MODEL, related_name="overrides", null=True
-    )
-    role = models.ForeignKey(ContributorRole, related_name="overrides", null=True)
-
-    objects = PolymorphicManager()
+    def delete(self, *args, **kwargs):
+        overrides = FeatureTypeOverride.objects.filter(
+            role=self.role,
+            feature_type=self.feature_type
+        )
+        if overrides.exists():
+            overrides.delete()
+        super(FeatureTypeRate, self).delete(*args, **kwargs)
 
 
-class ContributionOverride(Override):
-    contribution = models.ForeignKey(Contribution, related_name="overrides", null=True, blank=True)
-
-
-class FeatureTypeOverride(Override):
-    """Overrides the rate for a user given a particular FeatureType."""
-    feature_type = models.ForeignKey(FeatureType, related_name="overrides")
