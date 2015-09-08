@@ -321,7 +321,13 @@ class ContributionApiTestCase(BaseAPITestCase):
             },
             "role": {
                 "id": self.roles["editor"].id
-            }
+            },
+            "feature_types": [
+                {
+                    "feature_type": "TV Club",
+                    "rate": 1000
+                }
+            ]
         }
         resp = client.post(
             endpoint,
@@ -352,7 +358,6 @@ class ContributionApiTestCase(BaseAPITestCase):
 
         resp = client.delete(endpoint)
         self.assertEqual(resp.status_code, 204)
-
 
     def test_feature_type_override_list_success(self):
         client = Client()
@@ -645,7 +650,6 @@ class ContributionApiTestCase(BaseAPITestCase):
         override_rate = response.data[0].get("override_rate")
         self.assertEqual(override_rate, 100)
 
-
     def test_contributions_create_api(self):
         client = Client()
         client.login(username="admin", password="secret")
@@ -664,7 +668,6 @@ class ContributionApiTestCase(BaseAPITestCase):
         }]
         response = client.post(endpoint, json.dumps(data), content_type="application/json")
         self.assertEqual(response.status_code, 400)
-
         self.assertEqual(Contribution.objects.filter(content=content).count(), 0)
 
         data = [{

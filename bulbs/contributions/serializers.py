@@ -10,7 +10,7 @@ from rest_framework import serializers
 from rest_framework.utils import model_meta
 import six
 
-from .models import (Contribution, ContributorRole, ContributionOverride, HourlyRate, FlatRate, FreelanceProfile, ManualRate, FeatureTypeRate, FeatureTypeOverride, LineItem, Override, Rate, RATE_PAYMENT_TYPES)
+from .models import (Contribution, ContributorRole, ContributionOverride, HourlyRate, FlatRate, ManualRate, FeatureTypeRate, FeatureTypeOverride, LineItem, Override, Rate, RATE_PAYMENT_TYPES)
 
 
 class PaymentTypeField(serializers.Field):
@@ -234,6 +234,9 @@ class OverrideSerializer(serializers.ModelSerializer):
     class Meta:
         model = Override
 
+    def get_feature_types(self, obj):
+        return FeatureTypeOverride.objects.filter(role=obj.role, contributor=obj.contributor)
+
     def create(self, validated_data):
         if "feature_type" in validated_data:
             return FeatureTypeOverrideSerializer().create(validated_data)
@@ -241,16 +244,37 @@ class OverrideSerializer(serializers.ModelSerializer):
             return super(OverrideSerializer, self).create(validated_data)
 
     def to_internal_value(self, data):
+        feature_types = data.pop("feature_types", [])
         if "feature_type" in data:
-            return FeatureTypeOverrideSerializer().to_internal_value(data)
+            override = FeatureTypeOverrideSerializer().to_internal_value(data)
         else:
-            return super(OverrideSerializer, self).to_internal_value(data)
+            override = super(OverrideSerializer, self).to_internal_value(data)
+
+        contributor = override.get('contributor', None)
+        role = override.get('role', None)
+        for feature_type in feature_types:
+            feature_type['feature_type'] = FeatureTypeField(read_only=True).to_internal_value(
+                feature_type['feature_type']
+            )
+            feature_type['contributor'] = contributor
+            feature_type['role'] = role
+            FeatureTypeOverride.objects.get_or_create(**feature_type)
+        return override
 
     def to_representation(self, obj):
         if isinstance(obj, FeatureTypeOverride):
-            return FeatureTypeOverrideSerializer(obj).to_representation(obj)
+            data = FeatureTypeOverrideSerializer(obj).to_representation(obj)
         else:
-            return super(OverrideSerializer, self).to_representation(obj)
+            data = super(OverrideSerializer, self).to_representation(obj)
+
+        feature_types_qs = self.get_feature_types(obj)
+        feature_types = []
+        for feature_type in feature_types_qs:
+            feature_types.append(
+                FeatureTypeOverrideSerializer(feature_type).to_representation(feature_type)
+            )
+        data["feature_types"] = feature_types
+        return data
 
 
 class ContributionOverrideField(serializers.Field):
