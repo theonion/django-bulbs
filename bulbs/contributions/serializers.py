@@ -122,9 +122,16 @@ class RateField(serializers.Field):
 class ContributorRoleSerializer(serializers.ModelSerializer):
 
     payment_type = PaymentTypeField()
+    rate = serializers.SerializerMethodField()
 
     class Meta:
         model = ContributorRole
+
+    def get_rate(self, obj):
+        rate = obj.get_rate()
+        if rate:
+            return rate.rate
+        return None
 
     def to_representation(self, obj):
         data = super(ContributorRoleSerializer, self).to_representation(obj)
@@ -198,14 +205,24 @@ class ContributorRoleSerializer(serializers.ModelSerializer):
                         feature_type=ft,
                         **feature_type
                     )
-
         return instance
 
 
 class RoleField(serializers.Field):
 
+    def get_attribute(self, obj):
+        return (obj.role, obj)
+
     def to_representation(self, obj):
-        return ContributorRoleSerializer(obj).data
+        obj, contribution = obj
+        data = ContributorRoleSerializer(obj).data
+        if isinstance(contribution, Contribution):
+            rate = data.get("rate")
+            if not rate:
+                rate = contribution.get_rate()
+                if rate and hasattr(rate, "rate"):
+                    data["rate"] = rate.rate
+        return data
 
     def to_internal_value(self, data):
         if isinstance(data, int):
@@ -337,13 +354,10 @@ class ContributionSerializer(serializers.ModelSerializer):
         rate_data = data.pop('rate', None)
         override_rate_data = data.pop("override_rate", None)
         data = super(ContributionSerializer, self).to_internal_value(data)
-
         if rate_data:
             data['rate'] = rate_data
-
         if override_rate_data:
             data["override_rate"] = override_rate_data
-
         return data
 
     def create(self, validated_data):
@@ -445,9 +459,6 @@ class ContentReportingSerializer(serializers.ModelSerializer):
             if cost:
                 total_cost += cost.rate
         return total_cost
-
-    def get_contributors(self, obj, rolename):
-        pass
 
     def get_content_type(self, obj):
         return obj.__class__.__name__

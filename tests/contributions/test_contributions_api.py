@@ -20,7 +20,7 @@ class ContributionApiTestCase(BaseAPITestCase):
         Contributor = get_user_model()
         self.roles = {
             "editor": ContributorRole.objects.create(name="Editor"),
-            "writer": ContributorRole.objects.create(name="Writer")
+            "writer": ContributorRole.objects.create(name="Writer", payment_type=0)
         }
 
         self.contributors = {
@@ -513,7 +513,11 @@ class ContributionApiTestCase(BaseAPITestCase):
         self.assertIsNone(rate)
 
         # Add a Manual rate
-        manual = ManualRate.objects.create(name=PAYMENT_TYPES['Manual'], rate=2, contribution=contribution)
+        manual = ManualRate.objects.create(
+            name=PAYMENT_TYPES['Manual'],
+            rate=2,
+            contribution=contribution
+        )
         response = client.get(endpoint)
         rate = response.data[0].get('rate')
         updated = rate.pop('updated_on')
@@ -653,12 +657,11 @@ class ContributionApiTestCase(BaseAPITestCase):
     def test_contributions_create_api(self):
         client = Client()
         client.login(username="admin", password="secret")
-
         content = make_content()
         Content.search_objects.refresh()
         self.assertEqual(Contribution.objects.filter(content=content).count(), 0)
         endpoint = reverse("content-contributions", kwargs={"pk": content.pk})
-
+        FlatRate.objects.create(role=self.roles['writer'], rate=100)
         data = [{
             "contributor": {
                 "username": self.admin.username,
@@ -679,6 +682,78 @@ class ContributionApiTestCase(BaseAPITestCase):
             "content": content.id
         }]
         response = client.post(endpoint, json.dumps(data), content_type="application/json")
-        print(response.content)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Contribution.objects.filter(content=content).count(), 1)
+
+    def test_rolefield_rate_interpretation(self):
+        client = Client()
+        client.login(username="admin", password="secret")
+        feature_type = FeatureType.objects.create(name="Cams Favorite Stuff")
+        feature_type_2 = FeatureType.objects.create(name="Bad Stuff")
+        content = make_content(feature_type=feature_type)
+        content_endpoint = reverse("content-contributions", kwargs={"pk": content.pk})
+
+        # FlatRate contribution
+        role = ContributorRole.objects.create(name="FlatRatePerson", payment_type=0)
+        FlatRate.objects.create(role=role, rate=700)
+        contribution = Contribution.objects.create(
+            content=content,
+            role=role,
+            contributor=self.admin
+        )
+        resp = client.get(content_endpoint)
+        self.assertEqual(resp.status_code, 200)
+        role_data = resp.data[0].get('role')
+        self.assertEqual(role_data['rate'], 700)
+        contribution.delete()
+
+        # FeatureType contribution
+        role = ContributorRole.objects.create(name="FeatureTypePerson", payment_type=1)
+        FeatureTypeRate.objects.create(
+            role=role,
+            feature_type=feature_type,
+            rate=666
+        )
+        FeatureTypeRate.objects.create(
+            role=role,
+            feature_type=feature_type_2,
+            rate=444
+        )
+        contribution = Contribution.objects.create(
+            content=content,
+            role=role,
+            contributor=self.admin
+        )
+        resp = client.get(content_endpoint)
+        self.assertEqual(resp.status_code, 200)
+        role_data = resp.data[0].get('role')
+        self.assertEqual(role_data['rate'], 666)
+        contribution.delete()
+
+        # Hourly contribution
+        role = ContributorRole.objects.create(name="HourlyPerson", payment_type=2)
+        HourlyRate.objects.create(role=role, rate=20)
+        contribution = Contribution.objects.create(
+            content=content,
+            role=role,
+            contributor=self.admin
+        )
+        resp = client.get(content_endpoint)
+        self.assertEqual(resp.status_code, 200)
+        role_data = resp.data[0].get('role')
+        self.assertEqual(role_data['rate'], 20)
+        contribution.delete()
+
+        # Manual contribution
+        role = ContributorRole.objects.create(name="ManualPerson", payment_type=3)
+        contribution = Contribution.objects.create(
+            content=content,
+            role=role,
+            contributor=self.admin
+        )
+        ManualRate.objects.create(contribution=contribution, rate=1000)
+        resp = client.get(content_endpoint)
+        self.assertEqual(resp.status_code, 200)
+        role_data = resp.data[0].get('role')
+        self.assertEqual(role_data['rate'], 1000)
+        contribution.delete()

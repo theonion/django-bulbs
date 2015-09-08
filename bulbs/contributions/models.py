@@ -55,6 +55,17 @@ class ContributorRole(models.Model):
     description = models.TextField(null=True, blank=True)
     payment_type = models.IntegerField(choices=ROLE_PAYMENT_TYPES, default=MANUAL)
 
+    def get_rate(self):
+        if self.payment_type == FLAT_RATE:
+            qs = self.flat_rates.all()
+            if qs.exists():
+                return qs.first()
+        if self.payment_type == HOURLY:
+            qs = self.hourly_rates.all()
+            if qs.exists():
+                return qs.first()
+        return None
+
 
 class Contribution(models.Model):
     role = models.ForeignKey(ContributorRole)
