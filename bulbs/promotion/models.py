@@ -1,6 +1,7 @@
 from celery.task import task
 
 from django.core.cache import cache
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 
@@ -143,6 +144,23 @@ class PZone(models.Model):
 
     def __unicode__(self):
         return "{}[{}]".format(self.name, self.__len__())
+
+    def clean(self, *args, **kwargs):
+        super(PZone, self).clean(*args, **kwargs)
+
+        if not isinstance(self.data, list):
+            raise ValidationError('PZone data must be formatted as a list')
+
+        for instance in self.data:
+            if not isinstance(instance, dict) or 'id' not in instance:
+                raise ValidationError(
+                    'PZone data objects must be formatted like the following "{id: int}"'
+                )
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super(PZone, self).save(*args, **kwargs)
+
 
     class Meta:
         ordering = ["name"]
