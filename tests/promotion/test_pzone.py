@@ -1,10 +1,11 @@
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 
 from bulbs.utils.test import BaseIndexableTestCase
-
 from bulbs.promotion.models import PZone, PZoneHistory
-from example.testcontent.models import TestContentObj
 from bulbs.utils.test import make_content
+
+from example.testcontent.models import TestContentObj
 
 
 class PZoneTestCase(BaseIndexableTestCase):
@@ -18,6 +19,18 @@ class PZoneTestCase(BaseIndexableTestCase):
 
         self.pzone.data = data
         self.pzone.save()
+
+    def test_validate_data_is_list(self):
+        with self.assertRaises(ValidationError):
+            PZone.objects.create(name="my-zone", data={1: {'id': 1}})
+
+    def test_validate_data_object_is_dict(self):
+        with self.assertRaises(ValidationError):
+            PZone.objects.create(name='another-zone', data=[1])
+
+    def test_validate_data_object_has_id_key(self):
+        with self.assertRaises(ValidationError):
+            PZone.objects.create(name='so-many-zones', data={'value': 100})
 
     def test_len(self):
 
