@@ -1,4 +1,5 @@
 import json
+import logging
 import random
 
 from elasticsearch_dsl.connections import connections
@@ -61,7 +62,10 @@ def _iso_datetime(value):
 class BaseIndexableTestCase(TestCase):
     """A TestCase which handles setup and teardown of elasticsearch indexes."""
 
+    elasticsearchLogger = logging.getLogger('elasticsearch')
+
     def setUp(self):
+        self.elasticsearchLogger.setLevel(logging.ERROR)
         self.es = connections.get_connection("default")
         self.indexes = get_indexes()
 
