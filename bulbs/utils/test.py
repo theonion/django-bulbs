@@ -65,6 +65,13 @@ class BaseIndexableTestCase(TestCase):
     elasticsearchLogger = logging.getLogger('elasticsearch')
 
     def setUp(self):
+        """ If you're reading this. I am gone and dead, presumably.
+            Elasticsearch's logging is quite loud and lets us know
+            about anticipated errors, so I set the level to ERROR only.
+            If elasticsearch is giving you trouble in tests and you
+            aren't seeing any info, get rid of this. God bless you.
+
+        """
         self.elasticsearchLogger.setLevel(logging.ERROR)
         self.es = connections.get_connection("default")
         self.indexes = get_indexes()
