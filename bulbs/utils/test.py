@@ -70,7 +70,6 @@ class BaseIndexableTestCase(TestCase):
             about anticipated errors, so I set the level to ERROR only.
             If elasticsearch is giving you trouble in tests and you
             aren't seeing any info, get rid of this. God bless you.
-
         """
         self.elasticsearchLogger.setLevel(logging.ERROR)
         self.es = connections.get_connection("default")
