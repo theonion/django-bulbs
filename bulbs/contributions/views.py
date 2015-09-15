@@ -63,6 +63,11 @@ class ContentReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
             feature_types = self.request.QUERY_PARAMS.getlist("feature_types")
             content = content.filter(feature_type__slug__in=feature_types)
 
+        if "authors" in self.request.QUERY_PARAMS:
+            authors = self.request.QUERY_PARAMS.getlist("authors")
+            content = content.filter(authors__username__in=authors)
+
+
         return content
 
 

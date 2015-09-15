@@ -759,28 +759,54 @@ class ContributionApiTestCase(BaseAPITestCase):
         contribution.delete()
 
     def test_content_filters(self):
+        User = get_user_model()
+        a1 = User.objects.create(first_name='author', last_name='1', username='a1')
+        a2 = User.objects.create(first_name='author', last_name='2', username='a2')
         now = timezone.now()
         ft1 = FeatureType.objects.create(name="Surf Subs")
         ft2 = FeatureType.objects.create(name="Nasty Sandwiches")
         c1 = Content.objects.create(
-            title="c1", feature_type=ft1, published=now-timezone.timedelta(days=3)
+            title="c1",
+            feature_type=ft1,
+            published=now-timezone.timedelta(days=3)
         )
         c2 = Content.objects.create(
-            title="c2", feature_type=ft1, published=now-timezone.timedelta(days=4)
+            title="c2",
+            feature_type=ft1,
+            published=now-timezone.timedelta(days=4)
         )
         c3 = Content.objects.create(
-            title="c3", feature_type=ft2, published=now-timezone.timedelta(days=5)
+            title="c3",
+            feature_type=ft2,
+            published=now-timezone.timedelta(days=5)
         )
         c4 = Content.objects.create(
-                title="c4", feature_type=ft2, published=now-timezone.timedelta(days=6)
+                title="c4",
+                feature_type=ft2,
+                published=now-timezone.timedelta(days=6)
             )
-        c5 = Content.objects.create(title="c5", published=now-timezone.timedelta(days=7))
+        c5 = Content.objects.create(
+            title="c5",
+            published=now-timezone.timedelta(days=7)
+        )
+
+        c1.authors.add(a1)
+        c1.save()
+        c2.authors.add(a1)
+        c2.save()
+        c3.authors.add(a2)
+        c3.save()
+        c4.authors.add(a2)
+        c4.save()
+        c5.authors.add(a2)
+        c5.save()
 
         endpoint = reverse('contentreporting-list')
         resp = self.client.get(endpoint)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.data), 5)
 
+        # Feature Type filters
         resp = self.client.get(endpoint, {'feature_types': ft1.slug})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.data), 2)
@@ -789,8 +815,15 @@ class ContributionApiTestCase(BaseAPITestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.data), 4)
 
+        # Authors filters
+        resp = self.client.get(endpoint, {'authors': [a1.username]})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 2)
 
+        resp = self.client.get(endpoint, {'authors': [a2.username]})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 3)
 
-
-
-
+        resp = self.client.get(endpoint, {'authors': [a1.username, a2.username]})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 5)
