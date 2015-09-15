@@ -757,3 +757,40 @@ class ContributionApiTestCase(BaseAPITestCase):
         role_data = resp.data[0].get('role')
         self.assertEqual(role_data['rate'], 1000)
         contribution.delete()
+
+    def test_content_filters(self):
+        now = timezone.now()
+        ft1 = FeatureType.objects.create(name="Surf Subs")
+        ft2 = FeatureType.objects.create(name="Nasty Sandwiches")
+        c1 = Content.objects.create(
+            title="c1", feature_type=ft1, published=now-timezone.timedelta(days=3)
+        )
+        c2 = Content.objects.create(
+            title="c2", feature_type=ft1, published=now-timezone.timedelta(days=4)
+        )
+        c3 = Content.objects.create(
+            title="c3", feature_type=ft2, published=now-timezone.timedelta(days=5)
+        )
+        c4 = Content.objects.create(
+                title="c4", feature_type=ft2, published=now-timezone.timedelta(days=6)
+            )
+        c5 = Content.objects.create(title="c5", published=now-timezone.timedelta(days=7))
+
+        endpoint = reverse('contentreporting-list')
+        resp = self.client.get(endpoint)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 5)
+
+        resp = self.client.get(endpoint, {'feature_types': ft1.slug})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 2)
+
+        resp = self.client.get(endpoint, {'feature_types': [ft1.slug, ft2.slug]})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 4)
+
+
+
+
+
+

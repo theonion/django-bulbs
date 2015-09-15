@@ -51,7 +51,17 @@ class ContentReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
         if "end" in self.request.GET:
             end_date = dateparse.parse_date(self.request.GET["end"])
 
-        content = Content.objects.filter(published__range=(start_date, end_date)).prefetch_related("authors", "contributions").select_related("feature_type")
+        content = Content.objects.filter(
+                published__range=(start_date, end_date)
+            ).prefetch_related(
+                "authors", "contributions"
+            ).select_related(
+                "feature_type"
+            )
+
+        if "feature_types" in self.request.QUERY_PARAMS:
+            feature_types = self.request.QUERY_PARAMS.getlist("feature_types")
+            content = content.filter(feature_type__slug__in=feature_types)
 
         return content
 
