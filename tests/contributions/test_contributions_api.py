@@ -913,22 +913,22 @@ class ReportingApiTestCase(BaseAPITestCase):
                 Contribution.objects.create(
                         role=self.roles['FlatRate'],
                         contributor=self.a1,
-                        content=self.c1
-                    ),
+                        content=self.c5
+                ),
                 Contribution.objects.create(
                     role=self.roles['FeatureType'],
                     contributor=self.a2,
-                    content=self.c1
+                    content=self.c5
                 ),
                 Contribution.objects.create(
                     role=self.roles['Hourly'],
                     contributor=self.a3,
-                    content=self.c1
+                    content=self.c5
                 ),
                 Contribution.objects.create(
                     role=self.roles['Manual'],
                     contributor=self.a4,
-                    content=self.c1
+                    content=self.c5
                 )
             ]
         }
@@ -979,37 +979,36 @@ class ReportingApiTestCase(BaseAPITestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.data), 20)
 
-        # # Feature Type filters
-        # resp = self.client.get(endpoint, {'feature_types': self.ft1.slug})
-        # self.assertEqual(resp.status_code, 200)
-        # self.assertEqual(len(resp.data), 2)
+        # Feature Type filters
+        resp = self.client.get(endpoint, {'feature_types': self.ft1.slug})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 8)
 
-        # resp = self.client.get(endpoint, {'feature_types': [self.ft1.slug, self.ft2.slug]})
-        # self.assertEqual(resp.status_code, 200)
-        # self.assertEqual(len(resp.data), 4)
+        resp = self.client.get(endpoint, {'feature_types': [self.ft1.slug, self.ft2.slug]})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 16)
 
-        # # Authors filters
-        # resp = self.client.get(endpoint, {'authors': [self.a1.username]})
-        # self.assertEqual(resp.status_code, 200)
-        # self.assertEqual(len(resp.data), 2)
+        # Contributors filters
+        resp = self.client.get(endpoint, {'contributors': [self.a1.username]})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 5)
 
-        # resp = self.client.get(endpoint, {'authors': [self.a2.username]})
-        # self.assertEqual(resp.status_code, 200)
-        # self.assertEqual(len(resp.data), 3)
+        resp = self.client.get(endpoint, {'contributors': [self.a2.username]})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 5)
 
-        # resp = self.client.get(endpoint, {'authors': [self.a1.username, self.a2.username]})
-        # self.assertEqual(resp.status_code, 200)
-        # self.assertEqual(len(resp.data), 5)
+        resp = self.client.get(endpoint, {'contributors': [self.a1.username, self.a2.username]})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 10)
 
-        # resp = self.client.get(endpoint, {'tags': [self.t1.slug]})
-        # self.assertEqual(resp.status_code, 200)
-        # self.assertEqual(len(resp.data), 3)
+        resp = self.client.get(endpoint, {'tags': [self.t1.slug]})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 12)
 
-        # resp = self.client.get(endpoint, {'tags': [self.t2.slug]})
-        # self.assertEqual(resp.status_code, 200)
-        # self.assertEqual(len(resp.data), 3)
+        resp = self.client.get(endpoint, {'tags': [self.t2.slug]})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 12)
 
-        # resp = self.client.get(endpoint, {'tags': [self.t1.slug, self.t2.slug]})
-        # self.assertEqual(resp.status_code, 200)
-        # self.assertEqual(len(resp.data), 5)
-
+        resp = self.client.get(endpoint, {'tags': [self.t1.slug, self.t2.slug]})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 20)

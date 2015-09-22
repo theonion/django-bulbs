@@ -95,8 +95,20 @@ class ReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
             end_date = dateparse.parse_date(self.request.GET["end"])
 
         content = Content.objects.filter(published__range=(start_date, end_date))
+        if "feature_types" in self.request.QUERY_PARAMS:
+            feature_types = self.request.QUERY_PARAMS.getlist("feature_types")
+            content = content.filter(feature_type__slug__in=feature_types)
+
+        if "tags" in self.request.QUERY_PARAMS:
+            tags = self.request.QUERY_PARAMS.getlist("tags")
+            content = content.filter(tags__slug__in=tags)
+
         content_ids = content.values_list("pk", flat=True)
         contributions = Contribution.objects.filter(content__in=content_ids)
+
+        if "contributors" in self.request.QUERY_PARAMS:
+            contributors = self.request.QUERY_PARAMS.getlist("contributors")
+            contributions = contributions.filter(contributor__username__in=contributors)
 
         ordering = self.request.GET.get("ordering", "content")
         order_options = {
