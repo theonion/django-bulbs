@@ -758,91 +758,94 @@ class ContributionApiTestCase(BaseAPITestCase):
         self.assertEqual(role_data['rate'], 1000)
         contribution.delete()
 
-    def test_content_filters(self):
+
+class ReportingApiTestCase(BaseAPITestCase):
+    def setUp(self):
+        super(ReportingApiTestCase, self).setUp()
         now = timezone.now()
-        ft1 = FeatureType.objects.create(name="Surf Subs")
-        ft2 = FeatureType.objects.create(name="Nasty Sandwiches")
-        c1 = Content.objects.create(
+        self.ft1 = FeatureType.objects.create(name="Surf Subs")
+        self.ft2 = FeatureType.objects.create(name="Nasty Sandwiches")
+        self.c1 = Content.objects.create(
             title="c1",
-            feature_type=ft1,
+            feature_type=self.ft1,
             published=now-timezone.timedelta(days=3)
         )
-        c2 = Content.objects.create(
+        self.c2 = Content.objects.create(
             title="c2",
-            feature_type=ft1,
+            feature_type=self.ft1,
             published=now-timezone.timedelta(days=4)
         )
-        c3 = Content.objects.create(
+        self.c3 = Content.objects.create(
             title="c3",
-            feature_type=ft2,
+            feature_type=self.ft2,
             published=now-timezone.timedelta(days=5)
         )
-        c4 = Content.objects.create(
+        self.c4 = Content.objects.create(
                 title="c4",
-                feature_type=ft2,
+                feature_type=self.ft2,
                 published=now-timezone.timedelta(days=6)
-            )
-        c5 = Content.objects.create(
+        )
+        self.c5 = Content.objects.create(
             title="c5",
             published=now-timezone.timedelta(days=7)
         )
-
         User = get_user_model()
-        a1 = User.objects.create(first_name='author', last_name='1', username='a1')
-        a2 = User.objects.create(first_name='author', last_name='2', username='a2')
-        t1 = Tag.objects.create(name='Ballers')
-        t2 = Tag.objects.create(name='Fallers')
-        c1.authors.add(a1)
-        c1.tags.add(t2)
-        c1.save()
-        c2.authors.add(a1)
-        c2.tags.add(t1)
-        c2.save()
-        c3.authors.add(a2)
-        c3.tags.add(t2)
-        c3.save()
-        c4.authors.add(a2)
-        c4.tags.add(t1)
-        c4.save()
-        c5.authors.add(a2)
-        c5.tags.add(t1, t2)
-        c5.save()
+        self.a1 = User.objects.create(first_name='author', last_name='1', username='a1')
+        self.a2 = User.objects.create(first_name='author', last_name='2', username='a2')
+        self.t1 = Tag.objects.create(name='Ballers')
+        self.t2 = Tag.objects.create(name='Fallers')
+        self.c1.authors.add(self.a1)
+        self.c1.tags.add(self.t2)
+        self.c1.save()
+        self.c2.authors.add(self.a1)
+        self.c2.tags.add(self.t1)
+        self.c2.save()
+        self.c3.authors.add(self.a2)
+        self.c3.tags.add(self.t2)
+        self.c3.save()
+        self.c4.authors.add(self.a2)
+        self.c4.tags.add(self.t1)
+        self.c4.save()
+        self.c5.authors.add(self.a2)
+        self.c5.tags.add(self.t1, self.t2)
+        self.c5.save()
 
+    def test_content_filters(self):
         endpoint = reverse('contentreporting-list')
         resp = self.client.get(endpoint)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.data), 5)
 
         # Feature Type filters
-        resp = self.client.get(endpoint, {'feature_types': ft1.slug})
+        resp = self.client.get(endpoint, {'feature_types': self.ft1.slug})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.data), 2)
 
-        resp = self.client.get(endpoint, {'feature_types': [ft1.slug, ft2.slug]})
+        resp = self.client.get(endpoint, {'feature_types': [self.ft1.slug, self.ft2.slug]})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.data), 4)
 
         # Authors filters
-        resp = self.client.get(endpoint, {'authors': [a1.username]})
+        resp = self.client.get(endpoint, {'authors': [self.a1.username]})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.data), 2)
 
-        resp = self.client.get(endpoint, {'authors': [a2.username]})
+        resp = self.client.get(endpoint, {'authors': [self.a2.username]})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.data), 3)
 
-        resp = self.client.get(endpoint, {'authors': [a1.username, a2.username]})
+        resp = self.client.get(endpoint, {'authors': [self.a1.username, self.a2.username]})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.data), 5)
 
-        resp = self.client.get(endpoint, {'tags': [t1.slug]})
+        resp = self.client.get(endpoint, {'tags': [self.t1.slug]})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.data), 3)
 
-        resp = self.client.get(endpoint, {'tags': [t2.slug]})
+        resp = self.client.get(endpoint, {'tags': [self.t2.slug]})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.data), 3)
 
-        resp = self.client.get(endpoint, {'tags': [t1.slug, t2.slug]})
+        resp = self.client.get(endpoint, {'tags': [self.t1.slug, self.t2.slug]})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.data), 5)
