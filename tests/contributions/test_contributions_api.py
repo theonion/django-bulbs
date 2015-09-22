@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.test.client import Client
 
-from bulbs.content.models import Content, FeatureType
+from bulbs.content.models import Content, FeatureType, Tag
 from bulbs.contributions.models import (Contribution, ContributorRole, ManualRate, HourlyRate, FlatRate, FeatureTypeOverride, FeatureTypeRate, LineItem, Override, Rate, RATE_PAYMENT_TYPES)
 from bulbs.contributions.serializers import RateSerializer
 from bulbs.utils.test import BaseAPITestCase, make_content
@@ -759,9 +759,6 @@ class ContributionApiTestCase(BaseAPITestCase):
         contribution.delete()
 
     def test_content_filters(self):
-        User = get_user_model()
-        a1 = User.objects.create(first_name='author', last_name='1', username='a1')
-        a2 = User.objects.create(first_name='author', last_name='2', username='a2')
         now = timezone.now()
         ft1 = FeatureType.objects.create(name="Surf Subs")
         ft2 = FeatureType.objects.create(name="Nasty Sandwiches")
@@ -790,15 +787,25 @@ class ContributionApiTestCase(BaseAPITestCase):
             published=now-timezone.timedelta(days=7)
         )
 
+        User = get_user_model()
+        a1 = User.objects.create(first_name='author', last_name='1', username='a1')
+        a2 = User.objects.create(first_name='author', last_name='2', username='a2')
+        t1 = Tag.objects.create(name='Ballers')
+        t2 = Tag.objects.create(name='Fallers')
         c1.authors.add(a1)
+        c1.tags.add(t2)
         c1.save()
         c2.authors.add(a1)
+        c2.tags.add(t1)
         c2.save()
         c3.authors.add(a2)
+        c3.tags.add(t2)
         c3.save()
         c4.authors.add(a2)
+        c4.tags.add(t1)
         c4.save()
         c5.authors.add(a2)
+        c5.tags.add(t1, t2)
         c5.save()
 
         endpoint = reverse('contentreporting-list')
@@ -825,5 +832,17 @@ class ContributionApiTestCase(BaseAPITestCase):
         self.assertEqual(len(resp.data), 3)
 
         resp = self.client.get(endpoint, {'authors': [a1.username, a2.username]})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 5)
+
+        resp = self.client.get(endpoint, {'tags': [t1.slug]})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 3)
+
+        resp = self.client.get(endpoint, {'tags': [t2.slug]})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 3)
+
+        resp = self.client.get(endpoint, {'tags': [t1.slug, t2.slug]})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.data), 5)

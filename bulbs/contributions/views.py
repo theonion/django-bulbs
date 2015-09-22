@@ -57,7 +57,7 @@ class ContentReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
                 "authors", "contributions"
             ).select_related(
                 "feature_type"
-            )
+            ).distinct()
 
         if "feature_types" in self.request.QUERY_PARAMS:
             feature_types = self.request.QUERY_PARAMS.getlist("feature_types")
@@ -67,6 +67,9 @@ class ContentReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
             authors = self.request.QUERY_PARAMS.getlist("authors")
             content = content.filter(authors__username__in=authors)
 
+        if "tags" in self.request.QUERY_PARAMS:
+            tags = self.request.QUERY_PARAMS.getlist("tags")
+            content = content.filter(tags__slug__in=tags)
 
         return content
 
