@@ -763,6 +763,13 @@ class ReportingApiTestCase(BaseAPITestCase):
     def setUp(self):
         super(ReportingApiTestCase, self).setUp()
         now = timezone.now()
+        self.roles = {
+            "FlatRate": ContributorRole.objects.create(name='Author', payment_type=0),
+            "FeatureType": ContributorRole.objects.create(name='Author', payment_type=1),
+            "Hourly": ContributorRole.objects.create(name='Author', payment_type=2),
+            "Manual": ContributorRole.objects.create(name='Author', payment_type=3)
+        }
+
         self.ft1 = FeatureType.objects.create(name="Surf Subs")
         self.ft2 = FeatureType.objects.create(name="Nasty Sandwiches")
         self.c1 = Content.objects.create(
@@ -792,6 +799,9 @@ class ReportingApiTestCase(BaseAPITestCase):
         User = get_user_model()
         self.a1 = User.objects.create(first_name='author', last_name='1', username='a1')
         self.a2 = User.objects.create(first_name='author', last_name='2', username='a2')
+        self.a3 = User.objects.create(first_name='author', last_name='3', username='a3')
+        self.a4 = User.objects.create(first_name='author', last_name='4', username='a4')
+        self.a5 = User.objects.create(first_name='author', last_name='5', username='a5')
         self.t1 = Tag.objects.create(name='Ballers')
         self.t2 = Tag.objects.create(name='Fallers')
         self.c1.authors.add(self.a1)
@@ -809,6 +819,119 @@ class ReportingApiTestCase(BaseAPITestCase):
         self.c5.authors.add(self.a2)
         self.c5.tags.add(self.t1, self.t2)
         self.c5.save()
+
+        self.contributions = {
+            'c1': [
+                Contribution.objects.create(
+                    role=self.roles['FlatRate'],
+                    contributor=self.a1,
+                    content=self.c1
+                ),
+                Contribution.objects.create(
+                    role=self.roles['FeatureType'],
+                    contributor=self.a2,
+                    content=self.c1
+                ),
+                Contribution.objects.create(
+                    role=self.roles['Hourly'],
+                    contributor=self.a3,
+                    content=self.c1
+                ),
+                Contribution.objects.create(
+                    role=self.roles['Manual'],
+                    contributor=self.a4,
+                    content=self.c1
+                )
+            ],
+            'c2': [
+                Contribution.objects.create(
+                    role=self.roles['FlatRate'],
+                    contributor=self.a1,
+                    content=self.c2
+                ),
+                Contribution.objects.create(
+                    role=self.roles['FeatureType'],
+                    contributor=self.a2,
+                    content=self.c2
+                ),
+                Contribution.objects.create(
+                    role=self.roles['Hourly'],
+                    contributor=self.a3,
+                    content=self.c2
+                ),
+                Contribution.objects.create(
+                    role=self.roles['Manual'],
+                    contributor=self.a4,
+                    content=self.c2
+                )
+            ],
+            'c3': [
+                Contribution.objects.create(
+                    role=self.roles['FlatRate'],
+                    contributor=self.a1,
+                    content=self.c3
+                ),
+                Contribution.objects.create(
+                    role=self.roles['FeatureType'],
+                    contributor=self.a2,
+                    content=self.c3
+                ),
+                Contribution.objects.create(
+                    role=self.roles['Hourly'],
+                    contributor=self.a3,
+                    content=self.c3
+                ),
+                Contribution.objects.create(
+                    role=self.roles['Manual'],
+                    contributor=self.a4,
+                    content=self.c3
+                )
+            ],
+            'c4': [
+                Contribution.objects.create(
+                    role=self.roles['FlatRate'],
+                    contributor=self.a1,
+                    content=self.c4
+                ),
+                Contribution.objects.create(
+                    role=self.roles['FeatureType'],
+                    contributor=self.a2,
+                    content=self.c4
+                ),
+                Contribution.objects.create(
+                    role=self.roles['Hourly'],
+                    contributor=self.a3,
+                    content=self.c4
+                ),
+                Contribution.objects.create(
+                    role=self.roles['Manual'],
+                    contributor=self.a4,
+                    content=self.c4
+                )
+            ],
+            'c5': [
+                Contribution.objects.create(
+                        role=self.roles['FlatRate'],
+                        contributor=self.a1,
+                        content=self.c1
+                    ),
+                Contribution.objects.create(
+                    role=self.roles['FeatureType'],
+                    contributor=self.a2,
+                    content=self.c1
+                ),
+                Contribution.objects.create(
+                    role=self.roles['Hourly'],
+                    contributor=self.a3,
+                    content=self.c1
+                ),
+                Contribution.objects.create(
+                    role=self.roles['Manual'],
+                    contributor=self.a4,
+                    content=self.c1
+                )
+            ]
+        }
 
     def test_content_filters(self):
         endpoint = reverse('contentreporting-list')
@@ -849,3 +972,44 @@ class ReportingApiTestCase(BaseAPITestCase):
         resp = self.client.get(endpoint, {'tags': [self.t1.slug, self.t2.slug]})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.data), 5)
+
+    def test_contribution_filters(self):
+        endpoint = reverse('contributionreporting-list')
+        resp = self.client.get(endpoint)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 20)
+
+        # # Feature Type filters
+        # resp = self.client.get(endpoint, {'feature_types': self.ft1.slug})
+        # self.assertEqual(resp.status_code, 200)
+        # self.assertEqual(len(resp.data), 2)
+
+        # resp = self.client.get(endpoint, {'feature_types': [self.ft1.slug, self.ft2.slug]})
+        # self.assertEqual(resp.status_code, 200)
+        # self.assertEqual(len(resp.data), 4)
+
+        # # Authors filters
+        # resp = self.client.get(endpoint, {'authors': [self.a1.username]})
+        # self.assertEqual(resp.status_code, 200)
+        # self.assertEqual(len(resp.data), 2)
+
+        # resp = self.client.get(endpoint, {'authors': [self.a2.username]})
+        # self.assertEqual(resp.status_code, 200)
+        # self.assertEqual(len(resp.data), 3)
+
+        # resp = self.client.get(endpoint, {'authors': [self.a1.username, self.a2.username]})
+        # self.assertEqual(resp.status_code, 200)
+        # self.assertEqual(len(resp.data), 5)
+
+        # resp = self.client.get(endpoint, {'tags': [self.t1.slug]})
+        # self.assertEqual(resp.status_code, 200)
+        # self.assertEqual(len(resp.data), 3)
+
+        # resp = self.client.get(endpoint, {'tags': [self.t2.slug]})
+        # self.assertEqual(resp.status_code, 200)
+        # self.assertEqual(len(resp.data), 3)
+
+        # resp = self.client.get(endpoint, {'tags': [self.t1.slug, self.t2.slug]})
+        # self.assertEqual(resp.status_code, 200)
+        # self.assertEqual(len(resp.data), 5)
+
