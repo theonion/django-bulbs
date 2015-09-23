@@ -20,9 +20,14 @@ class ContributionApiTestCase(BaseAPITestCase):
     def setUp(self):
         super(ContributionApiTestCase, self).setUp()
         Contributor = get_user_model()
+        self.feature_types = {
+            "surfing": FeatureType.objects.create(name="Surfing")
+        }
+
         self.roles = {
             "editor": ContributorRole.objects.create(name="Editor"),
             "writer": ContributorRole.objects.create(name="Writer", payment_type=0),
+            "featured": ContributorRole.objects.create(name="Featured", payment_type=1),
             "friend": ContributorRole.objects.create(name="Friend", payment_type=3)
         }
 
@@ -46,7 +51,7 @@ class ContributionApiTestCase(BaseAPITestCase):
         endpoint = reverse("contributorrole-list")
         response = client.get(endpoint)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 3)
+        self.assertEqual(len(response.data), 4)
 
         payment_type = response.data[0].get('payment_type', None)
         self.assertEqual(payment_type, 'Manual')
@@ -71,7 +76,7 @@ class ContributionApiTestCase(BaseAPITestCase):
         endpoint = reverse('contributorrole-list')
         resp = client.get(endpoint + '?override=true')
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(len(resp.data), 1)
+        self.assertEqual(len(resp.data), 2)
 
     def test_contributionrole_flat_rate_dict(self):
         client = Client()
@@ -80,6 +85,7 @@ class ContributionApiTestCase(BaseAPITestCase):
         data = {
             "name": "Big Fella",
             "payment_type": "FeatureType",
+            "role": self.roles['featured'].id,
             "rates": {
                 "flat_rate": {"rate": 50}
             }
@@ -354,21 +360,32 @@ class ContributionApiTestCase(BaseAPITestCase):
             resp.data.get("contributor").get("id"), override.contributor.id
         )
 
-    def test_override_bad_request(self):
+    def test_override_feature_types(self):
         endpoint = reverse('rate-overrides-list')
         client = Client()
-        client.login(username="admin", password="secret")
+        client.login(username='admin', password='secret')
         data = {
             'contributor': {
                 'username': self.contributors['jarvis'].username,
-                'id': self.contributors['jarvis'].id
+                'id': self.contributors['jarvis'].id,
             },
-            'role': self.roles['editor'].id
+            'role': self.roles['featured'].id,
+            'feature_types': [{'rate': 80, 'feature_type': self.feature_types["surfing"].name}]
         }
         resp = client.post(endpoint, json.dumps(data), content_type='application/json')
-        self.assertEqual(resp.status_code, 400)
-        rate_response = resp.data.get('rate')
-        self.assertEqual(rate_response[0], 'This field is required.')
+        self.assertEqual(resp.status_code, 201)
+        id = resp.data.get('id')
+        detail_endpoint = reverse('rate-overrides-detail', kwargs={'pk': id})
+        data.update(resp.data)
+        data['feature_types'][0]['rate'] = 100
+
+        resp = client.put(detail_endpoint, json.dumps(data), content_type='application/json')
+        self.assertEqual(resp.status_code, 200)
+        feature_types = resp.data['feature_types']
+        self.assertEqual(len(feature_types), 1)
+        self.assertEqual(feature_types[0]['rate'], 100)
+
+    # TODO: custom validation if no feature_types for rates
 
     def test_override_delete_success(self):
         client = Client()

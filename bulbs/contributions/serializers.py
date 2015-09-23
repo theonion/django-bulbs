@@ -236,6 +236,7 @@ class RoleField(serializers.Field):
 class FeatureTypeOverrideSerializer(serializers.ModelSerializer):
 
     contributor = ContributorField()
+    rate = serializers.IntegerField(required=False)
     role = RoleField()
     feature_type = FeatureTypeField(queryset=FeatureType.objects.all())
 
@@ -246,6 +247,7 @@ class FeatureTypeOverrideSerializer(serializers.ModelSerializer):
 class OverrideSerializer(serializers.ModelSerializer):
 
     contributor = ContributorField()
+    rate = serializers.IntegerField(required=False, allow_null=True)
     role = RoleField()
 
     class Meta:
@@ -253,6 +255,7 @@ class OverrideSerializer(serializers.ModelSerializer):
 
     def get_feature_types(self, obj):
         return FeatureTypeOverride.objects.filter(role=obj.role, contributor=obj.contributor)
+
 
     def create(self, validated_data):
         if "feature_type" in validated_data:
@@ -275,7 +278,15 @@ class OverrideSerializer(serializers.ModelSerializer):
             )
             feature_type['contributor'] = contributor
             feature_type['role'] = role
-            FeatureTypeOverride.objects.get_or_create(**feature_type)
+            id = feature_type.pop('id', None)
+            feature_type.pop('polymorphic_ctype', None)
+            if id:
+                feature_type_override = FeatureTypeOverride.objects.get(id=int(id))
+                for key, value in feature_type.items():
+                    setattr(feature_type_override, key, value)
+                feature_type_override.save()
+            else:
+                FeatureTypeOverride.objects.get_or_create(**feature_type)
         return override
 
     def to_representation(self, obj):

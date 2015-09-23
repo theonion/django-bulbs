@@ -94,7 +94,7 @@ class Contribution(models.Model):
 class Override(PolymorphicModel):
     name = models.IntegerField(choices=RATE_PAYMENT_TYPES, null=True)
     updated_on = models.DateTimeField(auto_now=True)
-    rate = models.IntegerField()
+    rate = models.IntegerField(null=True, blank=True)
     contributor = models.ForeignKey(
         settings.AUTH_USER_MODEL, related_name="overrides", null=True
     )
