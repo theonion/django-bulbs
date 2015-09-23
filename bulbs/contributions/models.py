@@ -154,5 +154,3 @@ class FeatureTypeRate(Rate):
         if overrides.exists():
             overrides.delete()
         super(FeatureTypeRate, self).delete(*args, **kwargs)
-
-

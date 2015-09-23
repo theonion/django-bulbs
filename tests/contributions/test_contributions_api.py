@@ -6,7 +6,9 @@ from django.core.urlresolvers import reverse
 from django.test.client import Client
 
 from bulbs.content.models import Content, FeatureType, Tag
-from bulbs.contributions.models import (Contribution, ContributorRole, ManualRate, HourlyRate, FlatRate, FeatureTypeOverride, FeatureTypeRate, LineItem, Override, Rate, RATE_PAYMENT_TYPES)
+from bulbs.contributions.models import (Contribution, ContributorRole, ManualRate, HourlyRate,
+    FlatRate, FeatureTypeOverride, FeatureTypeRate, FreelanceProfile, LineItem, Override,
+Rate, RATE_PAYMENT_TYPES)
 from bulbs.contributions.serializers import RateSerializer
 from bulbs.utils.test import BaseAPITestCase, make_content
 
@@ -802,6 +804,11 @@ class ReportingApiTestCase(BaseAPITestCase):
         self.a3 = User.objects.create(first_name='author', last_name='3', username='a3')
         self.a4 = User.objects.create(first_name='author', last_name='4', username='a4')
         self.a5 = User.objects.create(first_name='author', last_name='5', username='a5')
+        self.fp1 = FreelanceProfile.objects.create(contributor=self.a1)
+        self.fp2 = FreelanceProfile.objects.create(contributor=self.a2)
+        self.fp3 = FreelanceProfile.objects.create(contributor=self.a3)
+        self.fp4 = FreelanceProfile.objects.create(contributor=self.a4)
+        self.fp5 = FreelanceProfile.objects.create(contributor=self.a5)
         self.t1 = Tag.objects.create(name='Ballers')
         self.t2 = Tag.objects.create(name='Fallers')
         self.c1.authors.add(self.a1)
@@ -1012,3 +1019,59 @@ class ReportingApiTestCase(BaseAPITestCase):
         resp = self.client.get(endpoint, {'tags': [self.t1.slug, self.t2.slug]})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.data), 20)
+
+    def test_freelance_filters(self):
+        endpoint = reverse('freelancereporting-list')
+
+        new_feature_type = FeatureType.objects.create(name='New FeatureType')
+        new_tag = Tag.objects.create(name='New Tag')
+        new_content = Content.objects.create(
+            title="This rules",
+            feature_type=new_feature_type,
+            published=timezone.now() - timezone.timedelta(days=1)
+        )
+        new_content.tags.add(new_tag)
+        new_content.save()
+        Contribution.objects.create(
+            role=self.roles['FlatRate'],
+            contributor=self.a5,
+            content=new_content
+        )
+
+        resp = self.client.get(endpoint)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 5)
+
+        # Feature Type filters
+        resp = self.client.get(endpoint, {'feature_types': new_feature_type.slug})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 1)
+
+        resp = self.client.get(endpoint, {'feature_types': [new_feature_type.slug, self.ft2.slug]})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 5)
+
+        # Contributors filters
+        resp = self.client.get(endpoint, {'contributors': [self.a1.username]})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 1)
+
+        resp = self.client.get(endpoint, {'contributors': [self.a2.username]})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 1)
+
+        resp = self.client.get(endpoint, {'contributors': [self.a1.username, self.a2.username]})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 2)
+
+        resp = self.client.get(endpoint, {'tags': [new_tag.slug]})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 1)
+
+        resp = self.client.get(endpoint, {'tags': [self.t2.slug]})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 4)
+
+        resp = self.client.get(endpoint, {'tags': [new_tag.slug, self.t2.slug]})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 5)

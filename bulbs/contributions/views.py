@@ -2,16 +2,17 @@
 
 import datetime
 
+from django.db import models
 from django.utils import dateparse, timezone
+
+from bulbs.content.models import Content
 
 from rest_framework import viewsets, routers, mixins
 from rest_framework.settings import api_settings
-
 from rest_framework_csv.renderers import CSVRenderer
 
 from .models import (ContributorRole, Contribution, FreelanceProfile, LineItem, Override)
 from .serializers import (ContributorRoleSerializer, ContributionReportingSerializer, ContentReportingSerializer, FreelanceProfileSerializer, LineItemSerializer, OverrideSerializer)
-from bulbs.content.models import Content
 
 
 class LineItemViewSet(viewsets.ModelViewSet):
@@ -132,6 +133,13 @@ class FreelanceReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
             day=1,
             tzinfo=now.tzinfo
         )
+
+        start_date = datetime.datetime(
+            year=now.year,
+            month=now.month,
+            day=1,
+            tzinfo=now.tzinfo)
+
         if "start" in self.request.GET:
             start_date = dateparse.parse_date(self.request.GET["start"])
 
@@ -139,15 +147,26 @@ class FreelanceReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
         if "end" in self.request.GET:
             end_date = dateparse.parse_date(self.request.GET["end"])
 
-        qs = FreelanceProfile.objects.all()
+        content = Content.objects.filter(published__range=(start_date, end_date))
 
-        # if start_date:
-        #     qs = qs.filter(payment_date__gt=start_date)
-        # if end_date:
-        #     qs = qs.filter(payment_date__lt=end_date)
+        if "feature_types" in self.request.QUERY_PARAMS:
+            feature_types = self.request.QUERY_PARAMS.getlist("feature_types")
+            content = content.filter(feature_type__slug__in=feature_types)
 
+        if "tags" in self.request.QUERY_PARAMS:
+            tags = self.request.QUERY_PARAMS.getlist("tags")
+            content = content.filter(tags__slug__in=tags)
+
+        content_ids = content.values_list("pk", flat=True)
+        contribution_qs = Contribution.objects.filter(content__in=content_ids)
+
+        if "contributors" in self.request.QUERY_PARAMS:
+            contributors = self.request.QUERY_PARAMS.getlist("contributors")
+            contribution_qs = contribution_qs.filter(contributor__username__in=contributors)
+
+        contributor_ids = contribution_qs.values_list('contributor', flat=True).distinct()
+        qs = FreelanceProfile.objects.filter(contributor__in=contributor_ids)
         return qs
-
 
 
 api_v1_router = routers.DefaultRouter()
