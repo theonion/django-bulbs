@@ -22,7 +22,8 @@ class ContributionApiTestCase(BaseAPITestCase):
         Contributor = get_user_model()
         self.roles = {
             "editor": ContributorRole.objects.create(name="Editor"),
-            "writer": ContributorRole.objects.create(name="Writer", payment_type=0)
+            "writer": ContributorRole.objects.create(name="Writer", payment_type=0),
+            "friend": ContributorRole.objects.create(name="Friend", payment_type=3)
         }
 
         self.contributors = {
@@ -45,7 +46,7 @@ class ContributionApiTestCase(BaseAPITestCase):
         endpoint = reverse("contributorrole-list")
         response = client.get(endpoint)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(len(response.data), 3)
 
         payment_type = response.data[0].get('payment_type', None)
         self.assertEqual(payment_type, 'Manual')
@@ -63,6 +64,14 @@ class ContributionApiTestCase(BaseAPITestCase):
         rates = response.data[0].get('rates')
         self.assertEqual(rates["flat_rate"]['rate'], 100)
         self.assertIsNotNone(rates["flat_rate"]['updated_on'])
+
+    def test_contributor_role_overridable(self):
+        client = Client()
+        client.login(username="admin", password="secret")
+        endpoint = reverse('contributorrole-list')
+        resp = client.get(endpoint + '?override=true')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 1)
 
     def test_contributionrole_flat_rate_dict(self):
         client = Client()
@@ -344,6 +353,22 @@ class ContributionApiTestCase(BaseAPITestCase):
         self.assertEqual(
             resp.data.get("contributor").get("id"), override.contributor.id
         )
+
+    def test_override_bad_request(self):
+        endpoint = reverse('rate-overrides-list')
+        client = Client()
+        client.login(username="admin", password="secret")
+        data = {
+            'contributor': {
+                'username': self.contributors['jarvis'].username,
+                'id': self.contributors['jarvis'].id
+            },
+            'role': self.roles['editor'].id
+        }
+        resp = client.post(endpoint, json.dumps(data), content_type='application/json')
+        self.assertEqual(resp.status_code, 400)
+        rate_response = resp.data.get('rate')
+        self.assertEqual(rate_response[0], 'This field is required.')
 
     def test_override_delete_success(self):
         client = Client()
