@@ -6,6 +6,7 @@ try:
 except ImportError:
     import io as StringIO
 
+from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.test.client import Client
 from django.utils import timezone
@@ -102,8 +103,14 @@ class ContributionReportingTestCase(BaseAPITestCase):
         self.assertEqual(csvreader.line_num, 5)  # Header + 4 items
 
     def test_content_reporting(self):
-
         content_one = make_content(published=timezone.now() - datetime.timedelta(days=1))
+        user_cls = get_user_model()
+        admin = user_cls.objects.first()
+        Contribution.objects.create(
+            content=content_one,
+            contributor=admin,
+            role=self.roles['editor']
+        )
 
         client = Client()
         client.login(username="admin", password="secret")
@@ -146,7 +153,7 @@ class ContributionReportingTestCase(BaseAPITestCase):
         response = client.get(endpoint, data={"start": start_date.strftime("%Y-%m-%d")})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]["value"], 120)
+        self.assertEqual(response.data[0]["value"], 180)
 
         self.assertEqual(response.data[0]["authors"], "Chris Sinchok,Jenny Crowley")
 

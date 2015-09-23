@@ -940,6 +940,15 @@ class ReportingApiTestCase(BaseAPITestCase):
             ]
         }
 
+    def test_exclude_content_without_contributions(self):
+        content = Content.objects.create(title='No contributions here')
+        self.assertEqual(content.contributions.count(), 0)
+
+        endpoint = reverse('contentreporting-list')
+        resp = self.client.get(endpoint)
+        self.assertEqual(resp.status_code, 200)
+        self.assertNotIn(content.id, [cc['id'] for cc in resp.data])
+
     def test_content_filters(self):
         endpoint = reverse('contentreporting-list')
         resp = self.client.get(endpoint)

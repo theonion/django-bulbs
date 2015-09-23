@@ -53,6 +53,8 @@ class ContentReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
             end_date = dateparse.parse_date(self.request.GET["end"])
 
         content = Content.objects.filter(
+                contributions__gt=0
+            ).filter(
                 published__range=(start_date, end_date)
             ).prefetch_related(
                 "authors", "contributions"
