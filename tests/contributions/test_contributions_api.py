@@ -845,7 +845,7 @@ class ReportingApiTestCase(BaseAPITestCase):
         self.a2 = User.objects.create(first_name='author', last_name='2', username='a2')
         self.a3 = User.objects.create(first_name='author', last_name='3', username='a3')
         self.a4 = User.objects.create(first_name='author', last_name='4', username='a4')
-        self.a5 = User.objects.create(first_name='author', last_name='5', username='a5')
+        self.a5 = User.objects.create(first_name='author', last_name='5', username='a 5')
         self.fp1 = FreelanceProfile.objects.create(contributor=self.a1)
         self.fp2 = FreelanceProfile.objects.create(contributor=self.a2)
         self.fp3 = FreelanceProfile.objects.create(contributor=self.a3)
@@ -1006,19 +1006,6 @@ class ReportingApiTestCase(BaseAPITestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.data), 4)
 
-        # Authors filters
-        resp = self.client.get(endpoint, {'authors': [self.a1.username]})
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(len(resp.data), 2)
-
-        resp = self.client.get(endpoint, {'authors': [self.a2.username]})
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(len(resp.data), 3)
-
-        resp = self.client.get(endpoint, {'authors': [self.a1.username, self.a2.username]})
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(len(resp.data), 5)
-
         resp = self.client.get(endpoint, {'tags': [self.t1.slug]})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.data), 3)
@@ -1030,6 +1017,33 @@ class ReportingApiTestCase(BaseAPITestCase):
         resp = self.client.get(endpoint, {'tags': [self.t1.slug, self.t2.slug]})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.data), 5)
+
+        new_content = Content.objects.create(
+            title='new content',
+            published=timezone.now() - timezone.timedelta(days=3)
+        )
+        Contribution.objects.create(
+            role=self.roles['FlatRate'],
+            contributor=self.a5,
+            content=new_content
+        )
+
+        # contributors filters
+        resp = self.client.get(endpoint, {'contributors': [self.a1.username]})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 5)
+
+        resp = self.client.get(endpoint, {'contributors': [self.a2.username]})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 5)
+
+        resp = self.client.get(endpoint, {'contributors': [self.a1.username, self.a2.username]})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 5)
+
+        resp = self.client.get(endpoint, {'contributors': [self.a5.username]})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 1)
 
     def test_contribution_filters(self):
         endpoint = reverse('contributionreporting-list')

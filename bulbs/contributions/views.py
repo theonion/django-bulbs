@@ -50,12 +50,18 @@ class ContentReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
             month=now.month,
             day=1,
             tzinfo=now.tzinfo)
+
         if "start" in self.request.GET:
             start_date = dateparse.parse_date(self.request.GET["start"])
 
         end_date = now
         if "end" in self.request.GET:
             end_date = dateparse.parse_date(self.request.GET["end"])
+
+        # if "published" in self.request.GET:
+        published = self.request.QUERY_PARAMS.get('published', '')
+        if published == 'published':
+            end_date = now
 
         content = Content.objects.filter(
                 contributions__gt=0
@@ -71,13 +77,18 @@ class ContentReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
             feature_types = self.request.QUERY_PARAMS.getlist("feature_types")
             content = content.filter(feature_type__slug__in=feature_types)
 
-        if "authors" in self.request.QUERY_PARAMS:
-            authors = self.request.QUERY_PARAMS.getlist("authors")
-            content = content.filter(authors__username__in=authors)
-
         if "tags" in self.request.QUERY_PARAMS:
             tags = self.request.QUERY_PARAMS.getlist("tags")
             content = content.filter(tags__slug__in=tags)
+
+        if "contributors" in self.request.QUERY_PARAMS:
+            contributors = self.request.QUERY_PARAMS.getlist("contributors")
+            contribution_content_ids = Contribution.objects.filter(
+                    contributor__username__in=contributors
+                ).values_list(
+                    "content__id", flat=True
+                ).distinct()
+            content = content.filter(pk__in=contribution_content_ids)
 
         return content
 
