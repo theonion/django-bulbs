@@ -6,9 +6,11 @@ from django.core.urlresolvers import reverse
 from django.test.client import Client
 
 from bulbs.content.models import Content, FeatureType, Tag
-from bulbs.contributions.models import (Contribution, ContributorRole, ManualRate, HourlyRate,
+from bulbs.contributions.models import (
+    Contribution, ContributorRole, ManualRate, HourlyRate,
     FlatRate, FeatureTypeOverride, FeatureTypeRate, FreelanceProfile, LineItem, Override,
-Rate, RATE_PAYMENT_TYPES)
+    Rate, RATE_PAYMENT_TYPES
+)
 from bulbs.contributions.serializers import RateSerializer
 from bulbs.utils.test import BaseAPITestCase, make_content
 

@@ -12,17 +12,19 @@ from django.test.client import Client
 from django.utils import timezone
 from django.contrib.auth.models import User
 
-from bulbs.content.models import FeatureType
-from bulbs.contributions.models import (Contribution, ContributorRole, FreelanceProfile,
-    FeatureTypeRate, FeatureTypeOverride)
-from bulbs.utils.test import BaseAPITestCase, make_content
+from bulbs.content.models import Content, FeatureType
+from bulbs.contributions.models import (
+    Contribution, ContributorRole, FreelanceProfile, HourlyRate,
+    FeatureTypeRate, FeatureTypeOverride
+)
+from bulbs.utils.test import BaseIndexableTestCase, BaseAPITestCase, make_content
 
 
 class ContributionReportingTestCase(BaseAPITestCase):
     def setUp(self):
         super(ContributionReportingTestCase, self).setUp()
 
-        self.tvclub =  FeatureType.objects.create(name="TV Club")
+        self.tvclub = FeatureType.objects.create(name="TV Club")
         self.roles = {
             "editor": ContributorRole.objects.create(name="Editor", payment_type=0),
             "writer": ContributorRole.objects.create(name="Writer", payment_type=1)
@@ -224,3 +226,50 @@ class ContributionReportingTestCase(BaseAPITestCase):
         rate.delete()
         overrides = FeatureTypeOverride.objects.all()
         self.assertEqual(overrides.count(), 0)
+
+
+class RatePayTestCase(BaseIndexableTestCase):
+
+    def setUp(self):
+        contributor_cls = get_user_model()
+        self.now = timezone.now()
+        self.contributors = {
+            'jarvis': contributor_cls.objects.create(
+                first_name='jarvis',
+                last_name='monster',
+                username='garbage'
+            )
+        }
+        self.roles = {
+            'hourly': ContributorRole.objects.create(
+                name='Hourly',
+                payment_type=2
+            )
+        }
+        self.rates = {
+            'hourly': {
+                'hourly': HourlyRate.objects.create(
+                    role=self.roles['hourly'],
+                    rate=70
+                )
+            }
+        }
+        self.content = {
+            'c1': Content.objects.create(
+                title='Good Content',
+                published=self.now - timezone.timedelta(days=1)
+            )
+        }
+        self.contributions = {
+            'hourly': Contribution.objects.create(
+                contributor=self.contributors['jarvis'],
+                role=self.roles['hourly'],
+                content=self.content['c1']
+            )
+        }
+
+    def test_get_rate_hourly(self):
+        contribution = self.contributions['hourly']
+        rate = contribution.get_rate()
+        self.assertIsInstance(rate, HourlyRate)
+        self.assertEqual(rate.rate, 70)
