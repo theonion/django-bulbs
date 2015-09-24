@@ -470,7 +470,10 @@ class ContentReportingSerializer(serializers.ModelSerializer):
         total_cost = 0
         for contribution in contributions:
             cost = contribution.get_rate()
-            if cost:
+            if isinstance(cost, HourlyRate):
+                minutes_worked = getattr(contribution, 'minutes_worked', 0)
+                total_cost += (cost.rate * minutes_worked)
+            elif cost:
                 total_cost += cost.rate
         return total_cost
 
