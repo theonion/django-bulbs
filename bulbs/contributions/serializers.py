@@ -430,6 +430,9 @@ class ContributionReportingSerializer(serializers.ModelSerializer):
 
     def get_rate(self, obj):
         rate = obj.get_rate()
+        if isinstance(rate, HourlyRate):
+            minutes_worked = getattr(obj, 'minutes_worked', 0)
+            return rate.rate * minutes_worked
         if rate and hasattr(rate, "rate"):
             return rate.rate
         return None
