@@ -57,6 +57,10 @@ class Contribution(models.Model):
     force_payment = models.BooleanField(default=False)
     payment_date = models.DateTimeField(null=True, blank=True)
 
+    @property
+    def get_pay(self):
+        return self._get_pay()
+
     def get_rate(self):
         payment_type = self.role.payment_type
         if payment_type == MANUAL:
@@ -70,6 +74,13 @@ class Contribution(models.Model):
 
         if payment_type == HOURLY:
             return self.role.hourly_rates.filter().first()
+
+    def _get_pay(self):
+        rate = self.get_rate()
+        if isinstance(rate, HourlyRate):
+            minutes_worked = getattr(self, 'minutes_worked', 0)
+            return ((rate.rate / 60) * minutes_worked)
+        return rate.rate
 
 
 class Override(PolymorphicModel):
@@ -135,6 +146,7 @@ class FeatureTypeRate(Rate):
         if overrides.exists():
             overrides.delete()
         super(FeatureTypeRate, self).delete(*args, **kwargs)
+
 
 class FreelanceProfile(models.Model):
     contributor = models.ForeignKey(settings.AUTH_USER_MODEL)
