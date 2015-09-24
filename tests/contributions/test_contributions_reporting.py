@@ -14,8 +14,8 @@ from django.contrib.auth.models import User
 
 from bulbs.content.models import Content, FeatureType
 from bulbs.contributions.models import (
-    Contribution, ContributorRole, FreelanceProfile, HourlyRate,
-    FeatureTypeRate, FeatureTypeOverride
+    Contribution, ContributorRole, FreelanceProfile, FlatRate,
+    FeatureTypeRate, FeatureTypeOverride, HourlyRate, ManualRate
 )
 from bulbs.utils.test import BaseIndexableTestCase, BaseAPITestCase, make_content
 
@@ -231,6 +231,7 @@ class ContributionReportingTestCase(BaseAPITestCase):
 class RatePayTestCase(BaseIndexableTestCase):
 
     def setUp(self):
+        super(RatePayTestCase, self).setUp()
         contributor_cls = get_user_model()
         self.now = timezone.now()
         self.contributors = {
@@ -241,35 +242,126 @@ class RatePayTestCase(BaseIndexableTestCase):
             )
         }
         self.roles = {
+            'featuretype': ContributorRole.objects.create(
+                name='FeatureType',
+                payment_type=1
+            ),
+            'flatrate': ContributorRole.objects.create(
+                name='FlatRate',
+                payment_type=0
+            ),
             'hourly': ContributorRole.objects.create(
                 name='Hourly',
                 payment_type=2
+            ),
+            'manual': ContributorRole.objects.create(
+                name='Manual',
+                payment_type=3
             )
         }
+        self.feature_types = {
+            'tvclub': FeatureType.objects.create(name='TV Club'),
+            'news': FeatureType.objects.create(name='News')
+        }
         self.rates = {
+            'featuretype': {
+                'tvclub': FeatureTypeRate.objects.create(
+                    feature_type=self.feature_types['tvclub'],
+                    role=self.roles['featuretype'],
+                    rate=30
+                ),
+                'news': FeatureTypeRate.objects.create(
+                    feature_type=self.feature_types['news'],
+                    role=self.roles['featuretype'],
+                    rate=50
+                )
+            },
+            'flatrate': {
+                'flatrate': FlatRate.objects.create(
+                    role=self.roles['flatrate'],
+                    rate=200
+                )
+            },
             'hourly': {
                 'hourly': HourlyRate.objects.create(
                     role=self.roles['hourly'],
                     rate=70
                 )
-            }
+            },
         }
         self.content = {
             'c1': Content.objects.create(
                 title='Good Content',
+                feature_type=self.feature_types['tvclub'],
                 published=self.now - timezone.timedelta(days=1)
+            ),
+            'c2': Content.objects.create(
+                title='More Content',
+                feature_type=self.feature_types['news'],
+                published=self.now - timezone.timedelta(days=2)
             )
         }
         self.contributions = {
+            'featuretype': {
+                'tvclub': Contribution.objects.create(
+                    contributor=self.contributors['jarvis'],
+                    role=self.roles['featuretype'],
+                    content=self.content['c1']
+                ),
+                'news': Contribution.objects.create(
+                    contributor=self.contributors['jarvis'],
+                    role=self.roles['featuretype'],
+                    content=self.content['c2']
+                )
+            },
+            'flatrate': Contribution.objects.create(
+                contributor=self.contributors['jarvis'],
+                role=self.roles['flatrate'],
+                content=self.content['c1']
+            ),
             'hourly': Contribution.objects.create(
                 contributor=self.contributors['jarvis'],
                 role=self.roles['hourly'],
                 content=self.content['c1']
+            ),
+            'manual': Contribution.objects.create(
+                contributor=self.contributors['jarvis'],
+                role=self.roles['manual'],
+                content=self.content['c1']
             )
         }
+        self.rates['manual'] = {
+            'manual': ManualRate.objects.create(
+                contribution=self.contributions['manual'],
+                rate=1000
+            )
+        }
+
+    def test_get_rate_flat_rate(self):
+        contribution = self.contributions['flatrate']
+        rate = contribution.get_rate()
+        self.assertIsInstance(rate, FlatRate)
+        self.assertEqual(rate.rate, 200)
+
+    def test_get_rate_feature_type(self):
+        contribution = self.contributions['featuretype']['tvclub']
+        rate = contribution.get_rate()
+        self.assertIsInstance(rate, FeatureTypeRate)
+        self.assertEqual(rate.rate, 30)
+
+        contribution = self.contributions['featuretype']['news']
+        rate = contribution.get_rate()
+        self.assertIsInstance(rate, FeatureTypeRate)
+        self.assertEqual(rate.rate, 50)
 
     def test_get_rate_hourly(self):
         contribution = self.contributions['hourly']
         rate = contribution.get_rate()
         self.assertIsInstance(rate, HourlyRate)
         self.assertEqual(rate.rate, 70)
+
+    def test_get_rate_manual(self):
+        contribution = self.contributions['manual']
+        rate = contribution.get_rate()
+        self.assertIsInstance(rate, ManualRate)
+        self.assertEqual(rate.rate, 1000)
