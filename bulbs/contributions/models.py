@@ -26,6 +26,7 @@ RATE_PAYMENT_TYPES = ROLE_PAYMENT_TYPES + ((OVERRIDE, 'Override'),)
 
 class FreelanceProfile(models.Model):
     contributor = models.ForeignKey(settings.AUTH_USER_MODEL)
+    is_freelance = models.BooleanField(default=True)
     payment_date = models.DateTimeField(null=True, blank=True)
 
     def get_pay(self, start=None, end=None):
