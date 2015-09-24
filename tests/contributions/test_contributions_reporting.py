@@ -285,7 +285,7 @@ class RatePayTestCase(BaseIndexableTestCase):
             'hourly': {
                 'hourly': HourlyRate.objects.create(
                     role=self.roles['hourly'],
-                    rate=70
+                    rate=60
                 )
             },
         }
@@ -321,6 +321,7 @@ class RatePayTestCase(BaseIndexableTestCase):
             ),
             'hourly': Contribution.objects.create(
                 contributor=self.contributors['jarvis'],
+                minutes_worked=30,
                 role=self.roles['hourly'],
                 content=self.content['c1']
             ),
@@ -343,6 +344,10 @@ class RatePayTestCase(BaseIndexableTestCase):
         self.assertIsInstance(rate, FlatRate)
         self.assertEqual(rate.rate, 200)
 
+    def test_get_pay_flat_rate(self):
+        contribution = self.contributions['flatrate']
+        self.assertEqual(contribution.get_pay, 200)
+
     def test_get_rate_feature_type(self):
         contribution = self.contributions['featuretype']['tvclub']
         rate = contribution.get_rate()
@@ -354,14 +359,30 @@ class RatePayTestCase(BaseIndexableTestCase):
         self.assertIsInstance(rate, FeatureTypeRate)
         self.assertEqual(rate.rate, 50)
 
+    def test_get_pay_feature_type(self):
+        contribution = self.contributions['featuretype']['tvclub']
+        self.assertEqual(contribution.get_pay, 30)
+
+        contribution = self.contributions['featuretype']['news']
+        self.assertEqual(contribution.get_pay, 50)
+
     def test_get_rate_hourly(self):
         contribution = self.contributions['hourly']
         rate = contribution.get_rate()
         self.assertIsInstance(rate, HourlyRate)
-        self.assertEqual(rate.rate, 70)
+        self.assertEqual(rate.rate, 60)
+
+    def test_get_pay_hourly(self):
+        contribution = self.contributions['hourly']
+        self.assertEqual(contribution.minutes_worked, 30)
+        self.assertEqual(contribution.get_pay, 30)
 
     def test_get_rate_manual(self):
         contribution = self.contributions['manual']
         rate = contribution.get_rate()
         self.assertIsInstance(rate, ManualRate)
         self.assertEqual(rate.rate, 1000)
+
+    def test_get_pay_manual(self):
+        contribution = self.contributions['manual']
+        self.assertEqual(contribution.get_pay, 1000)
