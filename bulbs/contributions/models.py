@@ -24,26 +24,6 @@ ROLE_PAYMENT_TYPES = (
 RATE_PAYMENT_TYPES = ROLE_PAYMENT_TYPES + ((OVERRIDE, 'Override'),)
 
 
-class FreelanceProfile(models.Model):
-    contributor = models.ForeignKey(settings.AUTH_USER_MODEL)
-    is_freelance = models.BooleanField(default=True)
-    payment_date = models.DateTimeField(null=True, blank=True)
-
-    def get_pay(self, start=None, end=None):
-        qs = self.contributor.contributions.all()
-        if start:
-            qs = qs.filter(payment_date__gt=start)
-        if end:
-            qs = qs.filter(payment_date__lt=end)
-
-        pay = 0
-        for contribution in qs.all():
-            rate = contribution.get_rate()
-            if rate and hasattr(rate, "rate"):
-                pay += rate.rate
-        return pay
-
-
 class LineItem(models.Model):
     contributor = models.ForeignKey(settings.AUTH_USER_MODEL)
     amount = models.IntegerField(default=0)
@@ -155,3 +135,25 @@ class FeatureTypeRate(Rate):
         if overrides.exists():
             overrides.delete()
         super(FeatureTypeRate, self).delete(*args, **kwargs)
+
+class FreelanceProfile(models.Model):
+    contributor = models.ForeignKey(settings.AUTH_USER_MODEL)
+    is_freelance = models.BooleanField(default=True)
+    payment_date = models.DateTimeField(null=True, blank=True)
+
+    def get_pay(self, start=None, end=None):
+        qs = self.contributor.contributions.all()
+        if start:
+            qs = qs.filter(payment_date__gt=start)
+        if end:
+            qs = qs.filter(payment_date__lt=end)
+
+        pay = 0
+        for contribution in qs.all():
+            rate = contribution.get_rate()
+            if isinstance(rate, HourlyRate):
+                minutes_worked = getattr(contribution, 'minutes_worked', 0)
+                pay +=  rate.rate * minutes_worked
+            elif rate and hasattr(rate, "rate"):
+                pay += rate.rate
+        return pay
