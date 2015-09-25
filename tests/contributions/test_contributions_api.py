@@ -834,9 +834,9 @@ class ReportingApiTestCase(BaseAPITestCase):
             published=now-timezone.timedelta(days=5)
         )
         self.c4 = Content.objects.create(
-                title="c4",
-                feature_type=self.ft2,
-                published=now-timezone.timedelta(days=6)
+            title="c4",
+            feature_type=self.ft2,
+            published=now - timezone.timedelta(days=6)
         )
         self.c5 = Content.objects.create(
             title="c5",

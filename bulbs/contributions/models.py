@@ -61,6 +61,10 @@ class Contribution(models.Model):
     def get_pay(self):
         return self._get_pay()
 
+    @property
+    def get_override(self):
+        return self._get_override()
+
     def get_rate(self):
         payment_type = self.role.payment_type
         if payment_type == MANUAL:
@@ -75,7 +79,19 @@ class Contribution(models.Model):
         if payment_type == HOURLY:
             return self.role.hourly_rates.filter().first()
 
+    def _get_override(self):
+        override_qs = self.overrides.all()
+        if override_qs.exists():
+            return override_qs.first().rate
+        role_override_qs = self.role.overrides.all()
+        if role_override_qs.exists():
+            return role_override_qs.first().rate
+        return None
+
     def _get_pay(self):
+        override = self.get_override
+        if override:
+            return override
         rate = self.get_rate()
         if isinstance(rate, HourlyRate):
             minutes_worked = getattr(self, 'minutes_worked', 0)
@@ -93,6 +109,9 @@ class Override(PolymorphicModel):
     role = models.ForeignKey(ContributorRole, related_name="overrides", null=True)
 
     objects = PolymorphicManager()
+
+    class Meta:
+        ordering = ('-updated_on',)
 
 
 class ContributionOverride(Override):
@@ -129,23 +148,23 @@ class FeatureTypeRate(Rate):
     role = models.ForeignKey(ContributorRole, null=True, related_name="feature_type_rates")
     feature_type = models.ForeignKey(FeatureType, related_name="feature_type_rates")
 
-    def save(self, *args, **kwargs):
-        super(FeatureTypeRate, self).save(*args, **kwargs)
-        override = FeatureTypeOverride.objects.create(
-            role=self.role,
-            feature_type=self.feature_type,
-            rate=0
-        )
-        override.save()
+    # def save(self, *args, **kwargs):
+    #     super(FeatureTypeRate, self).save(*args, **kwargs)
+    #     override = FeatureTypeOverride.objects.create(
+    #         role=self.role,
+    #         feature_type=self.feature_type,
+    #         rate=0
+    #     )
+    #     override.save()
 
-    def delete(self, *args, **kwargs):
-        overrides = FeatureTypeOverride.objects.filter(
-            role=self.role,
-            feature_type=self.feature_type
-        )
-        if overrides.exists():
-            overrides.delete()
-        super(FeatureTypeRate, self).delete(*args, **kwargs)
+    # def delete(self, *args, **kwargs):
+    #     overrides = FeatureTypeOverride.objects.filter(
+    #         role=self.role,
+    #         feature_type=self.feature_type
+    #     )
+    #     if overrides.exists():
+    #         overrides.delete()
+    #     super(FeatureTypeRate, self).delete(*args, **kwargs)
 
 
 class FreelanceProfile(models.Model):
