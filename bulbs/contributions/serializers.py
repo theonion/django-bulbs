@@ -10,7 +10,10 @@ from rest_framework import serializers
 from rest_framework.utils import model_meta
 import six
 
-from .models import (Contribution, ContributorRole, ContributionOverride, HourlyRate, FlatRate, ManualRate, FeatureTypeRate, FeatureTypeOverride, LineItem, Override, Rate, RATE_PAYMENT_TYPES)
+from .models import (
+    Contribution, ContributorRole, ContributionOverride, HourlyRate, FlatRate, ManualRate,
+    FeatureTypeRate, FeatureTypeOverride, LineItem, Override, Rate, RATE_PAYMENT_TYPES
+)
 
 
 class PaymentTypeField(serializers.Field):
@@ -256,7 +259,6 @@ class OverrideSerializer(serializers.ModelSerializer):
     def get_feature_types(self, obj):
         return FeatureTypeOverride.objects.filter(role=obj.role, contributor=obj.contributor)
 
-
     def create(self, validated_data):
         if "feature_type" in validated_data:
             return FeatureTypeOverrideSerializer().create(validated_data)
@@ -308,10 +310,10 @@ class OverrideSerializer(serializers.ModelSerializer):
 class ContributionOverrideField(serializers.Field):
 
     def get_attribute(self, obj):
-        return obj.overrides.all().first()
+        return obj.get_override
 
     def to_representation(self, obj):
-        return obj.rate
+        return obj
 
 
 class ContributionListSerializer(serializers.ListSerializer):

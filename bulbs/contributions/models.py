@@ -184,7 +184,7 @@ class FreelanceProfile(models.Model):
             rate = contribution.get_rate()
             if isinstance(rate, HourlyRate):
                 minutes_worked = getattr(contribution, 'minutes_worked', 0)
-                pay +=  rate.rate * minutes_worked
+                pay += rate.rate * minutes_worked
             elif rate and hasattr(rate, "rate"):
                 pay += rate.rate
         return pay

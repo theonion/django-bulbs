@@ -18,7 +18,9 @@ from bulbs.contributions.models import (
     FlatRate, FeatureTypeRate, FeatureTypeOverride, HourlyRate, ManualRate,
     Override
 )
-from bulbs.utils.test import BaseIndexableTestCase, BaseAPITestCase, make_content
+from bulbs.utils.test import (
+    BaseIndexableTestCase, BaseAPITestCase, make_content
+)
 
 
 class ContributionReportingTestCase(BaseAPITestCase):
