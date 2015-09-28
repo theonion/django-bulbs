@@ -1095,6 +1095,24 @@ class ReportingApiTestCase(BaseAPITestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.data), 20)
 
+        new_content = Content.objects.create(
+            title='new content',
+            published=timezone.now() - timezone.timedelta(days=3)
+        )
+        Contribution.objects.create(
+            role=self.roles['FlatRate'],
+            contributor=self.a5,
+            content=new_content
+        )
+
+        resp = self.client.get(endpoint, {'staff': 'freelance'})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 20)
+
+        resp = self.client.get(endpoint, {'staff': 'staff'})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 1)
+
     def test_freelance_filters(self):
         endpoint = reverse('freelancereporting-list')
 

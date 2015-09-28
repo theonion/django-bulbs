@@ -148,6 +148,17 @@ class ReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
             contributors = self.request.QUERY_PARAMS.getlist("contributors")
             contributions = contributions.filter(contributor__username__in=contributors)
 
+        if "staff" in self.request.QUERY_PARAMS:
+            staff = self.request.QUERY_PARAMS.get("staff")
+            if staff == "freelance":
+                contributions = contributions.filter(
+                    contributor__freelanceprofile__is_freelance=True
+                )
+            elif staff == "staff":
+                contributions = contributions.filter(
+                    contributor__freelanceprofile__is_freelance=False
+                )
+
         ordering = self.request.GET.get("ordering", "content")
         order_options = {
             "content": "content__published",
