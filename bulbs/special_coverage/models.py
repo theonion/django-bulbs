@@ -23,6 +23,8 @@ class SpecialCoverage(models.Model):
     promoted = models.BooleanField(default=False)
     campaign = models.ForeignKey(
         Campaign, null=True, default=None, blank=True, on_delete=models.SET_NULL)
+    # Property-specific custom configuration
+    config = JSONField(default={}, blank=True)
 
     def __unicode__(self):
         return self.name

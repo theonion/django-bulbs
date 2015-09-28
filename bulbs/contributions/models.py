@@ -107,7 +107,9 @@ class Contribution(models.Model):
         if isinstance(rate, HourlyRate):
             minutes_worked = getattr(self, 'minutes_worked', 0)
             return ((rate.rate / 60) * minutes_worked)
-        return rate.rate
+        if rate:
+            return rate.rate
+        return None
 
 
 class Override(PolymorphicModel):
