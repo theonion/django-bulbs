@@ -4,7 +4,6 @@ that we want any piece of content to have."""
 import uuid
 
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import NoReverseMatch, reverse
 from django.db import models
@@ -46,7 +45,9 @@ class Tag(PolymorphicModel, Indexable):
     slug = models.SlugField(unique=True)
 
     class Mapping:
-        name = field.String(analyzer="autocomplete", fields={"raw": field.String(index="not_analyzed")})
+        name = field.String(
+            analyzer="autocomplete", fields={"raw": field.String(index="not_analyzed")}
+        )
 
     search_objects = TagManager()
 
@@ -91,7 +92,9 @@ class FeatureType(Indexable):
     slug = models.SlugField(unique=True)
 
     class Mapping:
-        name = field.String(analyzer="autocomplete", fields={"raw": field.String(index="not_analyzed")})
+        name = field.String(
+            analyzer="autocomplete", fields={"raw": field.String(index="not_analyzed")}
+        )
         slug = field.String(index="not_analyzed")
 
     def __unicode__(self):
@@ -394,8 +397,10 @@ class ObfuscatedUrlInfo(Model):
             self.url_uuid = str(uuid.uuid4()).replace("-", "")
         super(ObfuscatedUrlInfo, self).save(*args, **kwargs)
 
+
 ##
 # signal functions
+
 
 def content_deleted(sender, instance=None, **kwargs):
     """removes content from the ES index when deleted from DB
