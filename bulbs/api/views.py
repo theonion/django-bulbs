@@ -37,6 +37,8 @@ from bulbs.content.serializers import (
 from bulbs.contributions.serializers import ContributionSerializer
 from bulbs.contributions.models import Contribution
 
+from bulbs.utils.methods import get_query_params, get_request_data
+
 from .mixins import UncachedResponse
 from .permissions import CanEditContent, CanPublishContent
 
@@ -108,21 +110,21 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
 
         for field_name in ("before", "after", "status", "published"):
 
-            if field_name in self.request.QUERY_PARAMS:
-                search_kwargs[field_name] = self.request.QUERY_PARAMS.get(field_name)
+            if field_name in get_query_params(self.request):
+                search_kwargs[field_name] = get_query_params(self.request).get(field_name)
 
         for field_name in ("tags", "types", "feature_types"):
 
-            if field_name in self.request.QUERY_PARAMS:
-                search_kwargs[field_name] = self.request.QUERY_PARAMS.getlist(field_name)
+            if field_name in get_query_params(self.request):
+                search_kwargs[field_name] = get_query_params(self.request).getlist(field_name)
 
-        if "search" in self.request.QUERY_PARAMS:
-            search_kwargs["query"] = self.request.QUERY_PARAMS.get("search")
+        if "search" in get_query_params(self.request):
+            search_kwargs["query"] = get_query_params(self.request).get("search")
 
         queryset = Content.search_objects.search(**search_kwargs)
 
-        if "authors" in self.request.QUERY_PARAMS:
-            authors = self.request.QUERY_PARAMS.getlist("authors")
+        if "authors" in get_query_params(self.request):
+            authors = get_query_params(self.request).getlist("authors")
             queryset = queryset.filter(Authors(authors))
 
         page = self.paginate_queryset(queryset)
@@ -143,11 +145,11 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         """
         content = self.get_object()
 
-        if "published" in request.DATA:
-            if not request.DATA["published"]:
+        if "published" in get_request_data(request):
+            if not get_request_data(request)["published"]:
                 content.published = None
             else:
-                publish_dt = parse_datetime(request.DATA["published"])
+                publish_dt = parse_datetime(get_request_data(request)["published"])
                 if publish_dt:
                     publish_dt = publish_dt.astimezone(timezone.utc)
                 else:
@@ -217,7 +219,7 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         if request.method == "POST":
             serializer = ContributionSerializer(
                 queryset,
-                data=request.DATA,
+                data=get_request_data(request),
                 many=True)
             if not serializer.is_valid():
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -238,8 +240,8 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
 
         data = {
             "content": self.get_object().id,
-            "create_date": request.DATA["create_date"],
-            "expire_date": request.DATA["expire_date"]
+            "create_date": get_request_data(request)["create_date"],
+            "expire_date": get_request_data(request)["expire_date"]
         }
         serializer = ObfuscatedUrlInfoSerializer(data=data)
         if not serializer.is_valid():
@@ -279,7 +281,7 @@ class TagViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
             query_string = self.request.REQUEST["search"].lower()
             queryset = queryset.query(Q("match", name=query_string) | Q("match", **{"name.raw": query_string}))
 
-        types = self.request.QUERY_PARAMS.getlist("types", None)
+        types = get_query_params(self.request).getlist("types", None)
         if types:
             queryset._doc_type = self.request.REQUEST["types"]
         return queryset
@@ -312,7 +314,7 @@ class LogEntryViewSet(UncachedResponse, viewsets.ModelViewSet):
         :return: an instance of `django.db.models.QuerySet`
         """
         qs = LogEntry.objects.all()
-        content_id = self.request.QUERY_PARAMS.get("content", None)
+        content_id = get_query_params(self.request).get("content", None)
         if content_id:
             qs = qs.filter(object_id=content_id)
         return qs
@@ -328,7 +330,7 @@ class LogEntryViewSet(UncachedResponse, viewsets.ModelViewSet):
         :return: `rest_framework.response.Response`
         :raise: 400
         """
-        data = request.DATA.copy()
+        data = get_request_data(request).copy()
         data["user"] = request.user.id
         serializer = self.get_serializer(data=data, files=request.FILES)
 
@@ -422,7 +424,7 @@ class ContentTypeViewSet(viewsets.ViewSet):
 
     def list(self, request):
         """Search the doctypes for this model."""
-        query = request.QUERY_PARAMS.get("search", "")
+        query = get_query_params(request).get("search", "")
         results = []
         base = self.model.get_base_class()
         doctypes = indexable_registry.families[base]
@@ -460,7 +462,7 @@ class CustomSearchContentViewSet(viewsets.GenericViewSet):
         items that would normally be removed due to "excluded_ids".
         """
 
-        queryset = self.get_filtered_queryset(request.DATA)
+        queryset = self.get_filtered_queryset(get_request_data(request))
         # Switch between paginated or standard style responses
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -488,14 +490,14 @@ class CustomSearchContentViewSet(viewsets.GenericViewSet):
 
     @list_route(methods=["get", "post"])
     def count(self, request, **kwargs):
-        qs = self.get_filtered_queryset(request.DATA, sort_pinned=False)
+        qs = self.get_filtered_queryset(get_request_data(request), sort_pinned=False)
         return Response(dict(count=qs.count()))
 
     @list_route(methods=["get", "post"])
     def group_count(self, request, **kwargs):
         params = dict(
             groups=[
-                dict(request.DATA)
+                dict(get_request_data(request))
             ]
         )
         qs = self.get_filtered_queryset(params, sort_pinned=False)

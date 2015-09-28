@@ -4,6 +4,7 @@ from django.db import models
 
 from polymorphic import PolymorphicModel
 
+
 logger = logging.getLogger(__name__)
 
 

@@ -4,8 +4,10 @@ from django.db.models.signals import pre_delete
 from django.template.defaultfilters import slugify
 
 from bulbs.content.custom_search import custom_search_model
-from bulbs.content.models import Content
+from bulbs.content.models import Content, ElasticsearchImageField
+from djes.models import Indexable
 from elasticsearch import Elasticsearch
+from elasticsearch_dsl import field
 from djbetty import ImageField
 from json_field import JSONField
 
@@ -13,7 +15,8 @@ from json_field import JSONField
 es = Elasticsearch(settings.ES_URLS)
 
 
-class Section(models.Model):
+class Section(Indexable):
+
     name = models.CharField(max_length=255, unique=True)
     slug = models.SlugField(max_length=255, blank=True, editable=True, unique=True)
     description = models.TextField(default="", blank=True)
@@ -22,6 +25,12 @@ class Section(models.Model):
     twitter_handle = models.CharField(max_length=255, blank=True)
     promoted = models.BooleanField(default=False)
     query = JSONField(default={}, blank=True)
+
+    class Mapping:
+        name = field.String(analyzer="autocomplete", fields={"raw": field.String(index="not_analyzed")})
+        slug = field.String(index="not_analyzed")
+        section_logo = ElasticsearchImageField()
+        query = field.Object(enabled=False)
 
     def __unicode__(self):
         return self.name

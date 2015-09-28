@@ -6,6 +6,8 @@ from rest_framework.permissions import IsAdminUser
 from .models import Campaign
 from .serializers import CampaignSerializer
 
+from bulbs.utils.methods import get_query_params
+
 
 class CampaignActiveFilter(filters.BaseFilterBackend):
     """Checks for a value for 'active' in query parameters, filters from this
@@ -20,8 +22,8 @@ class CampaignActiveFilter(filters.BaseFilterBackend):
         key_active = 'active'
 
         now = datetime.now()
-        if key_active in request.QUERY_PARAMS:
-            val = request.QUERY_PARAMS[key_active].lower()
+        if key_active in get_query_params(request):
+            val = get_query_params(request)[key_active].lower()
             if val == 'true':
                 # start_date <= now < end_date
                 new_queryset = queryset.filter(
