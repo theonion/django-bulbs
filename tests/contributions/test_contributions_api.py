@@ -174,33 +174,33 @@ class ContributionApiTestCase(BaseAPITestCase):
             "payment_type": "Flat Rate",
             "rates": {
                 "flat_rate": {
-                  "updated_on": "2015-07-13T20:14:48.573940Z",
-                  "rate": 100
+                    "updated_on": "2015-07-13T20:14:48.573940Z",
+                    "rate": 100
                 },
                 'hourly': {
-                  "updated_on": '2015-07-14T20:14:48.573940Z',
-                  "rate": 60
+                    "updated_on": '2015-07-14T20:14:48.573940Z',
+                    "rate": 60
                 },
                 'feature_type': [{
-                        "feature_type": '100 Episodes',
-                        "updated_on": '2015-07-14T20:14:48.573940Z',
-                        "rate": 100
-                    }, {
-                        "feature_type": '11 Question',
-                        "updated_on": '2015-07-14T20:14:48.573940Z',
-                        "rate": 11
-                    }, {
-                        "feature_type": '13 Days of Christmas',
-                        "updated_on": '2015-07-14T20:14:48.573940Z',
-                        "rate": 13
-                    }, {
-                        "feature_type": '15 Minutes or Less',
-                        "updated_on": '2015-07-14T20:14:48.573940Z',
-                        "rate": 15
-                    }, {
-                        "feature_type": '24 Hours Of',
-                        "updated_on": '2015-07-14T20:14:48.573940Z',
-                        "rate": 5
+                    "feature_type": '100 Episodes',
+                    "updated_on": '2015-07-14T20:14:48.573940Z',
+                    "rate": 100
+                }, {
+                    "feature_type": '11 Question',
+                    "updated_on": '2015-07-14T20:14:48.573940Z',
+                    "rate": 11
+                }, {
+                    "feature_type": '13 Days of Christmas',
+                    "updated_on": '2015-07-14T20:14:48.573940Z',
+                    "rate": 13
+                }, {
+                    "feature_type": '15 Minutes or Less',
+                    "updated_on": '2015-07-14T20:14:48.573940Z',
+                    "rate": 15
+                }, {
+                    "feature_type": '24 Hours Of',
+                    "updated_on": '2015-07-14T20:14:48.573940Z',
+                    "rate": 5
                 }]
             }
         }
@@ -847,12 +847,12 @@ class ReportingApiTestCase(BaseAPITestCase):
         self.a2 = User.objects.create(first_name='author', last_name='2', username='a2')
         self.a3 = User.objects.create(first_name='author', last_name='3', username='a3')
         self.a4 = User.objects.create(first_name='author', last_name='4', username='a4')
-        self.a5 = User.objects.create(first_name='author', last_name='5', username='a 5')
+        self.a5 = User.objects.create(first_name='author', last_name='5', username='a5')
         self.fp1 = FreelanceProfile.objects.create(contributor=self.a1)
         self.fp2 = FreelanceProfile.objects.create(contributor=self.a2)
         self.fp3 = FreelanceProfile.objects.create(contributor=self.a3)
         self.fp4 = FreelanceProfile.objects.create(contributor=self.a4)
-        self.fp5 = FreelanceProfile.objects.create(contributor=self.a5)
+        self.fp5 = FreelanceProfile.objects.create(contributor=self.a5, is_freelance=False)
         self.t1 = Tag.objects.create(name='Ballers')
         self.t2 = Tag.objects.create(name='Fallers')
         self.c1.authors.add(self.a1)
@@ -962,9 +962,9 @@ class ReportingApiTestCase(BaseAPITestCase):
             ],
             'c5': [
                 Contribution.objects.create(
-                        role=self.roles['FlatRate'],
-                        contributor=self.a1,
-                        content=self.c5
+                    role=self.roles['FlatRate'],
+                    contributor=self.a1,
+                    content=self.c5
                 ),
                 Contribution.objects.create(
                     role=self.roles['FeatureType'],
@@ -1044,6 +1044,14 @@ class ReportingApiTestCase(BaseAPITestCase):
         self.assertEqual(len(resp.data), 5)
 
         resp = self.client.get(endpoint, {'contributors': [self.a5.username]})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 1)
+
+        resp = self.client.get(endpoint, {'staff': 'freelance'})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 5)
+
+        resp = self.client.get(endpoint, {'staff': 'staff'})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.data), 1)
 

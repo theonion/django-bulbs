@@ -2,7 +2,6 @@
 
 import datetime
 
-from django.db import models
 from django.utils import dateparse, timezone
 
 from bulbs.content.models import Content
@@ -12,7 +11,10 @@ from rest_framework.settings import api_settings
 from rest_framework_csv.renderers import CSVRenderer
 
 from .models import (ContributorRole, Contribution, FreelanceProfile, LineItem, Override)
-from .serializers import (ContributorRoleSerializer, ContributionReportingSerializer, ContentReportingSerializer, FreelanceProfileSerializer, LineItemSerializer, OverrideSerializer)
+from .serializers import (
+    ContributorRoleSerializer, ContributionReportingSerializer, ContentReportingSerializer,
+    FreelanceProfileSerializer, LineItemSerializer, OverrideSerializer
+)
 
 
 class LineItemViewSet(viewsets.ModelViewSet):
@@ -64,14 +66,14 @@ class ContentReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
             end_date = now
 
         content = Content.objects.filter(
-                contributions__gt=0
-            ).filter(
-                published__range=(start_date, end_date)
-            ).prefetch_related(
-                "authors", "contributions"
-            ).select_related(
-                "feature_type"
-            ).distinct()
+            contributions__gt=0
+        ).filter(
+            published__range=(start_date, end_date)
+        ).prefetch_related(
+            "authors", "contributions"
+        ).select_related(
+            "feature_type"
+        ).distinct()
 
         if "feature_types" in self.request.QUERY_PARAMS:
             feature_types = self.request.QUERY_PARAMS.getlist("feature_types")
@@ -81,13 +83,30 @@ class ContentReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
             tags = self.request.QUERY_PARAMS.getlist("tags")
             content = content.filter(tags__slug__in=tags)
 
-        if "contributors" in self.request.QUERY_PARAMS:
-            contributors = self.request.QUERY_PARAMS.getlist("contributors")
-            contribution_content_ids = Contribution.objects.filter(
-                    contributor__username__in=contributors
+        if "staff" in self.request.QUERY_PARAMS:
+            staff = self.request.QUERY_PARAMS.get("staff")
+            if staff == "freelance":
+                contribution_content_ids = Contribution.objects.filter(
+                    contributor__freelanceprofile__is_freelance=True
                 ).values_list(
                     "content__id", flat=True
                 ).distinct()
+            elif staff == "staff":
+                contribution_content_ids = Contribution.objects.filter(
+                    contributor__freelanceprofile__is_freelance=False
+                ).values_list(
+                    "content__id", flat=True
+                ).distinct()
+            if contribution_content_ids:
+                content = content.filter(pk__in=contribution_content_ids)
+
+        if "contributors" in self.request.QUERY_PARAMS:
+            contributors = self.request.QUERY_PARAMS.getlist("contributors")
+            contribution_content_ids = Contribution.objects.filter(
+                contributor__username__in=contributors
+            ).values_list(
+                "content__id", flat=True
+            ).distinct()
             content = content.filter(pk__in=contribution_content_ids)
 
         return content
@@ -193,4 +212,6 @@ api_v1_router.register(r"role", ContributorRoleViewSet, base_name="contributorro
 api_v1_router.register(r"rate-overrides", OverrideViewSet, base_name="rate-overrides")
 api_v1_router.register(r"reporting", ReportingViewSet, base_name="contributionreporting")
 api_v1_router.register(r"contentreporting", ContentReportingViewSet, base_name="contentreporting")
-api_v1_router.register(r"freelancereporting", FreelanceReportingViewSet, base_name="freelancereporting")
+api_v1_router.register(
+    r"freelancereporting", FreelanceReportingViewSet, base_name="freelancereporting"
+)
