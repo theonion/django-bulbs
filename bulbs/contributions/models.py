@@ -36,6 +36,17 @@ class ContributorRole(models.Model):
     description = models.TextField(null=True, blank=True)
     payment_type = models.IntegerField(choices=ROLE_PAYMENT_TYPES, default=MANUAL)
 
+    def save(self, *args, **kwargs):
+        super(ContributorRole, self).save(*args, **kwargs)
+        if self.payment_type == 1:
+            self.create_feature_type_rates()
+
+    def create_feature_type_rates(self):
+        for feature_type in FeatureType.objects.all():
+            rate = FeatureTypeRate.objects.filter(role=self, feature_type=feature_type)
+            if not rate.exists():
+                FeatureTypeRate.objects.create(role=self, feature_type=feature_type, rate=0)
+
     def get_rate(self):
         if self.payment_type == FLAT_RATE:
             qs = self.flat_rates.all()
@@ -147,6 +158,9 @@ class ManualRate(Rate):
 class FeatureTypeRate(Rate):
     role = models.ForeignKey(ContributorRole, null=True, related_name="feature_type_rates")
     feature_type = models.ForeignKey(FeatureType, related_name="feature_type_rates")
+
+    class Meta:
+        unique_together = (("role", "feature_type"))
 
     # def save(self, *args, **kwargs):
     #     super(FeatureTypeRate, self).save(*args, **kwargs)

@@ -21,7 +21,7 @@ PAYMENT_TYPES = dict((label, value) for value, label in RATE_PAYMENT_TYPES)
 class ContributionApiTestCase(BaseAPITestCase):
     def setUp(self):
         super(ContributionApiTestCase, self).setUp()
-        Contributor = get_user_model()
+        contributor_cls = get_user_model()
         self.feature_types = {
             "surfing": FeatureType.objects.create(name="Surfing")
         }
@@ -34,12 +34,12 @@ class ContributionApiTestCase(BaseAPITestCase):
         }
 
         self.contributors = {
-            "jarvis": Contributor.objects.create(
+            "jarvis": contributor_cls.objects.create(
                 first_name="jarvis",
                 last_name="monster",
                 username="arduous"
             ),
-            "marvin": Contributor.objects.create(
+            "marvin": contributor_cls.objects.create(
                 first_name="marvin",
                 last_name="complete",
                 username="argyle"
@@ -583,7 +583,11 @@ class ContributionApiTestCase(BaseAPITestCase):
         feature = FeatureType.objects.create(name='A Fun Feature For Kids!')
         content.feature_type = feature
         content.save()
-        feature_rate = FeatureTypeRate.objects.create(name=PAYMENT_TYPES['FeatureType'], feature_type=feature, rate=50)
+        feature_rate = FeatureTypeRate.objects.create(
+            role=self.roles['editor'],
+            feature_type=feature,
+            rate=50
+        )
 
         editor.payment_type = PAYMENT_TYPES['FeatureType']
         editor.save()
@@ -591,7 +595,8 @@ class ContributionApiTestCase(BaseAPITestCase):
         rate = response.data[0].get('rate')
         updated = rate.pop('updated_on')
         self.assertIsNotNone(updated)
-        self.assertEqual(rate, {'id': feature_rate.id, 'rate': 50, 'name': 'FeatureType'})
+        self.assertEqual(rate['id'], feature_rate.id)
+        self.assertEqual(rate['rate'], 50)
 
         # change to Hourly
         editor.payment_type = PAYMENT_TYPES['Hourly']
@@ -629,7 +634,7 @@ class ContributionApiTestCase(BaseAPITestCase):
         Content.objects.get(id=content.id)
         endpoint = reverse("content-contributions", kwargs={"pk": content.pk})
 
-        rate_data =  "667"
+        rate_data = "667"
         contributor_data = {
             "username": self.admin.username,
             "id": self.admin.id
@@ -755,16 +760,18 @@ class ContributionApiTestCase(BaseAPITestCase):
 
         # FeatureType contribution
         role = ContributorRole.objects.create(name="FeatureTypePerson", payment_type=1)
-        FeatureTypeRate.objects.create(
+        rate = FeatureTypeRate.objects.get(
             role=role,
             feature_type=feature_type,
-            rate=666
         )
-        FeatureTypeRate.objects.create(
+        rate.rate = 666
+        rate.save()
+        rate = FeatureTypeRate.objects.get(
             role=role,
-            feature_type=feature_type_2,
-            rate=444
+            feature_type=feature_type_2
         )
+        rate.rate = 444
+        rate.save()
         contribution = Contribution.objects.create(
             content=content,
             role=role,
@@ -821,17 +828,17 @@ class ReportingApiTestCase(BaseAPITestCase):
         self.c1 = Content.objects.create(
             title="c1",
             feature_type=self.ft1,
-            published=now-timezone.timedelta(days=3)
+            published=now - timezone.timedelta(days=3)
         )
         self.c2 = Content.objects.create(
             title="c2",
             feature_type=self.ft1,
-            published=now-timezone.timedelta(days=4)
+            published=now - timezone.timedelta(days=4)
         )
         self.c3 = Content.objects.create(
             title="c3",
             feature_type=self.ft2,
-            published=now-timezone.timedelta(days=5)
+            published=now - timezone.timedelta(days=5)
         )
         self.c4 = Content.objects.create(
             title="c4",
@@ -840,14 +847,14 @@ class ReportingApiTestCase(BaseAPITestCase):
         )
         self.c5 = Content.objects.create(
             title="c5",
-            published=now-timezone.timedelta(days=7)
+            published=now - timezone.timedelta(days=7)
         )
-        User = get_user_model()
-        self.a1 = User.objects.create(first_name='author', last_name='1', username='a1')
-        self.a2 = User.objects.create(first_name='author', last_name='2', username='a2')
-        self.a3 = User.objects.create(first_name='author', last_name='3', username='a3')
-        self.a4 = User.objects.create(first_name='author', last_name='4', username='a4')
-        self.a5 = User.objects.create(first_name='author', last_name='5', username='a5')
+        usr_cls = get_user_model()
+        self.a1 = usr_cls.objects.create(first_name='author', last_name='1', username='a1')
+        self.a2 = usr_cls.objects.create(first_name='author', last_name='2', username='a2')
+        self.a3 = usr_cls.objects.create(first_name='author', last_name='3', username='a3')
+        self.a4 = usr_cls.objects.create(first_name='author', last_name='4', username='a4')
+        self.a5 = usr_cls.objects.create(first_name='author', last_name='5', username='a5')
         self.fp1 = FreelanceProfile.objects.create(contributor=self.a1)
         self.fp2 = FreelanceProfile.objects.create(contributor=self.a2)
         self.fp3 = FreelanceProfile.objects.create(contributor=self.a3)

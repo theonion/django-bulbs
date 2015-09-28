@@ -26,7 +26,6 @@ from bulbs.utils.test import (
 class ContributionReportingTestCase(BaseAPITestCase):
     def setUp(self):
         super(ContributionReportingTestCase, self).setUp()
-
         self.tvclub = FeatureType.objects.create(name="TV Club")
         self.roles = {
             "editor": ContributorRole.objects.create(name="Editor", payment_type=0),
@@ -34,7 +33,9 @@ class ContributionReportingTestCase(BaseAPITestCase):
         }
 
         self.roles["editor"].flat_rates.create(rate=60)
-        self.roles["writer"].feature_type_rates.create(feature_type=self.tvclub, rate=70)
+        rate = self.roles["writer"].feature_type_rates.get(feature_type=self.tvclub)
+        rate.rate = 70
+        rate.save()
 
         self.chris = User.objects.create(
             username="csinchok",
@@ -47,8 +48,11 @@ class ContributionReportingTestCase(BaseAPITestCase):
             last_name="Wnuk",
             is_staff=True)
 
-    def test_reporting_api(self):
+    def test_feature_type_rate_on_save(self):
+        role = ContributorRole.objects.create(name='Feature Type Guy', payment_type=1)
+        self.assertEqual(role.feature_type_rates.count(), 1)
 
+    def test_reporting_api(self):
         content_one = make_content(
             published=timezone.now() - datetime.timedelta(days=1),
             feature_type=self.tvclub

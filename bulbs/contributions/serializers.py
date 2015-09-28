@@ -158,10 +158,11 @@ class ContributorRoleSerializer(serializers.ModelSerializer):
 
         role_qs = FeatureTypeRate.objects.filter(role=obj)
         slugs = role_qs.order_by(
-                "feature_type__slug"
-            ).values_list(
-                "feature_type__slug", flat=True
-            ).distinct()
+            "feature_type__slug"
+        ).values_list(
+            "feature_type__slug", flat=True
+        ).distinct()
+
         for slug in slugs:
             ft = role_qs.filter(feature_type__slug=slug).first()
             feature_types.append({
@@ -203,11 +204,18 @@ class ContributorRoleSerializer(serializers.ModelSerializer):
                         slug=slug,
                         defaults={"name": name}
                     )
-                    FeatureTypeRate.objects.create(
-                        role=instance,
-                        feature_type=ft,
-                        **feature_type
-                    )
+                    rate = FeatureTypeRate.objects.filter(role=instance, feature_type=ft)
+                    if not rate.exists():
+                        rate = FeatureTypeRate.objects.create(
+                            role=instance, feature_type=ft, rate=0
+                        )
+                    else:
+                        rate = rate.first()
+
+                    for key, value in feature_type.items():
+                        setattr(rate, key, value)
+                    rate.save()
+
         return instance
 
 
