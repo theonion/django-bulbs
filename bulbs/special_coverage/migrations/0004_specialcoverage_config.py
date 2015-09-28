@@ -15,6 +15,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='specialcoverage',
             name='config',
-            field=json_field.fields.JSONField(default=False, help_text='Enter a valid JSON object'),
+            field=json_field.fields.JSONField(default={}, help_text='Enter a valid JSON object', blank=True),
         ),
     ]

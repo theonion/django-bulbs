@@ -11,3 +11,6 @@ class SpecialCoverageModelTests(BaseIndexableTestCase):
         special_coverage = SpecialCoverage.objects.create(id=1, config=CONFIG)
         self.assertEqual(SpecialCoverage.objects.get(id=1).config,
                          CONFIG)
+
+    def test_default(self):
+        self.assertEqual(SpecialCoverage.objects.create().config, {})
