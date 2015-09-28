@@ -1168,3 +1168,21 @@ class ReportingApiTestCase(BaseAPITestCase):
         resp = self.client.get(endpoint, {'tags': [new_tag.slug, self.t2.slug]})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.data), 5)
+
+        new_content = Content.objects.create(
+            title='new content',
+            published=timezone.now() - timezone.timedelta(days=3)
+        )
+        Contribution.objects.create(
+            role=self.roles['FlatRate'],
+            contributor=self.a5,
+            content=new_content
+        )
+
+        resp = self.client.get(endpoint, {'staff': 'freelance'})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 4)
+
+        resp = self.client.get(endpoint, {'staff': 'staff'})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 1)

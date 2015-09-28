@@ -214,6 +214,13 @@ class FreelanceReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 
         contributor_ids = contribution_qs.values_list('contributor', flat=True).distinct()
         qs = FreelanceProfile.objects.filter(contributor__in=contributor_ids)
+
+        if "staff" in self.request.QUERY_PARAMS:
+            staff = self.request.QUERY_PARAMS.get("staff")
+            if staff == "freelance":
+                qs = qs.filter(is_freelance=True)
+            elif staff == "staff":
+                qs = qs.filter(is_freelance=False)
         return qs
 
 
