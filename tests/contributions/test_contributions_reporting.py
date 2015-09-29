@@ -369,6 +369,23 @@ class RatePayTestCase(BaseIndexableTestCase):
         self.assertIsInstance(rate, FeatureTypeRate)
         self.assertEqual(rate.rate, 50)
 
+    def test_get_rate_multiple_feature_types(self):
+        for i in range(20):
+            FeatureType.objects.create(name='FeatureType#{}'.format(i))
+        role = ContributorRole.objects.create(name='FeatureKing', payment_type=1)
+        contribution = Contribution.objects.create(
+            content=self.content['c1'],
+            contributor=self.contributors['jarvis'],
+            role=role
+        )
+        tvclub_rate = FeatureTypeRate.objects.get(
+            role=role, feature_type=self.feature_types['tvclub']
+        )
+        tvclub_rate.rate = 200
+        tvclub_rate.save()
+        rate = contribution.get_rate()
+        self.assertEqual(rate.rate, 200)
+
     def test_get_pay_feature_type(self):
         contribution = self.contributions['featuretype']['tvclub']
         self.assertEqual(contribution.get_pay, 30)

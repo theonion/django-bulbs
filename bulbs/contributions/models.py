@@ -85,7 +85,9 @@ class Contribution(models.Model):
             return self.role.flat_rates.filter().first()
 
         if self.content.feature_type and payment_type == FEATURETYPE:
-            return self.content.feature_type.feature_type_rates.all().first()
+            return self.content.feature_type.feature_type_rates.filter(
+                role=self.role
+            ).first()
 
         if payment_type == HOURLY:
             return self.role.hourly_rates.filter().first()
