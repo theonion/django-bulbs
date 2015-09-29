@@ -18,6 +18,7 @@ from bulbs.contributions.models import (
     FlatRate, FeatureTypeRate, FeatureTypeOverride, HourlyRate, ManualRate,
     Override
 )
+from bulbs.contributions.utils import get_forced_payment_contributions
 from bulbs.utils.test import (
     BaseIndexableTestCase, BaseAPITestCase, make_content
 )
@@ -432,3 +433,46 @@ class RatePayTestCase(BaseIndexableTestCase):
     def test_get_pay_manual(self):
         contribution = self.contributions['manual']
         self.assertEqual(contribution.get_pay, 1000)
+
+    def test_force_payment(self):
+        content = Content.objects.create(title='Hello my friend')
+        contribution = Contribution.objects.create(
+            content=content,
+            contributor=self.contributors['jarvis'],
+            role=self.roles['flatrate'],
+            force_payment=False
+        )
+        now = timezone.now()
+        start_date = datetime.datetime(
+            year=now.year,
+            month=now.month,
+            day=1,
+            tzinfo=now.tzinfo
+        )
+        end_date = datetime.datetime(
+            year=now.year,
+            month=now.month,
+            day=30,
+            tzinfo=now.tzinfo
+        )
+        include, exclude = get_forced_payment_contributions(start_date, end_date)
+        self.assertEqual(include.count(), 0)
+        self.assertEqual(exclude.count(), 0)
+
+        contribution.force_payment = True
+        contribution.save()
+        include, exclude = get_forced_payment_contributions(start_date, end_date)
+        self.assertIn(contribution, include)
+        self.assertEqual(exclude.count(), 0)
+
+        contribution.payment_date = now
+        contribution.save()
+        include, exclude = get_forced_payment_contributions(start_date, end_date)
+        self.assertIn(contribution, include)
+        self.assertEqual(exclude.count(), 0)
+
+        contribution.payment_date = now - timezone.timedelta(days=1000)
+        contribution.save()
+        include, exclude = get_forced_payment_contributions(start_date, end_date)
+        self.assertIn(contribution, exclude)
+        self.assertEqual(include.count(), 0)

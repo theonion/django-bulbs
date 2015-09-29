@@ -53,13 +53,13 @@ class ContributorField(serializers.Field):
         return ContributorSerializer(obj).data
 
     def to_internal_value(self, data):
-        Contributor = get_user_model()
+        contributor_cls = get_user_model()
         if isinstance(data, int):
-            return Contributor.objects.get(id=data)
+            return contributor_cls.objects.get(id=data)
         elif isinstance(data, dict):
             id = data.get("id", None)
             if id is not None:
-                return Contributor.objects.get(id=id)
+                return contributor_cls.objects.get(id=id)
         return None
 
 
@@ -382,15 +382,15 @@ class ContributionSerializer(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data):
-        ModelClass = self.Meta.model
-        info = model_meta.get_field_info(ModelClass)
+        model_cls = self.Meta.model
+        info = model_meta.get_field_info(model_cls)
         many_to_many = {}
         rate_data = validated_data.pop('rate', None)
         override_rate_data = validated_data.pop("override_rate", None)
         for field_name, relation_info in info.relations.items():
             if relation_info.to_many and (field_name in validated_data):
                 many_to_many[field_name] = validated_data.pop(field_name)
-        contribution = ModelClass.objects.create(**validated_data)
+        contribution = model_cls.objects.create(**validated_data)
         if rate_data:
             if isinstance(rate_data, int):
                 rate_data = {"rate": rate_data}
