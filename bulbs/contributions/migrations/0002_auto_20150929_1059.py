@@ -19,6 +19,7 @@ class Migration(migrations.Migration):
             name='FreelanceProfile',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('is_freelance', models.BooleanField(default=True)),
                 ('payment_date', models.DateTimeField(null=True, blank=True)),
                 ('contributor', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
             ],
@@ -39,10 +40,10 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.IntegerField(null=True, choices=[(0, b'Flat Rate'), (1, b'FeatureType'), (2, b'Hourly'), (3, b'Manual'), (4, b'Override')])),
                 ('updated_on', models.DateTimeField(auto_now=True)),
-                ('rate', models.IntegerField()),
+                ('rate', models.IntegerField(null=True, blank=True)),
             ],
             options={
-                'abstract': False,
+                'ordering': ('-updated_on',),
             },
         ),
         migrations.CreateModel(
@@ -76,6 +77,11 @@ class Migration(migrations.Migration):
             model_name='contributorrole',
             name='payment_type',
             field=models.IntegerField(default=3, choices=[(0, b'Flat Rate'), (1, b'FeatureType'), (2, b'Hourly'), (3, b'Manual')]),
+        ),
+        migrations.AlterField(
+            model_name='contribution',
+            name='content',
+            field=models.ForeignKey(related_name='contributions', to='content.Content'),
         ),
         migrations.AlterField(
             model_name='contribution',
@@ -151,5 +157,9 @@ class Migration(migrations.Migration):
             model_name='override',
             name='role',
             field=models.ForeignKey(related_name='overrides', to='contributions.ContributorRole', null=True),
+        ),
+        migrations.AlterUniqueTogether(
+            name='featuretyperate',
+            unique_together=set([('role', 'feature_type')]),
         ),
     ]
