@@ -166,24 +166,6 @@ class FeatureTypeRate(Rate):
     class Meta:
         unique_together = (("role", "feature_type"))
 
-    # def save(self, *args, **kwargs):
-    #     super(FeatureTypeRate, self).save(*args, **kwargs)
-    #     override = FeatureTypeOverride.objects.create(
-    #         role=self.role,
-    #         feature_type=self.feature_type,
-    #         rate=0
-    #     )
-    #     override.save()
-
-    # def delete(self, *args, **kwargs):
-    #     overrides = FeatureTypeOverride.objects.filter(
-    #         role=self.role,
-    #         feature_type=self.feature_type
-    #     )
-    #     if overrides.exists():
-    #         overrides.delete()
-    #     super(FeatureTypeRate, self).delete(*args, **kwargs)
-
 
 class FreelanceProfile(models.Model):
     contributor = models.ForeignKey(settings.AUTH_USER_MODEL)
