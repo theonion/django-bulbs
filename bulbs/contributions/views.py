@@ -149,6 +149,16 @@ class ReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
         content_ids = content.values_list("pk", flat=True)
         contributions = Contribution.objects.filter(content__in=content_ids)
 
+        include, exclude = get_forced_payment_contributions(start_date, end_date)
+        include_ids = include.values_list('pk', flat=True).distinct()
+        exclude_ids = exclude.values_list('pk', flat=True).distinct()
+
+        contributions = contributions.exclude(
+            pk__in=exclude_ids
+        ) | Contribution.objects.filter(
+            pk__in=include_ids
+        )
+
         if "contributors" in self.request.QUERY_PARAMS:
             contributors = self.request.QUERY_PARAMS.getlist("contributors")
             contributions = contributions.filter(contributor__username__in=contributors)
@@ -210,8 +220,17 @@ class FreelanceReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
             tags = self.request.QUERY_PARAMS.getlist("tags")
             content = content.filter(tags__slug__in=tags)
 
+        include, exclude = get_forced_payment_contributions(start_date, end_date)
+        include_ids = include.values_list('pk', flat=True).distinct()
+        exclude_ids = exclude.values_list('pk', flat=True).distinct()
+
         content_ids = content.values_list("pk", flat=True)
-        contribution_qs = Contribution.objects.filter(content__in=content_ids)
+        contribution_qs = Contribution.objects.filter(
+            content__in=content_ids
+        ) | Contribution.objects.filter(
+            pk__in=include_ids
+        )
+        contribution_qs = contribution_qs.exclude(pk__in=exclude_ids).distinct()
 
         if "contributors" in self.request.QUERY_PARAMS:
             contributors = self.request.QUERY_PARAMS.getlist("contributors")
