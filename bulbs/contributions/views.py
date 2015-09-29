@@ -15,6 +15,7 @@ from .serializers import (
     ContributorRoleSerializer, ContributionReportingSerializer, ContentReportingSerializer,
     FreelanceProfileSerializer, LineItemSerializer, OverrideSerializer
 )
+from .utils import get_forced_payment_contributions
 
 
 class LineItemViewSet(viewsets.ModelViewSet):
@@ -46,7 +47,6 @@ class ContentReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 
     def get_queryset(self):
         now = timezone.now()
-
         start_date = datetime.datetime(
             year=now.year,
             month=now.month,
@@ -65,15 +65,20 @@ class ContentReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
         if published == 'published':
             end_date = now
 
+        include, exclude = get_forced_payment_contributions(start_date, end_date)
+        include_ids = include.values_list("content__id", flat=True)
+        exclude_ids = exclude.values_list("content__id", flat=True)
         content = Content.objects.filter(
             contributions__gt=0
         ).filter(
             published__range=(start_date, end_date)
+        ).exclude(
+            pk__in=exclude_ids
         ).prefetch_related(
             "authors", "contributions"
         ).select_related(
             "feature_type"
-        ).distinct()
+        ).distinct() | Content.objects.filter(pk__in=include_ids).distinct()
 
         if "feature_types" in self.request.QUERY_PARAMS:
             feature_types = self.request.QUERY_PARAMS.getlist("feature_types")
