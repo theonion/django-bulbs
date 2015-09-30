@@ -16,7 +16,7 @@ from bulbs.content.models import Content, FeatureType
 from bulbs.contributions.models import (
     Contribution, ContributionOverride, ContributorRole, FreelanceProfile,
     FlatRate, FeatureTypeRate, FeatureTypeOverride, HourlyRate, ManualRate,
-    Override
+    FeatureTypeOverrideProfile, Override
 )
 from bulbs.contributions.utils import get_forced_payment_contributions
 from bulbs.utils.test import (
@@ -395,20 +395,25 @@ class RatePayTestCase(BaseIndexableTestCase):
         self.assertEqual(contribution.get_pay, 50)
 
     def test_get_override_feature_type(self):
-        FeatureTypeOverride.objects.create(
+        tvclub_override = FeatureTypeOverride.objects.create(
             feature_type=self.feature_types['tvclub'],
-            role=self.roles['featuretype'],
             rate=22
         )
+        override = FeatureTypeOverrideProfile.objects.create(role=self.roles['featuretype'])
+        override.feature_types.add(tvclub_override)
+        override.save()
+
         contribution = self.contributions['featuretype']['tvclub']
         self.assertEqual(contribution.get_override, 22)
         self.assertEqual(contribution.get_pay, 22)
 
-        FeatureTypeOverride.objects.create(
+        tvclub_override_2 = FeatureTypeOverride.objects.create(
             feature_type=self.feature_types['tvclub'],
-            role=self.roles['featuretype'],
             rate=33
         )
+        override.feature_types.add(tvclub_override_2)
+        override.save()
+
         contribution = self.contributions['featuretype']['tvclub']
         self.assertEqual(contribution.get_override, 33)
         self.assertEqual(contribution.get_pay, 33)
@@ -444,14 +449,14 @@ class RatePayTestCase(BaseIndexableTestCase):
         )
         now = timezone.now()
         start_date = datetime.datetime(
-            year=now.year,
-            month=now.month,
+            year=2016,
+            month=9,
             day=1,
             tzinfo=now.tzinfo
         )
         end_date = datetime.datetime(
-            year=now.year,
-            month=now.month,
+            year=2016,
+            month=9,
             day=30,
             tzinfo=now.tzinfo
         )
@@ -465,13 +470,19 @@ class RatePayTestCase(BaseIndexableTestCase):
         self.assertIn(contribution, include)
         self.assertEqual(exclude.count(), 0)
 
-        contribution.payment_date = now
+        pay_date = datetime.datetime(
+            year=2016,
+            month=9,
+            day=15,
+            tzinfo=now.tzinfo
+        )
+        contribution.payment_date = pay_date
         contribution.save()
         include, exclude = get_forced_payment_contributions(start_date, end_date)
         self.assertIn(contribution, include)
         self.assertEqual(exclude.count(), 0)
 
-        contribution.payment_date = now - timezone.timedelta(days=1000)
+        contribution.payment_date = pay_date - timezone.timedelta(days=1000)
         contribution.save()
         include, exclude = get_forced_payment_contributions(start_date, end_date)
         self.assertIn(contribution, exclude)

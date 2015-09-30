@@ -7,7 +7,7 @@ from django.test.client import Client
 
 from bulbs.content.models import Content, FeatureType, Tag
 from bulbs.contributions.models import (
-    Contribution, ContributorRole, ManualRate, HourlyRate,
+    Contribution, ContributorRole, ManualRate, HourlyRate, FeatureTypeOverrideProfile,
     FlatRate, FeatureTypeOverride, FeatureTypeRate, FreelanceProfile, LineItem, Override,
     Rate, RATE_PAYMENT_TYPES
 )
@@ -409,20 +409,18 @@ class ContributionApiTestCase(BaseAPITestCase):
         client = Client()
         client.login(username="admin", password="secret")
         endpoint = reverse("rate-overrides-list")
+        editor_ft_profile = FeatureTypeOverrideProfile.objects.create(
+            contributor=self.contributors["jarvis"],
+            role=self.roles["editor"]
+        )
+        writer_ft_profile = FeatureTypeOverrideProfile.objects.create(
+            contributor=self.contributors["marvin"],
+            role=self.roles["writer"]
+        )
         f1 = FeatureType.objects.create(name="ha ha!")
         f2 = FeatureType.objects.create(name="no no.")
-        FeatureTypeOverride.objects.create(
-            rate=55,
-            feature_type=f1,
-            role=self.roles["editor"],
-            contributor=self.contributors["jarvis"]
-        )
-        FeatureTypeOverride.objects.create(
-            rate=55,
-            feature_type=f2,
-            role=self.roles["writer"],
-            contributor=self.contributors["marvin"]
-        )
+        editor_ft_profile.feature_types.create(rate=55, feature_type=f1)
+        writer_ft_profile.feature_types.create(rate=55, feature_type=f2)
         resp = client.get(endpoint)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.data), 2)
@@ -440,9 +438,11 @@ class ContributionApiTestCase(BaseAPITestCase):
             "role": {
                 "id": self.roles["editor"].id,
             },
-            "feature_type": {
-                "id": f1.id
-            }
+            "feature_types": [{
+                "feature_type": {
+                    "id": f1.id
+                }
+            }]
         }
         resp = client.post(
             endpoint,

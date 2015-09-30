@@ -16,6 +16,15 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
+            name='FeatureTypeOverride',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('updated_on', models.DateTimeField(auto_now=True)),
+                ('rate', models.IntegerField(default=0)),
+                ('feature_type', models.ForeignKey(related_name='overrides', to='content.FeatureType')),
+            ],
+        ),
+        migrations.CreateModel(
             name='FreelanceProfile',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
@@ -100,10 +109,10 @@ class Migration(migrations.Migration):
             bases=('contributions.override',),
         ),
         migrations.CreateModel(
-            name='FeatureTypeOverride',
+            name='FeatureTypeOverrideProfile',
             fields=[
                 ('override_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='contributions.Override')),
-                ('feature_type', models.ForeignKey(related_name='overrides', to='content.FeatureType')),
+                ('feature_types', models.ManyToManyField(to='contributions.FeatureTypeOverride')),
             ],
             options={
                 'abstract': False,
