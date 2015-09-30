@@ -16,6 +16,15 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
+            name='FeatureTypeOverride',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('updated_on', models.DateTimeField(auto_now=True)),
+                ('rate', models.IntegerField(default=0)),
+                ('feature_type', models.ForeignKey(related_name='overrides', to='content.FeatureType')),
+            ],
+        ),
+        migrations.CreateModel(
             name='FreelanceProfile',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
@@ -100,17 +109,6 @@ class Migration(migrations.Migration):
             bases=('contributions.override',),
         ),
         migrations.CreateModel(
-            name='FeatureTypeOverride',
-            fields=[
-                ('override_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='contributions.Override')),
-                ('feature_type', models.ForeignKey(related_name='overrides', to='content.FeatureType')),
-            ],
-            options={
-                'abstract': False,
-            },
-            bases=('contributions.override',),
-        ),
-        migrations.CreateModel(
             name='FeatureTypeRate',
             fields=[
                 ('rate_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='contributions.Rate')),
@@ -142,6 +140,17 @@ class Migration(migrations.Migration):
                 ('contribution', models.ForeignKey(related_name='manual_rates', to='contributions.Contribution')),
             ],
             bases=('contributions.rate',),
+        ),
+        migrations.CreateModel(
+            name='RoleFeatureTypeOverride',
+            fields=[
+                ('override_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='contributions.Override')),
+                ('feature_types', models.ManyToManyField(to='contributions.FeatureTypeOverride')),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=('contributions.override',),
         ),
         migrations.AddField(
             model_name='override',
