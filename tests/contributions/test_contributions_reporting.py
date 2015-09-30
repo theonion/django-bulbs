@@ -16,7 +16,7 @@ from bulbs.content.models import Content, FeatureType
 from bulbs.contributions.models import (
     Contribution, ContributionOverride, ContributorRole, FreelanceProfile,
     FlatRate, FeatureTypeRate, FeatureTypeOverride, HourlyRate, ManualRate,
-    RoleFeatureTypeOverride, Override
+    FeatureTypeOverrideProfile, Override
 )
 from bulbs.contributions.utils import get_forced_payment_contributions
 from bulbs.utils.test import (
@@ -399,7 +399,7 @@ class RatePayTestCase(BaseIndexableTestCase):
             feature_type=self.feature_types['tvclub'],
             rate=22
         )
-        override = RoleFeatureTypeOverride.objects.create(role=self.roles['featuretype'])
+        override = FeatureTypeOverrideProfile.objects.create(role=self.roles['featuretype'])
         override.feature_types.add(tvclub_override)
         override.save()
 

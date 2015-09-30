@@ -99,14 +99,14 @@ class Contribution(models.Model):
         role_override_qs = self.role.overrides.all()
         if role_override_qs.exists():
             override = role_override_qs.first()
-            if self.content.feature_type and isinstance(override, RoleFeatureTypeOverride):
+            if self.content.feature_type and isinstance(override, FeatureTypeOverrideProfile):
                 feature_type_qs = override.feature_types.filter(
                     feature_type=self.content.feature_type
                 ).order_by('-updated_on')
                 if feature_type_qs.exists():
                     return feature_type_qs.first().rate
             else:
-                return role_override_qs.first().rate
+                return override.rate
         return None
 
     def _get_pay(self):
@@ -148,7 +148,7 @@ class FeatureTypeOverride(models.Model):
     rate = models.IntegerField(default=0)
 
 
-class RoleFeatureTypeOverride(Override):
+class FeatureTypeOverrideProfile(Override):
     feature_types = models.ManyToManyField(FeatureTypeOverride)
 
 

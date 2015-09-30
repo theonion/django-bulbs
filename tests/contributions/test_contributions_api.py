@@ -7,7 +7,7 @@ from django.test.client import Client
 
 from bulbs.content.models import Content, FeatureType, Tag
 from bulbs.contributions.models import (
-    Contribution, ContributorRole, ManualRate, HourlyRate, RoleFeatureTypeOverride,
+    Contribution, ContributorRole, ManualRate, HourlyRate, FeatureTypeOverrideProfile,
     FlatRate, FeatureTypeOverride, FeatureTypeRate, FreelanceProfile, LineItem, Override,
     Rate, RATE_PAYMENT_TYPES
 )
@@ -409,11 +409,11 @@ class ContributionApiTestCase(BaseAPITestCase):
         client = Client()
         client.login(username="admin", password="secret")
         endpoint = reverse("rate-overrides-list")
-        editor_ft_profile = RoleFeatureTypeOverride.objects.create(
+        editor_ft_profile = FeatureTypeOverrideProfile.objects.create(
             contributor=self.contributors["jarvis"],
             role=self.roles["editor"]
         )
-        writer_ft_profile = RoleFeatureTypeOverride.objects.create(
+        writer_ft_profile = FeatureTypeOverrideProfile.objects.create(
             contributor=self.contributors["marvin"],
             role=self.roles["writer"]
         )

@@ -109,6 +109,17 @@ class Migration(migrations.Migration):
             bases=('contributions.override',),
         ),
         migrations.CreateModel(
+            name='FeatureTypeOverrideProfile',
+            fields=[
+                ('override_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='contributions.Override')),
+                ('feature_types', models.ManyToManyField(to='contributions.FeatureTypeOverride')),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=('contributions.override',),
+        ),
+        migrations.CreateModel(
             name='FeatureTypeRate',
             fields=[
                 ('rate_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='contributions.Rate')),
@@ -140,17 +151,6 @@ class Migration(migrations.Migration):
                 ('contribution', models.ForeignKey(related_name='manual_rates', to='contributions.Contribution')),
             ],
             bases=('contributions.rate',),
-        ),
-        migrations.CreateModel(
-            name='RoleFeatureTypeOverride',
-            fields=[
-                ('override_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='contributions.Override')),
-                ('feature_types', models.ManyToManyField(to='contributions.FeatureTypeOverride')),
-            ],
-            options={
-                'abstract': False,
-            },
-            bases=('contributions.override',),
         ),
         migrations.AddField(
             model_name='override',

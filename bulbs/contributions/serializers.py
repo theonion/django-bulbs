@@ -12,7 +12,8 @@ import six
 
 from .models import (
     Contribution, ContributorRole, ContributionOverride, HourlyRate, FlatRate, ManualRate,
-    FeatureTypeRate, FeatureTypeOverride, LineItem, Override, RoleFeatureTypeOverride, Rate, RATE_PAYMENT_TYPES
+    FeatureTypeRate, FeatureTypeOverride, LineItem, Override, FeatureTypeOverrideProfile, Rate,
+    RATE_PAYMENT_TYPES
 )
 
 
@@ -263,7 +264,7 @@ class OverrideSerializer(serializers.ModelSerializer):
         model = Override
 
     def get_feature_types(self, obj):
-        return RoleFeatureTypeOverride.objects.filter(
+        return FeatureTypeOverrideProfile.objects.filter(
             role=obj.role,
             contributor=obj.contributor
         )
@@ -283,7 +284,7 @@ class OverrideSerializer(serializers.ModelSerializer):
 
         role = override.get('role', None)
         contributor = override.get('contributor', None)
-        ft_profile, created = RoleFeatureTypeOverride.objects.get_or_create(
+        ft_profile, created = FeatureTypeOverrideProfile.objects.get_or_create(
             role=role,
             contributor=contributor
         )
