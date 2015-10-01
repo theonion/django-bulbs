@@ -10,10 +10,10 @@ from rest_framework import viewsets, routers, mixins
 from rest_framework.settings import api_settings
 from rest_framework_csv.renderers import CSVRenderer
 
-from .models import (ContributorRole, Contribution, FreelanceProfile, LineItem, Override)
+from .models import (ContributorRole, Contribution, FreelanceProfile, LineItem, OverrideProfile)
 from .serializers import (
     ContributorRoleSerializer, ContributionReportingSerializer, ContentReportingSerializer,
-    FreelanceProfileSerializer, LineItemSerializer, OverrideSerializer
+    FreelanceProfileSerializer, LineItemSerializer, OverrideProfileSerializer
 )
 from .utils import get_forced_payment_contributions
 
@@ -33,11 +33,11 @@ class ContributorRoleViewSet(viewsets.ModelViewSet):
         return qs
 
 
-class OverrideViewSet(viewsets.ModelViewSet):
+class OverrideProfileViewSet(viewsets.ModelViewSet):
 
-    model = Override
-    queryset = Override.objects.all()
-    serializer_class = OverrideSerializer
+    model = OverrideProfile
+    queryset = OverrideProfile.objects.all()
+    serializer_class = OverrideProfileSerializer
 
 
 class ContentReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
@@ -246,7 +246,7 @@ class FreelanceReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 api_v1_router = routers.DefaultRouter()
 api_v1_router.register(r"line-items", LineItemViewSet, base_name="line-items")
 api_v1_router.register(r"role", ContributorRoleViewSet, base_name="contributorrole")
-api_v1_router.register(r"rate-overrides", OverrideViewSet, base_name="rate-overrides")
+api_v1_router.register(r"rate-overrides", OverrideProfileViewSet, base_name="rate-overrides")
 api_v1_router.register(r"reporting", ReportingViewSet, base_name="contributionreporting")
 api_v1_router.register(r"contentreporting", ContentReportingViewSet, base_name="contentreporting")
 api_v1_router.register(
