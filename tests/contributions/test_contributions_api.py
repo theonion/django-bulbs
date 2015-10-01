@@ -13,7 +13,7 @@ from bulbs.contributions.models import (
 )
 from bulbs.contributions.serializers import RateSerializer
 from bulbs.utils.test import BaseAPITestCase, make_content
-
+from freezegun import freeze_time
 
 PAYMENT_TYPES = dict((label, value) for value, label in RATE_PAYMENT_TYPES)
 
@@ -815,6 +815,8 @@ class ContributionApiTestCase(BaseAPITestCase):
 class ReportingApiTestCase(BaseAPITestCase):
     def setUp(self):
         super(ReportingApiTestCase, self).setUp()
+        self.freezer = freeze_time("2015-09-25")
+        self.freezer.start()
         now = timezone.now()
         self.roles = {
             "FlatRate": ContributorRole.objects.create(name='Author', payment_type=0),
@@ -990,6 +992,10 @@ class ReportingApiTestCase(BaseAPITestCase):
                 )
             ]
         }
+
+    def tearDown(self):
+        self.freezer.stop()
+        super(ReportingApiTestCase, self).tearDown()
 
     def test_exclude_content_without_contributions(self):
         content = Content.objects.create(title='No contributions here')

@@ -41,7 +41,8 @@ dev_requires = [
     "pytest-cov==1.8.1",
     "pytest-django==2.8.0",
     "celery==3.1.10",
-    "coveralls==0.4.1"
+    "coveralls==0.4.1",
+    "freezegun"
 ]
 
 
