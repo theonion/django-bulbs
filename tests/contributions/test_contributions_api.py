@@ -7,7 +7,7 @@ from django.test.client import Client
 
 from bulbs.content.models import Content, FeatureType, Tag
 from bulbs.contributions.models import (
-    Contribution, ContributorRole, ManualRate, HourlyRate,
+    Contribution, ContributorRole, ManualRate, HourlyRate, FeatureTypeOverride,
     FlatRate, FlatRateOverride, FeatureTypeRate, FreelanceProfile, LineItem, OverrideProfile,
     Rate, RATE_PAYMENT_TYPES
 )
@@ -432,8 +432,8 @@ class ContributionApiTestCase(BaseAPITestCase):
         feature_types = resp.data['feature_types']
         self.assertEqual(len(feature_types), 2)
         self.assertEqual(feature_types[0]['rate'], 90)
-        # self.assertEqual(FeatureTypeOverrideProfile.objects.count(), 1)
-        # self.assertEqual(Override.objects.count(), 1)
+        self.assertEqual(OverrideProfile.objects.count(), 1)
+        self.assertEqual(FeatureTypeOverride.objects.count(), 2)
 
     # TODO: custom validation if no feature_types for rates
 

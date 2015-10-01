@@ -341,27 +341,6 @@ class OverrideProfileSerializer(serializers.ModelSerializer):
 
         return profile
 
-    # def to_representation(self, obj):
-    #     if isinstance(obj, FeatureTypeOverride):
-    #         data = FeatureTypeOverrideSerializer(obj).to_representation(obj)
-    #     else:
-    #         data = super(OverrideSerializer, self).to_representation(obj)
-
-    #     feature_types = []
-
-    #     feature_types_qs = self.get_feature_types(obj).first()
-    #     if feature_types_qs:
-    #         for feature_type in feature_types_qs.feature_types.all().order_by('-updated_on'):
-    #             feature_types.append(
-    #                 FeatureTypeOverrideSerializer(
-    #                     feature_type
-    #                 ).to_representation(
-    #                     feature_type
-    #                 )
-    #             )
-    #     data["feature_types"] = feature_types
-    #     return data
-
 
 class ContributionListSerializer(serializers.ListSerializer):
 
