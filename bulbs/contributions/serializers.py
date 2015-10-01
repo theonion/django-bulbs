@@ -68,12 +68,27 @@ class ContributorField(serializers.Field):
 class FreelanceProfileSerializer(serializers.Serializer):
 
     contributor = ContributorField()
-    payment_date = serializers.DateTimeField()
+    payment_date = serializers.SerializerMethodField()
     pay = serializers.SerializerMethodField()
     contributions_count = serializers.SerializerMethodField("get_contribution_count")
 
     def get_pay(self, obj):
         return obj.get_pay()
+
+    def get_payment_date(self, obj):
+        now = timezone.now()
+        month = now.month + 1
+        year = now.year
+        if now.month > 12:
+            month = 1
+            year += 1
+        next_payment = datetime.datetime(
+            day=1,
+            month=month,
+            year=year,
+            tzinfo=now.tzinfo
+        )
+        return next_payment.isoformat()
 
     def get_contribution_count(self, obj):
         return obj.contributor.contributions.count()
