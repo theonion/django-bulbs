@@ -9,6 +9,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('contenttypes', '0002_remove_content_type_name'),
+        ('auth', '0006_require_contenttypes_0002'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ('content', '0003_auto_20150513_2326'),
         ('contributions', '0001_initial'),
@@ -27,10 +28,9 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='FreelanceProfile',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('contributor', models.OneToOneField(primary_key=True, serialize=False, to=settings.AUTH_USER_MODEL)),
                 ('is_freelance', models.BooleanField(default=True)),
                 ('payment_date', models.DateTimeField(null=True, blank=True)),
-                ('contributor', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
             ],
         ),
         migrations.CreateModel(

@@ -182,7 +182,7 @@ class FeatureTypeRate(Rate):
 
 
 class FreelanceProfile(models.Model):
-    contributor = models.ForeignKey(settings.AUTH_USER_MODEL)
+    contributor = models.OneToOneField(settings.AUTH_USER_MODEL, primary_key=True)
     is_freelance = models.BooleanField(default=True)
     payment_date = models.DateTimeField(null=True, blank=True)
 
