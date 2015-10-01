@@ -115,8 +115,8 @@ class Contribution(models.Model):
             return override
         rate = self.get_rate()
         if isinstance(rate, HourlyRate):
-            minutes_worked = getattr(self, 'minutes_worked', 0)
-            return ((rate.rate / 60) * minutes_worked)
+            minutes_worked = float(getattr(self, 'minutes_worked', 0))
+            return ((float(rate.rate) / 60) * float(minutes_worked))
         if rate:
             return rate.rate
         return None
