@@ -462,18 +462,18 @@ class ContributionApiTestCase(BaseAPITestCase):
         client = Client()
         client.login(username="admin", password="secret")
         endpoint = reverse("rate-overrides-list")
-        # editor_ft_profile = FeatureTypeOverrideProfile.objects.create(
-        #     contributor=self.contributors["jarvis"],
-        #     role=self.roles["editor"]
-        # )
-        # writer_ft_profile = FeatureTypeOverrideProfile.objects.create(
-        #     contributor=self.contributors["marvin"],
-        #     role=self.roles["writer"]
-        # )
+        editor_ft_profile = OverrideProfile.objects.create(
+            contributor=self.contributors["jarvis"],
+            role=self.roles["editor"]
+        )
+        writer_ft_profile = OverrideProfile.objects.create(
+            contributor=self.contributors["marvin"],
+            role=self.roles["writer"]
+        )
         f1 = FeatureType.objects.create(name="ha ha!")
         f2 = FeatureType.objects.create(name="no no.")
-        editor_ft_profile.feature_types.create(rate=55, feature_type=f1)
-        writer_ft_profile.feature_types.create(rate=55, feature_type=f2)
+        editor_ft_profile.override_feature_type.create(rate=55, feature_type=f1)
+        writer_ft_profile.override_feature_type.create(rate=55, feature_type=f2)
         resp = client.get(endpoint)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.data), 2)
