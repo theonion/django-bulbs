@@ -120,7 +120,7 @@ class Migration(migrations.Migration):
             bases=('contributions.rate',),
         ),
         migrations.CreateModel(
-            name='FlatRateContributionOverride',
+            name='ContributionOverride',
             fields=[
                 ('baseoverride_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='contributions.BaseOverride')),
                 ('contribution', models.ForeignKey(related_name='override_flatrate', to='contributions.Contribution')),
@@ -135,7 +135,7 @@ class Migration(migrations.Migration):
             bases=('contributions.baseoverride',),
         ),
         migrations.CreateModel(
-            name='HourlyFlatRateContributionOverride',
+            name='HourlyContributionOverride',
             fields=[
                 ('baseoverride_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='contributions.BaseOverride')),
                 ('contribution', models.ForeignKey(related_name='override_hourly', to='contributions.Contribution')),
@@ -192,9 +192,5 @@ class Migration(migrations.Migration):
         migrations.AlterUniqueTogether(
             name='featuretyperate',
             unique_together=set([('role', 'feature_type')]),
-        ),
-        migrations.AlterUniqueTogether(
-            name='featuretypeoverride',
-            unique_together=set([('profile', 'feature_type')]),
         ),
     ]

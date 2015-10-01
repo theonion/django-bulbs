@@ -20,6 +20,10 @@ ROLE_PAYMENT_TYPES = (
 RATE_PAYMENT_TYPES = ROLE_PAYMENT_TYPES + ((OVERRIDE, 'Override'),)
 
 
+def calculate_hourly_pay(rate, minutes_worked):
+    return ((float(rate) / 60) * minutes_worked)
+
+
 class LineItem(models.Model):
     contributor = models.ForeignKey(settings.AUTH_USER_MODEL)
     amount = models.IntegerField(default=0)
@@ -90,16 +94,28 @@ class Contribution(models.Model):
 
     def _get_override(self):
         # Get contribution specific overrides first.
-        if self.role.payment_type == 0 and self.override_flatrate.exists():
-            return self.override_flatrate.first().rate
+        if self.role.payment_type in [0, 1] and self.override_contribution.exists():
+            return self.override_contribution.first().rate
 
-        override_profile = self.contributor.overrides.filter(role=self.role)
-        if not override_profile.exists():
+        override_profile = self.contributor.overrides.filter(role=self.role).first()
+        if not override_profile:
             return None
 
-        override_profile = override_profile.first()
-        if self.role.payment_type == 0:
+        elif self.role.payment_type == 0 and override_profile.override_flatrate.exists():
             return override_profile.override_flatrate.first().rate
+
+        elif (self.role.payment_type == 1):
+            override = override_profile.override_feature_type.filter(
+                feature_type=self.content.feature_type
+            ).first()
+            if override:
+                return override.rate
+
+        elif self.role.payment_type == 2 and override_profile.override_hourly.exists():
+            minutes_worked = float(getattr(self, 'minutes_worked', 0))
+            return calculate_hourly_pay(
+                override_profile.override_hourly.first().rate, minutes_worked
+            )
 
     def _get_pay(self):
         override = self.get_override
@@ -108,7 +124,7 @@ class Contribution(models.Model):
         rate = self.get_rate()
         if isinstance(rate, HourlyRate):
             minutes_worked = float(getattr(self, 'minutes_worked', 0))
-            return ((float(rate.rate) / 60) * float(minutes_worked))
+            return calculate_hourly_pay(rate.rate, minutes_worked)
         if rate:
             return rate.rate
         return None
@@ -134,9 +150,6 @@ class FeatureTypeOverride(BaseOverride):
     profile = models.ForeignKey(OverrideProfile, related_name='override_feature_type')
     feature_type = models.ForeignKey(FeatureType)
 
-    class Meta:
-        unique_together = (('profile', 'feature_type'),)
-
 
 class FlatRateOverride(BaseOverride):
     profile = models.ForeignKey(OverrideProfile, related_name='override_flatrate')
@@ -146,12 +159,8 @@ class HourlyOverride(BaseOverride):
     profile = models.ForeignKey(OverrideProfile, related_name='override_hourly')
 
 
-class FlatRateContributionOverride(BaseOverride):
-    contribution = models.ForeignKey(Contribution, related_name='override_flatrate')
-
-
-class HourlyFlatRateContributionOverride(BaseOverride):
-    contribution = models.ForeignKey(Contribution, related_name='override_hourly')
+class ContributionOverride(BaseOverride):
+    contribution = models.ForeignKey(Contribution, related_name='override_contribution')
 
 
 class Rate(models.Model):
