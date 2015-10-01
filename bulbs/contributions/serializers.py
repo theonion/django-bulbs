@@ -1,8 +1,9 @@
+import datetime
 from collections import OrderedDict
 
 from django.contrib.auth import get_user_model
 from django.template.defaultfilters import slugify
-from django.utils import timezone
+from django.utils import dateparse, timezone
 
 from bulbs.content.models import Content, FeatureType
 from bulbs.content.serializers import FeatureTypeField, UserSerializer
@@ -501,10 +502,37 @@ class ContentReportingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Content
-        fields = ("id", "title", "url", "content_type", "feature_type", "published", "authors", "value")
+        fields = (
+            "id", "title", "url", "content_type", "feature_type", "published", "authors", "value"
+        )
 
     def get_content_value(self, obj):
         contributions = obj.contributions.all()
+        request = self.context.get("request")
+        now = timezone.now()
+        start_date = datetime.datetime(
+            year=now.year,
+            month=now.month,
+            day=1,
+            tzinfo=now.tzinfo
+        )
+        if "start" in request.QUERY_PARAMS:
+            start_date = dateparse.parse_date(request.QUERY_PARAMS["start"])
+
+        end_date = now
+        if "end" in request.GET:
+            end_date = dateparse.parse_date(request.QUERY_PARAMS["end"])
+
+        if "contributors" in request.QUERY_PARAMS:
+            contributors = request.QUERY_PARAMS.getlist("contributors")
+            contributions = contributions.filter(contributor__username__in=contributors)
+
+        contributions = contributions.filter(
+            force_payment=False
+        ) | contributions.filter(
+            payment_date__range=(start_date, end_date)
+        )
+
         total_cost = 0
         for contribution in contributions:
             cost = contribution.get_pay

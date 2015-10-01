@@ -57,13 +57,8 @@ class ContentReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
             start_date = dateparse.parse_date(self.request.GET["start"])
 
         end_date = now
-        if "end" in self.request.GET:
+        if "end" in self.request.GET and "published" not in self.request.QUERY_PARAMS:
             end_date = dateparse.parse_date(self.request.GET["end"])
-
-        # if "published" in self.request.GET:
-        published = self.request.QUERY_PARAMS.get('published', '')
-        if published == 'published':
-            end_date = now
 
         include, exclude = get_forced_payment_contributions(start_date, end_date)
         include_ids = include.values_list("content__id", flat=True)
