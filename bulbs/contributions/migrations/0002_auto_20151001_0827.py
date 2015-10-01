@@ -8,7 +8,7 @@ from django.conf import settings
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('contenttypes', '0002_remove_content_type_name'),
+        ('auth', '0006_require_contenttypes_0002'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ('content', '0003_auto_20150513_2326'),
         ('contributions', '0001_initial'),
@@ -16,21 +16,23 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='FeatureTypeOverride',
+            name='BaseOverride',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('updated_on', models.DateTimeField(auto_now=True)),
                 ('rate', models.IntegerField(default=0)),
-                ('feature_type', models.ForeignKey(related_name='overrides', to='content.FeatureType')),
+                ('updated_on', models.DateTimeField(auto_now_add=True)),
             ],
+            options={
+                'ordering': ('-updated_on',),
+            },
         ),
         migrations.CreateModel(
             name='FreelanceProfile',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('contributor', models.OneToOneField(primary_key=True, serialize=False, to=settings.AUTH_USER_MODEL)),
                 ('is_freelance', models.BooleanField(default=True)),
+                ('is_manager', models.BooleanField(default=True)),
                 ('payment_date', models.DateTimeField(null=True, blank=True)),
-                ('contributor', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
             ],
         ),
         migrations.CreateModel(
@@ -44,16 +46,11 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-            name='Override',
+            name='OverrideProfile',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('name', models.IntegerField(null=True, choices=[(0, b'Flat Rate'), (1, b'FeatureType'), (2, b'Hourly'), (3, b'Manual'), (4, b'Override')])),
-                ('updated_on', models.DateTimeField(auto_now=True)),
-                ('rate', models.IntegerField(null=True, blank=True)),
+                ('contributor', models.ForeignKey(related_name='overrides', to=settings.AUTH_USER_MODEL)),
             ],
-            options={
-                'ordering': ('-updated_on',),
-            },
         ),
         migrations.CreateModel(
             name='Rate',
@@ -98,26 +95,12 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(related_name='contributions', to=settings.AUTH_USER_MODEL),
         ),
         migrations.CreateModel(
-            name='ContributionOverride',
+            name='FeatureTypeOverride',
             fields=[
-                ('override_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='contributions.Override')),
-                ('contribution', models.ForeignKey(related_name='overrides', blank=True, to='contributions.Contribution', null=True)),
+                ('baseoverride_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='contributions.BaseOverride')),
+                ('feature_type', models.ForeignKey(to='content.FeatureType')),
             ],
-            options={
-                'abstract': False,
-            },
-            bases=('contributions.override',),
-        ),
-        migrations.CreateModel(
-            name='FeatureTypeOverrideProfile',
-            fields=[
-                ('override_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='contributions.Override')),
-                ('feature_types', models.ManyToManyField(to='contributions.FeatureTypeOverride')),
-            ],
-            options={
-                'abstract': False,
-            },
-            bases=('contributions.override',),
+            bases=('contributions.baseoverride',),
         ),
         migrations.CreateModel(
             name='FeatureTypeRate',
@@ -137,6 +120,36 @@ class Migration(migrations.Migration):
             bases=('contributions.rate',),
         ),
         migrations.CreateModel(
+            name='ContributionOverride',
+            fields=[
+                ('baseoverride_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='contributions.BaseOverride')),
+                ('contribution', models.ForeignKey(related_name='override_flatrate', to='contributions.Contribution')),
+            ],
+            bases=('contributions.baseoverride',),
+        ),
+        migrations.CreateModel(
+            name='FlatRateOverride',
+            fields=[
+                ('baseoverride_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='contributions.BaseOverride')),
+            ],
+            bases=('contributions.baseoverride',),
+        ),
+        migrations.CreateModel(
+            name='HourlyContributionOverride',
+            fields=[
+                ('baseoverride_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='contributions.BaseOverride')),
+                ('contribution', models.ForeignKey(related_name='override_hourly', to='contributions.Contribution')),
+            ],
+            bases=('contributions.baseoverride',),
+        ),
+        migrations.CreateModel(
+            name='HourlyOverride',
+            fields=[
+                ('baseoverride_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='contributions.BaseOverride')),
+            ],
+            bases=('contributions.baseoverride',),
+        ),
+        migrations.CreateModel(
             name='HourlyRate',
             fields=[
                 ('rate_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='contributions.Rate')),
@@ -153,19 +166,28 @@ class Migration(migrations.Migration):
             bases=('contributions.rate',),
         ),
         migrations.AddField(
-            model_name='override',
-            name='contributor',
-            field=models.ForeignKey(related_name='overrides', to=settings.AUTH_USER_MODEL, null=True),
-        ),
-        migrations.AddField(
-            model_name='override',
-            name='polymorphic_ctype',
-            field=models.ForeignKey(related_name='polymorphic_contributions.override_set+', editable=False, to='contenttypes.ContentType', null=True),
-        ),
-        migrations.AddField(
-            model_name='override',
+            model_name='overrideprofile',
             name='role',
-            field=models.ForeignKey(related_name='overrides', to='contributions.ContributorRole', null=True),
+            field=models.ForeignKey(related_name='overrides', to='contributions.ContributorRole'),
+        ),
+        migrations.AlterUniqueTogether(
+            name='overrideprofile',
+            unique_together=set([('contributor', 'role')]),
+        ),
+        migrations.AddField(
+            model_name='hourlyoverride',
+            name='profile',
+            field=models.ForeignKey(related_name='override_hourly', to='contributions.OverrideProfile'),
+        ),
+        migrations.AddField(
+            model_name='flatrateoverride',
+            name='profile',
+            field=models.ForeignKey(related_name='override_flatrate', to='contributions.OverrideProfile'),
+        ),
+        migrations.AddField(
+            model_name='featuretypeoverride',
+            name='profile',
+            field=models.ForeignKey(related_name='override_feature_type', to='contributions.OverrideProfile'),
         ),
         migrations.AlterUniqueTogether(
             name='featuretyperate',

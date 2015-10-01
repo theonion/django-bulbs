@@ -13,15 +13,14 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 
 from bulbs.content.models import Content, FeatureType
-from bulbs.contributions.models import (
-    Contribution, ContributionOverride, ContributorRole, FreelanceProfile,
-    FlatRate, FeatureTypeRate, FeatureTypeOverride, HourlyRate, ManualRate,
-    FeatureTypeOverrideProfile, Override
-)
-from bulbs.contributions.utils import get_forced_payment_contributions
 from bulbs.utils.test import (
     BaseIndexableTestCase, BaseAPITestCase, make_content
 )
+from bulbs.contributions.models import (
+    Contribution, ContributorRole, FeatureTypeRate, FreelanceProfile, FlatRate, FlatRateOverride,
+    ContributionOverride, FeatureTypeOverride, HourlyOverride, HourlyRate, ManualRate, OverrideProfile
+)
+from bulbs.contributions.utils import get_forced_payment_contributions
 
 
 class ContributionReportingTestCase(BaseAPITestCase):
@@ -246,6 +245,22 @@ class RatePayTestCase(BaseIndexableTestCase):
                 payment_type=3
             )
         }
+        self.overrides = {
+            'jarvis': {
+                'featuretype': OverrideProfile.objects.create(
+                    contributor=self.contributors['jarvis'],
+                    role=self.roles['featuretype']
+                ),
+                'flatrate': OverrideProfile.objects.create(
+                    contributor=self.contributors['jarvis'],
+                    role=self.roles['flatrate']
+                ),
+                'hourly': OverrideProfile.objects.create(
+                    contributor=self.contributors['jarvis'],
+                    role=self.roles['hourly']
+                ),
+            }
+        }
         self.feature_types = {
             'tvclub': FeatureType.objects.create(name='TV Club'),
             'news': FeatureType.objects.create(name='News')
@@ -336,9 +351,8 @@ class RatePayTestCase(BaseIndexableTestCase):
         self.assertEqual(contribution.get_pay, 200)
 
     def test_get_override_flat_rate(self):
-        Override.objects.create(
-            contributor=self.contributors['jarvis'],
-            role=self.roles['flatrate'],
+        FlatRateOverride.objects.create(
+            profile=self.overrides['jarvis']['flatrate'],
             rate=80
         )
         contribution = self.contributions['flatrate']
@@ -346,12 +360,19 @@ class RatePayTestCase(BaseIndexableTestCase):
         self.assertEqual(contribution.get_pay, 80)
 
     def test_get_contribution_override_flat_rate(self):
-        # Contribution overrides should have priority over role overrides
-        Override.objects.create(
-            contributor=self.contributors['jarvis'],
-            role=self.roles['flatrate'],
+        """Contribution overrides should have priority over role overrides"""
+        FlatRateOverride.objects.create(
+            profile=self.overrides['jarvis']['flatrate'],
             rate=80
         )
+
+        # Make sure we are gettin the latest and greatest
+        for i in range(20):
+            ContributionOverride.objects.create(
+                contribution=self.contributions['flatrate'],
+                rate=i
+            )
+
         ContributionOverride.objects.create(
             contribution=self.contributions['flatrate'],
             rate=44
@@ -395,28 +416,45 @@ class RatePayTestCase(BaseIndexableTestCase):
         self.assertEqual(contribution.get_pay, 50)
 
     def test_get_override_feature_type(self):
-        tvclub_override = FeatureTypeOverride.objects.create(
+        FeatureTypeOverride.objects.create(
+            profile=self.overrides['jarvis']['featuretype'],
             feature_type=self.feature_types['tvclub'],
             rate=22
         )
-        override = FeatureTypeOverrideProfile.objects.create(role=self.roles['featuretype'])
-        override.feature_types.add(tvclub_override)
-        override.save()
-
         contribution = self.contributions['featuretype']['tvclub']
         self.assertEqual(contribution.get_override, 22)
         self.assertEqual(contribution.get_pay, 22)
 
-        tvclub_override_2 = FeatureTypeOverride.objects.create(
+        FeatureTypeOverride.objects.create(
+            profile=self.overrides['jarvis']['featuretype'],
             feature_type=self.feature_types['tvclub'],
             rate=33
         )
-        override.feature_types.add(tvclub_override_2)
-        override.save()
-
         contribution = self.contributions['featuretype']['tvclub']
         self.assertEqual(contribution.get_override, 33)
         self.assertEqual(contribution.get_pay, 33)
+
+    def test_get_contribution_override_feature_type(self):
+        """Contribution overrides should have priority over feature type overrides"""
+        FeatureTypeOverride.objects.create(
+            profile=self.overrides['jarvis']['featuretype'],
+            feature_type=self.feature_types['tvclub'],
+            rate=80
+        )
+
+        # Make sure we are gettin the latest and greatest
+        for i in range(20):
+            ContributionOverride.objects.create(
+                contribution=self.contributions['featuretype']['tvclub'],
+                rate=i
+            )
+
+        ContributionOverride.objects.create(
+            contribution=self.contributions['featuretype']['tvclub'],
+            rate=44
+        )
+        self.assertEqual(self.contributions['featuretype']['tvclub'].get_override, 44)
+        self.assertEqual(self.contributions['featuretype']['tvclub'].get_pay, 44)
 
     def test_get_rate_hourly(self):
         contribution = self.contributions['hourly']
@@ -428,6 +466,14 @@ class RatePayTestCase(BaseIndexableTestCase):
         contribution = self.contributions['hourly']
         self.assertEqual(contribution.minutes_worked, 30)
         self.assertEqual(contribution.get_pay, 30)
+
+    def test_get_override_hourly(self):
+        HourlyOverride.objects.create(
+            profile=self.overrides['jarvis']['hourly'],
+            rate=16
+        )
+        self.assertEqual(self.contributions['hourly'].get_override, 8)
+        self.assertEqual(self.contributions['hourly'].get_pay, 8)
 
     def test_get_rate_manual(self):
         contribution = self.contributions['manual']

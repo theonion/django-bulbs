@@ -1,12 +1,8 @@
 from django.conf import settings
 from django.db import models
 
-from polymorphic import PolymorphicModel, PolymorphicManager
-
 from bulbs.content.models import Content, FeatureType
 
-# User = get_user_model()
-# User = get_model(*settings.AUTH_USER_MODEL.split("."))
 
 FLAT_RATE = 0
 FEATURETYPE = 1
@@ -22,6 +18,10 @@ ROLE_PAYMENT_TYPES = (
 )
 
 RATE_PAYMENT_TYPES = ROLE_PAYMENT_TYPES + ((OVERRIDE, 'Override'),)
+
+
+def calculate_hourly_pay(rate, minutes_worked):
+    return ((float(rate) / 60) * minutes_worked)
 
 
 class LineItem(models.Model):
@@ -93,21 +93,29 @@ class Contribution(models.Model):
             return self.role.hourly_rates.filter().first()
 
     def _get_override(self):
-        override_qs = self.overrides.all()
-        if override_qs.exists():
-            return override_qs.first().rate
-        role_override_qs = self.role.overrides.all()
-        if role_override_qs.exists():
-            override = role_override_qs.first()
-            if self.content.feature_type and isinstance(override, FeatureTypeOverrideProfile):
-                feature_type_qs = override.feature_types.filter(
-                    feature_type=self.content.feature_type
-                ).order_by('-updated_on')
-                if feature_type_qs.exists():
-                    return feature_type_qs.first().rate
-            else:
+        # Get contribution specific overrides first.
+        if self.role.payment_type in [0, 1] and self.override_contribution.exists():
+            return self.override_contribution.first().rate
+
+        override_profile = self.contributor.overrides.filter(role=self.role).first()
+        if not override_profile:
+            return None
+
+        elif self.role.payment_type == 0 and override_profile.override_flatrate.exists():
+            return override_profile.override_flatrate.first().rate
+
+        elif (self.role.payment_type == 1):
+            override = override_profile.override_feature_type.filter(
+                feature_type=self.content.feature_type
+            ).first()
+            if override:
                 return override.rate
-        return None
+
+        elif self.role.payment_type == 2 and override_profile.override_hourly.exists():
+            minutes_worked = float(getattr(self, 'minutes_worked', 0))
+            return calculate_hourly_pay(
+                override_profile.override_hourly.first().rate, minutes_worked
+            )
 
     def _get_pay(self):
         override = self.get_override
@@ -116,40 +124,43 @@ class Contribution(models.Model):
         rate = self.get_rate()
         if isinstance(rate, HourlyRate):
             minutes_worked = float(getattr(self, 'minutes_worked', 0))
-            return ((float(rate.rate) / 60) * float(minutes_worked))
+            return calculate_hourly_pay(rate.rate, minutes_worked)
         if rate:
             return rate.rate
         return None
 
 
-class Override(PolymorphicModel):
-    name = models.IntegerField(choices=RATE_PAYMENT_TYPES, null=True)
-    updated_on = models.DateTimeField(auto_now=True)
-    rate = models.IntegerField(null=True, blank=True)
-    contributor = models.ForeignKey(
-        settings.AUTH_USER_MODEL, related_name="overrides", null=True
-    )
-    role = models.ForeignKey(ContributorRole, related_name="overrides", null=True)
+class OverrideProfile(models.Model):
+    contributor = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='overrides')
+    role = models.ForeignKey(ContributorRole, related_name='overrides')
 
-    objects = PolymorphicManager()
+    class Meta:
+        unique_together = (('contributor', 'role'),)
+
+
+class BaseOverride(models.Model):
+    rate = models.IntegerField(default=0)
+    updated_on = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ('-updated_on',)
 
 
-class ContributionOverride(Override):
-    contribution = models.ForeignKey(Contribution, related_name="overrides", null=True, blank=True)
+class FeatureTypeOverride(BaseOverride):
+    profile = models.ForeignKey(OverrideProfile, related_name='override_feature_type')
+    feature_type = models.ForeignKey(FeatureType)
 
 
-class FeatureTypeOverride(models.Model):
-    """Overrides the rate for a user given a particular FeatureType."""
-    feature_type = models.ForeignKey(FeatureType, related_name="overrides")
-    updated_on = models.DateTimeField(auto_now=True)
-    rate = models.IntegerField(default=0)
+class FlatRateOverride(BaseOverride):
+    profile = models.ForeignKey(OverrideProfile, related_name='override_flatrate')
 
 
-class FeatureTypeOverrideProfile(Override):
-    feature_types = models.ManyToManyField(FeatureTypeOverride)
+class HourlyOverride(BaseOverride):
+    profile = models.ForeignKey(OverrideProfile, related_name='override_hourly')
+
+
+class ContributionOverride(BaseOverride):
+    contribution = models.ForeignKey(Contribution, related_name='override_contribution')
 
 
 class Rate(models.Model):
@@ -182,8 +193,9 @@ class FeatureTypeRate(Rate):
 
 
 class FreelanceProfile(models.Model):
-    contributor = models.ForeignKey(settings.AUTH_USER_MODEL)
+    contributor = models.OneToOneField(settings.AUTH_USER_MODEL, primary_key=True)
     is_freelance = models.BooleanField(default=True)
+    is_manager = models.BooleanField(default=True)
     payment_date = models.DateTimeField(null=True, blank=True)
 
     def get_pay(self, start=None, end=None):
