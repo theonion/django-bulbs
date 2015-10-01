@@ -49,21 +49,6 @@ class ContributionApiTestCase(BaseAPITestCase):
         for c in contributor_cls.objects.all():
             c.save()
 
-        self.overrides = {
-            "jarvis": {
-                "editor": OverrideProfile.objects.create(
-                    role=self.roles["editor"],
-                    contributor=self.contributors["jarvis"]
-                )
-            },
-            "marvin": {
-                "writer": OverrideProfile.objects.create(
-                    role=self.roles["writer"],
-                    contributor=self.contributors["marvin"]
-                )
-            }
-        }
-
     def test_contributionrole_api(self):
         client = Client()
         client.login(username="admin", password="secret")
@@ -322,13 +307,21 @@ class ContributionApiTestCase(BaseAPITestCase):
         client.login(username="admin", password="secret")
         endpoint = reverse("rate-overrides-list")
 
+        profile1 = OverrideProfile.objects.create(
+            role=self.roles["editor"],
+            contributor=self.contributors["jarvis"]
+        )
+        profile2 = OverrideProfile.objects.create(
+            role=self.roles["writer"],
+            contributor=self.contributors["marvin"]
+        )
         override1 = FlatRateOverride.objects.create(
             rate=60,
-            profile=self.overrides["jarvis"]["editor"]
+            profile=profile1
         )
         override2 = FlatRateOverride.objects.create(
             rate=50,
-            profile=self.overrides["marvin"]["writer"]
+            profile=profile2
         )
 
         resp = self.client.get(endpoint)
@@ -447,11 +440,16 @@ class ContributionApiTestCase(BaseAPITestCase):
     def test_override_delete_success(self):
         client = Client()
         client.login(username="admin", password="secret")
-        # override = Override.objects.create(
-        #     rate=100,
-        #     contributor=self.contributors["jarvis"],
-        #     role=self.roles["editor"]
-        # )
+
+        profile = OverrideProfile.objects.create(
+            contributor=self.contributors["jarvis"],
+            role=self.roles["editor"]
+        )
+
+        override = FlatRateOverride.objects.create(
+            rate=100,
+            profile=profile
+        )
 
         endpoint = reverse("rate-overrides-detail", kwargs={"pk": override.id})
         resp = client.get(endpoint)

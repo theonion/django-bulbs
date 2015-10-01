@@ -133,6 +133,21 @@ class OverrideRateField(serializers.Field):
         return obj.rate
 
 
+class OverrideFeatureTypesField(serializers.Field):
+
+    def get_attribute(self, obj):
+        return obj.override_feature_type.all()
+
+    def to_representation(self, obj):
+        marshaller = []
+        for rate in obj:
+            marshaller.append({
+                'feature_type': rate.feature_type.name,
+                'rate': rate.rate
+            })
+        return marshaller
+
+
 class ContributorRoleSerializer(serializers.ModelSerializer):
 
     payment_type = PaymentTypeField()
@@ -269,44 +284,26 @@ class OverrideProfileSerializer(serializers.ModelSerializer):
     contributor = ContributorField()
     role = RoleField()
     rate = OverrideRateField(read_only=True)
+    feature_types = OverrideFeatureTypesField(read_only=True)
 
     class Meta:
         model = OverrideProfile
 
-    # def get_feature_types(self, obj):
-    #     return FeatureTypeOverrideProfile.objects.filter(
-    #         role=obj.role,
-    #         contributor=obj.contributor
-    #     )
+    def update_feature_type_overrides(self, profile, feature_types):
+        for data in feature_types:
+            ft_data = data.get('feature_type', None)
+            if ft_data:
+                feature_type = FeatureTypeField(read_only=True).to_internal_value(
+                    ft_data
+                )
+                rate = int(data.get('rate', 0))
 
-    # def update_feature_type_overrides(self, profile, feature_types):
-    #     for data in feature_types:
-    #         ft_data = data.get('feature_type', None)
-    #         if ft_data:
-    #             feature_type = FeatureTypeField(read_only=True).to_internal_value(
-    #                 ft_data
-    #             )
-    #             rate = int(data.get('rate', 0))
-    #             ft_override = profile.feature_types.get_or_create(
-    #                 feature_type=feature_type,
-    #             )[0]
-    #             if ft_override.rate != rate:
-    #                 ft_override.rate = rate
-    #                 ft_override.save()
-
-    # def feature_type_internal(self, validated_data, instance=None):
-    #     feature_types = validated_data.pop("feature_types", [])
-    #     if feature_types:
-    #         role = validated_data.get('role', None)
-    #         contributor = validated_data.get('contributor', None)
-    #         if not instance or not isinstance(instance, FeatureTypeOverrideProfile):
-    #             instance, created = FeatureTypeOverrideProfile.objects.get_or_create(
-    #                 role=role,
-    #                 contributor=contributor
-    #             )
-    #         self.update_feature_type_overrides(instance, feature_types)
-    #         return instance
-    #     return None
+                ft_override = profile.override_feature_type.get_or_create(
+                    feature_type=feature_type,
+                )[0]
+                if ft_override.rate != rate:
+                    ft_override.rate = rate
+                    ft_override.save()
 
     def to_internal_value(self, data):
         rate = data.pop("rate", None)
@@ -320,19 +317,29 @@ class OverrideProfileSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         rate = validated_data.pop('rate', None)
-        # feature_type = self.feature_type_internal(validated_data)
-        # if feature_type:
-        #     return feature_type
+        feature_types = validated_data.pop('feature_types', [])
         profile = super(OverrideProfileSerializer, self).create(validated_data)
+
         if rate or rate == 0:
             profile.override_flatrate.create(rate=rate)
+
+        if feature_types:
+            self.update_feature_type_overrides(profile, feature_types)
+
         return profile
 
-    # def update(self, instance, validated_data):
-        # feature_type = self.feature_type_internal(validated_data, instance=instance)
-        # if feature_type:
-        #     return feature_type
-        # return super(OverrideSerializer, self).update(validated_data)
+    def update(self, instance, validated_data):
+        rate = validated_data.pop('rate', None)
+        feature_types = validated_data.pop('feature_types', [])
+        profile = super(OverrideProfileSerializer, self).update(instance, validated_data)
+
+        if rate or rate == 0:
+            profile.override_flatrate.create(rate=rate)
+
+        if feature_types:
+            self.update_feature_type_overrides(profile, feature_types)
+
+        return profile
 
     # def to_representation(self, obj):
     #     if isinstance(obj, FeatureTypeOverride):
