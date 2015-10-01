@@ -1,12 +1,8 @@
 from django.conf import settings
 from django.db import models
 
-from polymorphic import PolymorphicModel, PolymorphicManager
-
 from bulbs.content.models import Content, FeatureType
 
-# User = get_user_model()
-# User = get_model(*settings.AUTH_USER_MODEL.split("."))
 
 FLAT_RATE = 0
 FEATURETYPE = 1
@@ -99,7 +95,7 @@ class Contribution(models.Model):
         role_override_qs = self.role.overrides.all()
         if role_override_qs.exists():
             override = role_override_qs.first()
-            if self.content.feature_type and isinstance(override, FeatureTypeOverrideProfile):
+            if self.content.feature_type and isinstance(override, OverrideProfile):
                 feature_type_qs = override.feature_types.filter(
                     feature_type=self.content.feature_type
                 ).order_by('-updated_on')
@@ -122,34 +118,44 @@ class Contribution(models.Model):
         return None
 
 
-class Override(PolymorphicModel):
-    name = models.IntegerField(choices=RATE_PAYMENT_TYPES, null=True)
-    updated_on = models.DateTimeField(auto_now=True)
-    rate = models.IntegerField(null=True, blank=True)
-    contributor = models.ForeignKey(
-        settings.AUTH_USER_MODEL, related_name="overrides", null=True
-    )
-    role = models.ForeignKey(ContributorRole, related_name="overrides", null=True)
+class OverrideProfile(models.Model):
+    contributor = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='overrides')
+    role = models.ForeignKey(ContributorRole)
 
-    objects = PolymorphicManager()
+    class Meta:
+        unique_together = (('contributor', 'role'),)
+
+
+class BaseOverride(models.Model):
+    rate = models.IntegerField(default=0)
+    updated_on = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ('-updated_on',)
 
 
-class ContributionOverride(Override):
-    contribution = models.ForeignKey(Contribution, related_name="overrides", null=True, blank=True)
+class FreatureTypeOverride(BaseOverride):
+    override_profile = models.ForeignKey(OverrideProfile, related_name='override_feature_type')
+    feature_type = models.ForeignKey(FeatureType)
+
+    class Meta:
+        unique_together = (('override_profile', 'feature_type'),)
 
 
-class FeatureTypeOverride(models.Model):
-    """Overrides the rate for a user given a particular FeatureType."""
-    feature_type = models.ForeignKey(FeatureType, related_name="overrides")
-    updated_on = models.DateTimeField(auto_now=True)
-    rate = models.IntegerField(default=0)
+class FlatRateOverride(BaseOverride):
+    override_profile = models.ForeignKey(OverrideProfile, related_name='override_flatrate')
 
 
-class FeatureTypeOverrideProfile(Override):
-    feature_types = models.ManyToManyField(FeatureTypeOverride)
+class HourlyOverride(BaseOverride):
+    override_profile = models.ForeignKey(OverrideProfile, related_name='override_hourly')
+
+
+class FlatRateContributionOverride(BaseOverride):
+    contribution = models.ForeignKey(Contribution, related_name='override_flatrate')
+
+
+class HourlyFlatRateContributionOverride(BaseOverride):
+    contribution = models.ForeignKey(Contribution, related_name='override_hourly')
 
 
 class Rate(models.Model):
