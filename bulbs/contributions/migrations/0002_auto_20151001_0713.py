@@ -30,6 +30,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('contributor', models.OneToOneField(primary_key=True, serialize=False, to=settings.AUTH_USER_MODEL)),
                 ('is_freelance', models.BooleanField(default=True)),
+                ('is_manager', models.BooleanField(default=True)),
                 ('payment_date', models.DateTimeField(null=True, blank=True)),
             ],
         ),
