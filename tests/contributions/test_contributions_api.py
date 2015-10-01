@@ -8,8 +8,7 @@ from django.test.client import Client
 from bulbs.content.models import Content, FeatureType, Tag
 from bulbs.contributions.models import (
     Contribution, ContributorRole, ManualRate, HourlyRate, FeatureTypeOverrideProfile,
-    FlatRate, FeatureTypeOverride, FeatureTypeRate, FreelanceProfile, LineItem, Override,
-    Rate, RATE_PAYMENT_TYPES
+    FlatRate, FeatureTypeRate, FreelanceProfile, LineItem, Override, Rate, RATE_PAYMENT_TYPES
 )
 from bulbs.contributions.serializers import RateSerializer
 from bulbs.utils.test import BaseAPITestCase, make_content
@@ -23,7 +22,8 @@ class ContributionApiTestCase(BaseAPITestCase):
         super(ContributionApiTestCase, self).setUp()
         contributor_cls = get_user_model()
         self.feature_types = {
-            "surfing": FeatureType.objects.create(name="Surfing")
+            "surfing": FeatureType.objects.create(name="Surfing"),
+            "crying": FeatureType.objects.create(name="Crying")
         }
 
         self.roles = {
@@ -340,13 +340,7 @@ class ContributionApiTestCase(BaseAPITestCase):
             },
             "role": {
                 "id": self.roles["editor"].id
-            },
-            "feature_types": [
-                {
-                    "feature_type": "TV Club",
-                    "rate": 1000
-                }
-            ]
+            }
         }
         resp = client.post(
             endpoint,
@@ -386,6 +380,52 @@ class ContributionApiTestCase(BaseAPITestCase):
         feature_types = resp.data['feature_types']
         self.assertEqual(len(feature_types), 1)
         self.assertEqual(feature_types[0]['rate'], 100)
+
+    def test_override_multiple_feature_types(self):
+        endpoint = reverse('rate-overrides-list')
+        client = Client()
+        client.login(username='admin', password='secret')
+        data = {
+            'contributor': {
+                'username': self.contributors['jarvis'].username,
+                'id': self.contributors['jarvis'].id,
+            },
+            'role': self.roles['featured'].id,
+            'feature_types': [{
+                'rate': 80,
+                'feature_type': self.feature_types["surfing"].name
+            }]
+        }
+        resp = client.post(endpoint, json.dumps(data), content_type='application/json')
+        self.assertEqual(resp.status_code, 201)
+
+        id = resp.data.get('id')
+        detail_endpoint = reverse('rate-overrides-detail', kwargs={'pk': id})
+        data.update(resp.data)
+        data['feature_types'][0]['rate'] = 100
+
+        data = {
+            'contributor': {
+                'username': self.contributors['jarvis'].username,
+                'id': self.contributors['jarvis'].id,
+            },
+            'role': self.roles['featured'].id,
+            'feature_types': [{
+                'rate': 80,
+                'feature_type': self.feature_types["surfing"].name
+            }, {
+                'rate': 90,
+                'feature_type': self.feature_types["crying"].name
+            }]
+        }
+
+        resp = client.put(detail_endpoint, json.dumps(data), content_type='application/json')
+        self.assertEqual(resp.status_code, 200)
+        feature_types = resp.data['feature_types']
+        self.assertEqual(len(feature_types), 2)
+        self.assertEqual(feature_types[0]['rate'], 90)
+        self.assertEqual(FeatureTypeOverrideProfile.objects.count(), 1)
+        self.assertEqual(Override.objects.count(), 1)
 
     # TODO: custom validation if no feature_types for rates
 

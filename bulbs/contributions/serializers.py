@@ -269,26 +269,7 @@ class OverrideSerializer(serializers.ModelSerializer):
             contributor=obj.contributor
         )
 
-    def create(self, validated_data):
-        if "feature_type" in validated_data:
-            return FeatureTypeOverrideSerializer().create(validated_data)
-        else:
-            return super(OverrideSerializer, self).create(validated_data)
-
-    def to_internal_value(self, data):
-        feature_types = data.pop("feature_types", [])
-        if "feature_type" in data:
-            override = FeatureTypeOverrideSerializer().to_internal_value(data)
-        else:
-            override = super(OverrideSerializer, self).to_internal_value(data)
-
-        role = override.get('role', None)
-        contributor = override.get('contributor', None)
-        ft_profile, created = FeatureTypeOverrideProfile.objects.get_or_create(
-            role=role,
-            contributor=contributor
-        )
-
+    def update_feature_type_overrides(self, profile, feature_types):
         for data in feature_types:
             ft_data = data.get('feature_type', None)
             if ft_data:
@@ -296,13 +277,45 @@ class OverrideSerializer(serializers.ModelSerializer):
                     ft_data
                 )
                 rate = int(data.get('rate', 0))
-                ft_override = ft_profile.feature_types.get_or_create(
+                ft_override = profile.feature_types.get_or_create(
                     feature_type=feature_type,
                 )[0]
                 if ft_override.rate != rate:
                     ft_override.rate = rate
                     ft_override.save()
+
+    def feature_type_internal(self, validated_data, instance=None):
+        feature_types = validated_data.pop("feature_types", [])
+        if feature_types:
+            role = validated_data.get('role', None)
+            contributor = validated_data.get('contributor', None)
+            if not instance or not isinstance(instance, FeatureTypeOverrideProfile):
+                instance, created = FeatureTypeOverrideProfile.objects.get_or_create(
+                    role=role,
+                    contributor=contributor
+                )
+            self.update_feature_type_overrides(instance, feature_types)
+            return instance
+        return None
+
+    def to_internal_value(self, data):
+        feature_types = data.pop("feature_types", None)
+        override = super(OverrideSerializer, self).to_internal_value(data)
+        if feature_types:
+            override['feature_types'] = feature_types
         return override
+
+    def create(self, validated_data):
+        feature_type = self.feature_type_internal(validated_data)
+        if feature_type:
+            return feature_type
+        return super(OverrideSerializer, self).create(validated_data)
+
+    def update(self, instance, validated_data):
+        feature_type = self.feature_type_internal(validated_data, instance=instance)
+        if feature_type:
+            return feature_type
+        return super(OverrideSerializer, self).update(validated_data)
 
     def to_representation(self, obj):
         if isinstance(obj, FeatureTypeOverride):
