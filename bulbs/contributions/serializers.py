@@ -12,7 +12,7 @@ from rest_framework.utils import model_meta
 import six
 
 from .models import (
-    Contribution, ContributorRole, ContributionOverride, HourlyRate, FlatRate, ManualRate,
+    Contribution, ContributorRole, HourlyRate, FlatRate, ManualRate,
     FeatureTypeRate, FeatureTypeOverride, LineItem, Override, FeatureTypeOverrideProfile, Rate,
     RATE_PAYMENT_TYPES
 )
@@ -340,15 +340,6 @@ class OverrideSerializer(serializers.ModelSerializer):
         return data
 
 
-class ContributionOverrideField(serializers.Field):
-
-    def get_attribute(self, obj):
-        return obj.get_override
-
-    def to_representation(self, obj):
-        return obj
-
-
 class ContributionListSerializer(serializers.ListSerializer):
 
     contributor = UserSerializer()
@@ -383,7 +374,7 @@ class ContributionSerializer(serializers.ModelSerializer):
     contributor = UserSerializer()
     rate = RateField(required=False)
     role = RoleField()
-    override_rate = ContributionOverrideField(read_only=True)
+    # override_rate = ContributionOverrideField(read_only=True)
     content = serializers.PrimaryKeyRelatedField(queryset=Content.objects.all())
 
     class Meta:
@@ -424,11 +415,11 @@ class ContributionSerializer(serializers.ModelSerializer):
                     rate_data = {"rate": int(rate_data)}
             rate_data["contribution"] = contribution
             RateField().to_internal_value(rate_data)
-        if override_rate_data:
-            ContributionOverride.objects.create(
-                contribution=contribution,
-                rate=override_rate_data
-            )
+        # if override_rate_data:
+        #     ContributionOverride.objects.create(
+        #         contribution=contribution,
+        #         rate=override_rate_data
+        #     )
         return contribution
 
 

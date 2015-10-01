@@ -95,6 +95,14 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(related_name='contributions', to=settings.AUTH_USER_MODEL),
         ),
         migrations.CreateModel(
+            name='FeatureTypeOverride',
+            fields=[
+                ('baseoverride_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='contributions.BaseOverride')),
+                ('feature_type', models.ForeignKey(to='content.FeatureType')),
+            ],
+            bases=('contributions.baseoverride',),
+        ),
+        migrations.CreateModel(
             name='FeatureTypeRate',
             fields=[
                 ('rate_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='contributions.Rate')),
@@ -123,14 +131,6 @@ class Migration(migrations.Migration):
             name='FlatRateOverride',
             fields=[
                 ('baseoverride_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='contributions.BaseOverride')),
-            ],
-            bases=('contributions.baseoverride',),
-        ),
-        migrations.CreateModel(
-            name='FreatureTypeOverride',
-            fields=[
-                ('baseoverride_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='contributions.BaseOverride')),
-                ('feature_type', models.ForeignKey(to='content.FeatureType')),
             ],
             bases=('contributions.baseoverride',),
         ),
@@ -168,7 +168,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='overrideprofile',
             name='role',
-            field=models.ForeignKey(to='contributions.ContributorRole'),
+            field=models.ForeignKey(related_name='overrides', to='contributions.ContributorRole'),
         ),
         migrations.AlterUniqueTogether(
             name='overrideprofile',
@@ -176,25 +176,25 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='hourlyoverride',
-            name='override_profile',
+            name='profile',
             field=models.ForeignKey(related_name='override_hourly', to='contributions.OverrideProfile'),
         ),
         migrations.AddField(
-            model_name='freaturetypeoverride',
-            name='override_profile',
-            field=models.ForeignKey(related_name='override_feature_type', to='contributions.OverrideProfile'),
-        ),
-        migrations.AddField(
             model_name='flatrateoverride',
-            name='override_profile',
+            name='profile',
             field=models.ForeignKey(related_name='override_flatrate', to='contributions.OverrideProfile'),
         ),
-        migrations.AlterUniqueTogether(
-            name='freaturetypeoverride',
-            unique_together=set([('override_profile', 'feature_type')]),
+        migrations.AddField(
+            model_name='featuretypeoverride',
+            name='profile',
+            field=models.ForeignKey(related_name='override_feature_type', to='contributions.OverrideProfile'),
         ),
         migrations.AlterUniqueTogether(
             name='featuretyperate',
             unique_together=set([('role', 'feature_type')]),
+        ),
+        migrations.AlterUniqueTogether(
+            name='featuretypeoverride',
+            unique_together=set([('profile', 'feature_type')]),
         ),
     ]

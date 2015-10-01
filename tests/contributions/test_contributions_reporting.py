@@ -13,15 +13,14 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 
 from bulbs.content.models import Content, FeatureType
-from bulbs.contributions.models import (
-    Contribution, ContributionOverride, ContributorRole, FreelanceProfile,
-    FlatRate, FeatureTypeRate, FeatureTypeOverride, HourlyRate, ManualRate,
-    FeatureTypeOverrideProfile, Override
-)
-from bulbs.contributions.utils import get_forced_payment_contributions
 from bulbs.utils.test import (
     BaseIndexableTestCase, BaseAPITestCase, make_content
 )
+from bulbs.contributions.models import (
+    Contribution, ContributorRole, FeatureTypeRate, FreelanceProfile, FlatRate, FlatRateOverride,
+    FlatRateContributionOverride, FeatureTypeOverride, HourlyRate, ManualRate, OverrideProfile
+)
+from bulbs.contributions.utils import get_forced_payment_contributions
 
 
 class ContributionReportingTestCase(BaseAPITestCase):
@@ -246,6 +245,18 @@ class RatePayTestCase(BaseIndexableTestCase):
                 payment_type=3
             )
         }
+        self.overrides = {
+            'jarvis': {
+                'featuretype': OverrideProfile.objects.create(
+                    contributor=self.contributors['jarvis'],
+                    role=self.roles['featuretype']
+                ),
+                'flatrate': OverrideProfile.objects.create(
+                    contributor=self.contributors['jarvis'],
+                    role=self.roles['flatrate']
+                )
+            }
+        }
         self.feature_types = {
             'tvclub': FeatureType.objects.create(name='TV Club'),
             'news': FeatureType.objects.create(name='News')
@@ -336,9 +347,8 @@ class RatePayTestCase(BaseIndexableTestCase):
         self.assertEqual(contribution.get_pay, 200)
 
     def test_get_override_flat_rate(self):
-        Override.objects.create(
-            contributor=self.contributors['jarvis'],
-            role=self.roles['flatrate'],
+        FlatRateOverride.objects.create(
+            profile=self.overrides['jarvis']['flatrate'],
             rate=80
         )
         contribution = self.contributions['flatrate']
@@ -346,13 +356,20 @@ class RatePayTestCase(BaseIndexableTestCase):
         self.assertEqual(contribution.get_pay, 80)
 
     def test_get_contribution_override_flat_rate(self):
-        # Contribution overrides should have priority over role overrides
-        Override.objects.create(
-            contributor=self.contributors['jarvis'],
-            role=self.roles['flatrate'],
+        """Contribution overrides should have priority over role overrides"""
+        FlatRateOverride.objects.create(
+            profile=self.overrides['jarvis']['flatrate'],
             rate=80
         )
-        ContributionOverride.objects.create(
+
+        # Make sure we are gettin the latest and greatest
+        for i in range(20):
+            FlatRateContributionOverride.objects.create(
+                contribution=self.contributions['flatrate'],
+                rate=i
+            )
+
+        FlatRateContributionOverride.objects.create(
             contribution=self.contributions['flatrate'],
             rate=44
         )
@@ -399,9 +416,9 @@ class RatePayTestCase(BaseIndexableTestCase):
             feature_type=self.feature_types['tvclub'],
             rate=22
         )
-        override = FeatureTypeOverrideProfile.objects.create(role=self.roles['featuretype'])
-        override.feature_types.add(tvclub_override)
-        override.save()
+        # override = FeatureTypeOverrideProfile.objects.create(role=self.roles['featuretype'])
+        # override.feature_types.add(tvclub_override)
+        # override.save()
 
         contribution = self.contributions['featuretype']['tvclub']
         self.assertEqual(contribution.get_override, 22)

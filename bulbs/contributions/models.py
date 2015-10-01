@@ -89,21 +89,17 @@ class Contribution(models.Model):
             return self.role.hourly_rates.filter().first()
 
     def _get_override(self):
-        override_qs = self.overrides.all()
-        if override_qs.exists():
-            return override_qs.first().rate
-        role_override_qs = self.role.overrides.all()
-        if role_override_qs.exists():
-            override = role_override_qs.first()
-            if self.content.feature_type and isinstance(override, OverrideProfile):
-                feature_type_qs = override.feature_types.filter(
-                    feature_type=self.content.feature_type
-                ).order_by('-updated_on')
-                if feature_type_qs.exists():
-                    return feature_type_qs.first().rate
-            else:
-                return override.rate
-        return None
+        # Get contribution specific overrides first.
+        if self.role.payment_type == 0 and self.override_flatrate.exists():
+            return self.override_flatrate.first().rate
+
+        override_profile = self.contributor.overrides.filter(role=self.role)
+        if not override_profile.exists():
+            return None
+
+        override_profile = override_profile.first()
+        if self.role.payment_type == 0:
+            return override_profile.override_flatrate.first().rate
 
     def _get_pay(self):
         override = self.get_override
@@ -120,7 +116,7 @@ class Contribution(models.Model):
 
 class OverrideProfile(models.Model):
     contributor = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='overrides')
-    role = models.ForeignKey(ContributorRole)
+    role = models.ForeignKey(ContributorRole, related_name='overrides')
 
     class Meta:
         unique_together = (('contributor', 'role'),)
@@ -134,20 +130,20 @@ class BaseOverride(models.Model):
         ordering = ('-updated_on',)
 
 
-class FreatureTypeOverride(BaseOverride):
-    override_profile = models.ForeignKey(OverrideProfile, related_name='override_feature_type')
+class FeatureTypeOverride(BaseOverride):
+    profile = models.ForeignKey(OverrideProfile, related_name='override_feature_type')
     feature_type = models.ForeignKey(FeatureType)
 
     class Meta:
-        unique_together = (('override_profile', 'feature_type'),)
+        unique_together = (('profile', 'feature_type'),)
 
 
 class FlatRateOverride(BaseOverride):
-    override_profile = models.ForeignKey(OverrideProfile, related_name='override_flatrate')
+    profile = models.ForeignKey(OverrideProfile, related_name='override_flatrate')
 
 
 class HourlyOverride(BaseOverride):
-    override_profile = models.ForeignKey(OverrideProfile, related_name='override_hourly')
+    profile = models.ForeignKey(OverrideProfile, related_name='override_hourly')
 
 
 class FlatRateContributionOverride(BaseOverride):
