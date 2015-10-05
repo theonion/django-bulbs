@@ -525,7 +525,7 @@ class ContentReportingSerializer(serializers.ModelSerializer):
         )
 
     def get_content_value(self, obj):
-        contributions = obj.contributions.all()
+        contributions = obj.contributions.distinct()
         request = self.context.get("request")
         now = timezone.now()
         start_date = datetime.datetime(
