@@ -192,12 +192,6 @@ class FreelanceReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
             tzinfo=now.tzinfo
         )
 
-        start_date = datetime.datetime(
-            year=now.year,
-            month=now.month,
-            day=1,
-            tzinfo=now.tzinfo)
-
         if "start" in self.request.GET:
             start_date = dateparse.parse_date(self.request.GET["start"])
 
@@ -205,23 +199,26 @@ class FreelanceReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
         if "end" in self.request.GET:
             end_date = dateparse.parse_date(self.request.GET["end"])
 
-        content = Content.objects.filter(published__range=(start_date, end_date))
+        contribution_qs = Contribution.objects.all()
 
         if "feature_types" in self.request.QUERY_PARAMS:
             feature_types = self.request.QUERY_PARAMS.getlist("feature_types")
-            content = content.filter(feature_type__slug__in=feature_types)
+            # content = content.filter(feature_type__slug__in=feature_types)
+            contribution_qs = contribution_qs.filter(content__feature_type__slug__in=feature_types)
 
         if "tags" in self.request.QUERY_PARAMS:
             tags = self.request.QUERY_PARAMS.getlist("tags")
-            content = content.filter(tags__slug__in=tags)
+            # content = content.filter(tags__slug__in=tags)
+            contribution_qs = contribution_qs.filter(content__tags__slug__in=tags)
 
-        include, exclude = get_forced_payment_contributions(start_date, end_date)
+        include, exclude = get_forced_payment_contributions(
+            start_date, end_date, qs=contribution_qs
+        )
         include_ids = include.values_list('pk', flat=True).distinct()
         exclude_ids = exclude.values_list('pk', flat=True).distinct()
 
-        content_ids = content.values_list("pk", flat=True)
-        contribution_qs = Contribution.objects.filter(
-            content__in=content_ids
+        contribution_qs = contribution_qs.filter(
+            content__published__range=(start_date, end_date)
         ) | Contribution.objects.filter(
             pk__in=include_ids
         )
