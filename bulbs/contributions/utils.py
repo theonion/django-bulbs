@@ -1,8 +1,9 @@
 from .models import Contribution
 
 
-def get_forced_payment_contributions(start_date, end_date):
-    qs = Contribution.objects.filter(force_payment=True)
+def get_forced_payment_contributions(start_date, end_date, qs=None):
+    if not qs:
+        qs = Contribution.objects.filter(force_payment=True)
     include = qs.filter(
         payment_date__range=(start_date, end_date)
     ) | qs.filter(

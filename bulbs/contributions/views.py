@@ -144,7 +144,7 @@ class ReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
         content_ids = content.values_list("pk", flat=True)
         contributions = Contribution.objects.filter(content__in=content_ids)
 
-        include, exclude = get_forced_payment_contributions(start_date, end_date)
+        include, exclude = get_forced_payment_contributions(start_date, end_date, qs=contributions)
         include_ids = include.values_list('pk', flat=True).distinct()
         exclude_ids = exclude.values_list('pk', flat=True).distinct()
 
