@@ -50,7 +50,7 @@ class RSSTestCase(BaseIndexableTestCase):
         # test slug w/ sc-rss-feed
         sc_rss = reverse("sc-rss-feed")
         client = Client()
-        response = client.get("{0}?slug={1}".format(sc_rss, sc.slug))
+        response = client.get("{0}?special_coverage_slug={1}".format(sc_rss, sc.slug))
 
         self.assertEqual(response.status_code, 200)
 
@@ -60,7 +60,7 @@ class RSSTestCase(BaseIndexableTestCase):
         self.assertTrue("Content3" not in response.content.decode('utf-8'))
 
         # test id w/ sc-rss-feed
-        response = client.get("{0}?id={1}".format(sc_rss, sc.id))
+        response = client.get("{0}?special_coverage_id={1}".format(sc_rss, sc.id))
         self.assertEqual(response.status_code, 200)
 
         # verify stuff is in sc-rss-feed response

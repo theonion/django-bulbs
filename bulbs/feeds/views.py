@@ -62,12 +62,10 @@ class SpecialCoverageRSSView(ContentListView):
         return response
 
     def get_queryset(self):
-        sc_id = self.request.GET.get("id")
-        sc_slug = self.request.GET.get("slug")
+        sc_id = self.request.GET.get("special_coverage_id")
+        sc_slug = self.request.GET.get("special_coverage_slug")
 
-        if sc_id and sc_slug:
-            sc_ids = SpecialCoverage.objects.get(id=sc_id, slug=sc_slug).query["included_ids"]
-        elif sc_id:
+        if sc_id:
             sc_ids = SpecialCoverage.objects.get(id=sc_id).query["included_ids"]
         elif sc_slug:
             sc_ids = SpecialCoverage.objects.get(slug=sc_slug).query["included_ids"]
