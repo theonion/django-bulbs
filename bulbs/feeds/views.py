@@ -60,4 +60,4 @@ class SpecialCoverageRSSView(RSSView):
         else:
             sc_ids = []
 
-        return ContentListView.get_queryset(self).filter(Ids(values=sc_ids))[:self.paginate_by]
+        return super(RSSView, self).get_queryset().filter(Ids(values=sc_ids))[:self.paginate_by]

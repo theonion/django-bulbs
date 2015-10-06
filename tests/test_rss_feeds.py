@@ -59,7 +59,6 @@ class RSSTestCase(BaseIndexableTestCase):
         self.assertTrue("Content2" in response.content.decode('utf-8'))
         self.assertTrue("Content3" not in response.content.decode('utf-8'))
 
-        import pdb; pdb.set_trace()
         # test id w/ sc-rss-feed
         response = client.get("{0}?special_coverage_id={1}".format(sc_rss, sc.id))
         self.assertEqual(response.status_code, 200)
