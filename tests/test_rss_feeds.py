@@ -55,18 +55,18 @@ class RSSTestCase(BaseIndexableTestCase):
         self.assertEqual(response.status_code, 200)
 
         # verify stuff is in sc-rss-feed response
-        self.assertTrue("Content1" in response.content)
-        self.assertTrue("Content2" in response.content)
-        self.assertTrue("Content3" not in response.content)
+        self.assertTrue("Content1" in response.content.decode('utf-8'))
+        self.assertTrue("Content2" in response.content.decode('utf-8'))
+        self.assertTrue("Content3" not in response.content.decode('utf-8'))
 
         # test id w/ sc-rss-feed
         response = client.get("{0}?id={1}".format(sc_rss, sc.id))
         self.assertEqual(response.status_code, 200)
 
         # verify stuff is in sc-rss-feed response
-        self.assertTrue("Content1" in response.content)
-        self.assertTrue("Content2" in response.content)
-        self.assertTrue("Content3" not in response.content)
+        self.assertTrue("Content1" in response.content.decode('utf-8'))
+        self.assertTrue("Content2" in response.content.decode('utf-8'))
+        self.assertTrue("Content3" not in response.content.decode('utf-8'))
 
         # test w/o id or slug
         response = client.get("{0}".format(sc_rss))
