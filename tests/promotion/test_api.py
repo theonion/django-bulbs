@@ -530,3 +530,70 @@ class PromotionApiTestCase(BaseAPITestCase):
         self.assertEqual(len(response.data["content"]), 1)
         self.assertEqual(response.data["content"][0]["id"], content_id)
 
+    def test_get_operations_filtered_by_date_range(self):
+        """Retrieve operations limited to a given date range."""
+
+        test_time_now = timezone.now()
+
+        test_time_lower_bound = test_time_now
+        test_time_upper_bound = test_time_now + datetime.timedelta(hours=2)
+
+        test_time_past = (test_time_now + datetime.timedelta(hours=-1)).replace(microsecond=0)
+        test_time_future = (test_time_now + datetime.timedelta(hours=1)).replace(microsecond=0)
+        test_time_out_of_range = test_time_upper_bound + datetime.timedelta(hours=1)
+
+        # set up some test operations)
+        op_past_1 = InsertOperation.objects.create(
+            pzone=self.pzone,
+            when=test_time_past,
+            index=0,
+            content=make_content(),
+            applied=True
+        )
+        op_past_2 = InsertOperation.objects.create(
+            pzone=self.pzone,
+            when=test_time_past,
+            index=0,
+            content=make_content(),
+            applied=True
+        )
+        op_future_1 = InsertOperation.objects.create(
+            pzone=self.pzone,
+            when=test_time_future,
+            index=0,
+            content=make_content(),
+            applied=True
+        )
+        op_future_2 = InsertOperation.objects.create(
+            pzone=self.pzone,
+            when=test_time_future,
+            index=0,
+            content=make_content(),
+            applied=True
+        )
+        op_out_of_range_1 = InsertOperation.objects.create(
+            pzone=self.pzone,
+            when=test_time_out_of_range,
+            index=0,
+            content=make_content(),
+            applied=True
+        )
+
+        # query the endpoint
+        endpoint = reverse("pzone_operations", kwargs={
+            "pzone_pk": self.pzone.pk
+        })
+        response = self.client.get(endpoint, {
+            "from": test_time_lower_bound,
+            "to": test_time_upper_bound
+        })
+
+        # check that we got an OK response
+        self.assertEqual(response.status_code, 200, msg=response.data)
+
+        # start checking data
+        operations = response.data
+        self.assertEqual(len(operations), 2)
+
+        self.assertEqual(operations[0]["id"], op_future_1.pk)
+        self.assertEqual(operations[1]["id"], op_future_2.pk)
