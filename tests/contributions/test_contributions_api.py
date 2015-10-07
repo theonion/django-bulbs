@@ -551,7 +551,7 @@ class ContributionApiTestCase(BaseAPITestCase):
         client = Client()
         client.login(username="admin", password="secret")
 
-        content = make_content()
+        content = make_content(authors=[])
         Content.objects.get(id=content.id)
 
         endpoint = reverse("content-contributions", kwargs={"pk": content.pk})
@@ -631,7 +631,7 @@ class ContributionApiTestCase(BaseAPITestCase):
         client = Client()
         client.login(username="admin", password="secret")
 
-        content = make_content()
+        content = make_content(authors=[])
         Content.objects.get(id=content.id)
         endpoint = reverse("content-contributions", kwargs={"pk": content.pk})
 
@@ -804,7 +804,7 @@ class ContributionApiTestCase(BaseAPITestCase):
     def test_contributions_create_api(self):
         client = Client()
         client.login(username="admin", password="secret")
-        content = make_content()
+        content = make_content(authors=[])
         Content.search_objects.refresh()
         self.assertEqual(Contribution.objects.filter(content=content).count(), 0)
         endpoint = reverse("content-contributions", kwargs={"pk": content.pk})
@@ -837,7 +837,7 @@ class ContributionApiTestCase(BaseAPITestCase):
         client.login(username="admin", password="secret")
         feature_type = FeatureType.objects.create(name="Cams Favorite Stuff")
         feature_type_2 = FeatureType.objects.create(name="Bad Stuff")
-        content = make_content(feature_type=feature_type)
+        content = make_content(authors=[], feature_type=feature_type)
         content_endpoint = reverse("content-contributions", kwargs={"pk": content.pk})
 
         # FlatRate contribution
@@ -961,28 +961,39 @@ class ReportingApiTestCase(BaseAPITestCase):
         self.t1 = Tag.objects.create(name='Ballers')
         self.t2 = Tag.objects.create(name='Fallers')
         self.c1.authors.add(self.a1)
+        c1_a1_contribution = self.c1.contributions.get(contributor=self.a1)
+        c1_a1_contribution.role = self.roles['FlatRate']
+        c1_a1_contribution.save()
         self.c1.tags.add(self.t2)
         self.c1.save()
         self.c2.authors.add(self.a1)
+        c2_a1_contribution = self.c2.contributions.get(contributor=self.a1)
+        c2_a1_contribution.role = self.roles['FlatRate']
+        c2_a1_contribution.save()
         self.c2.tags.add(self.t1)
         self.c2.save()
         self.c3.authors.add(self.a2)
+        c3_a2_contribution = self.c3.contributions.get(contributor=self.a2)
+        c3_a2_contribution.role = self.roles['FeatureType']
+        c3_a2_contribution.save()
         self.c3.tags.add(self.t2)
         self.c3.save()
         self.c4.authors.add(self.a2)
+        c4_a2_contribution = self.c4.contributions.get(contributor=self.a2)
+        c4_a2_contribution.role = self.roles['FeatureType']
+        c4_a2_contribution.save()
         self.c4.tags.add(self.t1)
         self.c4.save()
         self.c5.authors.add(self.a2)
+        c5_a2_contribution = self.c5.contributions.get(contributor=self.a2)
+        c5_a2_contribution.role = self.roles['FeatureType']
+        c5_a2_contribution.save()
         self.c5.tags.add(self.t1, self.t2)
         self.c5.save()
 
         self.contributions = {
             'c1': [
-                Contribution.objects.create(
-                    role=self.roles['FlatRate'],
-                    contributor=self.a1,
-                    content=self.c1
-                ),
+                c1_a1_contribution,
                 Contribution.objects.create(
                     role=self.roles['FeatureType'],
                     contributor=self.a2,
@@ -1000,11 +1011,7 @@ class ReportingApiTestCase(BaseAPITestCase):
                 )
             ],
             'c2': [
-                Contribution.objects.create(
-                    role=self.roles['FlatRate'],
-                    contributor=self.a1,
-                    content=self.c2
-                ),
+                c2_a1_contribution,
                 Contribution.objects.create(
                     role=self.roles['FeatureType'],
                     contributor=self.a2,
@@ -1027,11 +1034,7 @@ class ReportingApiTestCase(BaseAPITestCase):
                     contributor=self.a1,
                     content=self.c3
                 ),
-                Contribution.objects.create(
-                    role=self.roles['FeatureType'],
-                    contributor=self.a2,
-                    content=self.c3
-                ),
+                c3_a2_contribution,
                 Contribution.objects.create(
                     role=self.roles['Hourly'],
                     contributor=self.a3,
@@ -1049,11 +1052,7 @@ class ReportingApiTestCase(BaseAPITestCase):
                     contributor=self.a1,
                     content=self.c4
                 ),
-                Contribution.objects.create(
-                    role=self.roles['FeatureType'],
-                    contributor=self.a2,
-                    content=self.c4
-                ),
+                c4_a2_contribution,
                 Contribution.objects.create(
                     role=self.roles['Hourly'],
                     contributor=self.a3,
@@ -1071,11 +1070,7 @@ class ReportingApiTestCase(BaseAPITestCase):
                     contributor=self.a1,
                     content=self.c5
                 ),
-                Contribution.objects.create(
-                    role=self.roles['FeatureType'],
-                    contributor=self.a2,
-                    content=self.c5
-                ),
+                c5_a2_contribution,
                 Contribution.objects.create(
                     role=self.roles['Hourly'],
                     contributor=self.a3,
