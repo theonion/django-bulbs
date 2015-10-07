@@ -55,10 +55,14 @@ class ContributionReportingTestCase(BaseAPITestCase):
 
     def test_reporting_api(self):
         content_one = make_content(
+            authors=[],
             published=timezone.now() - datetime.timedelta(days=1),
             feature_type=self.tvclub
         )
-        content_two = make_content(published=timezone.now() - datetime.timedelta(days=3))
+        content_two = make_content(
+            authors=[],
+            published=timezone.now() - datetime.timedelta(days=3)
+        )
         for content in content_one, content_two:
             Contribution.objects.create(
                 content=content,
