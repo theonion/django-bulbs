@@ -2,7 +2,10 @@ from django.template import RequestContext
 from django.utils.timezone import now
 from django.views.decorators.cache import cache_control
 
+from elasticsearch_dsl.filter import Ids
+
 from bulbs.content.views import ContentListView
+from bulbs.special_coverage.models import SpecialCoverage
 
 
 class RSSView(ContentListView):
@@ -40,3 +43,21 @@ class RSSView(ContentListView):
             content.feed_url = self.request.build_absolute_uri(feed_path)
 
         return RequestContext(self.request, context)
+
+
+class SpecialCoverageRSSView(RSSView):
+    """Really simply, this syndicates Content."""
+    feed_title = "Special Coverage RSS Feed"
+
+    def get_queryset(self):
+        sc_id = self.request.GET.get("special_coverage_id")
+        sc_slug = self.request.GET.get("special_coverage_slug")
+
+        if sc_id:
+            sc_ids = SpecialCoverage.objects.get(id=sc_id).query["included_ids"]
+        elif sc_slug:
+            sc_ids = SpecialCoverage.objects.get(slug=sc_slug).query["included_ids"]
+        else:
+            sc_ids = []
+
+        return super(RSSView, self).get_queryset().filter(Ids(values=sc_ids))[:self.paginate_by]
