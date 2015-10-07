@@ -54,10 +54,10 @@ class SpecialCoverageRSSView(RSSView):
         sc_slug = self.request.GET.get("special_coverage_slug")
 
         if sc_id:
-            sc_ids = SpecialCoverage.objects.get(id=sc_id).query["included_ids"]
+            sc = SpecialCoverage.objects.get(id=sc_id)
         elif sc_slug:
-            sc_ids = SpecialCoverage.objects.get(slug=sc_slug).query["included_ids"]
+            sc = SpecialCoverage.objects.get(slug=sc_slug)
         else:
-            sc_ids = []
+            return self.model.objects.none()
 
-        return super(RSSView, self).get_queryset().filter(Ids(values=sc_ids))[:self.paginate_by]
+        return sc.get_content()[:self.paginate_by]
