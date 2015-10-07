@@ -18,7 +18,8 @@ from bulbs.utils.test import (
 )
 from bulbs.contributions.models import (
     Contribution, ContributorRole, FeatureTypeRate, FreelanceProfile, FlatRate, FlatRateOverride,
-    ContributionOverride, FeatureTypeOverride, HourlyOverride, HourlyRate, ManualRate, OverrideProfile
+    ContributionOverride, FeatureTypeOverride, HourlyOverride, HourlyRate, ManualRate,
+    OverrideProfile
 )
 from bulbs.contributions.utils import get_forced_payment_contributions
 

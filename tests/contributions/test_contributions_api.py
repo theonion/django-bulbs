@@ -49,6 +49,49 @@ class ContributionApiTestCase(BaseAPITestCase):
         for c in contributor_cls.objects.all():
             c.save()
 
+    def test_content_authors_default_contribution(self):
+        client = Client()
+        client.login(username="admin", password="secret")
+
+        self.give_permissions()
+
+        endpoint = reverse("content-list")
+        data = {
+            "title": "howdy",
+            "authors": [{
+                "username": self.contributors["jarvis"].username,
+                "first_name": self.contributors["jarvis"].first_name,
+                "last_name": self.contributors["jarvis"].last_name,
+                "id": self.contributors["jarvis"].id
+            }]
+        }
+        resp = client.post(endpoint, json.dumps(data), content_type='application/json')
+        self.assertEqual(resp.status_code, 201)
+        id = resp.data.get('id')
+        content = Content.objects.get(id=id)
+        self.assertTrue(content.contributions.exists())
+        jarvis_contribution = content.contributions.first()
+        self.assertEqual(jarvis_contribution.role.name, 'default')
+        self.assertEqual(jarvis_contribution.contributor, self.contributors['jarvis'])
+        self.assertEqual(jarvis_contribution.content, content)
+
+        data.update(resp.data)
+        data['authors'].append({
+            "username": self.contributors["marvin"].username,
+            "first_name": self.contributors["marvin"].first_name,
+            "last_name": self.contributors["marvin"].last_name,
+            "id": self.contributors["marvin"].id
+        })
+        detail_endpoint = reverse('content-detail', kwargs={'pk': id})
+        resp = client.put(detail_endpoint, json.dumps(data), content_type='application/json')
+        self.assertEqual(resp.status_code, 200)
+
+        self.assertEqual(content.contributions.count(), 2)
+        marvin_contribution = content.contributions.last()
+        self.assertEqual(marvin_contribution.role.name, 'default')
+        self.assertEqual(marvin_contribution.contributor, self.contributors['marvin'])
+        self.assertEqual(marvin_contribution.content, content)
+
     def test_contributionrole_api(self):
         client = Client()
         client.login(username="admin", password="secret")
