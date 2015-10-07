@@ -23,5 +23,7 @@ def update_content_contributions(content, author):
     if not Contribution.objects.filter(content=content, contributor=author).exists():
         role_name = getattr(settings, 'DEFAULT_CONTRIBUTOR_ROLE', 'default')
         role, created = ContributorRole.objects.get_or_create(name=role_name)
+        if created:
+            role.payment_type = FEATURETYPE
+            role.save()
         Contribution.objects.create(content=content, contributor=author, role=role)
-
