@@ -837,7 +837,7 @@ class ContributionApiTestCase(BaseAPITestCase):
         client.login(username="admin", password="secret")
         feature_type = FeatureType.objects.create(name="Cams Favorite Stuff")
         feature_type_2 = FeatureType.objects.create(name="Bad Stuff")
-        content = make_content(authors=[], feature_type=feature_type)
+        content = make_content(authors=[],  feature_type=feature_type)
         content_endpoint = reverse("content-contributions", kwargs={"pk": content.pk})
 
         # FlatRate contribution
