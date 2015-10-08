@@ -5,7 +5,7 @@ from dateutil.parser import parse as parse_date
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.http import Http404
-from django.utils import timezone
+from django.utils import timezone, dateparse
 
 from rest_framework import viewsets
 from rest_framework.permissions import IsAdminUser
@@ -65,8 +65,21 @@ class OperationsViewSet(APIView):
         except PZone.DoesNotExist:
             raise Http404("Cannot find given pzone.")
 
+        # bulid filters
+        filters = {"pzone": pzone}
+
+        if "from" in request.GET:
+            parsed = dateparse.parse_datetime(request.GET["from"])
+            if parsed is not None:
+                filters["when__gte"] = parsed
+
+        if "to" in request.GET:
+            parsed = dateparse.parse_datetime(request.GET["to"])
+            if parsed is not None:
+                filters["when__lt"] = parsed
+
         # get operations and serialize them
-        operations = PZoneOperation.objects.filter(pzone=pzone)
+        operations = PZoneOperation.objects.filter(**filters)
 
         # return a json response with serialized operations
         return Response(self.serialize_operations(operations), content_type="application/json")
