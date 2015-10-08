@@ -174,6 +174,9 @@ class DefaultUserSerializer(serializers.ModelSerializer):
             "short_name": obj.get_short_name()
         }
 
+        if hasattr(obj, 'freelanceprofile'):
+            json['is_manager'] = obj.freelanceprofile.is_manager
+
         return json
 
     def to_internal_value(self, data):
