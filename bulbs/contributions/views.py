@@ -116,8 +116,11 @@ class ContentReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 
 class ReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 
-    renderer_classes = (ContributionReportingRenderer, ) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
-    # serializer_class = ContributionReportingSerializer
+    renderer_classes = (
+        ContributionReportingRenderer,
+    ) + tuple(
+        api_settings.DEFAULT_RENDERER_CLASSES
+    )
 
     def get_serializer_class(self):
         format = self.request.QUERY_PARAMS.get('format', None)

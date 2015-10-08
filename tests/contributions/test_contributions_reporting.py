@@ -13,6 +13,7 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 
 from bulbs.content.models import Content, FeatureType
+from bulbs.content.serializers import DefaultUserSerializer
 from bulbs.utils.test import (
     BaseIndexableTestCase, BaseAPITestCase, make_content
 )
@@ -52,6 +53,22 @@ class ContributionReportingTestCase(BaseAPITestCase):
     def test_feature_type_rate_on_save(self):
         role = ContributorRole.objects.create(name='Feature Type Guy', payment_type=1)
         self.assertEqual(role.feature_type_rates.count(), 1)
+
+    def test_user_is_manager_serializer(self):
+        data = DefaultUserSerializer(self.mike).to_representation(self.mike)
+        is_manger = data.get('is_manger', None)
+        self.assertIsNone(is_manger)
+
+        profile = FreelanceProfile.objects.create(contributor=self.mike)
+        data = DefaultUserSerializer(self.mike).to_representation(self.mike)
+        is_manager = data.get('is_manager', None)
+        self.assertFalse(is_manager)
+
+        profile.is_manager = True
+        profile.save()
+        data = DefaultUserSerializer(self.mike).to_representation(self.mike)
+        is_manager = data.get('is_manager', None)
+        self.assertTrue(is_manager)
 
     def test_reporting_api(self):
         content_one = make_content(
