@@ -12,6 +12,7 @@ from rest_framework_csv.renderers import CSVRenderer
 
 from .models import (ContributorRole, Contribution, FreelanceProfile, LineItem, OverrideProfile)
 from .renderers import ContributionReportingRenderer
+from .csv_serializers import ContributionCSVSerializer
 from .serializers import (
     ContributorRoleSerializer, ContributionReportingSerializer, ContentReportingSerializer,
     FreelanceProfileSerializer, LineItemSerializer, OverrideProfileSerializer
@@ -116,7 +117,13 @@ class ContentReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 class ReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 
     renderer_classes = (ContributionReportingRenderer, ) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
-    serializer_class = ContributionReportingSerializer
+    # serializer_class = ContributionReportingSerializer
+
+    def get_serializer_class(self):
+        format = self.request.QUERY_PARAMS.get('format', None)
+        if format == 'csv':
+            return ContributionCSVSerializer
+        return ContributionReportingSerializer
 
     def get_queryset(self):
         now = timezone.now()

@@ -20,18 +20,11 @@ class HeaderCSVRenderer(CSVRenderer):
 class ContributionReportingRenderer(HeaderCSVRenderer):
 
     header_fields = {
-        'content.content_type': 'Content Type',
-        'content.feature_type': 'Feature Type',
-        'content.id': 'Content Id',
-        'content.published': 'Published',
-        'content.title': 'Title',
-        'content.url': 'URL',
-        'id': 'Id',
-        'notes': 'Notes',
-        'pay': 'Pay',
+        'first_name': 'First Name',
+        'last_name': 'Last Name',
+        'title': 'Title',
+        'feature_type': 'Feature Type',
+        'published': 'Publish Date',
         'rate': 'Rate',
-        'role': 'Role',
-        'user.full_name': 'Full Name',
-        'user.id': 'User Id',
-        'user.username': 'Username'
+        'full_name': 'Payroll Name'
     }

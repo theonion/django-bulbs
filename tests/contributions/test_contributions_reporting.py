@@ -111,7 +111,7 @@ class ContributionReportingTestCase(BaseAPITestCase):
                               data={"start": start_date.strftime("%Y-%m-%d"), "format": "csv"})
         self.assertEqual(response.status_code, 200)
         csvreader = csv.DictReader(StringIO.StringIO(response.content.decode("utf8")))
-        self.assertEqual(len(csvreader.fieldnames), 14)
+        self.assertEqual(len(csvreader.fieldnames), 7)
         for line in csvreader:
             pass
         self.assertEqual(csvreader.line_num, 5)  # Header + 4 items
