@@ -14,7 +14,7 @@ import six
 from .models import (
     Contribution, ContributorRole, ContributionOverride, HourlyRate, FlatRate, ManualRate,
     FeatureTypeRate, FeatureTypeOverride, LineItem, OverrideProfile, Rate,
-    RATE_PAYMENT_TYPES
+    RATE_PAYMENT_TYPES, MANUAL
 )
 
 
@@ -129,7 +129,7 @@ class RateField(serializers.Field):
         if 'role' in data:
             rate = FlatRate(**data)
         elif 'contribution' in data:
-            data["name"] = 3
+            data["name"] = MANUAL
             rate = ManualRate(**data)
         elif 'feature_type' in data:
             rate = FeatureTypeRate(**data)
