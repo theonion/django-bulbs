@@ -201,9 +201,9 @@ class FreelanceProfile(models.Model):
     def get_pay(self, start=None, end=None):
         qs = self.contributor.contributions.all()
         if start:
-            qs = qs.filter(payment_date__gt=start)
+            qs = qs.filter(payment_date__gte=start)
         if end:
-            qs = qs.filter(payment_date__lt=end)
+            qs = qs.filter(payment_date__lte=end)
 
         pay = 0
         for contribution in qs.all():
