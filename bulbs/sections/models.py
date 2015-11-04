@@ -41,10 +41,12 @@ class Section(Indexable):
         if not self.slug:
             self.slug = slugify(self.name)
 
+        section = super(Section, self).save(*args, **kwargs)
+
         if self.query and self.query != {}:
             self._save_percolator()
 
-        return super(Section, self).save(*args, **kwargs)
+        return section
 
     def _save_percolator(self):
         """saves the query field as an elasticsearch percolator
