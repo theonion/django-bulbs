@@ -60,15 +60,13 @@ class Command(BaseCommand):
                 self.count += 1
 
     def handle(self, *args, **kwargs):
-        import pdb; pdb.set_trace()
-
         if not self.default_role:
             self.stdout.write('No role available for backfill')
             return
 
         default_start, default_end = self.get_date_range()
-        start = kwargs.get('start', default_start)
-        end = kwargs.get('end', default_end)
+        start = kwargs['start'] if kwargs['start'] else default_start
+        end = kwargs['end'] if kwargs['end'] else default_end
         content_qs = self.get_content_list(start, end)
         for content in content_qs.all():
             self.process_content_contributions(content)
