@@ -517,11 +517,13 @@ class ContentReportingSerializer(serializers.ModelSerializer):
     url = serializers.URLField(source="get_absolute_url")
     value = serializers.SerializerMethodField('get_content_value')
     authors = serializers.SerializerMethodField()
+    video_id = serializers.SerializerMethodField()
 
     class Meta:
         model = Content
         fields = (
-            "id", "title", "url", "content_type", "feature_type", "published", "authors", "value"
+            "id", "title", "url", "content_type", "feature_type", "published", "authors",
+            "video_id", "value"
         )
 
     def get_content_value(self, obj):
@@ -563,6 +565,13 @@ class ContentReportingSerializer(serializers.ModelSerializer):
 
     def get_feature_type(self, obj):
         return getattr(obj.feature_type, "name", None)
+
+    def get_video_id(self, obj):
+        if hasattr(obj, 'videohub_ref'):
+            return getattr(obj.videohub_ref, 'id')
+        elif hasattr(obj, 'video'):
+            return getattr(obj.video, 'id')
+        return None
 
     def get_published(self, obj):
         return timezone.localtime(obj.published)

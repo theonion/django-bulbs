@@ -46,6 +46,7 @@ class ContentReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 
     renderer_classes = (CSVRenderer, ) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
     serializer_class = ContentReportingSerializer
+    paginator = None
 
     def get_queryset(self):
         now = timezone.now()
@@ -53,7 +54,8 @@ class ContentReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
             year=now.year,
             month=now.month,
             day=1,
-            tzinfo=now.tzinfo)
+            tzinfo=now.tzinfo
+        )
 
         if "start" in self.request.GET:
             start_date = dateparse.parse_date(self.request.GET["start"])
@@ -121,6 +123,7 @@ class ReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
     ) + tuple(
         api_settings.DEFAULT_RENDERER_CLASSES
     )
+    paginator = None
 
     def get_serializer_class(self):
         format = self.request.QUERY_PARAMS.get('format', None)
@@ -192,6 +195,7 @@ class FreelanceReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 
     renderer_classes = (CSVRenderer, ) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
     serializer_class = FreelanceProfileSerializer
+    paginator = None
 
     def get_queryset(self):
         now = timezone.now()
