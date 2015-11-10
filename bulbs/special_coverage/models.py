@@ -8,12 +8,13 @@ from json_field import JSONField
 from bulbs.campaigns.models import Campaign
 from bulbs.content.custom_search import custom_search_model
 from bulbs.content.models import Content
+from bulbs.content.mixins import DetailImageMixin
 
 
 es = Elasticsearch(settings.ES_URLS)
 
 
-class SpecialCoverage(models.Model):
+class SpecialCoverage(DetailImageMixin, models.Model):
     name = models.CharField(max_length=255, unique=True)
     slug = models.SlugField(max_length=255, blank=True, editable=True, unique=True)
     description = models.TextField(default="", blank=True)
