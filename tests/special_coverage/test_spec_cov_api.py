@@ -389,3 +389,36 @@ class SpecialCoverageApiTestCase(BaseAPITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data["results"]), 1)
         self.assertEqual(response.data["results"][0]["id"], special_coverage_2.pk)
+
+    def test_special_coverage_detail_image(self):
+        """Test adding detail image content to a special coverage."""
+        data = {
+            "name": "Special Coverage",
+            "query": {
+                "included_ids": [1, 2, 3]
+            },
+            "image": {
+                "id": 123,
+                "alt": "A photo",
+                "caption": "A caption"
+            },
+        }
+        resp = self.client.post(
+            reverse("special-coverage-list"),
+            json.dumps(data, cls=JsonEncoder),
+            content_type="application/json"
+        )
+
+        self.assertEqual(resp.status_code, 201)
+        self.assertEqual(resp.data["image"]["id"], 123)
+        self.assertEqual(resp.data["image"]["alt"], "A photo")
+        self.assertEqual(resp.data["image"]["caption"], "A caption")
+
+        # get SC and check if image serializes correctly
+        resp = self.client.get(
+            reverse("special-coverage-detail", kwargs={"pk": resp.data["id"]}))
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data["image"]["id"], 123)
+        self.assertEqual(resp.data["image"]["alt"], "A photo")
+        self.assertEqual(resp.data["image"]["caption"], "A caption")
