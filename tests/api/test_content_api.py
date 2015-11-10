@@ -581,3 +581,23 @@ class TestContentTypeSearchAPI(BaseAPITestCase):
         r = self.api_client.get(url, format="json")
         self.assertEqual(r.status_code, 200)
         self.assertEqual(len(r.data["results"]), 4)
+
+
+class TestContentResolveAPI(BaseAPITestCase):
+
+    def test_resolve_url(self):
+        make_content(id=123)
+        r = self.api_client.get(reverse("content-resolve-list"),
+                                dict(url="/r/123"), format="json")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(123, r.data['id'])
+
+    def test_invalid_url(self):
+        r = self.api_client.get(reverse("content-resolve-list"),
+                                dict(url="/does_not_exist"))
+        self.assertEqual(r.status_code, 404)
+
+    def test_not_found(self):
+        r = self.api_client.get(reverse("content-resolve-list"),
+                                dict(url="/r/1"))
+        self.assertEqual(r.status_code, 404)
