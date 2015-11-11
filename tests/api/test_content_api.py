@@ -601,3 +601,7 @@ class TestContentResolveAPI(BaseAPITestCase):
         r = self.api_client.get(reverse("content-resolve-list"),
                                 dict(url="/r/1"))
         self.assertEqual(r.status_code, 404)
+
+    def test_missing_param(self):
+        r = self.api_client.get(reverse("content-resolve-list"))
+        self.assertEqual(r.status_code, 404)

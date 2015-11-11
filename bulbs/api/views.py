@@ -454,6 +454,8 @@ class ContentResolveViewSet(viewsets.ReadOnlyModelViewSet):
 
             content = get_object_or_404(Content, pk=match.kwargs.get('pk'))
             return Response(ContentSerializer().to_representation(content))
+        else:
+            raise Http404('Must specify content "url" param')
 
 
 class CustomSearchContentViewSet(viewsets.GenericViewSet):
