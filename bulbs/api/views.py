@@ -1,5 +1,10 @@
 """API Views and ViewSets"""
 
+try:
+    from urllib.parse import urlparse
+except ImportError:
+    from urlparse import urlparse
+
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import resolve, Resolver404
@@ -446,9 +451,10 @@ class ContentResolveViewSet(viewsets.ReadOnlyModelViewSet):
     model = Content
 
     def list(self, request):
-        if "url" in get_query_params(self.request):
+        url = get_query_params(self.request).get("url")
+        if url:
             try:
-                match = resolve(get_query_params(self.request).get("url"))
+                match = resolve(urlparse(url).path)
             except Resolver404:
                 raise Http404("No content found matching UUID")
 
