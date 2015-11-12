@@ -1,9 +1,16 @@
 """API Views and ViewSets"""
 
+try:
+    from urllib.parse import urlparse
+except ImportError:
+    from urlparse import urlparse
+
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.urlresolvers import resolve, Resolver404
 from django.db.models.loading import get_models
 from django.http import Http404
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from djes.apps import indexable_registry
@@ -439,6 +446,24 @@ class ContentTypeViewSet(viewsets.ViewSet):
         return Response(dict(results=results))
 
 
+class ContentResolveViewSet(viewsets.ReadOnlyModelViewSet):
+    """Retrieve content corresponding to absolute URL"""
+    model = Content
+
+    def list(self, request):
+        url = get_query_params(self.request).get("url")
+        if url:
+            try:
+                match = resolve(urlparse(url).path)
+            except Resolver404:
+                raise Http404("No content found matching UUID")
+
+            content = get_object_or_404(Content, pk=match.kwargs.get('pk'))
+            return Response(ContentSerializer().to_representation(content))
+        else:
+            raise Http404('Must specify content "url" param')
+
+
 class CustomSearchContentViewSet(viewsets.GenericViewSet):
     """This is for searching with a custom search filter."""
     model = Content
@@ -510,6 +535,7 @@ api_v1_router = routers.DefaultRouter()
 api_v1_router.register(r"content", ContentViewSet, base_name="content")
 api_v1_router.register(r"custom-search-content", CustomSearchContentViewSet, base_name="custom-search-content")
 api_v1_router.register(r"content-type", ContentTypeViewSet, base_name="content-type")
+api_v1_router.register(r"content-resolve", ContentResolveViewSet, base_name="content-resolve")
 api_v1_router.register(r"tag", TagViewSet, base_name="tag")
 api_v1_router.register(r"log", LogEntryViewSet, base_name="logentry")
 api_v1_router.register(r"author", AuthorViewSet, base_name="author")

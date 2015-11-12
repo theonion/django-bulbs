@@ -3,14 +3,22 @@ from datetime import datetime, timedelta
 
 import elasticsearch
 from django.contrib.auth import get_user_model
+from django.conf.urls import patterns, url
 from django.core.urlresolvers import reverse
 from django.template.defaultfilters import slugify
 from django.test.client import Client
+from django.test.utils import override_settings
 from django.utils import timezone
 
+import bulbs.api.urls
 from bulbs.content.models import LogEntry, Tag, Content, ObfuscatedUrlInfo
 from example.testcontent.models import TestContentObj, TestContentDetailImage
 from bulbs.utils.test import JsonEncoder, BaseAPITestCase, make_content
+
+try:
+    from unittest.mock import Mock
+except ImportError:
+    from mock import Mock
 
 
 class TestContentListingAPI(BaseAPITestCase):
@@ -581,3 +589,50 @@ class TestContentTypeSearchAPI(BaseAPITestCase):
         r = self.api_client.get(url, format="json")
         self.assertEqual(r.status_code, 200)
         self.assertEqual(len(r.data["results"]), 4)
+
+
+
+class TestContentResolveAPI(BaseAPITestCase):
+
+    def resolve(self, **data):
+        return self.api_client.get(reverse("content-resolve-list"),
+                                   data=data, format="json")
+
+    def test_resolve_redirect_url(self):
+        make_content(id=123)
+        for url in ('http://test.local/r/123',
+                    '/r/123tsd',
+                    '/r/123?one=two&three=four',
+                    'http://test.local/r/123',
+                    'http://test.local/r/123?one=two'):
+            r = self.resolve(url=url)
+            self.assertEqual(r.status_code, 200)
+            self.assertEqual(123, r.data['id'])
+
+    def test_resolve_custom_content_url(self):
+        # Simulate app-specific content URL
+        class ContentUrls(object):
+            urlpatterns = (bulbs.api.urls.urlpatterns +
+                           (url(r"^article/(?P<slug>[\w-]*)-(?P<pk>\d+)$", Mock()),))
+        make_content(id=123)
+        with override_settings(ROOT_URLCONF=ContentUrls):
+            r = self.resolve(url="/article/some-slug-123?one=two")
+            self.assertEqual(r.status_code, 200)
+            self.assertEqual(123, r.data['id'])
+
+    def test_resolve_custom_content_url_missing_pk(self):
+        # Simulate app-specific content URL
+        class ContentUrls(object):
+            urlpatterns = (bulbs.api.urls.urlpatterns +
+                           (url(r"^article/(?P<slug>[\w-]*)$", Mock()),))
+        with override_settings(ROOT_URLCONF=ContentUrls):
+            self.assertEqual(404, self.resolve(url="/article/some-slug").status_code)
+
+    def test_invalid_url(self):
+        self.assertEqual(404, self.resolve(url="/does_not_exist").status_code)
+
+    def test_not_found(self):
+        self.assertEqual(404, self.resolve(url="/r/1").status_code)
+
+    def test_missing_param(self):
+        self.assertEqual(404, self.resolve().status_code)
