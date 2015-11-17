@@ -36,8 +36,11 @@ class TestContentListingAPI(BaseAPITestCase):
         client = Client()
         client.login(username="admin", password="secret")
 
-        response = client.get(reverse("content-list"), {"status": "final"},
-                              content_type="application/json")
+        response = client.get(
+            reverse("content-list"),
+            {"status": "final"},
+            content_type="application/json"
+        )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["count"], 79)
         self.assertEqual(len(response.data["results"]), 20)

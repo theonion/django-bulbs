@@ -1,5 +1,9 @@
+from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.db import models
+
+from elasticsearch_dsl import field
+from djes.models import Indexable, IndexableManager
 
 from bulbs.content.models import Content, FeatureType
 
@@ -22,6 +26,68 @@ RATE_PAYMENT_TYPES = ROLE_PAYMENT_TYPES + ((OVERRIDE, 'Override'),)
 
 def calculate_hourly_pay(rate, minutes_worked):
     return ((float(rate) / 60) * minutes_worked)
+
+
+class SlugObjectField(field.Object):
+
+    def __init__(self, *args, **kwargs):
+        super(SlugObjectField, self).__init__(*args, **kwargs)
+        self.properties['slug'] = field.construct_field('string', index='not_analyzed')
+
+
+class ContentField(field.Object):
+
+    def __init__(self, *args, **kwargs):
+        super(ContentField, self).__init__(*args, **kwargs)
+        self.properties['slug'] = field.construct_field('string', not_analyzed=True)
+        self.properties['feature_type'] = SlugObjectField(not_analyzed=True)
+        self.properties['tags'] = field.construct_field({
+            'type': 'nested',
+            'properties': {
+                'slug': {'type': 'string', 'index': 'not_analyzed'}
+            }
+        })
+
+    def to_es(self, obj):
+        doc = {
+            'id': obj.id,
+            'title': obj.title,
+            'published': obj.published,
+            'feature_type': obj.feature_type.to_dict() if obj.feature_type else {}
+        }
+
+        return doc
+
+    def to_python(self, data):
+        content = Content.search_objects.search(id=data['id'])
+        if content:
+            return content[0]
+
+
+class ContributorField(field.Object):
+
+    def __init__(self, *args, **kwargs):
+        super(ContributorField, self).__init__(*args, **kwargs)
+        self.properties['username'] = field.String(index='not_analyzed')
+        self.properties['is_freelance'] = field.Boolean()
+
+    def to_es(self, obj):
+        data = {
+            'id': obj.id,
+            'username': obj.username,
+            'first_name': obj.first_name,
+            'last_name': obj.last_name
+        }
+        profile = getattr(obj, 'freelanceprofile', None)
+        if profile:
+            data['is_freelance'] = profile.is_freelance
+        return data
+
+    def to_python(self, data):
+        User = get_user_model()
+        user = User.objects.filter(id=data['id'])
+        if user.exists():
+            return user.first()
 
 
 class LineItem(models.Model):
@@ -59,7 +125,7 @@ class ContributorRole(models.Model):
         return None
 
 
-class Contribution(models.Model):
+class Contribution(Indexable):
     role = models.ForeignKey(ContributorRole)
     contributor = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="contributions")
     content = models.ForeignKey(Content, related_name="contributions")
@@ -67,6 +133,22 @@ class Contribution(models.Model):
     minutes_worked = models.IntegerField(null=True)
     force_payment = models.BooleanField(default=False)
     payment_date = models.DateTimeField(null=True, blank=True)
+
+    search_objects = IndexableManager()
+
+    class Mapping:
+
+        content = ContentField()
+        contributor = ContributorField()
+        pay = field.Long()
+
+        class Meta:
+            dynamic = False
+            excludes = ('content', 'contributor')
+
+    @property
+    def pay(self):
+        return self.get_pay
 
     @property
     def get_pay(self):

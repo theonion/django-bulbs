@@ -11,6 +11,7 @@ def update_contributions(sender, instance, action, model, pk_set, **kwargs):
     """Creates a contribution for each author added to an article.
     """
     # action = kwargs.get('action')
+    # import pdb; pdb.set_trace()
     if action != 'pre_add':
         return
     else:

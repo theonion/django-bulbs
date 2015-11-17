@@ -4,12 +4,16 @@ import datetime
 
 from django.utils import dateparse, timezone
 
-from bulbs.content.models import Content
-
 from rest_framework import viewsets, routers, mixins
 from rest_framework.settings import api_settings
 from rest_framework_csv.renderers import CSVRenderer
 
+from elasticsearch_dsl import filter as es_filter
+from elasticsearch_dsl import query as es_query
+
+
+from bulbs.content.filters import FeatureTypes, Published
+from bulbs.content.models import Content
 from .models import (ContributorRole, Contribution, FreelanceProfile, LineItem, OverrideProfile)
 from .renderers import ContributionReportingRenderer
 from .csv_serializers import ContributionCSVSerializer
@@ -121,6 +125,7 @@ class ReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
     ) + tuple(
         api_settings.DEFAULT_RENDERER_CLASSES
     )
+    paginate_by = 20
 
     def get_serializer_class(self):
         format = self.request.QUERY_PARAMS.get('format', None)
@@ -129,63 +134,49 @@ class ReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
         return ContributionReportingSerializer
 
     def get_queryset(self):
-        now = timezone.now()
+        qs = Contribution.search_objects.search()
 
+        now = timezone.now()
         start_date = datetime.datetime(
             year=now.year,
             month=now.month,
             day=1,
-            tzinfo=now.tzinfo)
+            tzinfo=now.tzinfo
+        )
+
         if "start" in self.request.GET:
             start_date = dateparse.parse_date(self.request.GET["start"])
+        qs = qs.filter(Published(after=start_date))
 
         end_date = now
         if "end" in self.request.GET:
             end_date = dateparse.parse_date(self.request.GET["end"])
+        qs = qs.filter(Published(before=end_date))
 
-        content = Content.objects.filter(published__range=(start_date, end_date))
-        if "feature_types" in self.request.QUERY_PARAMS:
-            feature_types = self.request.QUERY_PARAMS.getlist("feature_types")
-            content = content.filter(feature_type__slug__in=feature_types)
+        feature_types = self.request.QUERY_PARAMS.getlist('feature_types')
+        if feature_types:
+            qs = qs.filter(
+                es_filter.Terms(**{'content.feature_type.slug': feature_types})
+            )
 
-        if "tags" in self.request.QUERY_PARAMS:
-            tags = self.request.QUERY_PARAMS.getlist("tags")
-            content = content.filter(tags__slug__in=tags)
+        contributors = self.request.QUERY_PARAMS.getlist('contributors')
+        if contributors:
+            qs = qs.filter(
+                es_filter.Terms(**{'contributor.username': contributors})
+            )
 
-        content_ids = content.values_list("pk", flat=True)
-        contributions = Contribution.objects.filter(content__in=content_ids)
+        tags = self.request.QUERY_PARAMS.getlist('tags')
+        if tags:
+            pass
 
-        include, exclude = get_forced_payment_contributions(start_date, end_date, qs=contributions)
-        include_ids = include.values_list('pk', flat=True).distinct()
-        exclude_ids = exclude.values_list('pk', flat=True).distinct()
+        staff = self.request.QUERY_PARAMS.get('staff', None)
+        if staff:
+            is_freelance = True if staff == 'freelance' else False
+            qs = qs.filter(
+                es_filter.Term(**{'contributor.is_freelance': is_freelance})
+            )
 
-        contributions = contributions.exclude(
-            pk__in=exclude_ids
-        ) | Contribution.objects.filter(
-            pk__in=include_ids
-        )
-
-        if "contributors" in self.request.QUERY_PARAMS:
-            contributors = self.request.QUERY_PARAMS.getlist("contributors")
-            contributions = contributions.filter(contributor__username__in=contributors)
-
-        if "staff" in self.request.QUERY_PARAMS:
-            staff = self.request.QUERY_PARAMS.get("staff")
-            if staff == "freelance":
-                contributions = contributions.filter(
-                    contributor__freelanceprofile__is_freelance=True
-                )
-            elif staff == "staff":
-                contributions = contributions.filter(
-                    contributor__freelanceprofile__is_freelance=False
-                )
-
-        ordering = self.request.GET.get("ordering", "content")
-        order_options = {
-            "content": "content__published",
-            "user": "contributor__id"
-        }
-        return contributions.order_by(order_options[ordering])
+        return qs.sort('id')
 
 
 class FreelanceReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
