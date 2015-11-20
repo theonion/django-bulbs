@@ -1170,6 +1170,10 @@ class ReportingApiTestCase(BaseAPITestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.data['results']), 20)
 
+        # ordering by user
+        resp = self.client.get(endpoint, {'ordering': 'user'})
+        self.assertEqual(resp.status_code, 200)
+
         # Feature Type filters
         resp = self.client.get(endpoint, {'feature_types': self.ft1.slug})
         self.assertEqual(resp.status_code, 200)

@@ -52,6 +52,8 @@ class ContentReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
     serializer_class = ContentReportingSerializer
 
     def get_queryset(self):
+        qs = Content.search_objects.search()
+
         now = timezone.now()
         start_date = datetime.datetime(
             year=now.year,
@@ -65,6 +67,8 @@ class ContentReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
         end_date = now
         if "end" in self.request.GET and "published" not in self.request.QUERY_PARAMS:
             end_date = dateparse.parse_date(self.request.GET["end"])
+
+        qs = qs.filter(Published(after=start_date, before=end_date))
 
         include, exclude = get_forced_payment_contributions(start_date, end_date)
         include_ids = include.values_list("content__id", flat=True)
@@ -176,7 +180,8 @@ class ReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
                 es_filter.Term(**{'contributor.is_freelance': is_freelance})
             )
 
-        return qs.sort('id')
+        return qs
+        # return qs.sort('id')
 
 
 class FreelanceReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):

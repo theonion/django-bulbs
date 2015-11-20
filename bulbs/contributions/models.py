@@ -90,6 +90,15 @@ class ContributorField(field.Object):
             return user.first()
 
 
+class ReportContent(Content):
+
+    class Meta:
+        proxy = True
+
+    class Mapping:
+        pass
+
+
 class LineItem(models.Model):
     contributor = models.ForeignKey(settings.AUTH_USER_MODEL)
     amount = models.IntegerField(default=0)
