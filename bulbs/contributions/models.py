@@ -95,8 +95,9 @@ class ReportContent(Content):
     class Meta:
         proxy = True
 
-    class Mapping:
-        pass
+    class Mapping(Content.Mapping):
+        class Meta:
+            excludes = ('contributions',)
 
 
 class LineItem(models.Model):

@@ -3,6 +3,16 @@ from rest_framework_csv.renderers import CSVRenderer
 
 class HeaderCSVRenderer(CSVRenderer):
 
+    results_field = 'results'
+
+    def render(self, data, media_type=None, renderer_context=None):
+        if not isinstance(data, list):
+            data = data.get(self.results_field, [])
+        return super(HeaderCSVRenderer, self).render(
+            data, media_type=media_type, renderer_context=renderer_context
+        )
+
+
     def tablize(self, data):
         """
         rest_framework_csv doesn't let us easily set headers.

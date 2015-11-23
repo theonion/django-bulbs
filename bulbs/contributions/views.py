@@ -9,12 +9,13 @@ from rest_framework.settings import api_settings
 from rest_framework_csv.renderers import CSVRenderer
 
 from elasticsearch_dsl import filter as es_filter
-from elasticsearch_dsl import query as es_query
 
-
-from bulbs.content.filters import FeatureTypes, Published
+from bulbs.content.filters import FeatureTypes, Published, Tags
 from bulbs.content.models import Content
-from .models import (ContributorRole, Contribution, FreelanceProfile, LineItem, OverrideProfile)
+
+from .models import (
+    ContributorRole, Contribution, FreelanceProfile, LineItem, OverrideProfile, ReportContent
+)
 from .renderers import ContributionReportingRenderer
 from .csv_serializers import ContributionCSVSerializer
 from .serializers import (
@@ -53,7 +54,6 @@ class ContentReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 
     def get_queryset(self):
         qs = Content.search_objects.search()
-
         now = timezone.now()
         start_date = datetime.datetime(
             year=now.year,
@@ -70,56 +70,60 @@ class ContentReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 
         qs = qs.filter(Published(after=start_date, before=end_date))
 
-        include, exclude = get_forced_payment_contributions(start_date, end_date)
-        include_ids = include.values_list("content__id", flat=True)
-        exclude_ids = exclude.values_list("content__id", flat=True)
-        content = Content.objects.filter(
-            contributions__gt=0
-        ).filter(
-            published__range=(start_date, end_date)
-        ).exclude(
-            pk__in=exclude_ids
-        ).prefetch_related(
-            "authors", "contributions"
-        ).select_related(
-            "feature_type"
-        ).distinct() | Content.objects.filter(pk__in=include_ids).distinct()
+        # TODO: reintroduce forced submissions
+        # include, exclude = get_forced_payment_contributions(start_date, end_date)
+        # include_ids = include.values_list("content__id", flat=True)
+        # exclude_ids = exclude.values_list("content__id", flat=True)
+
+        qs = qs.filter(Published(after=start_date, before=end_date))
+
+        # content = Content.objects.filter(
+        #     contributions__gt=0
+        # ).filter(
+        #     published__range=(start_date, end_date)
+        # ).exclude(
+        #     pk__in=exclude_ids
+        # ).prefetch_related(
+        #     "authors", "contributions"
+        # ).select_related(
+        #     "feature_type"
+        # ).distinct() | Content.objects.filter(pk__in=include_ids).distinct()
 
         if "feature_types" in self.request.QUERY_PARAMS:
             feature_types = self.request.QUERY_PARAMS.getlist("feature_types")
-            content = content.filter(feature_type__slug__in=feature_types)
+            qs = qs.filter(FeatureTypes(feature_types))
 
         if "tags" in self.request.QUERY_PARAMS:
             tags = self.request.QUERY_PARAMS.getlist("tags")
-            content = content.filter(tags__slug__in=tags)
+            qs = qs.filter(Tags(tags))
 
-        if "staff" in self.request.QUERY_PARAMS:
-            staff = self.request.QUERY_PARAMS.get("staff")
-            if staff == "freelance":
-                contribution_content_ids = Contribution.objects.filter(
-                    contributor__freelanceprofile__is_freelance=True
-                ).values_list(
-                    "content__id", flat=True
-                ).distinct()
-            elif staff == "staff":
-                contribution_content_ids = Contribution.objects.filter(
-                    contributor__freelanceprofile__is_freelance=False
-                ).values_list(
-                    "content__id", flat=True
-                ).distinct()
-            if contribution_content_ids:
-                content = content.filter(pk__in=contribution_content_ids)
+        # if "staff" in self.request.QUERY_PARAMS:
+        #     staff = self.request.QUERY_PARAMS.get("staff")
+        #     if staff == "freelance":
+        #         contribution_content_ids = Contribution.objects.filter(
+        #             contributor__freelanceprofile__is_freelance=True
+        #         ).values_list(
+        #             "content__id", flat=True
+        #         ).distinct()
+        #     elif staff == "staff":
+        #         contribution_content_ids = Contribution.objects.filter(
+        #             contributor__freelanceprofile__is_freelance=False
+        #         ).values_list(
+        #             "content__id", flat=True
+        #         ).distinct()
+        #     if contribution_content_ids:
+        #         content = content.filter(pk__in=contribution_content_ids)
 
-        if "contributors" in self.request.QUERY_PARAMS:
-            contributors = self.request.QUERY_PARAMS.getlist("contributors")
-            contribution_content_ids = Contribution.objects.filter(
-                contributor__username__in=contributors
-            ).values_list(
-                "content__id", flat=True
-            ).distinct()
-            content = content.filter(pk__in=contribution_content_ids)
+        # if "contributors" in self.request.QUERY_PARAMS:
+        #     contributors = self.request.QUERY_PARAMS.getlist("contributors")
+        #     contribution_content_ids = Contribution.objects.filter(
+        #         contributor__username__in=contributors
+        #     ).values_list(
+        #         "content__id", flat=True
+        #     ).distinct()
+        #     content = content.filter(pk__in=contribution_content_ids)
 
-        return content
+        return qs
 
 
 class ReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
@@ -180,8 +184,8 @@ class ReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
                 es_filter.Term(**{'contributor.is_freelance': is_freelance})
             )
 
-        return qs
-        # return qs.sort('id')
+        # return qs
+        return qs.sort('id')
 
 
 class FreelanceReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):

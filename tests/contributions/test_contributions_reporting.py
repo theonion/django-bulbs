@@ -104,30 +104,34 @@ class ContributionReportingTestCase(BaseAPITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 4)
 
-        c1 = response.data[0]
+        c1 = response.data['results'][0]
         rate = c1.get("rate")
         self.assertEqual(rate, 60)
 
-        c4 = response.data[3]
+        c4 = response.data['results'][3]
         rate = c4.get("rate")
         self.assertEqual(rate, 70)
 
         # Now lets order by something else
-        response = client.get(endpoint,
-                              data={"start": start_date.strftime("%Y-%m-%d"), "ordering": "user"})
+        response = client.get(
+            endpoint,
+            data={"start": start_date.strftime("%Y-%m-%d"), "ordering": "user"}
+        )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 4)
+        self.assertEqual(len(response.data['results']), 4)
 
         # Now let's filter by date
         start_date = timezone.now() - datetime.timedelta(days=2)
         response = client.get(endpoint, data={"start": start_date.strftime("%Y-%m-%d")})
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(len(response.data['results']), 2)
 
         # Now let's check the CSV output
         start_date = timezone.now() - datetime.timedelta(days=4)
-        response = client.get(endpoint,
-                              data={"start": start_date.strftime("%Y-%m-%d"), "format": "csv"})
+        response = client.get(
+            endpoint,
+            data={"start": start_date.strftime("%Y-%m-%d"), "format": "csv"}
+        )
         self.assertEqual(response.status_code, 200)
         csvreader = csv.DictReader(StringIO.StringIO(response.content.decode("utf8")))
         self.assertEqual(len(csvreader.fieldnames), 7)
@@ -151,8 +155,9 @@ class ContributionReportingTestCase(BaseAPITestCase):
         # Let's look at all the items
         endpoint = reverse("contentreporting-list")
         start_date = timezone.now() - datetime.timedelta(days=4)
-
         content_one.authors.all().delete()
+
+        Content.search_objects.refresh()
 
         response = client.get(endpoint, data={"start": start_date.strftime("%Y-%m-%d")})
         self.assertEqual(response.status_code, 200)
