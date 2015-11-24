@@ -5,7 +5,7 @@ from django.db import models
 from elasticsearch_dsl import field
 from djes.models import Indexable, IndexableManager
 
-from bulbs.content.models import Content, FeatureType
+from bulbs.content.models import Content, ContentManager, FeatureType
 
 
 FLAT_RATE = 0
@@ -68,15 +68,14 @@ class ContributorField(field.Object):
 
     def __init__(self, *args, **kwargs):
         super(ContributorField, self).__init__(*args, **kwargs)
+        self.properties['id'] = field.Long()
         self.properties['username'] = field.String(index='not_analyzed')
         self.properties['is_freelance'] = field.Boolean()
 
     def to_es(self, obj):
         data = {
             'id': obj.id,
-            'username': obj.username,
-            'first_name': obj.first_name,
-            'last_name': obj.last_name
+            'username': obj.username
         }
         profile = getattr(obj, 'freelanceprofile', None)
         if profile:
@@ -90,14 +89,55 @@ class ContributorField(field.Object):
             return user.first()
 
 
+class ContributionField(field.Object):
+
+    def __init__(self, *args, **kwargs):
+        super(ContributionField, self).__init__(*args, **kwargs)
+        self.properties['id'] = field.Long()
+        self.properties['contributor'] = ContributorField()
+
+    def to_es(self, obj):
+        data = []
+        for instance in obj.all():
+            obj_data = {}
+            for prop in self.properties:
+                c_field = self.properties[prop]
+                ref = getattr(instance, prop)
+                if hasattr(c_field, 'to_es'):
+                    obj_data[prop] = c_field.to_es(ref)
+                elif hasattr(ref, 'to_dict'):
+                    obj_data[prop] = ref.to_dict()
+                else:
+                    obj_data[prop] = ref
+            data.append(obj_data)
+        return data
+
+    def to_python(self, data):
+        return data
+
+
+# class ReportContentManager(ContentManager):
+
+    # def from_es(self, hit):
+    #     pass
+
+
 class ReportContent(Content):
+
+    reference = models.Manager()
 
     class Meta:
         proxy = True
 
     class Mapping(Content.Mapping):
+
+        contributions = ContributionField()
+        tags = field.Nested()
+
         class Meta:
-            excludes = ('contributions',)
+            orphaned = True
+            includes = ('tags',)
+            # excludes = ('contributions',)
 
 
 class LineItem(models.Model):
@@ -215,8 +255,10 @@ class Contribution(Indexable):
             return override
         rate = self.get_rate()
         if isinstance(rate, HourlyRate):
-            minutes_worked = float(getattr(self, 'minutes_worked', 0))
-            return calculate_hourly_pay(rate.rate, minutes_worked)
+            minutes_worked = getattr(self, 'minutes_worked', 0)
+            if minutes_worked is None:
+                minutes_worked = 0
+            return calculate_hourly_pay(rate.rate, float(minutes_worked))
         if rate:
             return rate.rate
         return None

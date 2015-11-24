@@ -53,7 +53,7 @@ class ContentReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
     serializer_class = ContentReportingSerializer
 
     def get_queryset(self):
-        qs = Content.search_objects.search()
+        qs = ReportContent.search_objects.search()
         now = timezone.now()
         start_date = datetime.datetime(
             year=now.year,
@@ -114,8 +114,11 @@ class ContentReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
         #     if contribution_content_ids:
         #         content = content.filter(pk__in=contribution_content_ids)
 
-        # if "contributors" in self.request.QUERY_PARAMS:
-        #     contributors = self.request.QUERY_PARAMS.getlist("contributors")
+        if "contributors" in self.request.QUERY_PARAMS:
+            contributors = self.request.QUERY_PARAMS.getlist("contributors")
+            qs = qs.filter(
+                es_filter.Terms(**{'contributions.contributor.username': contributors})
+            )
         #     contribution_content_ids = Contribution.objects.filter(
         #         contributor__username__in=contributors
         #     ).values_list(
