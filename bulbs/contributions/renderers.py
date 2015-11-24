@@ -12,7 +12,6 @@ class HeaderCSVRenderer(CSVRenderer):
             data, media_type=media_type, renderer_context=renderer_context
         )
 
-
     def tablize(self, data):
         """
         rest_framework_csv doesn't let us easily set headers.

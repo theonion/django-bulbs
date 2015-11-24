@@ -16,7 +16,7 @@ from bulbs.content.models import Content
 from .models import (
     ContributorRole, Contribution, FreelanceProfile, LineItem, OverrideProfile, ReportContent
 )
-from .renderers import ContributionReportingRenderer
+from .renderers import ContributionReportingRenderer, HeaderCSVRenderer
 from .csv_serializers import ContributionCSVSerializer
 from .serializers import (
     ContributorRoleSerializer, ContributionReportingSerializer, ContentReportingSerializer,
@@ -51,6 +51,7 @@ class ContentReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 
     renderer_classes = (CSVRenderer, ) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
     serializer_class = ContentReportingSerializer
+    paginate_by = 20
 
     def get_queryset(self):
         qs = ReportContent.search_objects.search()
@@ -74,8 +75,6 @@ class ContentReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
         # include, exclude = get_forced_payment_contributions(start_date, end_date)
         # include_ids = include.values_list("content__id", flat=True)
         # exclude_ids = exclude.values_list("content__id", flat=True)
-
-        qs = qs.filter(Published(after=start_date, before=end_date))
 
         # content = Content.objects.filter(
         #     contributions__gt=0

@@ -1099,35 +1099,35 @@ class ReportingApiTestCase(BaseAPITestCase):
         endpoint = reverse('contentreporting-list')
         resp = self.client.get(endpoint)
         self.assertEqual(resp.status_code, 200)
-        self.assertNotIn(content.id, [cc['id'] for cc in resp.data])
+        self.assertNotIn(content.id, [cc['id'] for cc in resp.data['results']])
 
     def test_content_filters(self):
         ReportContent.search_objects.refresh()
         endpoint = reverse('contentreporting-list')
         resp = self.client.get(endpoint)
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(len(resp.data), 5)
+        self.assertEqual(len(resp.data['results']), 5)
 
         # Feature Type filters
         resp = self.client.get(endpoint, {'feature_types': self.ft1.slug})
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(len(resp.data), 2)
+        self.assertEqual(len(resp.data['results']), 2)
 
         resp = self.client.get(endpoint, {'feature_types': [self.ft1.slug, self.ft2.slug]})
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(len(resp.data), 4)
+        self.assertEqual(len(resp.data['results']), 4)
 
         resp = self.client.get(endpoint, {'tags': [self.t1.slug]})
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(len(resp.data), 3)
+        self.assertEqual(len(resp.data['results']), 3)
 
         resp = self.client.get(endpoint, {'tags': [self.t2.slug]})
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(len(resp.data), 3)
+        self.assertEqual(len(resp.data['results']), 3)
 
         resp = self.client.get(endpoint, {'tags': [self.t1.slug, self.t2.slug]})
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(len(resp.data), 5)
+        self.assertEqual(len(resp.data['results']), 5)
 
         new_content = Content.objects.create(
             title='new content',
@@ -1144,19 +1144,19 @@ class ReportingApiTestCase(BaseAPITestCase):
         # contributors filters
         resp = self.client.get(endpoint, {'contributors': [self.a1.username]})
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(len(resp.data), 5)
+        self.assertEqual(len(resp.data['results']), 5)
 
         resp = self.client.get(endpoint, {'contributors': [self.a2.username]})
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(len(resp.data), 5)
+        self.assertEqual(len(resp.data['results']), 5)
 
         resp = self.client.get(endpoint, {'contributors': [self.a1.username, self.a2.username]})
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(len(resp.data), 5)
+        self.assertEqual(len(resp.data['results']), 5)
 
         resp = self.client.get(endpoint, {'contributors': [self.a5.username]})
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(len(resp.data), 1)
+        self.assertEqual(len(resp.data['results']), 1)
 
         # resp = self.client.get(endpoint, {'staff': 'freelance'})
         # self.assertEqual(resp.status_code, 200)
