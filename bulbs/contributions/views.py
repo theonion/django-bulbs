@@ -11,12 +11,11 @@ from rest_framework_csv.renderers import CSVRenderer
 from elasticsearch_dsl import filter as es_filter
 
 from bulbs.content.filters import FeatureTypes, Published, Tags
-from bulbs.content.models import Content
 
 from .models import (
     ContributorRole, Contribution, FreelanceProfile, LineItem, OverrideProfile, ReportContent
 )
-from .renderers import ContributionReportingRenderer, HeaderCSVRenderer
+from .renderers import ContributionReportingRenderer
 from .csv_serializers import ContributionCSVSerializer
 from .serializers import (
     ContributorRoleSerializer, ContributionReportingSerializer, ContentReportingSerializer,
@@ -194,6 +193,7 @@ class FreelanceReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 
     renderer_classes = (CSVRenderer, ) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
     serializer_class = FreelanceProfileSerializer
+    paginate_by = 20
 
     def get_queryset(self):
         now = timezone.now()

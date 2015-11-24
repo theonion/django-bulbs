@@ -1252,41 +1252,41 @@ class ReportingApiTestCase(BaseAPITestCase):
 
         resp = self.client.get(endpoint)
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(len(resp.data), 5)
+        self.assertEqual(len(resp.data['results']), 5)
 
         # Feature Type filters
         resp = self.client.get(endpoint, {'feature_types': new_feature_type.slug})
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(len(resp.data), 1)
+        self.assertEqual(len(resp.data['results']), 1)
 
         resp = self.client.get(endpoint, {'feature_types': [new_feature_type.slug, self.ft2.slug]})
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(len(resp.data), 5)
+        self.assertEqual(len(resp.data['results']), 5)
 
         # Contributors filters
         resp = self.client.get(endpoint, {'contributors': [self.a1.username]})
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(len(resp.data), 1)
+        self.assertEqual(len(resp.data['results']), 1)
 
         resp = self.client.get(endpoint, {'contributors': [self.a2.username]})
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(len(resp.data), 1)
+        self.assertEqual(len(resp.data['results']), 1)
 
         resp = self.client.get(endpoint, {'contributors': [self.a1.username, self.a2.username]})
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(len(resp.data), 2)
+        self.assertEqual(len(resp.data['results']), 2)
 
         resp = self.client.get(endpoint, {'tags': [new_tag.slug]})
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(len(resp.data), 1)
+        self.assertEqual(len(resp.data['results']), 1)
 
         resp = self.client.get(endpoint, {'tags': [self.t2.slug]})
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(len(resp.data), 4)
+        self.assertEqual(len(resp.data['results']), 4)
 
         resp = self.client.get(endpoint, {'tags': [new_tag.slug, self.t2.slug]})
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(len(resp.data), 5)
+        self.assertEqual(len(resp.data['results']), 5)
 
         new_content = Content.objects.create(
             title='new content',
@@ -1300,8 +1300,8 @@ class ReportingApiTestCase(BaseAPITestCase):
 
         resp = self.client.get(endpoint, {'staff': 'freelance'})
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(len(resp.data), 4)
+        self.assertEqual(len(resp.data['results']), 4)
 
         resp = self.client.get(endpoint, {'staff': 'staff'})
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(len(resp.data), 1)
+        self.assertEqual(len(resp.data['results']), 1)
