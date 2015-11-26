@@ -59,9 +59,7 @@ class ContentField(field.Object):
         return doc
 
     def to_python(self, data):
-        content = Content.search_objects.search(id=data['id'])
-        if content:
-            return content[0]
+        return Content.objects.get(id=data['id'])
 
 
 class ContributorField(field.Object):
@@ -326,7 +324,7 @@ class FeatureTypeRate(Rate):
         unique_together = (("role", "feature_type"))
 
 
-class FreelanceProfile(models.Model):
+class FreelanceProfile(Indexable):
     contributor = models.OneToOneField(settings.AUTH_USER_MODEL, unique=True)
     is_freelance = models.BooleanField(default=True)
     is_manager = models.BooleanField(default=False)

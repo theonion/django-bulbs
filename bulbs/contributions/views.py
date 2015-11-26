@@ -197,7 +197,6 @@ class FreelanceReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 
     def get_queryset(self):
         now = timezone.now()
-
         start_date = datetime.datetime(
             year=now.year,
             month=now.month,
@@ -213,15 +212,12 @@ class FreelanceReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
             end_date = dateparse.parse_date(self.request.GET["end"])
 
         contribution_qs = Contribution.objects.all()
-
         if "feature_types" in self.request.QUERY_PARAMS:
             feature_types = self.request.QUERY_PARAMS.getlist("feature_types")
-            # content = content.filter(feature_type__slug__in=feature_types)
             contribution_qs = contribution_qs.filter(content__feature_type__slug__in=feature_types)
 
         if "tags" in self.request.QUERY_PARAMS:
             tags = self.request.QUERY_PARAMS.getlist("tags")
-            # content = content.filter(tags__slug__in=tags)
             contribution_qs = contribution_qs.filter(content__tags__slug__in=tags)
 
         include, exclude = get_forced_payment_contributions(
