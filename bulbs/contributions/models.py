@@ -114,12 +114,6 @@ class ContributionField(field.Object):
         return data
 
 
-# class ReportContentManager(ContentManager):
-
-    # def from_es(self, hit):
-    #     pass
-
-
 class ReportContent(Content):
 
     reference = models.Manager()
@@ -145,7 +139,7 @@ class LineItem(models.Model):
     payment_date = models.DateTimeField(null=True, blank=True)
 
 
-class ContributorRole(models.Model):
+class ContributorRole(Indexable):
     name = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
     payment_type = models.IntegerField(choices=ROLE_PAYMENT_TYPES, default=MANUAL)
@@ -262,7 +256,7 @@ class Contribution(Indexable):
         return None
 
 
-class OverrideProfile(models.Model):
+class OverrideProfile(Indexable):
     contributor = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='overrides')
     role = models.ForeignKey(ContributorRole, related_name='overrides')
 
