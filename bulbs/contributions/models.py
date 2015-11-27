@@ -95,19 +95,31 @@ class ContributionField(field.Object):
         self.properties['contributor'] = ContributorField()
 
     def to_es(self, obj):
-        data = []
-        for instance in obj.all():
-            obj_data = {}
+        if issubclass(obj.__class__, models.Manager):
+            data = []
+            for instance in obj.all():
+                obj_data = {}
+                for prop in self.properties:
+                    c_field = self.properties[prop]
+                    ref = getattr(instance, prop)
+                    if hasattr(c_field, 'to_es'):
+                        obj_data[prop] = c_field.to_es(ref)
+                    elif hasattr(ref, 'to_dict'):
+                        obj_data[prop] = ref.to_dict()
+                    else:
+                        obj_data[prop] = ref
+                data.append(obj_data)
+        else:
+            data = {}
             for prop in self.properties:
                 c_field = self.properties[prop]
-                ref = getattr(instance, prop)
+                ref = getattr(obj, prop)
                 if hasattr(c_field, 'to_es'):
-                    obj_data[prop] = c_field.to_es(ref)
+                    data[prop] = c_field.to_es(ref)
                 elif hasattr(ref, 'to_dict'):
-                    obj_data[prop] = ref.to_dict()
+                    data[prop] = ref.to_dict()
                 else:
-                    obj_data[prop] = ref
-            data.append(obj_data)
+                    data[prop] = ref
         return data
 
     def to_python(self, data):
@@ -264,7 +276,7 @@ class OverrideProfile(Indexable):
         unique_together = (('contributor', 'role'),)
 
 
-class BaseOverride(models.Model):
+class BaseOverride(Indexable):
     rate = models.IntegerField(default=0)
     updated_on = models.DateTimeField(auto_now_add=True)
 
@@ -287,6 +299,9 @@ class HourlyOverride(BaseOverride):
 
 class ContributionOverride(BaseOverride):
     contribution = models.ForeignKey(Contribution, related_name='override_contribution')
+
+    class Mapping:
+        contribution = ContributionField()
 
 
 class Rate(models.Model):
