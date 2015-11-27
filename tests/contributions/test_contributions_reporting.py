@@ -108,7 +108,7 @@ class ContributionReportingTestCase(BaseAPITestCase):
         rate = c1.get("rate")
         self.assertEqual(rate, 60)
 
-        c4 = response.data['results'][3]
+        c4 = response.data['results'][1]
         rate = c4.get("rate")
         self.assertEqual(rate, 70)
 
@@ -140,7 +140,10 @@ class ContributionReportingTestCase(BaseAPITestCase):
         self.assertEqual(csvreader.line_num, 5)  # Header + 4 items
 
     def test_content_reporting(self):
-        content_one = make_content(published=timezone.now() - datetime.timedelta(days=1))
+        content_one = Content.objects.create(
+            title='whynot',
+            published=timezone.now() - datetime.timedelta(days=1)
+        )
         user_cls = get_user_model()
         admin = user_cls.objects.first()
         Contribution.objects.create(
