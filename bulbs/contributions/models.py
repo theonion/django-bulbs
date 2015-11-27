@@ -304,7 +304,7 @@ class ContributionOverride(BaseOverride):
         contribution = ContributionField()
 
 
-class Rate(models.Model):
+class Rate(Indexable):
     name = models.IntegerField(choices=RATE_PAYMENT_TYPES, null=True)
     updated_on = models.DateTimeField(auto_now=True)
     rate = models.IntegerField()
@@ -323,6 +323,9 @@ class HourlyRate(Rate):
 
 class ManualRate(Rate):
     contribution = models.ForeignKey(Contribution, related_name="manual_rates")
+
+    class Mapping:
+        contribution = ContributionField()
 
 
 class FeatureTypeRate(Rate):
