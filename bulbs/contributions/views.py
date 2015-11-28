@@ -33,7 +33,7 @@ class ContributorRoleViewSet(viewsets.ModelViewSet):
     serializer_class = ContributorRoleSerializer
 
     def get_queryset(self):
-        qs = ContributorRole.objects.all()
+        qs = ContributorRole.search_objects.all()
         if self.request.QUERY_PARAMS.get('override', None) == 'true':
             qs = qs.exclude(payment_type=3)
         return qs
@@ -42,7 +42,7 @@ class ContributorRoleViewSet(viewsets.ModelViewSet):
 class OverrideProfileViewSet(viewsets.ModelViewSet):
 
     model = OverrideProfile
-    queryset = OverrideProfile.objects.all()
+    queryset = OverrideProfile.search_objects.all()
     serializer_class = OverrideProfileSerializer
 
 

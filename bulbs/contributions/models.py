@@ -212,6 +212,10 @@ class Contribution(Indexable):
     def get_override(self):
         return self._get_override()
 
+    def delete(self):
+        self.delete_index()
+        return super(Contribution, self).delete()
+
     def get_rate(self):
         payment_type = self.role.payment_type
         if payment_type == MANUAL:

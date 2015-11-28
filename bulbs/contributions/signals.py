@@ -3,7 +3,7 @@ from django.db.models.signals import m2m_changed, post_save
 
 from bulbs.content.models import Content
 
-from .models import ReportContent, Contribution
+from .models import ReportContent, Contribution, ContributorRole
 from .utils import update_content_contributions
 
 
@@ -44,3 +44,14 @@ def index_relations(sender, instance, **kwargs):
         proxy.index()
     except:
         pass
+
+
+@receiver(post_save, sender=ContributorRole)
+def update_rates(sender, instance, **kwargs):
+    for contribution in instance.contribution_set.all():
+        contribution.save()
+
+
+# @receiver(post_save, sender=ContributionOverride)
+# def update_contribution_from_override(sender, instance, **kwargs):
+

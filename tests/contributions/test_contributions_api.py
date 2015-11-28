@@ -565,6 +565,7 @@ class ContributionApiTestCase(BaseAPITestCase):
             contributor=self.admin,
             role=self.roles["editor"]
         )
+        Contribution.search_objects.refresh()
 
         response = client.get(endpoint)
         self.assertEqual(response.status_code, 200)
@@ -642,6 +643,7 @@ class ContributionApiTestCase(BaseAPITestCase):
             contributor=self.admin,
             role=editor
         )
+        Contribution.search_objects.refresh()
 
         response = client.get(endpoint)
         self.assertEqual(response.status_code, 200)
@@ -670,6 +672,7 @@ class ContributionApiTestCase(BaseAPITestCase):
         # change to Flat Rate
         editor.payment_type = PAYMENT_TYPES['Flat Rate']
         editor.save()
+        Contribution.search_objects.refresh()
         response = client.get(endpoint)
         rate = response.data[0].get('rate')
         updated = rate.pop('updated_on')
@@ -688,6 +691,7 @@ class ContributionApiTestCase(BaseAPITestCase):
 
         editor.payment_type = PAYMENT_TYPES['FeatureType']
         editor.save()
+        Contribution.search_objects.refresh()
         response = client.get(endpoint)
         rate = response.data[0].get('rate')
         updated = rate.pop('updated_on')
@@ -698,6 +702,7 @@ class ContributionApiTestCase(BaseAPITestCase):
         # change to Hourly
         editor.payment_type = PAYMENT_TYPES['Hourly']
         editor.save()
+        Contribution.search_objects.refresh()
         hourly = HourlyRate.objects.create(
             name=PAYMENT_TYPES['Hourly'], rate=66, role=editor)
         response = client.get(endpoint)
@@ -783,12 +788,14 @@ class ContributionApiTestCase(BaseAPITestCase):
         }]
 
         response = client.post(
-            endpoint, json.dumps(contribution_data), content_type="application/json")
+            endpoint, json.dumps(contribution_data), content_type="application/json"
+        )
         override_rate = response.data[0].get("override_rate")
         self.assertEqual(override_rate, 70)
+        Contribution.search_objects.refresh()
 
         response = client.get(endpoint)
-        override_rate = response.data[0].get("override_rate")
+        override_rate = response.data[5].get("override_rate")
         self.assertEqual(override_rate, 70)
 
         # Update the rate
@@ -838,7 +845,7 @@ class ContributionApiTestCase(BaseAPITestCase):
         client.login(username="admin", password="secret")
         feature_type = FeatureType.objects.create(name="Cams Favorite Stuff")
         feature_type_2 = FeatureType.objects.create(name="Bad Stuff")
-        content = make_content(authors=[],  feature_type=feature_type)
+        content = make_content(authors=[], feature_type=feature_type)
         content_endpoint = reverse("content-contributions", kwargs={"pk": content.pk})
 
         # FlatRate contribution
@@ -849,6 +856,8 @@ class ContributionApiTestCase(BaseAPITestCase):
             role=role,
             contributor=self.admin
         )
+        Contribution.search_objects.refresh()
+
         resp = client.get(content_endpoint)
         self.assertEqual(resp.status_code, 200)
         role_data = resp.data[0].get('role')
@@ -874,11 +883,14 @@ class ContributionApiTestCase(BaseAPITestCase):
             role=role,
             contributor=self.admin
         )
+        Contribution.search_objects.refresh()
+
         resp = client.get(content_endpoint)
         self.assertEqual(resp.status_code, 200)
         role_data = resp.data[0].get('role')
         self.assertEqual(role_data['rate'], 666)
         contribution.delete()
+        Contribution.search_objects.refresh()
 
         # Hourly contribution
         role = ContributorRole.objects.create(name="HourlyPerson", payment_type=2)
@@ -888,6 +900,8 @@ class ContributionApiTestCase(BaseAPITestCase):
             role=role,
             contributor=self.admin
         )
+        Contribution.search_objects.refresh()
+
         resp = client.get(content_endpoint)
         self.assertEqual(resp.status_code, 200)
         role_data = resp.data[0].get('role')
@@ -902,6 +916,8 @@ class ContributionApiTestCase(BaseAPITestCase):
             contributor=self.admin
         )
         ManualRate.objects.create(contribution=contribution, rate=1000)
+        Contribution.search_objects.refresh()
+
         resp = client.get(content_endpoint)
         self.assertEqual(resp.status_code, 200)
         role_data = resp.data[0].get('role')

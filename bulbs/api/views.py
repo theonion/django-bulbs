@@ -10,7 +10,7 @@ from djes.apps import indexable_registry
 
 import elasticsearch
 from elasticsearch_dsl.query import Q
-from elasticsearch_dsl.filter import F
+from elasticsearch_dsl import filter as es_filter
 
 from rest_framework import (
     filters,
@@ -215,7 +215,10 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         # Check if the contribution app is installed
         if Contribution not in get_models():
             return Response([])
-        queryset = Contribution.objects.filter(content=self.get_object())
+        content = self.get_object()
+        queryset = Contribution.search_objects.search().filter(
+            es_filter.Term(**{'content.id': content.id})
+        )
         if request.method == "POST":
             serializer = ContributionSerializer(
                 queryset,
@@ -226,7 +229,7 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data)
         else:
-            serializer = ContributionSerializer(queryset, many=True)
+            serializer = ContributionSerializer(queryset.sort('id'), many=True)
             return Response(serializer.data)
 
     @detail_route(methods=["post"], permission_classes=[CanEditContent])
