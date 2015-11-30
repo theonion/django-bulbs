@@ -473,11 +473,15 @@ class ContributionReportingSerializer(serializers.ModelSerializer):
         ])
 
     def get_user(self, obj):
-        return {
+        data = {
             "id": obj.contributor.id,
             "username": obj.contributor.username,
             "full_name": obj.contributor.get_full_name(),
         }
+        profile = getattr(obj.contributor, "freelanceprofile", None)
+        if profile:
+            data["payroll_name"] = getattr(profile, "payroll_name", "")
+        return data
 
     def get_role(self, obj):
         return obj.role.name

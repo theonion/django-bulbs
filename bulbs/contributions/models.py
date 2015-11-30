@@ -68,6 +68,7 @@ class ContributorField(field.Object):
         super(ContributorField, self).__init__(*args, **kwargs)
         self.properties['id'] = field.Long()
         self.properties['username'] = field.String(index='not_analyzed')
+        self.properties['payroll_name'] = field.String(index='not_analyzed')
         self.properties['is_freelance'] = field.Boolean()
 
     def to_es(self, obj):
@@ -78,6 +79,7 @@ class ContributorField(field.Object):
         profile = getattr(obj, 'freelanceprofile', None)
         if profile:
             data['is_freelance'] = profile.is_freelance
+            data['payroll_name'] = getattr(profile, 'payroll_name', '')
         return data
 
     def to_python(self, data):
@@ -341,6 +343,7 @@ class FeatureTypeRate(Rate):
 
 
 class FreelanceProfile(Indexable):
+    payroll_name = models.CharField(max_length=256, blank=True, null=True)
     contributor = models.OneToOneField(settings.AUTH_USER_MODEL, unique=True)
     is_freelance = models.BooleanField(default=True)
     is_manager = models.BooleanField(default=False)
