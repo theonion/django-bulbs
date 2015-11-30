@@ -1,5 +1,5 @@
-import datetime
 import csv
+import datetime
 
 try:
     import StringIO
@@ -9,6 +9,7 @@ except ImportError:
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.test.client import Client
+from django.test.utils import override_settings
 from django.utils import timezone
 from django.contrib.auth.models import User
 
@@ -23,6 +24,27 @@ from bulbs.contributions.models import (
     OverrideProfile
 )
 from bulbs.contributions.utils import get_forced_payment_contributions
+
+
+PAGINATED_REST_FRAMEWORK = {
+    "PAGINATE_BY": 20,
+
+    "MAX_PAGINATE_BY": 10000,
+
+    "DEFAULT_RENDERER_CLASSES": (
+        "rest_framework.renderers.JSONRenderer",
+    ),
+
+    "DEFAULT_PARSER_CLASSES": (
+        "rest_framework.parsers.JSONParser",
+    ),
+
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework.authentication.TokenAuthentication",
+    ),
+
+    "DEFAULT_METADATA_CLASS": "rest_framework.metadata.SimpleMetadata",
+}
 
 
 class ContributionReportingTestCase(BaseAPITestCase):
@@ -139,6 +161,7 @@ class ContributionReportingTestCase(BaseAPITestCase):
             pass
         self.assertEqual(csvreader.line_num, 5)  # Header + 4 items
 
+    @override_settings(REST_FRAMEWORK=PAGINATED_REST_FRAMEWORK)
     def test_content_reporting(self):
         content_one = Content.objects.create(
             title='whynot',
@@ -165,6 +188,7 @@ class ContributionReportingTestCase(BaseAPITestCase):
         response = client.get(endpoint, data={"start": start_date.strftime("%Y-%m-%d")})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data['results']), 1)
+        self.assertIn('video_id', response.data['results'][0].keys())
 
         Contribution.objects.create(
             content=content_one,

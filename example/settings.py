@@ -89,14 +89,14 @@ ES_INDEX_SETTINGS = {
             "analysis": {
                 "filter": {
                     "autocomplete_filter": {
-                        "type":     "edge_ngram",
+                        "type": "edge_ngram",
                         "min_gram": 1,
                         "max_gram": 20
                     }
                 },
                 "analyzer": {
                     "autocomplete": {
-                        "type":      "custom",
+                        "type": "custom",
                         "tokenizer": "standard",
                         "filter": [
                             "lowercase",

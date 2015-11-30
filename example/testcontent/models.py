@@ -39,7 +39,9 @@ class TestContentDetailImage(TestContentObj):
     detail_caption = models.CharField(null=True, blank=True, max_length=255, editable=False)
     detail_alt = models.CharField(null=True, blank=True, max_length=255, editable=False)
 
-    detail_image = ImageField(null=True, blank=True, caption_field="detail_caption", alt_field="detail_alt")
+    detail_image = ImageField(
+        null=True, blank=True, caption_field="detail_caption", alt_field="detail_alt"
+    )
 
     class Mapping(Content.Mapping):
 

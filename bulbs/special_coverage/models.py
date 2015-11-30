@@ -8,12 +8,14 @@ from json_field import JSONField
 from bulbs.campaigns.models import Campaign
 from bulbs.content.custom_search import custom_search_model
 from bulbs.content.models import Content
+from bulbs.content.mixins import DetailImageMixin
+from bulbs.utils.methods import is_valid_digit
 
 
 es = Elasticsearch(settings.ES_URLS)
 
 
-class SpecialCoverage(models.Model):
+class SpecialCoverage(DetailImageMixin, models.Model):
     name = models.CharField(max_length=255, unique=True)
     slug = models.SlugField(max_length=255, blank=True, editable=True, unique=True)
     description = models.TextField(default="", blank=True)
@@ -35,6 +37,8 @@ class SpecialCoverage(models.Model):
             for key, value in self.query.items():
                 if isinstance(value, list) and None in value:
                     self.query[key] = [v for v in value if v is not None]
+        if self.videos:
+            self.videos = [int(v) for v in self.videos if v is not None and is_valid_digit(v)]
 
     def save(self, *args, **kwargs):
         """Saving ensures that the slug, if not set, is set to the slugified name."""
