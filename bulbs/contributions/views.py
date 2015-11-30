@@ -6,6 +6,7 @@ from django.utils import dateparse, timezone
 
 from rest_framework import viewsets, routers, mixins
 from rest_framework.settings import api_settings
+from rest_framework.response import Response
 from rest_framework_csv.renderers import CSVRenderer
 
 from elasticsearch_dsl import filter as es_filter
@@ -136,6 +137,18 @@ class ReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
     )
     paginate_by = 20
 
+    def list(self, request):
+        format = self.request.QUERY_PARAMS.get('format', None)
+        if format == 'csv':
+            queryset = self.get_queryset()
+            queryset = queryset[:queryset.count()]
+            data = {
+                'results': queryset
+            }
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data)
+        return super(ReportingViewSet, self).list(request)
+
     def get_serializer_class(self):
         format = self.request.QUERY_PARAMS.get('format', None)
         if format == 'csv':
@@ -184,8 +197,6 @@ class ReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
             qs = qs.filter(
                 es_filter.Term(**{'contributor.is_freelance': is_freelance})
             )
-
-        # return qs
         return qs.sort('id')
 
 
