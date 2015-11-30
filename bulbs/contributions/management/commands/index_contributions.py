@@ -14,4 +14,7 @@ class Command(BaseCommand):
         for model in apps.get_models(app):
             if issubclass(model, Indexable):
                 for instance in model.objects.all():
-                    instance.index()
+                    try:
+                        instance.index()
+                    except:
+                        import pdb; pdb.set_trace()
