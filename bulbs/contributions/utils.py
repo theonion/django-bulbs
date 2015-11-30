@@ -43,7 +43,8 @@ def import_payroll_names(lookup_string):
             first_name, last_name = ordered_name[0], ordered_name[1]
             qs = User.objects.filter(first_name=first_name, last_name=last_name)
             if qs.count() != 1:
-                print 'Cannot find user: {}'.format(full_name)
+                # print 'Cannot find user: {}'.format(full_name)
+                return
             else:
                 user = qs.first()
                 profile = getattr(user, 'freelanceprofile', None)

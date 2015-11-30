@@ -27,13 +27,22 @@ class TestContentListingAPI(BaseAPITestCase):
     def setUp(self):
         super(TestContentListingAPI, self).setUp()
         for i in range(47):
-            make_content(published=timezone.now() - timedelta(hours=1))
+            Content.objects.create(
+                title='aa {}'.format(i),
+                published=timezone.now() - timedelta(hours=1)
+            )
 
         for i in range(32):
-            make_content(published=timezone.now() + timedelta(hours=1))
+            Content.objects.create(
+                title='ab {}'.format(i),
+                published=timezone.now() - timedelta(hours=1)
+            )
 
         for i in range(13):
-            make_content(published=None)
+            Content.objects.create(
+                title='aa {}'.format(i),
+                published=None
+            )
 
         Content.search_objects.refresh()
 
