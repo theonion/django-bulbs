@@ -51,11 +51,7 @@ class ContentReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 
     renderer_classes = (CSVRenderer, ) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
     serializer_class = ContentReportingSerializer
-<<<<<<< HEAD
     paginate_by = 20
-=======
-    paginator = None
->>>>>>> 8d1fe57ef5c72bcf0a264eae4c687624794e1a4f
 
     def get_queryset(self):
         qs = ReportContent.search_objects.search()
@@ -209,11 +205,7 @@ class FreelanceReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 
     renderer_classes = (CSVRenderer, ) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
     serializer_class = FreelanceProfileSerializer
-<<<<<<< HEAD
     paginate_by = 20
-=======
-    paginator = None
->>>>>>> 8d1fe57ef5c72bcf0a264eae4c687624794e1a4f
 
     def get_queryset(self):
         now = timezone.now()
