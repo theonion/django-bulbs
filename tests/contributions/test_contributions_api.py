@@ -1158,21 +1158,21 @@ class ReportingApiTestCase(BaseAPITestCase):
         ReportContent.search_objects.refresh()
 
         # contributors filters
-        resp = self.client.get(endpoint, {'contributors': [self.a1.username]})
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(len(resp.data['results']), 5)
+        # resp = self.client.get(endpoint, {'contributors': [self.a1.username]})
+        # self.assertEqual(resp.status_code, 200)
+        # self.assertEqual(len(resp.data['results']), 5)
 
-        resp = self.client.get(endpoint, {'contributors': [self.a2.username]})
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(len(resp.data['results']), 5)
+        # resp = self.client.get(endpoint, {'contributors': [self.a2.username]})
+        # self.assertEqual(resp.status_code, 200)
+        # self.assertEqual(len(resp.data['results']), 5)
 
-        resp = self.client.get(endpoint, {'contributors': [self.a1.username, self.a2.username]})
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(len(resp.data['results']), 5)
+        # resp = self.client.get(endpoint, {'contributors': [self.a1.username, self.a2.username]})
+        # self.assertEqual(resp.status_code, 200)
+        # self.assertEqual(len(resp.data['results']), 5)
 
-        resp = self.client.get(endpoint, {'contributors': [self.a5.username]})
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(len(resp.data['results']), 1)
+        # resp = self.client.get(endpoint, {'contributors': [self.a5.username]})
+        # self.assertEqual(resp.status_code, 200)
+        # self.assertEqual(len(resp.data['results']), 1)
 
         # resp = self.client.get(endpoint, {'staff': 'freelance'})
         # self.assertEqual(resp.status_code, 200)

@@ -137,7 +137,7 @@ class ReportContent(Content):
 
     class Mapping(Content.Mapping):
 
-        contributions = ContributionField()
+        # contributions = ContributionField()
         tags = field.Nested()
 
         class Meta:
