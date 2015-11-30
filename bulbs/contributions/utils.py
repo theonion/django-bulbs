@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
 
-from .models import Contribution, ContributorRole, FEATURETYPE
+from .models import Contribution, ContributorRole, FreelanceProfile, FEATURETYPE
 
 
 def get_forced_payment_contributions(start_date, end_date, qs=None):
@@ -48,7 +48,10 @@ def import_payroll_names(lookup_string):
                 user = qs.first()
                 profile = getattr(user, 'freelanceprofile', None)
                 if not profile:
-                    print 'User has no profile: {}'.format(full_name)
+                    profile = FreelanceProfile.objects.create(
+                        contributor=user,
+                        is_freelance=True
+                    )
                 else:
                     profile.payroll_name = payroll_name.strip()
                     profile.save()
