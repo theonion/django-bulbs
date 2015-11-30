@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.auth import get_user_model
 
 from .models import Contribution, ContributorRole, FEATURETYPE
 
@@ -27,3 +28,27 @@ def update_content_contributions(content, author):
             role.payment_type = FEATURETYPE
             role.save()
         Contribution.objects.create(content=content, contributor=author, role=role)
+
+
+def import_payroll_names(lookup_string):
+    User = get_user_model()
+    lookup_string = lookup_string.decode('unicode_escape').encode('ascii', 'ignore')
+    rows = lookup_string.split('\n')
+    rows = [row.rstrip('\n').rstrip('\r') for row in rows]
+    rows = [row.split('\t') for row in rows]
+    for row in rows:
+        full_name, payroll_name = row[0], row[1]
+        ordered_name = full_name.strip().split(' ')
+        if len(ordered_name) == 2:
+            first_name, last_name = ordered_name[0], ordered_name[1]
+            qs = User.objects.filter(first_name=first_name, last_name=last_name)
+            if qs.count() != 1:
+                print 'Cannot find user: {}'.format(full_name)
+            else:
+                user = qs.first()
+                profile = getattr(user, 'freelanceprofile', None)
+                if not profile:
+                    print 'User has no profile: {}'.format(full_name)
+                else:
+                    profile.payroll_name = payroll_name.strip()
+                    profile.save()
