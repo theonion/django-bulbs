@@ -473,11 +473,19 @@ class ContributionReportingSerializer(serializers.ModelSerializer):
         ])
 
     def get_user(self, obj):
-        return {
+        full_name = obj.contributor.get_full_name()
+        data = {
             "id": obj.contributor.id,
             "username": obj.contributor.username,
-            "full_name": obj.contributor.get_full_name(),
+            "full_name": full_name,
+            "payroll_name": full_name
         }
+        profile = getattr(obj.contributor, "freelanceprofile", None)
+        if profile:
+            payroll_name = getattr(profile, "payroll_name")
+            if payroll_name:
+                data["payroll_name"] = payroll_name
+        return data
 
     def get_role(self, obj):
         return obj.role.name
@@ -527,7 +535,10 @@ class ContentReportingSerializer(serializers.ModelSerializer):
         )
 
     def get_content_value(self, obj):
-        contributions = obj.contributions.distinct()
+        try:
+            contributions = obj.contributions.distinct()
+        except:
+            contributions = obj.contributions.instances
         request = self.context.get("request")
         now = timezone.now()
         start_date = datetime.datetime(
@@ -547,11 +558,11 @@ class ContentReportingSerializer(serializers.ModelSerializer):
             contributors = request.QUERY_PARAMS.getlist("contributors")
             contributions = contributions.filter(contributor__username__in=contributors)
 
-        contributions = contributions.filter(
-            force_payment=False
-        ) | contributions.filter(
-            payment_date__range=(start_date, end_date)
-        )
+        # contributions = contributions.filter(
+        #     force_payment=False
+        # ) | contributions.filter(
+        #     payment_date__range=(start_date, end_date)
+        # )
 
         total_cost = 0
         for contribution in contributions:

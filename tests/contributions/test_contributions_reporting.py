@@ -114,6 +114,8 @@ class ContributionReportingTestCase(BaseAPITestCase):
                 role=self.roles["writer"]
             )
 
+        Contribution.search_objects.refresh()
+
         client = Client()
         client.login(username="admin", password="secret")
 
@@ -124,30 +126,34 @@ class ContributionReportingTestCase(BaseAPITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 4)
 
-        c1 = response.data[0]
+        c1 = response.data['results'][0]
         rate = c1.get("rate")
         self.assertEqual(rate, 60)
 
-        c4 = response.data[3]
+        c4 = response.data['results'][1]
         rate = c4.get("rate")
         self.assertEqual(rate, 70)
 
         # Now lets order by something else
-        response = client.get(endpoint,
-                              data={"start": start_date.strftime("%Y-%m-%d"), "ordering": "user"})
+        response = client.get(
+            endpoint,
+            data={"start": start_date.strftime("%Y-%m-%d"), "ordering": "user"}
+        )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 4)
+        self.assertEqual(len(response.data['results']), 4)
 
         # Now let's filter by date
         start_date = timezone.now() - datetime.timedelta(days=2)
         response = client.get(endpoint, data={"start": start_date.strftime("%Y-%m-%d")})
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(len(response.data['results']), 2)
 
         # Now let's check the CSV output
         start_date = timezone.now() - datetime.timedelta(days=4)
-        response = client.get(endpoint,
-                              data={"start": start_date.strftime("%Y-%m-%d"), "format": "csv"})
+        response = client.get(
+            endpoint,
+            data={"start": start_date.strftime("%Y-%m-%d"), "format": "csv"}
+        )
         self.assertEqual(response.status_code, 200)
         csvreader = csv.DictReader(StringIO.StringIO(response.content.decode("utf8")))
         self.assertEqual(len(csvreader.fieldnames), 7)
@@ -157,7 +163,10 @@ class ContributionReportingTestCase(BaseAPITestCase):
 
     @override_settings(REST_FRAMEWORK=PAGINATED_REST_FRAMEWORK)
     def test_content_reporting(self):
-        content_one = make_content(published=timezone.now() - datetime.timedelta(days=1))
+        content_one = Content.objects.create(
+            title='whynot',
+            published=timezone.now() - datetime.timedelta(days=1)
+        )
         user_cls = get_user_model()
         admin = user_cls.objects.first()
         Contribution.objects.create(
@@ -172,13 +181,14 @@ class ContributionReportingTestCase(BaseAPITestCase):
         # Let's look at all the items
         endpoint = reverse("contentreporting-list")
         start_date = timezone.now() - datetime.timedelta(days=4)
-
         content_one.authors.all().delete()
+
+        Content.search_objects.refresh()
 
         response = client.get(endpoint, data={"start": start_date.strftime("%Y-%m-%d")})
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 1)
-        self.assertIn('video_id', response.data[0].keys())
+        self.assertEqual(len(response.data['results']), 1)
+        self.assertIn('video_id', response.data['results'][0].keys())
 
         Contribution.objects.create(
             content=content_one,
@@ -207,10 +217,9 @@ class ContributionReportingTestCase(BaseAPITestCase):
 
         response = client.get(endpoint, data={"start": start_date.strftime("%Y-%m-%d")})
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]["value"], 180)
-
-        self.assertEqual(response.data[0]["authors"], "Chris Sinchok,Jenny Crowley")
+        self.assertEqual(len(response.data['results']), 1)
+        self.assertEqual(response.data['results'][0]["value"], 180)
+        self.assertEqual(response.data['results'][0]["authors"], "Chris Sinchok,Jenny Crowley")
 
         # self.assertEqual(response.data[0]["editor"], "Chris Sinchok,Mike Wnuk")
         # self.assertEqual(response.data[0]["writer"], "Mike Wnuk")

@@ -1,7 +1,11 @@
+from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.db import models
 
-from bulbs.content.models import Content, FeatureType
+from elasticsearch_dsl import field
+from djes.models import Indexable, IndexableManager
+
+from bulbs.content.models import Content, ContentManager, FeatureType
 
 
 FLAT_RATE = 0
@@ -24,6 +28,124 @@ def calculate_hourly_pay(rate, minutes_worked):
     return ((float(rate) / 60) * minutes_worked)
 
 
+class SlugObjectField(field.Object):
+
+    def __init__(self, *args, **kwargs):
+        super(SlugObjectField, self).__init__(*args, **kwargs)
+        self.properties['slug'] = field.construct_field('string', index='not_analyzed')
+
+
+class ContentField(field.Object):
+
+    def __init__(self, *args, **kwargs):
+        super(ContentField, self).__init__(*args, **kwargs)
+        self.properties['slug'] = field.construct_field('string', not_analyzed=True)
+        self.properties['feature_type'] = SlugObjectField(not_analyzed=True)
+        self.properties['tags'] = field.construct_field({
+            'type': 'nested',
+            'properties': {
+                'slug': {'type': 'string', 'index': 'not_analyzed'}
+            }
+        })
+
+    def to_es(self, obj):
+        doc = {
+            'id': obj.id,
+            'title': obj.title,
+            'published': obj.published,
+            'feature_type': obj.feature_type.to_dict() if obj.feature_type else {}
+        }
+
+        return doc
+
+    def to_python(self, data):
+        return Content.objects.get(id=data['id'])
+
+
+class ContributorField(field.Object):
+
+    def __init__(self, *args, **kwargs):
+        super(ContributorField, self).__init__(*args, **kwargs)
+        self.properties['id'] = field.Long()
+        self.properties['username'] = field.String(index='not_analyzed')
+        self.properties['payroll_name'] = field.String(index='not_analyzed')
+        self.properties['is_freelance'] = field.Boolean()
+
+    def to_es(self, obj):
+        data = {
+            'id': obj.id,
+            'username': obj.username
+        }
+        profile = getattr(obj, 'freelanceprofile', None)
+        if profile:
+            data['is_freelance'] = profile.is_freelance
+            data['payroll_name'] = getattr(profile, 'payroll_name', '')
+        return data
+
+    def to_python(self, data):
+        User = get_user_model()
+        user = User.objects.filter(id=data['id'])
+        if user.exists():
+            return user.first()
+
+
+class ContributionField(field.Object):
+
+    def __init__(self, *args, **kwargs):
+        super(ContributionField, self).__init__(*args, **kwargs)
+        self.properties['id'] = field.Long()
+        self.properties['contributor'] = ContributorField()
+
+    def to_es(self, obj):
+        if issubclass(obj.__class__, models.Manager):
+            data = []
+            for instance in obj.all():
+                obj_data = {}
+                for prop in self.properties:
+                    c_field = self.properties[prop]
+                    ref = getattr(instance, prop)
+                    if hasattr(c_field, 'to_es'):
+                        obj_data[prop] = c_field.to_es(ref)
+                    elif hasattr(ref, 'to_dict'):
+                        obj_data[prop] = ref.to_dict()
+                    else:
+                        obj_data[prop] = ref
+                data.append(obj_data)
+        else:
+            data = {}
+            for prop in self.properties:
+                c_field = self.properties[prop]
+                ref = getattr(obj, prop)
+                if hasattr(c_field, 'to_es'):
+                    data[prop] = c_field.to_es(ref)
+                elif hasattr(ref, 'to_dict'):
+                    data[prop] = ref.to_dict()
+                else:
+                    data[prop] = ref
+        return data
+
+    def to_python(self, data):
+        return data
+
+
+class ReportContent(Content):
+
+    reference = models.Manager()
+
+    class Meta:
+        proxy = True
+
+    class Mapping(Content.Mapping):
+
+        # contributions = ContributionField()
+        tags = field.Nested()
+
+        class Meta:
+            orphaned = True
+            includes = ('tags',)
+            # excludes = ('contributions',)
+
+
 class LineItem(models.Model):
     contributor = models.ForeignKey(settings.AUTH_USER_MODEL)
     amount = models.IntegerField(default=0)
@@ -31,7 +153,7 @@ class LineItem(models.Model):
     payment_date = models.DateTimeField(null=True, blank=True)
 
 
-class ContributorRole(models.Model):
+class ContributorRole(Indexable):
     name = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
     payment_type = models.IntegerField(choices=ROLE_PAYMENT_TYPES, default=MANUAL)
@@ -59,7 +181,7 @@ class ContributorRole(models.Model):
         return None
 
 
-class Contribution(models.Model):
+class Contribution(Indexable):
     role = models.ForeignKey(ContributorRole)
     contributor = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="contributions")
     content = models.ForeignKey(Content, related_name="contributions")
@@ -68,6 +190,22 @@ class Contribution(models.Model):
     force_payment = models.BooleanField(default=False)
     payment_date = models.DateTimeField(null=True, blank=True)
 
+    search_objects = IndexableManager()
+
+    class Mapping:
+
+        content = ContentField()
+        contributor = ContributorField()
+        pay = field.Long()
+
+        class Meta:
+            dynamic = False
+            excludes = ('content', 'contributor')
+
+    @property
+    def pay(self):
+        return self.get_pay
+
     @property
     def get_pay(self):
         return self._get_pay()
@@ -75,6 +213,10 @@ class Contribution(models.Model):
     @property
     def get_override(self):
         return self._get_override()
+
+    def delete(self):
+        self.delete_index()
+        return super(Contribution, self).delete()
 
     def get_rate(self):
         payment_type = self.role.payment_type
@@ -123,14 +265,16 @@ class Contribution(models.Model):
             return override
         rate = self.get_rate()
         if isinstance(rate, HourlyRate):
-            minutes_worked = float(getattr(self, 'minutes_worked', 0))
-            return calculate_hourly_pay(rate.rate, minutes_worked)
+            minutes_worked = getattr(self, 'minutes_worked', 0)
+            if minutes_worked is None:
+                minutes_worked = 0
+            return calculate_hourly_pay(rate.rate, float(minutes_worked))
         if rate:
             return rate.rate
         return None
 
 
-class OverrideProfile(models.Model):
+class OverrideProfile(Indexable):
     contributor = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='overrides')
     role = models.ForeignKey(ContributorRole, related_name='overrides')
 
@@ -138,7 +282,7 @@ class OverrideProfile(models.Model):
         unique_together = (('contributor', 'role'),)
 
 
-class BaseOverride(models.Model):
+class BaseOverride(Indexable):
     rate = models.IntegerField(default=0)
     updated_on = models.DateTimeField(auto_now_add=True)
 
@@ -162,8 +306,11 @@ class HourlyOverride(BaseOverride):
 class ContributionOverride(BaseOverride):
     contribution = models.ForeignKey(Contribution, related_name='override_contribution')
 
+    class Mapping:
+        contribution = ContributionField()
 
-class Rate(models.Model):
+
+class Rate(Indexable):
     name = models.IntegerField(choices=RATE_PAYMENT_TYPES, null=True)
     updated_on = models.DateTimeField(auto_now=True)
     rate = models.IntegerField()
@@ -183,6 +330,9 @@ class HourlyRate(Rate):
 class ManualRate(Rate):
     contribution = models.ForeignKey(Contribution, related_name="manual_rates")
 
+    class Mapping:
+        contribution = ContributionField()
+
 
 class FeatureTypeRate(Rate):
     role = models.ForeignKey(ContributorRole, null=True, related_name="feature_type_rates")
@@ -192,7 +342,8 @@ class FeatureTypeRate(Rate):
         unique_together = (("role", "feature_type"))
 
 
-class FreelanceProfile(models.Model):
+class FreelanceProfile(Indexable):
+    payroll_name = models.CharField(max_length=256, blank=True, null=True)
     contributor = models.OneToOneField(settings.AUTH_USER_MODEL, unique=True)
     is_freelance = models.BooleanField(default=True)
     is_manager = models.BooleanField(default=False)

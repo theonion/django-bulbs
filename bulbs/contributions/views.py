@@ -4,13 +4,18 @@ import datetime
 
 from django.utils import dateparse, timezone
 
-from bulbs.content.models import Content
-
 from rest_framework import viewsets, routers, mixins
 from rest_framework.settings import api_settings
+from rest_framework.response import Response
 from rest_framework_csv.renderers import CSVRenderer
 
-from .models import (ContributorRole, Contribution, FreelanceProfile, LineItem, OverrideProfile)
+from elasticsearch_dsl import filter as es_filter
+
+from bulbs.content.filters import FeatureTypes, Published, Tags
+
+from .models import (
+    ContributorRole, Contribution, FreelanceProfile, LineItem, OverrideProfile, ReportContent
+)
 from .renderers import ContributionReportingRenderer
 from .csv_serializers import ContributionCSVSerializer
 from .serializers import (
@@ -29,7 +34,7 @@ class ContributorRoleViewSet(viewsets.ModelViewSet):
     serializer_class = ContributorRoleSerializer
 
     def get_queryset(self):
-        qs = ContributorRole.objects.all()
+        qs = ContributorRole.search_objects.all()
         if self.request.QUERY_PARAMS.get('override', None) == 'true':
             qs = qs.exclude(payment_type=3)
         return qs
@@ -38,7 +43,7 @@ class ContributorRoleViewSet(viewsets.ModelViewSet):
 class OverrideProfileViewSet(viewsets.ModelViewSet):
 
     model = OverrideProfile
-    queryset = OverrideProfile.objects.all()
+    queryset = OverrideProfile.search_objects.all()
     serializer_class = OverrideProfileSerializer
 
 
@@ -46,9 +51,10 @@ class ContentReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 
     renderer_classes = (CSVRenderer, ) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
     serializer_class = ContentReportingSerializer
-    paginator = None
+    paginate_by = 20
 
     def get_queryset(self):
+        qs = ReportContent.search_objects.search()
         now = timezone.now()
         start_date = datetime.datetime(
             year=now.year,
@@ -64,56 +70,63 @@ class ContentReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
         if "end" in self.request.GET and "published" not in self.request.QUERY_PARAMS:
             end_date = dateparse.parse_date(self.request.GET["end"])
 
-        include, exclude = get_forced_payment_contributions(start_date, end_date)
-        include_ids = include.values_list("content__id", flat=True)
-        exclude_ids = exclude.values_list("content__id", flat=True)
-        content = Content.objects.filter(
-            contributions__gt=0
-        ).filter(
-            published__range=(start_date, end_date)
-        ).exclude(
-            pk__in=exclude_ids
-        ).prefetch_related(
-            "authors", "contributions"
-        ).select_related(
-            "feature_type"
-        ).distinct() | Content.objects.filter(pk__in=include_ids).distinct()
+        qs = qs.filter(Published(after=start_date, before=end_date))
+
+        # TODO: reintroduce forced submissions
+        # include, exclude = get_forced_payment_contributions(start_date, end_date)
+        # include_ids = include.values_list("content__id", flat=True)
+        # exclude_ids = exclude.values_list("content__id", flat=True)
+
+        # content = Content.objects.filter(
+        #     contributions__gt=0
+        # ).filter(
+        #     published__range=(start_date, end_date)
+        # ).exclude(
+        #     pk__in=exclude_ids
+        # ).prefetch_related(
+        #     "authors", "contributions"
+        # ).select_related(
+        #     "feature_type"
+        # ).distinct() | Content.objects.filter(pk__in=include_ids).distinct()
 
         if "feature_types" in self.request.QUERY_PARAMS:
             feature_types = self.request.QUERY_PARAMS.getlist("feature_types")
-            content = content.filter(feature_type__slug__in=feature_types)
+            qs = qs.filter(FeatureTypes(feature_types))
 
         if "tags" in self.request.QUERY_PARAMS:
             tags = self.request.QUERY_PARAMS.getlist("tags")
-            content = content.filter(tags__slug__in=tags)
+            qs = qs.filter(Tags(tags))
 
-        if "staff" in self.request.QUERY_PARAMS:
-            staff = self.request.QUERY_PARAMS.get("staff")
-            if staff == "freelance":
-                contribution_content_ids = Contribution.objects.filter(
-                    contributor__freelanceprofile__is_freelance=True
-                ).values_list(
-                    "content__id", flat=True
-                ).distinct()
-            elif staff == "staff":
-                contribution_content_ids = Contribution.objects.filter(
-                    contributor__freelanceprofile__is_freelance=False
-                ).values_list(
-                    "content__id", flat=True
-                ).distinct()
-            if contribution_content_ids:
-                content = content.filter(pk__in=contribution_content_ids)
+        # if "staff" in self.request.QUERY_PARAMS:
+        #     staff = self.request.QUERY_PARAMS.get("staff")
+        #     if staff == "freelance":
+        #         contribution_content_ids = Contribution.objects.filter(
+        #             contributor__freelanceprofile__is_freelance=True
+        #         ).values_list(
+        #             "content__id", flat=True
+        #         ).distinct()
+        #     elif staff == "staff":
+        #         contribution_content_ids = Contribution.objects.filter(
+        #             contributor__freelanceprofile__is_freelance=False
+        #         ).values_list(
+        #             "content__id", flat=True
+        #         ).distinct()
+        #     if contribution_content_ids:
+        #         content = content.filter(pk__in=contribution_content_ids)
 
         if "contributors" in self.request.QUERY_PARAMS:
             contributors = self.request.QUERY_PARAMS.getlist("contributors")
-            contribution_content_ids = Contribution.objects.filter(
-                contributor__username__in=contributors
-            ).values_list(
-                "content__id", flat=True
-            ).distinct()
-            content = content.filter(pk__in=contribution_content_ids)
+            qs = qs.filter(
+                es_filter.Terms(**{'contributions.contributor.username': contributors})
+            )
+        #     contribution_content_ids = Contribution.objects.filter(
+        #         contributor__username__in=contributors
+        #     ).values_list(
+        #         "content__id", flat=True
+        #     ).distinct()
+        #     content = content.filter(pk__in=contribution_content_ids)
 
-        return content
+        return qs
 
 
 class ReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
@@ -123,7 +136,19 @@ class ReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
     ) + tuple(
         api_settings.DEFAULT_RENDERER_CLASSES
     )
-    paginator = None
+    paginate_by = 20
+
+    def list(self, request):
+        format = self.request.QUERY_PARAMS.get('format', None)
+        if format == 'csv':
+            queryset = self.get_queryset()
+            queryset = queryset[:queryset.count()]
+            data = {
+                'results': queryset
+            }
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data)
+        return super(ReportingViewSet, self).list(request)
 
     def get_serializer_class(self):
         format = self.request.QUERY_PARAMS.get('format', None)
@@ -132,74 +157,58 @@ class ReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
         return ContributionReportingSerializer
 
     def get_queryset(self):
-        now = timezone.now()
+        qs = Contribution.search_objects.search()
 
+        now = timezone.now()
         start_date = datetime.datetime(
             year=now.year,
             month=now.month,
             day=1,
-            tzinfo=now.tzinfo)
+            tzinfo=now.tzinfo
+        )
+
         if "start" in self.request.GET:
             start_date = dateparse.parse_date(self.request.GET["start"])
+        qs = qs.filter(Published(after=start_date))
 
         end_date = now
         if "end" in self.request.GET:
             end_date = dateparse.parse_date(self.request.GET["end"])
+        qs = qs.filter(Published(before=end_date))
 
-        content = Content.objects.filter(published__range=(start_date, end_date))
-        if "feature_types" in self.request.QUERY_PARAMS:
-            feature_types = self.request.QUERY_PARAMS.getlist("feature_types")
-            content = content.filter(feature_type__slug__in=feature_types)
+        feature_types = self.request.QUERY_PARAMS.getlist('feature_types')
+        if feature_types:
+            qs = qs.filter(
+                es_filter.Terms(**{'content.feature_type.slug': feature_types})
+            )
 
-        if "tags" in self.request.QUERY_PARAMS:
-            tags = self.request.QUERY_PARAMS.getlist("tags")
-            content = content.filter(tags__slug__in=tags)
+        contributors = self.request.QUERY_PARAMS.getlist('contributors')
+        if contributors:
+            qs = qs.filter(
+                es_filter.Terms(**{'contributor.username': contributors})
+            )
 
-        content_ids = content.values_list("pk", flat=True)
-        contributions = Contribution.objects.filter(content__in=content_ids)
+        tags = self.request.QUERY_PARAMS.getlist('tags')
+        if tags:
+            pass
 
-        include, exclude = get_forced_payment_contributions(start_date, end_date, qs=contributions)
-        include_ids = include.values_list('pk', flat=True).distinct()
-        exclude_ids = exclude.values_list('pk', flat=True).distinct()
-
-        contributions = contributions.exclude(
-            pk__in=exclude_ids
-        ) | Contribution.objects.filter(
-            pk__in=include_ids
-        )
-
-        if "contributors" in self.request.QUERY_PARAMS:
-            contributors = self.request.QUERY_PARAMS.getlist("contributors")
-            contributions = contributions.filter(contributor__username__in=contributors)
-
-        if "staff" in self.request.QUERY_PARAMS:
-            staff = self.request.QUERY_PARAMS.get("staff")
-            if staff == "freelance":
-                contributions = contributions.filter(
-                    contributor__freelanceprofile__is_freelance=True
-                )
-            elif staff == "staff":
-                contributions = contributions.filter(
-                    contributor__freelanceprofile__is_freelance=False
-                )
-
-        ordering = self.request.GET.get("ordering", "content")
-        order_options = {
-            "content": "content__published",
-            "user": "contributor__id"
-        }
-        return contributions.order_by(order_options[ordering])
+        staff = self.request.QUERY_PARAMS.get('staff', None)
+        if staff:
+            is_freelance = True if staff == 'freelance' else False
+            qs = qs.filter(
+                es_filter.Term(**{'contributor.is_freelance': is_freelance})
+            )
+        return qs.sort('id')
 
 
 class FreelanceReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 
     renderer_classes = (CSVRenderer, ) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
     serializer_class = FreelanceProfileSerializer
-    paginator = None
+    paginate_by = 20
 
     def get_queryset(self):
         now = timezone.now()
-
         start_date = datetime.datetime(
             year=now.year,
             month=now.month,
@@ -215,15 +224,12 @@ class FreelanceReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
             end_date = dateparse.parse_date(self.request.GET["end"])
 
         contribution_qs = Contribution.objects.all()
-
         if "feature_types" in self.request.QUERY_PARAMS:
             feature_types = self.request.QUERY_PARAMS.getlist("feature_types")
-            # content = content.filter(feature_type__slug__in=feature_types)
             contribution_qs = contribution_qs.filter(content__feature_type__slug__in=feature_types)
 
         if "tags" in self.request.QUERY_PARAMS:
             tags = self.request.QUERY_PARAMS.getlist("tags")
-            # content = content.filter(tags__slug__in=tags)
             contribution_qs = contribution_qs.filter(content__tags__slug__in=tags)
 
         include, exclude = get_forced_payment_contributions(
