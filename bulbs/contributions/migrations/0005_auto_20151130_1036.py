@@ -7,8 +7,8 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('content', '0003_auto_20150513_2326'),
-        ('contributions', '0002_auto_20151001_1201'),
+        ('content', '0004_auto_20151103_1358'),
+        ('contributions', '0004_auto_20151103_1358'),
     ]
 
     operations = [
@@ -25,10 +25,5 @@ class Migration(migrations.Migration):
             model_name='freelanceprofile',
             name='payroll_name',
             field=models.CharField(max_length=256, null=True, blank=True),
-        ),
-        migrations.AlterField(
-            model_name='freelanceprofile',
-            name='is_manager',
-            field=models.BooleanField(default=False),
         ),
     ]
