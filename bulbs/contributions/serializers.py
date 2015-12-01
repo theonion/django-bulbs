@@ -79,7 +79,7 @@ class FreelanceProfileSerializer(serializers.Serializer):
         now = timezone.now()
         month = now.month + 1
         year = now.year
-        if now.month > 12:
+        if month > 12:
             month = 1
             year += 1
         next_payment = datetime.datetime(
