@@ -22,7 +22,7 @@ requires = [
     "djes>=0.1.7",
     "django-filter==0.9.2",
     "django-json-field==0.5.5",
-    "djangorestframework-csv==1.3.3",
+    "djangorestframework-csv==1.3.4",
     "python-dateutil==2.1",
     "pytz==2012h",
     "requests>=1.1.0",
