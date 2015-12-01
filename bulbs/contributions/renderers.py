@@ -1,7 +1,7 @@
-from rest_framework_csv.renderers import CSVRenderer, CSVStreamingRenderer
+from rest_framework_csv.renderers import CSVRenderer
 
 
-class HeaderCSVRenderer(CSVStreamingRenderer):
+class HeaderCSVRenderer(CSVRenderer):
 
     results_field = 'results'
 
