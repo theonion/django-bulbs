@@ -29,6 +29,7 @@ class HeaderCSVRenderer(CSVRenderer):
 class ContributionReportingRenderer(HeaderCSVRenderer):
 
     header_fields = {
+        'id': 'Content ID',
         'first_name': 'First Name',
         'last_name': 'Last Name',
         'title': 'Title',

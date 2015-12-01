@@ -156,7 +156,7 @@ class ContributionReportingTestCase(BaseAPITestCase):
         )
         self.assertEqual(response.status_code, 200)
         csvreader = csv.DictReader(StringIO.StringIO(response.content.decode("utf8")))
-        self.assertEqual(len(csvreader.fieldnames), 7)
+        self.assertEqual(len(csvreader.fieldnames), 8)
         for line in csvreader:
             pass
         self.assertEqual(csvreader.line_num, 5)  # Header + 4 items
