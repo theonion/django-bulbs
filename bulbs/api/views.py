@@ -236,7 +236,7 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data)
         else:
-            serializer = ContributionSerializer(queryset.sort('id')[:queryset.count()], many=True)
+            serializer = ContributionSerializer(queryset.sort('id'), many=True)
             return Response(serializer.data)
 
     @detail_route(methods=["post"], permission_classes=[CanEditContent])
