@@ -15,7 +15,7 @@ author = "Chris Sinchok"
 author_email = "csinchok@theonion.com"
 license = "BSD"
 requires = [
-    "Django>=1.8",
+    "Django>=1.8,<1.9",
     "django-betty-cropper>=0.2.0",
     "djangorestframework==3.1.1",
     "django-polymorphic==0.7.1",
