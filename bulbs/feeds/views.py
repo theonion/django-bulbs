@@ -2,8 +2,6 @@ from django.template import RequestContext
 from django.utils.timezone import now
 from django.views.decorators.cache import cache_control
 
-from elasticsearch_dsl.filter import Ids
-
 from bulbs.content.views import ContentListView
 from bulbs.special_coverage.models import SpecialCoverage
 
@@ -23,9 +21,6 @@ class RSSView(ContentListView):
         response = super(RSSView, self).get(request, *args, **kwargs)
         response["Content-Type"] = "application/rss+xml"
         return response
-
-    def get_queryset(self):
-        return super(RSSView, self).get_queryset().full().execute()[:self.paginate_by]
 
     def get_context_data(self, *args, **kwargs):
         context = super(RSSView, self).get_context_data(*args, **kwargs)
