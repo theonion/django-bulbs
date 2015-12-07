@@ -2,8 +2,6 @@ from django.template import RequestContext
 from django.utils.timezone import now
 from django.views.decorators.cache import cache_control
 
-from elasticsearch_dsl.filter import Ids
-
 from bulbs.content.views import ContentListView
 from bulbs.special_coverage.models import SpecialCoverage
 
