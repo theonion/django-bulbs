@@ -5,7 +5,6 @@ from django.test.client import Client
 from django.utils import timezone
 
 from bulbs.special_coverage.models import SpecialCoverage
-
 from bulbs.utils.test import BaseIndexableTestCase, make_content
 
 from example.testcontent.models import TestContentObj
@@ -27,6 +26,29 @@ class RSSTestCase(BaseIndexableTestCase):
 
         first_item = response.context["page_obj"].object_list[0]
         self.assertTrue(hasattr(first_item, "feed_url"))
+
+    def test_rss_pagination(self):
+        endpoint = reverse("rss-feed")
+        for i in range(40):
+            TestContentObj.objects.create(
+                title='Content #{}'.format(i),
+                published=timezone.now() - timezone.timedelta(days=i)
+            )
+        TestContentObj.search_objects.refresh()
+
+        client = Client()
+        resp = client.get(endpoint)
+        self.assertEqual(resp.status_code, 200)
+        page1_content_list = resp.context_data.get('content_list')
+        self.assertEqual(len(page1_content_list), 20)
+
+        resp = client.get(endpoint, {'page': 2})
+        self.assertEqual(resp.status_code, 200)
+        page2_content_list = resp.context_data.get('content_list')
+        self.assertEqual(len(page2_content_list), 20)
+
+        for content in page1_content_list:
+            self.assertNotIn(content, page2_content_list)
 
     def test_special_coverage_rss_feed(self):
         # make content

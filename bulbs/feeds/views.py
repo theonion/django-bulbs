@@ -24,9 +24,6 @@ class RSSView(ContentListView):
         response["Content-Type"] = "application/rss+xml"
         return response
 
-    def get_queryset(self):
-        return super(RSSView, self).get_queryset().full().execute()[:self.paginate_by]
-
     def get_context_data(self, *args, **kwargs):
         context = super(RSSView, self).get_context_data(*args, **kwargs)
         context["full"] = (self.request.GET.get("full", "false").lower() == "true")
