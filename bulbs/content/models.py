@@ -207,6 +207,7 @@ class Content(PolymorphicModel, Indexable):
     _readonly = False
     # custom ES manager
     search_objects = ContentManager()
+    instant_article = models.BooleanField(default=False)
 
     class Meta:
         permissions = (
