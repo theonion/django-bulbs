@@ -27,6 +27,7 @@ INSTALLED_APPS = (
     "djbetty",
     "djes",
     "rest_framework",
+    "rest_framework.authtoken",
     "polymorphic",
     # local apps
     "bulbs.api",
@@ -73,6 +74,7 @@ CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication'
     )
 }
 
