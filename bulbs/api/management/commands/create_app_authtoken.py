@@ -1,4 +1,5 @@
-import random
+import hashlib
+import os
 
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
@@ -15,24 +16,22 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '-username',
+            '--username',
             dest='username',
             help='The username for the given application.',
             required=True,
             type=str
         )
 
+    def generate_random_password(self, length=13):
+        random_data = os.urandom(128)
+        return hashlib.md5(random_data).hexdigest()[:16]
+
     def handle(self, *args, **kwargs):
         username = kwargs.get('username')
-        qs = User.objects.filter(username=username)
-        if not qs.exists():
-            user = User.objects.create(
-                username=username,
-                is_staff=True,
-                password=random.getrandbits(128)
-            )
-        else:
-            user = qs.first()
-
+        user, created = User.objects.get_or_create(username=username, defaults={
+            'password': self.generate_random_password(),
+            'is_staff': True
+        })
         token = Token.objects.create(user=user)
         self.stdout.write(token.key)
