@@ -92,7 +92,7 @@ class SpecialCoverage(DetailImageMixin, models.Model):
             q = self.query["query"]
         else:
             q = self.query
-        search = custom_search_model(Content, q, field_map={
+        search = custom_search_model(Content, q, published=True, field_map={
             "feature-type": "feature_type.slug",
             "tag": "tags.slug",
             "content-type": "_type"
