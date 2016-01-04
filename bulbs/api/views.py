@@ -222,9 +222,13 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         # Check if the contribution app is installed
         if Contribution not in get_models():
             return Response([])
-        content = self.get_object()
+
+        content_pk = kwargs.get('pk', None)
+        if content_pk is None:
+            return Response([], status=status.HTTP_404_NOT_FOUND)
+
         queryset = Contribution.search_objects.search().filter(
-            es_filter.Term(**{'content.id': content.id})
+            es_filter.Term(**{'content.id': content_pk})
         )
         if request.method == "POST":
             serializer = ContributionSerializer(
@@ -236,7 +240,7 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data)
         else:
-            serializer = ContributionSerializer(queryset.sort('id'), many=True)
+            serializer = ContributionSerializer(queryset[:queryset.count()].sort('id')[:25], many=True)
             return Response(serializer.data)
 
     @detail_route(methods=["post"], permission_classes=[CanEditContent])
