@@ -267,13 +267,36 @@ class RoleField(serializers.Field):
 
     def to_representation(self, obj):
         obj, contribution = obj
-        data = ContributorRoleSerializer(obj).data
+        data = {
+            "id": obj.id,
+            "name": obj.name,
+            "description": obj.description,
+            "payment_type": PaymentTypeField().to_representation(obj.payment_type)
+        }
+
         if isinstance(contribution, Contribution):
             rate = data.get("rate")
             if not rate:
                 rate = contribution.get_rate()
                 if rate and hasattr(rate, "rate"):
                     data["rate"] = rate.rate
+
+            # TODO: Need to separate these rate requests to a different endpoint
+            content = getattr(contribution, 'content', None)
+            if content is not None:
+
+                feature_type_rates = FeatureTypeRate.objects.filter(
+                    role=obj, feature_type=content.feature_type
+                )
+                if feature_type_rates.exists():
+                    ft = feature_type_rates.order_by('-updated_on')[0]
+                    data["rates"] = {
+                        "feature_type": [{
+                            "feature_type": ft.feature_type.name,
+                            "rate": ft.rate,
+                            "updated_on": ft.updated_on.isoformat()
+                        }]
+                    }
         return data
 
     def to_internal_value(self, data):
