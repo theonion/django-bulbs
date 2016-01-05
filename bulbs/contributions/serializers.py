@@ -285,18 +285,33 @@ class RoleField(serializers.Field):
             content = getattr(contribution, 'content', None)
             if content is not None:
 
+                data["rates"] = {}
+
+                # TODO: This is redundant, but we need to lower the feature_type query on partial.
+                flat_rate = FlatRate.objects.filter(role=obj).order_by("-updated_on").first()
+                if flat_rate:
+                    data["rates"]["flat_rate"] = {
+                        "rate": flat_rate.rate,
+                        "updated_on": flat_rate.updated_on.isoformat()
+                    }
+
+                hourly = HourlyRate.objects.filter(role=obj).order_by("-updated_on").first()
+                if hourly:
+                    data["rates"]["hourly"] = {
+                        "rate": hourly.rate,
+                        "updated_on": hourly.updated_on.isoformat()
+                    }
+
                 feature_type_rates = FeatureTypeRate.objects.filter(
                     role=obj, feature_type=content.feature_type
                 )
                 if feature_type_rates.exists():
-                    ft = feature_type_rates.order_by('-updated_on')[0]
-                    data["rates"] = {
-                        "feature_type": [{
-                            "feature_type": ft.feature_type.name,
-                            "rate": ft.rate,
-                            "updated_on": ft.updated_on.isoformat()
-                        }]
-                    }
+                    ft = feature_type_rates.order_by("-updated_on")[0]
+                    data["rates"]["feature_type"] = [{
+                        "feature_type": ft.feature_type.name,
+                        "rate": ft.rate,
+                        "updated_on": ft.updated_on.isoformat()
+                    }]
         return data
 
     def to_internal_value(self, data):
