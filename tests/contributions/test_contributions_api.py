@@ -301,7 +301,7 @@ class ContributionApiTestCase(BaseAPITestCase):
         endpoint = reverse("line-items-list")
         LineItem.objects.create(
             contributor=self.contributors["jarvis"],
-            amount=50,
+            amount=50.5,
             note="eyyy good lookin out",
             payment_date=timezone.now() - timezone.timedelta(days=1)
         )
