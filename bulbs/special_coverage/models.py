@@ -85,14 +85,14 @@ class SpecialCoverage(DetailImageMixin, models.Model):
         index = Content.search_objects.mapping.index
         es.delete(index=index, doc_type=".percolator", id=self.es_id, refresh=True, ignore=404)
 
-    def get_content(self):
+    def get_content(self, published=True):
         """performs es search and gets content objects
         """
         if "query" in self.query:
             q = self.query["query"]
         else:
             q = self.query
-        search = custom_search_model(Content, q, published=True, field_map={
+        search = custom_search_model(Content, q, published=published, field_map={
             "feature-type": "feature_type.slug",
             "tag": "tags.slug",
             "content-type": "_type"
