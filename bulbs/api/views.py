@@ -232,7 +232,7 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         )
         if request.method == "POST":
             serializer = ContributionSerializer(
-                queryset,
+                queryset[:queryset.count()].sort('id')[:25],
                 data=get_request_data(request),
                 many=True)
             if not serializer.is_valid():

@@ -12,7 +12,7 @@ from bulbs.contributions.models import (
     Rate, RATE_PAYMENT_TYPES
 )
 from bulbs.contributions.serializers import RateSerializer
-from bulbs.contributions.signals import *
+from bulbs.contributions.signals import *  # NOQA
 from bulbs.utils.test import BaseAPITestCase, make_content
 from freezegun import freeze_time
 
