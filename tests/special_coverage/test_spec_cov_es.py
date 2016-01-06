@@ -53,9 +53,7 @@ class SpecialCoverageQueryTests(BaseIndexableTestCase):
             id="specialcoverage.93"
         )
 
-        sc_query = sc.get_content().to_dict()["query"]
-        del sc_query["filtered"]["filter"]["bool"]["must"][1]
-        del response["_source"]["query"]["filtered"]["filter"]["bool"]["must"][1]
+        sc_query = sc.get_content(published=False).to_dict()["query"]
         assert response["_source"]["query"] == sc_query
 
         # Now let's update the query
@@ -85,9 +83,7 @@ class SpecialCoverageQueryTests(BaseIndexableTestCase):
         )
         # Shutting up publishing
 
-        sc_query = sc.get_content().to_dict()["query"]
-        del sc_query["filtered"]["filter"]["bool"]["must"][1]
-        del response["_source"]["query"]["filtered"]["filter"]["bool"]["must"][1]
+        sc_query = sc.get_content(published=False).to_dict()["query"]
         assert response["_source"]["query"] == sc_query
 
     def test_delete_percolator(self):

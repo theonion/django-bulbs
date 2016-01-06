@@ -249,7 +249,7 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
                 ]
             )
         )
-        # pinned 2 
+        # pinned 2
         s_pinned_2 = dict(
             label="Pinned 2 things",
             query=dict(
@@ -431,9 +431,22 @@ class SpecialCoverageQueryTests(BaseCustomSearchFilterTests):
             description="All Obama, Baby",
             query=query
         )
+
+        # Returns published content by default.
         res = sc.get_content()
         for content in res:
+            self.assertLess(content.published, timezone.now())
             self.assertIsInstance(content, Content)
+
+        # Same as the previous block, just explicit.
+        res = sc.get_content(published=True)
+        for content in res:
+            self.assertLess(content.published, timezone.now())
+            self.assertIsInstance(content, Content)
+
+        # Includes unpublished content.
+        res = sc.get_content(published=False)
+        self.assertGreater(res[0].published, timezone.now())
 
     def test_has_pinned_content(self):
         """tests that the .has_pinned_content accurately returns True or False"""
