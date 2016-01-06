@@ -12,7 +12,7 @@ from bulbs.contributions.models import (
     Rate, RATE_PAYMENT_TYPES
 )
 from bulbs.contributions.serializers import RateSerializer
-from bulbs.contributions.signals import *
+from bulbs.contributions.signals import *  # NOQA
 from bulbs.utils.test import BaseAPITestCase, make_content
 from freezegun import freeze_time
 
@@ -301,7 +301,7 @@ class ContributionApiTestCase(BaseAPITestCase):
         endpoint = reverse("line-items-list")
         LineItem.objects.create(
             contributor=self.contributors["jarvis"],
-            amount=50,
+            amount=50.5,
             note="eyyy good lookin out",
             payment_date=timezone.now() - timezone.timedelta(days=1)
         )
