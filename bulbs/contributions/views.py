@@ -15,14 +15,15 @@ from rest_framework_nested import routers as nested_routers
 from bulbs.content.filters import FeatureTypes, Published, Tags
 
 from .models import (
-    ContributorRole, Contribution, FlatRate, FreelanceProfile, LineItem, OverrideProfile,
-    ReportContent
+    ContributorRole, Contribution, FlatRate, FreelanceProfile, HourlyRate, LineItem,
+    OverrideProfile, ReportContent
 )
 from .renderers import ContributionReportingRenderer
 from .csv_serializers import ContributionCSVSerializer
 from .serializers import (
     ContributorRoleSerializer, ContributionReportingSerializer, ContentReportingSerializer,
-    FlatRateSerializer, FreelanceProfileSerializer, LineItemSerializer, OverrideProfileSerializer
+    FlatRateSerializer, FreelanceProfileSerializer, HourlyRateSerializer, LineItemSerializer,
+    OverrideProfileSerializer
 )
 from .utils import get_forced_payment_contributions
 
@@ -54,6 +55,13 @@ class FlatRateViewSet(NestedRateViewSet):
 
     model = FlatRate
     serializer_class = FlatRateSerializer
+    paginate_by = 20
+
+
+class HourlyRateViewSet(NestedRateViewSet):
+
+    model = HourlyRate
+    serializer_class = HourlyRateSerializer
     paginate_by = 20
 
 
@@ -286,6 +294,7 @@ api_v1_role_router = nested_routers.DefaultRouter()
 api_v1_role_router.register(r"role", ContributorRoleViewSet, base_name="contributorrole")
 nested_role_router = nested_routers.NestedSimpleRouter(api_v1_role_router, "role", lookup="role")
 nested_role_router.register("flat_rates", FlatRateViewSet, base_name="flat-rate")
+nested_role_router.register("hourly_rates", HourlyRateViewSet, base_name="hourly-rate")
 
 api_v1_router.register(r"rate-overrides", OverrideProfileViewSet, base_name="rate-overrides")
 api_v1_router.register(r"reporting", ReportingViewSet, base_name="contributionreporting")

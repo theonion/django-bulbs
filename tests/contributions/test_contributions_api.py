@@ -1381,3 +1381,64 @@ class FlatRateAPITestCase(BaseAPITestCase):
         for resp_rate in resp.data["results"]:
             id = resp_rate.get("id")
             self.assertEqual(FlatRate.objects.get(id=id).role, another_role)
+
+
+class HourlyRateAPITestCase(BaseAPITestCase):
+    """
+    Tests for HourlyRate API Endpoint.
+    """
+    def setUp(self):
+        super(HourlyRateAPITestCase, self).setUp()
+        self.role = ContributorRole.objects.create(
+            name="GarbageGuy",
+            payment_type=2
+        )
+        self.list_endpoint = reverse("hourly-rate-list", kwargs={"role_pk": self.role.pk})
+
+    def test_list_route(self):
+        self.assertEqual(self.list_endpoint, "/api/v1/contributions/role/1/hourly_rates/")
+
+    def test_detail_route(self):
+        endpoint = reverse("hourly-rate-detail", kwargs={"role_pk": 1, "pk": 1})
+        self.assertEqual(endpoint, "/api/v1/contributions/role/1/hourly_rates/1/")
+
+    def test_post_success(self):
+        data = {"rate": 200}
+        resp = self.api_client.post(self.list_endpoint, data=data)
+        self.assertEqual(resp.status_code, 201)
+        rate = HourlyRate.objects.last()
+        self.assertEqual(resp.data, {"id": rate.id, "rate": 200})
+
+    def test_list_order(self):
+        """The most recently updated should be at the top of the list."""
+        for i in range(40):
+            HourlyRate.objects.create(rate=i, role=self.role)
+        resp = self.api_client.get(self.list_endpoint)
+        self.assertEqual(resp.status_code, 200)
+        rate_max = HourlyRate.objects.all().aggregate(Max('rate'))
+        rate = HourlyRate.objects.get(rate=rate_max["rate__max"])
+        top_id = resp.data["results"][0]["id"]
+        self.assertEqual(rate.id, top_id)
+
+    def test_role_filter(self):
+        """Results should be filtered on the role_pk provided in the url"""
+        another_role = ContributorRole.objects.create(name="Welcome King", payment_type=2)
+        for i in range(20):
+            HourlyRate.objects.create(rate=i, role=self.role)
+            HourlyRate.objects.create(rate=i, role=another_role)
+        resp = self.api_client.get(self.list_endpoint)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data["count"], 20)
+        for resp_rate in resp.data["results"]:
+            id = resp_rate.get("id")
+            self.assertEqual(HourlyRate.objects.get(id=id).role, self.role)
+
+        another_role_list_endpoint = reverse(
+            "hourly-rate-list", kwargs={"role_pk": another_role.pk}
+        )
+        resp = self.api_client.get(another_role_list_endpoint)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data["count"], 20)
+        for resp_rate in resp.data["results"]:
+            id = resp_rate.get("id")
+            self.assertEqual(HourlyRate.objects.get(id=id).role, another_role)

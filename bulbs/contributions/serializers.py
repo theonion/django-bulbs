@@ -132,6 +132,13 @@ class FlatRateSerializer(NestedRateSerializer):
         fields = ("id", "rate")
 
 
+class HourlyRateSerializer(NestedRateSerializer):
+
+    class Meta:
+        model = HourlyRate
+        fields = ("id", "rate")
+
+
 class RateField(serializers.Field):
     """
     Returns the appropriate rate to represent
