@@ -1,15 +1,18 @@
-import datetime
 from collections import OrderedDict
+import datetime
+import six
 
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
 from django.template.defaultfilters import slugify
 from django.utils import dateparse, timezone
 
-from bulbs.content.models import Content, FeatureType
-from bulbs.content.serializers import FeatureTypeField, UserSerializer
 from rest_framework import serializers
 from rest_framework.utils import model_meta
-import six
+from rest_framework_nested.relations import NestedHyperlinkedRelatedField
+
+from bulbs.content.models import Content, FeatureType
+from bulbs.content.serializers import FeatureTypeField, UserSerializer
 
 from .models import (
     Contribution, ContributorRole, ContributionOverride, HourlyRate, FlatRate, ManualRate,
@@ -109,6 +112,24 @@ class RateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Rate
+
+
+class NestedRateSerializer(serializers.ModelSerializer):
+    """
+    ModelSerializer that lookups the user role from the url kwargs.
+    """
+    def create(self, validated_data):
+        lookup_kwargs = self.context["request"].parser_context["kwargs"]
+        role_pk = lookup_kwargs.get("role_pk", 0)
+        validated_data["role"] = get_object_or_404(ContributorRole, pk=role_pk)
+        return super(NestedRateSerializer, self).create(validated_data)
+
+
+class FlatRateSerializer(NestedRateSerializer):
+
+    class Meta:
+        model = FlatRate
+        fields = ("id", "rate")
 
 
 class RateField(serializers.Field):
