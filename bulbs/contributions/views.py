@@ -10,6 +10,7 @@ from rest_framework.response import Response
 from rest_framework_csv.renderers import CSVRenderer
 
 from elasticsearch_dsl import filter as es_filter
+from rest_framework_nested import routers as nested_routers
 
 from bulbs.content.filters import FeatureTypes, Published, Tags
 
@@ -263,7 +264,11 @@ class FreelanceReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 
 api_v1_router = routers.DefaultRouter()
 api_v1_router.register(r"line-items", LineItemViewSet, base_name="line-items")
-api_v1_router.register(r"role", ContributorRoleViewSet, base_name="contributorrole")
+
+api_v1_role_router = nested_routers.DefaultRouter()
+api_v1_role_router.register(r"role", ContributorRoleViewSet, base_name="contributorrole")
+
+# api_v1_router.register(r"role", ContributorRoleViewSet, base_name="contributorrole")
 api_v1_router.register(r"rate-overrides", OverrideProfileViewSet, base_name="rate-overrides")
 api_v1_router.register(r"reporting", ReportingViewSet, base_name="contributionreporting")
 api_v1_router.register(r"contentreporting", ContentReportingViewSet, base_name="contentreporting")
