@@ -1344,7 +1344,6 @@ class FlatRateAPITestCase(BaseAPITestCase):
         self.assertEqual(endpoint, "/api/v1/contributions/role/1/flat_rates/1/")
 
     def test_post_success(self):
-
         data = {"rate": 200}
         resp = self.api_client.post(self.list_endpoint, data=data)
         self.assertEqual(resp.status_code, 201)
@@ -1359,7 +1358,7 @@ class FlatRateAPITestCase(BaseAPITestCase):
         self.assertEqual(resp.status_code, 200)
         rate_max = FlatRate.objects.all().aggregate(Max('rate'))
         rate = FlatRate.objects.get(rate=rate_max["rate__max"])
-        top_id = resp.data[0]["id"]
+        top_id = resp.data["results"][0]["id"]
         self.assertEqual(rate.id, top_id)
 
     def test_role_filter(self):
@@ -1370,13 +1369,15 @@ class FlatRateAPITestCase(BaseAPITestCase):
             FlatRate.objects.create(rate=i, role=another_role)
         resp = self.api_client.get(self.list_endpoint)
         self.assertEqual(resp.status_code, 200)
-        for resp_rate in resp.data:
+        self.assertEqual(resp.data["count"], 20)
+        for resp_rate in resp.data["results"]:
             id = resp_rate.get("id")
             self.assertEqual(FlatRate.objects.get(id=id).role, self.role)
 
         another_role_list_endpoint = reverse("flat-rate-list", kwargs={"role_pk": another_role.pk})
         resp = self.api_client.get(another_role_list_endpoint)
         self.assertEqual(resp.status_code, 200)
-        for resp_rate in resp.data:
+        self.assertEqual(resp.data["count"], 20)
+        for resp_rate in resp.data["results"]:
             id = resp_rate.get("id")
             self.assertEqual(FlatRate.objects.get(id=id).role, another_role)

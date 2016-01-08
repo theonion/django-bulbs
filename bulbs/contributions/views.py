@@ -54,6 +54,7 @@ class FlatRateViewSet(NestedRateViewSet):
 
     model = FlatRate
     serializer_class = FlatRateSerializer
+    paginate_by = 20
 
 
 class OverrideProfileViewSet(viewsets.ModelViewSet):
