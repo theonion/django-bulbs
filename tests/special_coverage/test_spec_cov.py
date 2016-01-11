@@ -1,3 +1,6 @@
+from django.utils import timezone
+from django.core.exceptions import ValidationError
+
 from bulbs.special_coverage.models import SpecialCoverage
 from bulbs.utils.test import BaseIndexableTestCase
 
@@ -24,3 +27,24 @@ class SpecialCoverageModelTests(BaseIndexableTestCase):
         self.assertEqual(sc.videos, [1, 2])
         sc = SpecialCoverage.objects.create(id=3, videos=['1', '2', 'dad'], name='dead')
         self.assertEqual(sc.videos, [1, 2])
+
+    def test_start_and_end_validation(self):
+        sc = SpecialCoverage.objects.create(
+            name="God",
+            start_date=timezone.now(),
+            end_date=timezone.now() + timezone.timedelta(days=10)
+        )
+        sc.save()
+
+        with self.assertRaises(ValidationError):
+            sc = SpecialCoverage.objects.create(name="Is", start_date=timezone.now())
+
+        with self.assertRaises(ValidationError):
+            sc = SpecialCoverage.objects.create(name="Is", end_date=timezone.now())
+
+        with self.assertRaises(ValidationError):
+            sc = SpecialCoverage.objects.create(
+                name="Is",
+                start_date=timezone.now(),
+                end_date=timezone.now() - timezone.timedelta(days=10)
+            )

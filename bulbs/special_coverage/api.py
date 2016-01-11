@@ -14,7 +14,7 @@ class SpecialCoverageViewSet(viewsets.ModelViewSet):
         CaseInsensitiveBooleanFilter,
         filters.SearchFilter,
         filters.OrderingFilter,)
-    boolean_fields = ("active", "promoted")
+    boolean_fields = ("active", "promoted", "is_active")
     search_fields = (
         "name",
         "description",
