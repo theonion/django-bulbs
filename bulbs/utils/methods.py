@@ -15,11 +15,7 @@ def get_central_now():
 def today():
     # catching this because settings.TODAY might literally be None in tests
     # getattr will return None if the value is set to None
-    _today = getattr(settings, "TODAY", None)
-    if _today:
-        return _today
-    else:
-        return get_central_now().date()
+    return getattr(settings, "TODAY", get_central_now().date())
 
 
 def get_query_params(request):
