@@ -1,7 +1,9 @@
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db.models.signals import pre_delete
 from django.db import models
 from django.template.defaultfilters import slugify
+
 from elasticsearch import Elasticsearch
 from json_field import JSONField
 
@@ -23,6 +25,8 @@ class SpecialCoverage(DetailImageMixin, models.Model):
     videos = JSONField(default=[], blank=True)
     active = models.BooleanField(default=False)
     promoted = models.BooleanField(default=False)
+    start_date = models.DateTimeField(blank=True, null=True)
+    end_date = models.DateTimeField(blank=True, null=True)
     campaign = models.ForeignKey(
         Campaign, null=True, default=None, blank=True, on_delete=models.SET_NULL)
     # Property-specific custom configuration
@@ -43,6 +47,8 @@ class SpecialCoverage(DetailImageMixin, models.Model):
     def save(self, *args, **kwargs):
         """Saving ensures that the slug, if not set, is set to the slugified name."""
         self.clean()
+        self.validate_publish_dates()
+
         if not self.slug:
             self.slug = slugify(self.name)
 
@@ -53,6 +59,18 @@ class SpecialCoverage(DetailImageMixin, models.Model):
                 self._save_percolator()
             else:
                 self._delete_percolator()
+
+    def validate_publish_dates(self):
+        """
+        If an end_date value is provided, the start_date must be less.
+        """
+        if self.end_date:
+            if not self.start_date:
+                raise ValidationError("""The End Date requires a Start Date value.""")
+            elif self.end_date < self.start_date:
+                raise ValidationError("""The End Date must not precede the Start Date.""")
+        if self.start_date and not self.end_date:
+            raise ValidationError("""The Start Date requires an End Date.""")
 
     def _save_percolator(self):
         """saves the query field as an elasticsearch percolator
