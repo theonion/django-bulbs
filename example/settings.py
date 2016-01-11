@@ -82,8 +82,14 @@ SECRET_KEY = "no-op"
 
 ES_DISABLED = False
 
-ES_URLS = ['http://localhost:9200']
+ES_URLS = ['http://elasticsearch.local:9200']
 ES_INDEX = "django-bulbs"
+
+ES_CONNECTIONS = {
+    "default": {
+        "hosts": "elasticsearch.local:9200"
+    }
+}
 
 ES_INDEX_SETTINGS = {
     "django-bulbs": {

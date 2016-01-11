@@ -7,6 +7,8 @@ This project very much under active development, and is currently not as reusabl
 
 ## Configuring for Development
 
+Make sure an instance of elasticsearch is available at `http://elasticsearch.local:9200/`. If you are running theonion/onion-services you can add `elasticsearch.local` to your `/etc/hosts` line that points at that docker dev machine.
+
 First, enter any virtualenv, etc, that you plan on developing in.
 ```bash
 $ pip install -e .
