@@ -16,13 +16,19 @@ class SpecialCoverageCommandTests(BaseIndexableTestCase):
         call_command("migrate_active_to_published")
         start_qs = SpecialCoverage.objects.filter(start_date__isnull=False)
         self.assertEqual(start_qs.count(), 50)
+        for sc in start_qs.all():
+            self.assertTrue(sc.is_active)
         end_qs = SpecialCoverage.objects.filter(end_date__isnull=False)
         self.assertEqual(end_qs.count(), 50)
+        for sc in end_qs.all():
+            self.assertTrue(sc.is_active)
 
         inactive_qs = SpecialCoverage.objects.filter(
             start_date__isnull=True, end_date__isnull=True
         )
         self.assertEqual(inactive_qs.count(), 50)
+
         for sc in inactive_qs:
+            self.assertFalse(sc.is_active)
             self.assertNotIn(sc, start_qs)
             self.assertNotIn(sc, end_qs)

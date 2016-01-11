@@ -1,18 +1,19 @@
 from django.utils import timezone
 
+from bulbs.utils.methods import get_central_now
 from .models import SpecialCoverage
 
 
 def get_month_start_date():
     """Returns the first day of the current month"""
-    now = timezone.now()
-    return timezone.datetime(day=1, month=now.month, year=now.year)
+    now = get_central_now()
+    return timezone.datetime(day=1, month=now.month, year=now.year, tzinfo=now.tzinfo)
 
 
 def get_absurd_end_date():
     """To give ourselves a buffer, we are setting the initial end_date to 5 years in the future."""
-    now = timezone.now()
-    return timezone.datetime(day=1, month=now.month, year=now.year + 5)
+    now = get_central_now()
+    return timezone.datetime(day=1, month=now.month, year=now.year + 5, tzinfo=now.tzinfo)
 
 
 def get_active_special_coverages():

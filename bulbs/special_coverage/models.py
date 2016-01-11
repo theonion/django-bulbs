@@ -11,7 +11,7 @@ from bulbs.campaigns.models import Campaign
 from bulbs.content.custom_search import custom_search_model
 from bulbs.content.models import Content
 from bulbs.content.mixins import DetailImageMixin
-from bulbs.utils.methods import is_valid_digit
+from bulbs.utils.methods import get_central_now, is_valid_digit
 
 
 es = Elasticsearch(settings.ES_URLS)
@@ -55,7 +55,7 @@ class SpecialCoverage(DetailImageMixin, models.Model):
         super(SpecialCoverage, self).save(*args, **kwargs)
 
         if self.query and self.query != {}:
-            if self.active:
+            if self.is_active:
                 self._save_percolator()
             else:
                 self._delete_percolator()
@@ -116,6 +116,14 @@ class SpecialCoverage(DetailImageMixin, models.Model):
             "content-type": "_type"
         })
         return search
+
+    @property
+    def is_active(self):
+        now = get_central_now()
+        if self.start_date and self.end_date:
+            if self.start_date < now and self.end_date > now:
+                return True
+        return False
 
     @property
     def es_id(self):
