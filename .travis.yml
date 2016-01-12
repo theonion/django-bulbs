@@ -11,6 +11,7 @@ services:
   - elasticsearch
 before_script:
   - psql -c 'create database bulbs;' -U postgres
+  - until curl http://localhost:9200/; do sleep 1; done
 script: py.test --cov bulbs --cov-report term-missing
 after_success:
   - coveralls
