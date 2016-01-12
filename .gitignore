@@ -17,3 +17,4 @@ coverage_html_report
 reports
 .idea/
 *.sublime-project
+.venv/

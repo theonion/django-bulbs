@@ -42,6 +42,8 @@ INSTALLED_APPS = (
     "bulbs.sections",
     # local testing apps
     "example.testcontent",
+    # bulbs content types
+    "bulbs.poll"
 )
 
 ROOT_URLCONF = "example.urls"
@@ -82,12 +84,12 @@ SECRET_KEY = "no-op"
 
 ES_DISABLED = False
 
-ES_URLS = ['http://elasticsearch.local:9200']
+ES_URLS = ['http://localhost:9200']
 ES_INDEX = "django-bulbs"
 
 ES_CONNECTIONS = {
     "default": {
-        "hosts": "elasticsearch.local:9200"
+        "hosts": "localhost:9200"
     }
 }
 
