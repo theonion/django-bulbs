@@ -259,19 +259,21 @@ class SpecialCoverageApiTestCase(BaseAPITestCase):
     def test_special_coverage_search_by_status(self):
         """Test that special coverages can be searched by their status."""
 
+        today_in_variable_form_for_mike_parent = today()
+
         # matching
         special_coverage = SpecialCoverage.objects.create(
             name="some special coverage",
-            start_date=today() - timezone.timedelta(days=2),
-            end_date=today() + timezone.timedelta(days=2),
+            start_date=today_in_variable_form_for_mike_parent - timezone.timedelta(days=2),
+            end_date=today_in_variable_form_for_mike_parent + timezone.timedelta(days=2),
             promoted=False
         )
 
         # non-matching
         SpecialCoverage.objects.create(
             name="Joe Biden",
-            start_date=today() - timezone.timedelta(days=5),
-            end_date=today() - timezone.timedelta(days=3),
+            start_date=today_in_variable_form_for_mike_parent - timezone.timedelta(days=5),
+            end_date=today_in_variable_form_for_mike_parent - timezone.timedelta(days=3),
             promoted=True
         )
 
@@ -378,16 +380,18 @@ class SpecialCoverageApiTestCase(BaseAPITestCase):
     def test_active_and_promoted_lowercase_boolean(self):
         """Tests that filter backend can correctly evaluate 'true' and 'false'."""
 
+        today_in_variable_form_for_mike_parent = today()
+
         special_coverage_1 = SpecialCoverage.objects.create(
             name="Promoted",
-            start_date=today() - timezone.timedelta(days=1),
-            end_date=today() + timezone.timedelta(days=1),
+            start_date=today_in_variable_form_for_mike_parent - timezone.timedelta(days=1),
+            end_date=today_in_variable_form_for_mike_parent + timezone.timedelta(days=1),
             promoted=True
         )
         special_coverage_2 = SpecialCoverage.objects.create(
             name="Not active or promoted",
-            start_date=today() + timezone.timedelta(days=1),
-            end_date=today() + timezone.timedelta(days=2),
+            start_date=today_in_variable_form_for_mike_parent + timezone.timedelta(days=1),
+            end_date=today_in_variable_form_for_mike_parent + timezone.timedelta(days=2),
             promoted=False
         )
 
