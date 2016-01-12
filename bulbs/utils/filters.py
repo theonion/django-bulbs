@@ -2,6 +2,7 @@ from rest_framework import filters
 
 from bulbs.utils.methods import get_query_params
 
+
 class CaseInsensitiveBooleanFilter(filters.BaseFilterBackend):
     """Set a boolean_fields tuple on the viewset and set this class as a
     filter_backend to filter listed fields through a case-insensitive transformation

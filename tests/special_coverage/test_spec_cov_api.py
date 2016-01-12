@@ -4,10 +4,11 @@ from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.template.defaultfilters import slugify
 from django.test.client import Client
+from django.utils import timezone
 
 from bulbs.campaigns.models import Campaign
 from bulbs.special_coverage.models import SpecialCoverage
-
+from bulbs.utils.methods import today
 from bulbs.utils.test import BaseAPITestCase, JsonEncoder
 
 
@@ -259,14 +260,20 @@ class SpecialCoverageApiTestCase(BaseAPITestCase):
         """Test that special coverages can be searched by their status."""
 
         # matching
-        special_coverage = SpecialCoverage.objects.create(name="some special coverage",
-                                                          active=True,
-                                                          promoted=False)
+        special_coverage = SpecialCoverage.objects.create(
+            name="some special coverage",
+            start_date=today() - timezone.timedelta(days=2),
+            end_date=today() + timezone.timedelta(days=2),
+            promoted=False
+        )
 
         # non-matching
-        SpecialCoverage.objects.create(name="Joe Biden",
-                                       active=False,
-                                       promoted=True)
+        SpecialCoverage.objects.create(
+            name="Joe Biden",
+            start_date=today() - timezone.timedelta(days=5),
+            end_date=today() - timezone.timedelta(days=3),
+            promoted=True
+        )
 
         response = self.client.get(reverse("special-coverage-list"),
                                    data={"active": True, "promoted": False})
@@ -371,12 +378,18 @@ class SpecialCoverageApiTestCase(BaseAPITestCase):
     def test_active_and_promoted_lowercase_boolean(self):
         """Tests that filter backend can correctly evaluate 'true' and 'false'."""
 
-        special_coverage_1 = SpecialCoverage.objects.create(name="Promoted",
-                                                            active=True,
-                                                            promoted=True)
-        special_coverage_2 = SpecialCoverage.objects.create(name="Not active or promoted",
-                                                            active=False,
-                                                            promoted=False)
+        special_coverage_1 = SpecialCoverage.objects.create(
+            name="Promoted",
+            start_date=today() - timezone.timedelta(days=1),
+            end_date=today() + timezone.timedelta(days=1),
+            promoted=True
+        )
+        special_coverage_2 = SpecialCoverage.objects.create(
+            name="Not active or promoted",
+            start_date=today() + timezone.timedelta(days=1),
+            end_date=today() + timezone.timedelta(days=2),
+            promoted=False
+        )
 
         response = self.client.get(reverse("special-coverage-list"),
                                    data={"active": "true", "promoted": "true"})
