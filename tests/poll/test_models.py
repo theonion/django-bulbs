@@ -26,7 +26,12 @@ class PollTestCase(BaseIndexableTestCase):
     vcr = make_vcr(__file__)
 
     @vcr.use_cassette()
-
     def test_poll_creation_gets_sodahead_id(self):
          poll = Poll.objects.create(question_text='other text')
          self.assertNotEqual(poll.sodahead_id, '')
+
+    @vcr.use_cassette()
+    def test_poll_creation_fails_when_sodahead_request_fails(self):
+        poll = Poll.objects.create(question_text='other text')
+        self.assertFalse(Poll.objects.filter(id=poll.id).exists())
+
