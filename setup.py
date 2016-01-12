@@ -37,7 +37,7 @@ dev_requires = [
     "httmock==1.0.5",
     "model-mommy==1.2.4",
     "psycopg2==2.5.1",
-    "pytest==2.7.0",
+    "pytest==2.7.3",
     "pytest-cov==1.8.1",
     "pytest-django==2.8.0",
     "celery==3.1.10",
