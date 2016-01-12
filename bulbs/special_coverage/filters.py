@@ -12,9 +12,14 @@ class SpecialCoverageFilter(CaseInsensitiveBooleanFilter):
         queryset = super(SpecialCoverageFilter, self).filter_queryset(request, queryset, view)
         query_params = get_query_params(request)
         if "active" in query_params:
+            today_filter = today()
             value = query_params.get("active").lower()
             if value == "true":
-                queryset = queryset.filter(start_date__lte=today(), end_date__gte=today())
+                queryset = queryset.filter(
+                    start_date__lte=today_filter, end_date__gte=today_filter
+                )
             elif value == "false":
-                queryset == queryset.exclude(start_date__lte=today(), end_date__gte=today())
+                queryset == queryset.exclude(
+                    start_date__lte=today_filter, end_date__gte=today_filter
+                )
         return queryset
