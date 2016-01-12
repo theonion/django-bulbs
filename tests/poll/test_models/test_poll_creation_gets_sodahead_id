@@ -1,0 +1,393 @@
+interactions:
+- request:
+    body: access_token=AQAAAHF5KS4FPOM0cmsxM5jrxDS9pmvPPtDI6M3qnbL8fX4ym5VGMUzH4sWBXxJnv-jNBw%3D%3D&name=&title=other+text
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      Content-Length: ['112']
+      Content-Type: [application/x-www-form-urlencoded]
+      User-Agent: [python-requests/2.9.1]
+    method: POST
+    uri: http://onion.sodahead.com/api/poll
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAAwMAAAAAAAAAAAA=
+    headers:
+      connection: [keep-alive]
+      content-encoding: [gzip]
+      content-length: ['20']
+      content-type: [text/html; charset=utf-8; charset=utf-8]
+      date: ['Tue, 12 Jan 2016 20:57:12 GMT']
+      etag: ['"d41d8cd98f00b204e9800998ecf8427e"']
+      location: ['http://onion.sodahead.com/api/poll/']
+      server: [openresty/1.5.8.1]
+      vary: [Accept-Encoding]
+    status: {code: 301, message: MOVED PERMANENTLY}
+- request:
+    body: null
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      Content-Type: [application/x-www-form-urlencoded]
+      User-Agent: [python-requests/2.9.1]
+    method: GET
+    uri: http://onion.sodahead.com/api/poll/
+  response:
+    body: {string: !!python/unicode '{"prev": null, "polls": [{"vote": null, "poll":
+        {"endDate": null, "demo": {}, "image": null, "video": null, "numComments":
+        0, "category": {"url": "http:\/\/www.sodahead.com\/entertainment\/", "id":
+        5, "title": "Entertainment"}, "title": "What Was The Best Classic Rock Block
+        Of 2015?", "range": {}, "id": 4857102, "closed": false, "hideResults": false,
+        "description": "", "tags": [], "answers": [{"title": "\u201cJailbreak,\u201d
+        Thin Lizzy; \u201cSharp Dressed Man,\u201d ZZ Top; \u201cGodzilla,\u201d Blue
+        Oyster Cult; \u201cBad Company,\u201d Bad Company; \u201cPanama,\u201d Van
+        Halen; \u201cShoot To Thrill,\u201d AC\/DC (Electric Lunch, Z103)", "color":
+        null, "image": null, "video": null, "meta_text": "", "totalVotes": 1771, "percentage":
+        18, "id": 12058950}, {"title": "\u201cTake The Money And Run,\u201d Steve
+        Miller Band; \u201cReelin\u2019 In The Years,\u201d Steely Dan; \u201cRunning
+        On Empty,\u201d Jackson Browne; \u201cWhile You See A Chance,\u201d Steve
+        Winwood; \u201cFool In The Rain (Radio Edit),\u201d Led Zeppelin (Steve &
+        The Nipper In The Morning, 105.1 The Fox)", "color": null, "image": null,
+        "video": null, "meta_text": "", "totalVotes": 1094, "percentage": 11, "id":
+        12058952}, {"title": "\u201cI Need To Know,\u201d Tom Petty & The Heartbreakers;
+        \u201cBreakdown,\u201d Tom Petty & The Heartbreakers; \u201cBehind Blue Eyes,\u201d
+        The Who; \u201cPinball Wizard,\u201d The Who; \u201cAfter Midnight,\u201d
+        Eric Clapton; \u201cCocaine (Live),\u201d Eric Clapton (Double Shot Weekends,
+        Alice 95.5)", "color": null, "image": null, "video": null, "meta_text": "",
+        "totalVotes": 1480, "percentage": 15, "id": 12058954}, {"title": "\u201cTake
+        The Long Way Home,\u201d Supertramp; \u201cWheel In The Sky,\u201d Journey;
+        \u201cRhiannon,\u201d Fleetwood Mac; \u201cFool In The Rain (Radio Edit),\u201d
+        Led Zeppelin; \u201cLawyers, Guns And Money,\u201d Warren Zevon; \u201cGood
+        Times Roll,\u201d The Cars (All-Request Lunch, Q-Rock 97)", "color": null,
+        "image": null, "video": null, "meta_text": "", "totalVotes": 1647, "percentage":
+        16, "id": 12058956}, {"title": "\u201c25 Or 6 To 4,\u201d Chicago; \u201cOne
+        Way Out,\u201d The Allman Brothers Band; \u201cMove It On Over,\u201d George
+        Thorogood; \u201cCrossroads,\u201d Cream; \u201cCold Shot,\u201d Stevie Ray
+        Vaughan; \u201cDear Mr. Fantasy,\u201d Traffic (No-Repeat Workday, Big 105)",
+        "color": null, "image": null, "video": null, "meta_text": "", "totalVotes":
+        1301, "percentage": 13, "id": 12058958}, {"title": "\u201cD\u2019yer Maker,\u201d
+        Led Zeppelin; \u201cThe Rain Song (Live),\u201d Jimmy Page And Robert Plant;
+        \u201cOver The Hills And Far Away,\u201d Led Zeppelin; \u201cFool In The Rain
+        (Full Version),\u201d Led Zeppelin; \u201cGoing To California,\u201d Led Zeppelin
+        (Led Zeppelin Labor Day, KTRX-FM 92.7)", "color": null, "image": null, "video":
+        null, "meta_text": "", "totalVotes": 2817, "percentage": 28, "id": 12058960}],
+        "slider": null, "sponsored": false, "modifiedDate": "2015-12-03 23:00:22",
+        "creationDate": "2015-12-03 15:44:24", "geo": {}, "name": "YIR - Dec 11 -
+        02", "url": "http:\/\/www.sodahead.com\/entertainment\/what-was-the-best-classic-rock-block-of-2015\/question-4857102\/",
+        "author": {"url": "http:\/\/www.sodahead.com\/user\/profile\/4172814\/onion\/",
+        "nickName": "Onion", "id": 4172814, "avatar": "http:\/\/images.sodahead.com\/profiles\/000000001\/profiles_1202SHAvatarFpurple_1019_931107_small.jpeg"},
+        "hideResults_content": "", "editDate": "2015-12-03 23:00:22", "activationDate":
+        "2015-11-25 06:01:00", "totalVotes": 10110}}, {"vote": null, "poll": {"endDate":
+        null, "demo": {}, "image": null, "video": null, "numComments": 0, "category":
+        {"url": "http:\/\/www.sodahead.com\/entertainment\/", "id": 5, "title": "Entertainment"},
+        "title": "What Was 4th District Alderman Alan Klemke\u2019s Most Damning Political
+        Misstep Of 2015?", "range": {}, "id": 4857100, "closed": false, "hideResults":
+        false, "description": "", "tags": [], "answers": [{"title": "Voting against
+        the Maple Hill commercial zoning ordinance", "color": null, "image": null,
+        "video": null, "meta_text": "", "totalVotes": 626, "percentage": 6, "id":
+        12058938}, {"title": "Trusting 2nd District alderman Joanna Mead to support
+        a new park on East 22nd", "color": null, "image": null, "video": null, "meta_text":
+        "", "totalVotes": 866, "percentage": 9, "id": 12058940}, {"title": "Endorsing
+        Martha Blackburn for city treasurer over incumbent Chip Davis", "color": null,
+        "image": null, "video": null, "meta_text": "", "totalVotes": 1128, "percentage":
+        11, "id": 12058942}, {"title": "Changing stance multiple times on whether
+        the Oscar D. and Ida Barnes House should be zoned as a historic preservation
+        site", "color": null, "image": null, "video": null, "meta_text": "", "totalVotes":
+        1548, "percentage": 15, "id": 12058944}, {"title": "Failing to push through
+        a resolution creating a four-way stop at the intersection of Walcott and Pineway",
+        "color": null, "image": null, "video": null, "meta_text": "", "totalVotes":
+        2459, "percentage": 25, "id": 12058946}, {"title": "Approving renovations
+        of Humphrey Park gazebo that ultimately ran almost $1,500 over budget", "color":
+        null, "image": null, "video": null, "meta_text": "", "totalVotes": 3366, "percentage":
+        34, "id": 12058948}], "slider": null, "sponsored": false, "modifiedDate":
+        "2015-12-03 23:00:33", "creationDate": "2015-12-03 15:43:23", "geo": {}, "name":
+        "YIR - Dec 11 - 01", "url": "http:\/\/www.sodahead.com\/entertainment\/what-was-4th-district-alderman-alan-klemkes-most-damning-political-misstep-of-2015\/question-4857100\/",
+        "author": {"url": "http:\/\/www.sodahead.com\/user\/profile\/4172814\/onion\/",
+        "nickName": "Onion", "id": 4172814, "avatar": "http:\/\/images.sodahead.com\/profiles\/000000001\/profiles_1202SHAvatarFpurple_1019_931107_small.jpeg"},
+        "hideResults_content": "", "editDate": "2015-12-03 23:00:33", "activationDate":
+        "2015-11-25 06:01:00", "totalVotes": 9993}}, {"vote": null, "poll": {"endDate":
+        null, "demo": {}, "image": null, "video": null, "numComments": 0, "category":
+        {"url": "http:\/\/www.sodahead.com\/entertainment\/", "id": 5, "title": "Entertainment"},
+        "title": "What Was The Most Important Consumer Product Released In 2015?",
+        "range": {}, "id": 4857098, "closed": false, "hideResults": false, "description":
+        "", "tags": [], "answers": [{"title": "A new shape of speakers", "color":
+        null, "image": null, "video": null, "meta_text": "", "totalVotes": 1094, "percentage":
+        9, "id": 12058926}, {"title": "Starcraft II Patch 2.1.9: streamlined hotkeys
+        and fixed an issue with unit production queues", "color": null, "image": null,
+        "video": null, "meta_text": "", "totalVotes": 2880, "percentage": 24, "id":
+        12058928}, {"title": "Official Steve Vai Signature JEM Cuisinart Non-Stick
+        Frittata Pan", "color": null, "image": null, "video": null, "meta_text": "",
+        "totalVotes": 1134, "percentage": 10, "id": 12058930}, {"title": "New papal
+        indulgences", "color": null, "image": null, "video": null, "meta_text": "",
+        "totalVotes": 2693, "percentage": 23, "id": 12058932}, {"title": "John Deere\u2019s
+        Scented Aftermow Balm For Trimmed Lawns", "color": null, "image": null, "video":
+        null, "meta_text": "", "totalVotes": 2088, "percentage": 18, "id": 12058934},
+        {"title": "Mug with picture of the Space Needle on it", "color": null, "image":
+        null, "video": null, "meta_text": "", "totalVotes": 2030, "percentage": 17,
+        "id": 12058936}], "slider": null, "sponsored": false, "modifiedDate": "2015-12-03
+        23:00:02", "creationDate": "2015-12-03 15:42:18", "geo": {}, "name": "YIR
+        - Dec 10 - 02", "url": "http:\/\/www.sodahead.com\/entertainment\/what-was-the-most-important-consumer-product-released-in-2015\/question-4857098\/",
+        "author": {"url": "http:\/\/www.sodahead.com\/user\/profile\/4172814\/onion\/",
+        "nickName": "Onion", "id": 4172814, "avatar": "http:\/\/images.sodahead.com\/profiles\/000000001\/profiles_1202SHAvatarFpurple_1019_931107_small.jpeg"},
+        "hideResults_content": "", "editDate": "2015-12-03 23:00:02", "activationDate":
+        "2015-11-25 06:01:00", "totalVotes": 11919}}, {"vote": null, "poll": {"endDate":
+        null, "demo": {}, "image": null, "video": null, "numComments": 0, "category":
+        {"url": "http:\/\/www.sodahead.com\/entertainment\/", "id": 5, "title": "Entertainment"},
+        "title": "What Was The Biggest Scientific Discovery Of 2015?", "range": {},
+        "id": 4857096, "closed": false, "hideResults": false, "description": "", "tags":
+        [], "answers": [{"title": "Researchers successfully implanted false memories
+        in mice, opening up entirely new frontier in field of rodent psychological
+        torture", "color": null, "image": null, "video": null, "meta_text": "", "totalVotes":
+        3214, "percentage": 24, "id": 12058914}, {"title": "Constellation that kind
+        of looks like smiley face", "color": null, "image": null, "video": null, "meta_text":
+        "", "totalVotes": 1929, "percentage": 15, "id": 12058916}, {"title": "This
+        weirdly long strand of hair in our apartment that definitely doesn\u2019t
+        belong to us", "color": null, "image": null, "video": null, "meta_text": "",
+        "totalVotes": 2342, "percentage": 18, "id": 12058918}, {"title": "Microwaved
+        hot dogs different but good in their own way", "color": null, "image": null,
+        "video": null, "meta_text": "", "totalVotes": 2122, "percentage": 16, "id":
+        12058920}, {"title": "The secret to smooth, even, kissably soft skin", "color":
+        null, "image": null, "video": null, "meta_text": "", "totalVotes": 993, "percentage":
+        7, "id": 12058922}, {"title": "Jolt caused by sticking your tongue on 9-volt
+        battery not that bad", "color": null, "image": null, "video": null, "meta_text":
+        "", "totalVotes": 2684, "percentage": 20, "id": 12058924}], "slider": null,
+        "sponsored": false, "modifiedDate": "2015-12-03 22:59:50", "creationDate":
+        "2015-12-03 15:41:15", "geo": {}, "name": "YIR - Dec 10 - 01", "url": "http:\/\/www.sodahead.com\/entertainment\/what-was-the-biggest-scientific-discovery-of-2015\/question-4857096\/",
+        "author": {"url": "http:\/\/www.sodahead.com\/user\/profile\/4172814\/onion\/",
+        "nickName": "Onion", "id": 4172814, "avatar": "http:\/\/images.sodahead.com\/profiles\/000000001\/profiles_1202SHAvatarFpurple_1019_931107_small.jpeg"},
+        "hideResults_content": "", "editDate": "2015-12-03 22:59:50", "activationDate":
+        "2015-11-25 06:01:00", "totalVotes": 13284}}, {"vote": null, "poll": {"endDate":
+        null, "demo": {}, "image": null, "video": null, "numComments": 0, "category":
+        {"url": "http:\/\/www.sodahead.com\/entertainment\/", "id": 5, "title": "Entertainment"},
+        "title": "What Do You Think Was The Top Issue Facing Americans In 2015?",
+        "range": {}, "id": 4857094, "closed": false, "hideResults": false, "description":
+        "", "tags": [], "answers": [{"title": "Planned Parenthood\u2019s use of fetal
+        tissue to clone homosexuals", "color": null, "image": null, "video": null,
+        "meta_text": "", "totalVotes": 4162, "percentage": 27, "id": 12058902}, {"title":
+        "Deciding if we should make that sandwich a Meal Deal", "color": null, "image":
+        null, "video": null, "meta_text": "", "totalVotes": 1800, "percentage": 12,
+        "id": 12058904}, {"title": "Whether Cedric Villani\u2019s theories on convergence
+        to equilibrium for spatially inhomogeneous kinetic equations can truly yield
+        accurate estimates for solutions to the Boltzmann equation", "color": null,
+        "image": null, "video": null, "meta_text": "", "totalVotes": 1949, "percentage":
+        12, "id": 12058906}, {"title": "We\u2019re just tired, you know?", "color":
+        null, "image": null, "video": null, "meta_text": "", "totalVotes": 4802, "percentage":
+        31, "id": 12058908}, {"title": "The seeming powerlessness of the authorities
+        when it comes to catching the person, or thing, responsible for the Ridgeway
+        Park Carousel murders", "color": null, "image": null, "video": null, "meta_text":
+        "", "totalVotes": 599, "percentage": 4, "id": 12058910}, {"title": "How a
+        boy as handsome as Brendan is still single", "color": null, "image": null,
+        "video": null, "meta_text": "", "totalVotes": 2332, "percentage": 15, "id":
+        12058912}], "slider": null, "sponsored": false, "modifiedDate": "2015-12-03
+        22:59:39", "creationDate": "2015-12-03 15:39:59", "geo": {}, "name": "YIR
+        - Dec 9 - 02", "url": "http:\/\/www.sodahead.com\/entertainment\/what-do-you-think-was-the-top-issue-facing-americans-in-2015\/question-4857094\/",
+        "author": {"url": "http:\/\/www.sodahead.com\/user\/profile\/4172814\/onion\/",
+        "nickName": "Onion", "id": 4172814, "avatar": "http:\/\/images.sodahead.com\/profiles\/000000001\/profiles_1202SHAvatarFpurple_1019_931107_small.jpeg"},
+        "hideResults_content": "", "editDate": "2015-12-03 22:59:39", "activationDate":
+        "2015-11-25 06:01:00", "totalVotes": 15644}}, {"vote": null, "poll": {"endDate":
+        null, "demo": {}, "image": null, "video": null, "numComments": 0, "category":
+        {"url": "http:\/\/www.sodahead.com\/entertainment\/", "id": 5, "title": "Entertainment"},
+        "title": "What Would You Like To See More Of In 2016?", "range": {}, "id":
+        4857092, "closed": false, "hideResults": false, "description": "", "tags":
+        [], "answers": [{"title": "Things being exposed and\/or coming to light",
+        "color": null, "image": null, "video": null, "meta_text": "", "totalVotes":
+        2426, "percentage": 14, "id": 12058890}, {"title": "Modern twists on traditional
+        Mediterranean cuisine", "color": null, "image": null, "video": null, "meta_text":
+        "", "totalVotes": 1770, "percentage": 10, "id": 12058892}, {"title": "Smut",
+        "color": null, "image": null, "video": null, "meta_text": "", "totalVotes":
+        5185, "percentage": 30, "id": 12058894}, {"title": "Those fireworks where
+        it looks like a huge weeping willow in the sky", "color": null, "image": null,
+        "video": null, "meta_text": "", "totalVotes": 2480, "percentage": 14, "id":
+        12058896}, {"title": "The green stuff. Oh, yeah, you know what I mean! I\u2019m
+        talking about money!", "color": null, "image": null, "video": null, "meta_text":
+        "", "totalVotes": 2698, "percentage": 16, "id": 12058898}, {"title": "Dad",
+        "color": null, "image": null, "video": null, "meta_text": "", "totalVotes":
+        2749, "percentage": 16, "id": 12058900}], "slider": null, "sponsored": false,
+        "modifiedDate": "2015-12-03 22:59:27", "creationDate": "2015-12-03 15:38:44",
+        "geo": {}, "name": "YIR - Dec 9 - 01", "url": "http:\/\/www.sodahead.com\/entertainment\/what-would-you-like-to-see-more-of-in-2016\/question-4857092\/",
+        "author": {"url": "http:\/\/www.sodahead.com\/user\/profile\/4172814\/onion\/",
+        "nickName": "Onion", "id": 4172814, "avatar": "http:\/\/images.sodahead.com\/profiles\/000000001\/profiles_1202SHAvatarFpurple_1019_931107_small.jpeg"},
+        "hideResults_content": "", "editDate": "2015-12-03 22:59:27", "activationDate":
+        "2015-11-25 06:01:00", "totalVotes": 17308}}, {"vote": null, "poll": {"endDate":
+        null, "demo": {}, "image": null, "video": null, "numComments": 0, "category":
+        {"url": "http:\/\/www.sodahead.com\/entertainment\/", "id": 5, "title": "Entertainment"},
+        "title": "How Many Fireflies Did You Catch This Summer?", "range": {}, "id":
+        4857088, "closed": false, "hideResults": false, "description": "", "tags":
+        [], "answers": [{"title": "8", "color": null, "image": null, "video": null,
+        "meta_text": "", "totalVotes": 375, "percentage": 2, "id": 12058866}, {"title":
+        "7", "color": null, "image": null, "video": null, "meta_text": "", "totalVotes":
+        1163, "percentage": 6, "id": 12058868}, {"title": "14,834,972", "color": null,
+        "image": null, "video": null, "meta_text": "", "totalVotes": 2662, "percentage":
+        14, "id": 12058870}, {"title": "10", "color": null, "image": null, "video":
+        null, "meta_text": "", "totalVotes": 680, "percentage": 4, "id": 12058872},
+        {"title": "Opted to focus all efforts on catching ladybugs this year", "color":
+        null, "image": null, "video": null, "meta_text": "", "totalVotes": 12268,
+        "percentage": 64, "id": 12058874}, {"title": "12.5", "color": null, "image":
+        null, "video": null, "meta_text": "", "totalVotes": 2072, "percentage": 11,
+        "id": 12058876}], "slider": null, "sponsored": false, "modifiedDate": "2015-12-03
+        22:59:17", "creationDate": "2015-12-03 15:37:34", "geo": {}, "name": "YIR
+        - Dec 8 - 02", "url": "http:\/\/www.sodahead.com\/entertainment\/how-many-fireflies-did-you-catch-this-summer\/question-4857088\/",
+        "author": {"url": "http:\/\/www.sodahead.com\/user\/profile\/4172814\/onion\/",
+        "nickName": "Onion", "id": 4172814, "avatar": "http:\/\/images.sodahead.com\/profiles\/000000001\/profiles_1202SHAvatarFpurple_1019_931107_small.jpeg"},
+        "hideResults_content": "", "editDate": "2015-12-03 22:59:17", "activationDate":
+        "2015-11-25 06:01:00", "totalVotes": 19220}}, {"vote": null, "poll": {"endDate":
+        null, "demo": {}, "image": null, "video": null, "numComments": 0, "category":
+        {"url": "http:\/\/www.sodahead.com\/entertainment\/", "id": 5, "title": "Entertainment"},
+        "title": "What Was The Biggest News Story Of The Year?", "range": {}, "id":
+        4857086, "closed": false, "hideResults": false, "description": "", "tags":
+        [], "answers": [{"title": "Coincidental string of totally isolated incidents
+        of police brutality against minorities", "color": null, "image": null, "video":
+        null, "meta_text": "", "totalVotes": 7708, "percentage": 36, "id": 12058854},
+        {"title": "Bill Cosby\u2019s actions in 2004, 1995, 1992, 1988, 1986, 1982,
+        1979, 1976, 1973, and 1971", "color": null, "image": null, "video": null,
+        "meta_text": "", "totalVotes": 3052, "percentage": 14, "id": 12058856}, {"title":
+        "Sasha Obama getting stuck in White House well", "color": null, "image": null,
+        "video": null, "meta_text": "", "totalVotes": 2952, "percentage": 14, "id":
+        12058858}, {"title": "Jim and Kathy finally managing to find a buyer for the
+        house after 18 months on the market", "color": null, "image": null, "video":
+        null, "meta_text": "", "totalVotes": 1255, "percentage": 6, "id": 12058860},
+        {"title": "Computers?", "color": null, "image": null, "video": null, "meta_text":
+        "", "totalVotes": 3678, "percentage": 17, "id": 12058862}, {"title": "Do not
+        follow events", "color": null, "image": null, "video": null, "meta_text":
+        "", "totalVotes": 2473, "percentage": 12, "id": 12058864}], "slider": null,
+        "sponsored": false, "modifiedDate": "2015-12-03 22:59:03", "creationDate":
+        "2015-12-03 15:35:38", "geo": {}, "name": "YIR - Dec 8 - 01", "url": "http:\/\/www.sodahead.com\/entertainment\/what-was-the-biggest-news-story-of-the-year\/question-4857086\/",
+        "author": {"url": "http:\/\/www.sodahead.com\/user\/profile\/4172814\/onion\/",
+        "nickName": "Onion", "id": 4172814, "avatar": "http:\/\/images.sodahead.com\/profiles\/000000001\/profiles_1202SHAvatarFpurple_1019_931107_small.jpeg"},
+        "hideResults_content": "", "editDate": "2015-12-03 22:59:03", "activationDate":
+        "2015-11-25 06:01:00", "totalVotes": 21118}}, {"vote": null, "poll": {"endDate":
+        null, "demo": {}, "image": null, "video": null, "numComments": 0, "category":
+        {"url": "http:\/\/www.sodahead.com\/entertainment\/", "id": 5, "title": "Entertainment"},
+        "title": "What Was The Best Pop Culture Moment Of 2015?", "range": {}, "id":
+        4857084, "closed": false, "hideResults": false, "description": "", "tags":
+        [], "answers": [{"title": "KTRX-FM\u2019s Led Zeppelin Labor Day", "color":
+        null, "image": null, "video": null, "meta_text": "", "totalVotes": 2077, "percentage":
+        8, "id": 12058842}, {"title": "The epic feud between Israel and Palestine",
+        "color": null, "image": null, "video": null, "meta_text": "", "totalVotes":
+        6404, "percentage": 25, "id": 12058844}, {"title": "Seeing famous person naked",
+        "color": null, "image": null, "video": null, "meta_text": "", "totalVotes":
+        6707, "percentage": 26, "id": 12058846}, {"title": "One Direction fan Rachel
+        Smith ending her ties with the band to focus on other music", "color": null,
+        "image": null, "video": null, "meta_text": "", "totalVotes": 2527, "percentage":
+        10, "id": 12058848}, {"title": "Just happening to come across ''Con Air''
+        right at the beginning on TBS", "color": null, "image": null, "video": null,
+        "meta_text": "", "totalVotes": 5140, "percentage": 20, "id": 12058850}, {"title":
+        "The Hollywood purge", "color": null, "image": null, "video": null, "meta_text":
+        "", "totalVotes": 3080, "percentage": 12, "id": 12058852}], "slider": null,
+        "sponsored": false, "modifiedDate": "2015-12-03 21:24:30", "creationDate":
+        "2015-12-03 15:33:34", "geo": {}, "name": "YIR - Dec 7 - 02", "url": "http:\/\/www.sodahead.com\/entertainment\/what-was-the-best-pop-culture-moment-of-2015\/question-4857084\/",
+        "author": {"url": "http:\/\/www.sodahead.com\/user\/profile\/4172814\/onion\/",
+        "nickName": "Onion", "id": 4172814, "avatar": "http:\/\/images.sodahead.com\/profiles\/000000001\/profiles_1202SHAvatarFpurple_1019_931107_small.jpeg"},
+        "hideResults_content": "", "editDate": "2015-12-03 21:24:30", "activationDate":
+        "2015-11-25 06:01:00", "totalVotes": 25935}}, {"vote": null, "poll": {"endDate":
+        null, "demo": {}, "image": null, "video": null, "numComments": 0, "category":
+        {"url": "http:\/\/www.sodahead.com\/entertainment\/", "id": 5, "title": "Entertainment"},
+        "title": "Who Inspired You Most In 2015?", "range": {}, "id": 4857066, "closed":
+        false, "hideResults": false, "description": "", "tags": [], "answers": [{"title":
+        "Gha\u2019aragoth, God of Lust", "color": null, "image": null, "video": null,
+        "meta_text": "", "totalVotes": 8073, "percentage": 29, "id": 12058768}, {"title":
+        "Budweiser marketing team", "color": null, "image": null, "video": null, "meta_text":
+        "", "totalVotes": 4834, "percentage": 17, "id": 12058770}, {"title": "Some
+        diseased kid", "color": null, "image": null, "video": null, "meta_text": "",
+        "totalVotes": 3622, "percentage": 13, "id": 12058772}, {"title": "The president
+        of our country, as is dictated by the law", "color": null, "image": null,
+        "video": null, "meta_text": "", "totalVotes": 3865, "percentage": 14, "id":
+        12058774}, {"title": "Still flying high on dose of 1984 Summer Olympics inspiration
+        from Carl Lewis", "color": null, "image": null, "video": null, "meta_text":
+        "", "totalVotes": 3225, "percentage": 11, "id": 12058776}, {"title": "Lions!",
+        "color": null, "image": null, "video": null, "meta_text": "", "totalVotes":
+        4454, "percentage": 16, "id": 12058840}], "slider": null, "sponsored": false,
+        "modifiedDate": "2015-12-03 22:58:51", "creationDate": "2015-12-03 01:47:13",
+        "geo": {}, "name": "YIR - Dec 7 - 01", "url": "http:\/\/www.sodahead.com\/entertainment\/who-inspired-you-most-in-2015\/question-4857066\/",
+        "author": {"url": "http:\/\/www.sodahead.com\/user\/profile\/4172814\/onion\/",
+        "nickName": "Onion", "id": 4172814, "avatar": "http:\/\/images.sodahead.com\/profiles\/000000001\/profiles_1202SHAvatarFpurple_1019_931107_small.jpeg"},
+        "hideResults_content": "", "editDate": "2015-12-03 22:58:51", "activationDate":
+        "2015-11-26 06:01:00", "totalVotes": 28073}}, {"vote": null, "poll": {"endDate":
+        "2015-12-04 06:00:00", "demo": {}, "image": null, "video": null, "numComments":
+        0, "category": {"url": "http:\/\/www.sodahead.com\/entertainment\/", "id":
+        5, "title": "Entertainment"}, "title": "What is Jamie''s daughter''s name?",
+        "range": {}, "id": 4856148, "closed": true, "hideResults": false, "description":
+        "", "tags": [], "answers": [{"title": "Eleanor", "color": null, "image": null,
+        "video": null, "meta_text": "", "totalVotes": 5, "percentage": 50, "id": 12056196},
+        {"title": "Tiffany", "color": null, "image": null, "video": null, "meta_text":
+        "", "totalVotes": 3, "percentage": 30, "id": 12056198}, {"title": "Foo", "color":
+        null, "image": null, "video": null, "meta_text": "", "totalVotes": 1, "percentage":
+        10, "id": 12056200}, {"title": "Bar", "color": null, "image": null, "video":
+        null, "meta_text": "", "totalVotes": 1, "percentage": 10, "id": 12056202}],
+        "slider": null, "sponsored": false, "modifiedDate": "2015-12-04 06:00:43",
+        "creationDate": "2015-11-18 20:00:40", "geo": {}, "name": "Jamie Daughter",
+        "url": "http:\/\/www.sodahead.com\/entertainment\/what-is-jamies-daughters-name\/question-4856148\/",
+        "author": {"url": "http:\/\/www.sodahead.com\/user\/profile\/4172828\/test\/",
+        "nickName": "TEST", "id": 4172828, "avatar": "http:\/\/images.sodahead.com\/profiles\/000000001\/profiles_1202SHAvatarFred_1028_226520_small.jpeg"},
+        "hideResults_content": "", "editDate": "2015-12-04 06:00:43", "activationDate":
+        "2015-11-18 20:00:00", "totalVotes": 10}}, {"vote": null, "poll": {"endDate":
+        "2015-12-04 08:00:00", "demo": {}, "image": null, "video": null, "numComments":
+        0, "category": {"url": "http:\/\/www.sodahead.com\/entertainment\/", "id":
+        5, "title": "Entertainment"}, "title": "What is your favorite color?", "range":
+        {}, "id": 4855558, "closed": true, "hideResults": false, "description": "",
+        "tags": [], "answers": [{"title": "South African Swallow", "color": null,
+        "image": null, "video": null, "meta_text": "", "totalVotes": 2, "percentage":
+        67, "id": 12054586}, {"title": "Purple", "color": null, "image": null, "video":
+        null, "meta_text": "", "totalVotes": 1, "percentage": 33, "id": 12054588}],
+        "slider": null, "sponsored": false, "modifiedDate": "2015-12-04 08:00:27",
+        "creationDate": "2015-11-10 18:01:12", "geo": {}, "name": "Great Name For
+        Poll", "url": "http:\/\/www.sodahead.com\/entertainment\/what-is-your-favorite-color\/question-4855558\/",
+        "author": {"url": "http:\/\/www.sodahead.com\/user\/profile\/4172828\/test\/",
+        "nickName": "TEST", "id": 4172828, "avatar": "http:\/\/images.sodahead.com\/profiles\/000000001\/profiles_1202SHAvatarFred_1028_226520_small.jpeg"},
+        "hideResults_content": "", "editDate": "2015-12-04 08:00:27", "activationDate":
+        "2015-11-10 18:01:00", "totalVotes": 3}}, {"vote": null, "poll": {"endDate":
+        null, "demo": {}, "image": null, "video": null, "numComments": 0, "category":
+        {"url": "http:\/\/www.sodahead.com\/entertainment\/", "id": 5, "title": "Entertainment"},
+        "title": "Why is the Onion so awesome?", "range": {}, "id": 4855556, "closed":
+        false, "hideResults": false, "description": "", "tags": [], "answers": [{"title":
+        "Great on hotdogs", "color": null, "image": null, "video": null, "meta_text":
+        "", "totalVotes": 1, "percentage": 33, "id": 12054580}, {"title": "Great on
+        burgers", "color": null, "image": null, "video": null, "meta_text": "", "totalVotes":
+        0, "percentage": 0, "id": 12054582}, {"title": "Great Satirical Articles",
+        "color": null, "image": null, "video": null, "meta_text": "", "totalVotes":
+        2, "percentage": 67, "id": 12054584}], "slider": null, "sponsored": false,
+        "modifiedDate": "2015-11-11 21:22:52", "creationDate": "2015-11-10 17:43:42",
+        "geo": {}, "name": "Awesome Onion", "url": "http:\/\/www.sodahead.com\/entertainment\/why-is-the-onion-so-awesome\/question-4855556\/",
+        "author": {"url": "http:\/\/www.sodahead.com\/user\/profile\/4172828\/test\/",
+        "nickName": "TEST", "id": 4172828, "avatar": "http:\/\/images.sodahead.com\/profiles\/000000001\/profiles_1202SHAvatarFred_1028_226520_small.jpeg"},
+        "hideResults_content": "", "editDate": "2015-11-11 21:22:52", "activationDate":
+        "2015-11-10 17:43:00", "totalVotes": 3}}], "next": null}'}
+    headers:
+      access-control-allow-headers: ['Authorization,Content-Type']
+      access-control-allow-methods: ['POST, GET, PUT, DELETE, HEAD, OPTIONS']
+      access-control-allow-origin: ['*']
+      cache-control: ['no-cache, private, max-age=0']
+      connection: [keep-alive]
+      content-length: ['26861']
+      content-type: [application/json; charset=utf-8]
+      date: ['Tue, 12 Jan 2016 20:57:12 GMT']
+      etag: ['"a9e1a2070de96209a93e84719f3ac756"']
+      pragma: [no-cache]
+      server: [openresty/1.5.8.1]
+      set-cookie: ['demo="6941fb8484874663bf28ce8338df72595ae08811:{\"_city_region\":
+          \"Frankfort\054NY\"\054 \"bf\": 0\054 \"dma\": 526}"; Domain=onion.sodahead.com;
+          expires=Wed, 11-Jan-2017 20:57:12 GMT; Max-Age=31536000; Path=/', 'anonymousUserId="a2568a512db51c577d4da1ae48860044481c9a3d:f1b93c36ca9d494793bea79ae8ca589f";
+          Domain=onion.sodahead.com; Path=/', 'session="d751580928f9b48c059f91a75a650e3692d0cb28:{\"country\":
+          \"US\"\054 \"state\": \"NY\"\054 \"postal_code\": \"13340\"}"; Domain=onion.sodahead.com;
+          Path=/']
+    status: {code: 200, message: OK}
+- request:
+    body: '{"status": "draft", "subhead": "", "description": "", "tags": [], "title":
+      "", "sodahead_id": 4857102, "content_ptr_id": 1, "id": 1, "polymorphic_ctype_id":
+      44, "question_text": "other text", "instant_article": false, "last_modified":
+      "2016-01-12T20:57:12.815813+00:00", "authors": [], "indexed": true, "pk": 1,
+      "slug": ""}'
+    headers:
+      connection: [keep-alive]
+    method: PUT
+    uri: http://localhost:9200/django-bulbs/poll_poll/1?refresh=false
+  response:
+    body: {string: !!python/unicode '{"_index":"django-bulbs_0001","_type":"poll_poll","_id":"1","_version":1,"created":true}'}
+    headers:
+      content-length: ['88']
+      content-type: [application/json; charset=UTF-8]
+    status: {code: 201, message: Created}
+version: 1
