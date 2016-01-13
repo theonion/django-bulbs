@@ -1,6 +1,7 @@
-from bulbs.utils.filters import CaseInsensitiveBooleanFilter
+from django.utils import timezone
 
-from bulbs.utils.methods import get_query_params, today_as_datetime
+from bulbs.utils.filters import CaseInsensitiveBooleanFilter
+from bulbs.utils.methods import get_query_params
 
 
 class SpecialCoverageFilter(CaseInsensitiveBooleanFilter):
@@ -12,7 +13,7 @@ class SpecialCoverageFilter(CaseInsensitiveBooleanFilter):
         queryset = super(SpecialCoverageFilter, self).filter_queryset(request, queryset, view)
         query_params = get_query_params(request)
         if "active" in query_params:
-            today_filter = today_as_datetime()
+            today_filter = timezone.now()
             value = query_params.get("active").lower()
             if value == "true":
                 queryset = queryset.filter(
