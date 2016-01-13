@@ -1,8 +1,13 @@
-from django.utils import timezone
 from django.core.exceptions import ValidationError
+from django.utils import timezone
+from django.test.utils import override_settings
 
 from bulbs.special_coverage.models import SpecialCoverage
+from bulbs.utils.methods import today
 from bulbs.utils.test import BaseIndexableTestCase
+
+
+TODAY = today()
 
 
 class SpecialCoverageModelTests(BaseIndexableTestCase):
@@ -35,6 +40,7 @@ class SpecialCoverageModelTests(BaseIndexableTestCase):
             end_date=timezone.now() + timezone.timedelta(days=10)
         )
         sc.save()
+        self.assertTrue(sc.is_active)
 
         with self.assertRaises(ValidationError):
             sc = SpecialCoverage.objects.create(name="Is", start_date=timezone.now())
@@ -48,3 +54,12 @@ class SpecialCoverageModelTests(BaseIndexableTestCase):
                 start_date=timezone.now(),
                 end_date=timezone.now() - timezone.timedelta(days=10)
             )
+
+    @override_settings(TODAY=TODAY.date())
+    def test_is_active_date_configuration(self):
+        sc = SpecialCoverage.objects.create(
+            name="God",
+            start_date=timezone.now() - timezone.timedelta(days=10),
+            end_date=timezone.now() + timezone.timedelta(days=10)
+        )
+        self.assertTrue(sc.is_active)

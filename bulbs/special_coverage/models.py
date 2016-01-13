@@ -1,3 +1,6 @@
+from datetime import date, datetime
+from dateutil import tz
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db.models.signals import pre_delete
@@ -120,6 +123,9 @@ class SpecialCoverage(DetailImageMixin, models.Model):
     @property
     def is_active(self):
         now = today()
+        if not isinstance(now, datetime) and isinstance(now, date):
+            now = datetime.combine(now, datetime.min.time())
+            now = now.replace(tzinfo=tz.gettz('America/Chicago'))
         if self.start_date and self.end_date:
             if self.start_date < now and self.end_date > now:
                 return True
