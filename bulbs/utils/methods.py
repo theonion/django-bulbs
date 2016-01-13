@@ -1,3 +1,4 @@
+from datetime import date, datetime
 from dateutil import tz
 from six import string_types, text_type, binary_type
 
@@ -16,6 +17,15 @@ def today():
     # catching this because settings.TODAY might literally be None in tests
     # getattr will return None if the value is set to None
     return getattr(settings, "TODAY", get_central_now())
+
+
+def today_as_datetime():
+    """Datetime/Date comparisons aren't great, and someone might configure TODAY, to be a date."""
+    now = today()
+    if not isinstance(now, datetime) and isinstance(now, date):
+        now = datetime.combine(now, datetime.min.time())
+        now = now.replace(tzinfo=tz.gettz('America/Chicago'))
+    return now
 
 
 def get_query_params(request):
