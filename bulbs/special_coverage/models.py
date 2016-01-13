@@ -1,6 +1,3 @@
-from datetime import date, datetime
-from dateutil import tz
-
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db.models.signals import pre_delete
@@ -14,7 +11,7 @@ from bulbs.campaigns.models import Campaign
 from bulbs.content.custom_search import custom_search_model
 from bulbs.content.models import Content
 from bulbs.content.mixins import DetailImageMixin
-from bulbs.utils.methods import today, is_valid_digit
+from bulbs.utils.methods import today_as_datetime, is_valid_digit
 
 
 es = Elasticsearch(settings.ES_URLS)
@@ -122,10 +119,7 @@ class SpecialCoverage(DetailImageMixin, models.Model):
 
     @property
     def is_active(self):
-        now = today()
-        if not isinstance(now, datetime) and isinstance(now, date):
-            now = datetime.combine(now, datetime.min.time())
-            now = now.replace(tzinfo=tz.gettz('America/Chicago'))
+        now = today_as_datetime()
         if self.start_date and self.end_date:
             if self.start_date < now and self.end_date > now:
                 return True
