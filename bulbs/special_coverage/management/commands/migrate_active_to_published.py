@@ -1,7 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
-from bulbs.utils.methods import get_central_now
 from ...models import SpecialCoverage
 
 
@@ -10,14 +9,14 @@ class Command(BaseCommand):
 
     def get_month_start_date(self):
         """Returns the first day of the current month"""
-        now = get_central_now()
+        now = timezone.now()
         return timezone.datetime(day=1, month=now.month, year=now.year, tzinfo=now.tzinfo)
 
     def get_absurd_end_date(self):
         """
         To give ourselves a buffer, we are setting the initial end_date to 5 years in the future.
         """
-        now = get_central_now()
+        now = timezone.now()
         return timezone.datetime(day=1, month=now.month, year=now.year + 5, tzinfo=now.tzinfo)
 
     def get_active_special_coverages(self):

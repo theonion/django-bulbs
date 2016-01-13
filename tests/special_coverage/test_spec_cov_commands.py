@@ -2,7 +2,7 @@ from django.core.management import call_command
 from django.test.utils import override_settings
 
 from bulbs.special_coverage.models import SpecialCoverage
-from bulbs.utils.methods import today_as_datetime
+from bulbs.utils.methods import today_as_utc_datetime
 from bulbs.utils.test import BaseIndexableTestCase
 
 
@@ -35,7 +35,7 @@ class SpecialCoverageCommandTests(BaseIndexableTestCase):
             self.assertNotIn(sc, start_qs)
             self.assertNotIn(sc, end_qs)
 
-    @override_settings(TODAY=today_as_datetime().date())
+    @override_settings(TODAY=today_as_utc_datetime().date())
     def test_active_migration_date_config_success(self):
         call_command("migrate_active_to_published")
         start_qs = SpecialCoverage.objects.filter(start_date__isnull=False)
