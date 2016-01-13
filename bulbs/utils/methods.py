@@ -25,6 +25,7 @@ def today_as_datetime():
     if not isinstance(now, datetime) and isinstance(now, date):
         now = datetime.combine(now, datetime.min.time())
         now = now.replace(tzinfo=tz.gettz('America/Chicago'))
+    return now
 
 
 def get_query_params(request):
