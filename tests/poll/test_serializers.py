@@ -4,11 +4,7 @@ from bulbs.utils.test       import BaseIndexableTestCase, \
                                    make_vcr, mock_vault, \
                                    random_title
 
-import os
-
-SECRETS = {
-    'sodahead/token': os.environ.get("SODAHEAD_API_TOKEN", "")
-}
+from .common import SECRETS
 
 vcr = make_vcr(__file__)  # Define vcr file path
 

@@ -12,9 +12,7 @@ import simplejson as json
 
 from bulbs.utils import vault
 
-SECRETS = {
-    'sodahead/token': os.environ.get("SODAHEAD_API_TOKEN", "")
-}
+from .common import SECRETS
 
 vcr = make_vcr(__file__)  # Define vcr file path
 

@@ -18,3 +18,4 @@ reports
 .idea/
 *.sublime-project
 .venv/
+venv/
