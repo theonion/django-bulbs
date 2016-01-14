@@ -22,10 +22,9 @@ class PollSerializerTestCase(BaseIndexableTestCase):
         poll = Poll.objects.create(question_text='good text',
                 title=random_title())
         serializer = PollSerializer(poll)
-        import ipdb; ipdb.set_trace()
         self.assertEqual(serializer.data['id'], poll.id)
         self.assertEqual(serializer.data['question_text'], poll.question_text)
-        self.assertEqual(serializer.data['name'], poll.title)
+        self.assertEqual(serializer.data['title'], poll.title)
 
 class AnswerTestCase(BaseIndexableTestCase):
 
@@ -37,5 +36,16 @@ class AnswerTestCase(BaseIndexableTestCase):
         poll = Poll.objects.create(question_text='good text',
                 title=random_title())
         answer = Answer.objects.create(poll=poll, answer_text='this is some text')
-        serializer = AnswerSerializer(poll)
-        self.assertEqual(serializer.data['answer_01'], answer.answer_text)
+        serializer = AnswerSerializer(answer)
+        self.assertEqual(serializer.data['answer_text'], answer.answer_text)
+
+    @vcr.use_cassette()
+    @mock_vault(SECRETS)
+    def test_multiple_answer_serialization(self):
+        poll = Poll.objects.create(question_text='good text',
+                title=random_title())
+        answer1 = Answer.objects.create(poll=poll, answer_text='this is some text')
+        answer2 = Answer.objects.create(poll=poll, answer_text='forest path')
+        serializer = AnswerSerializer(Answer.objects.all(), many=True)
+        self.assertEqual(serializer.data[0]['answer_text'], answer1.answer_text)
+        self.assertEqual(serializer.data[1]['answer_text'], answer2.answer_text)
