@@ -1,5 +1,7 @@
 from bulbs.poll.models import Poll, Answer
-from bulbs.utils.test import BaseIndexableTestCase, make_vcr, mock_vault
+from bulbs.utils.test  import BaseIndexableTestCase, \
+                              make_vcr, mock_vault, \
+                              random_title
 
 import os
 import random
@@ -7,7 +9,6 @@ import re
 import requests
 import requests_mock
 import simplejson as json
-import string
 
 from bulbs.utils import vault
 
@@ -16,9 +17,6 @@ SECRETS = {
 }
 
 vcr = make_vcr(__file__)  # Define vcr file path
-
-def random_title():
-    return ''.join([random.choice(string.ascii_uppercase) for _ in range(10)])
 
 class PollTestCase(BaseIndexableTestCase):
 

@@ -5,6 +5,7 @@ import json
 import logging
 import os
 import random
+import string
 import vcr
 
 from elasticsearch_dsl.connections import connections
@@ -49,6 +50,9 @@ def make_vcr(test_path, record_mode='once'):
             record_mode=record_mode,
             filter_post_data_parameters=['access_token']
     )
+
+def random_title():
+    return ''.join([random.choice(string.ascii_uppercase) for _ in range(10)])
 
 class JsonEncoder(json.JSONEncoder):
     def default(self, value):
