@@ -1,0 +1,258 @@
+interactions:
+- request:
+    body: answer_01=default+answer+1&name=BMMFOBDEPL&answer_02=default+answer+2&title=melissas+adventure
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      Content-Length: ['184']
+      Content-Type: [application/x-www-form-urlencoded]
+      User-Agent: [python-requests/2.9.1]
+    method: POST
+    uri: https://onion.sodahead.com/api/polls/
+  response:
+    body: {string: !!python/unicode '{"vote": null, "poll": {"endDate": null, "demo":
+        {}, "image": null, "video": null, "numComments": 0, "category": {"url": "http:\/\/www.sodahead.com\/entertainment\/",
+        "id": 5, "title": "Entertainment"}, "title": "melissas adventure", "range":
+        {}, "id": 4859310, "closed": false, "hideResults": false, "description": "",
+        "tags": [], "answers": [{"title": "default answer 1", "color": null, "image":
+        null, "video": null, "meta_text": null, "totalVotes": 0, "percentage": 0,
+        "id": 12065746}, {"title": "default answer 2", "color": null, "image": null,
+        "video": null, "meta_text": null, "totalVotes": 0, "percentage": 0, "id":
+        12065748}], "slider": null, "sponsored": false, "modifiedDate": null, "creationDate":
+        "2016-01-14 16:38:02", "geo": {}, "name": "BMMFOBDEPL", "url": "http:\/\/www.sodahead.com\/entertainment\/melissas-adventure\/question-4859310\/",
+        "author": {"url": "http:\/\/www.sodahead.com\/user\/profile\/4172828\/test\/",
+        "nickName": "TEST", "id": 4172828, "avatar": "http:\/\/images.sodahead.com\/profiles\/000000001\/profiles_1202SHAvatarFred_1028_226520_small.jpeg"},
+        "hideResults_content": "", "editDate": null, "activationDate": "2016-01-14
+        16:38:02", "totalVotes": 0}}'}
+    headers:
+      access-control-allow-headers: ['Authorization,Content-Type']
+      access-control-allow-methods: ['POST, GET, PUT, DELETE, HEAD, OPTIONS']
+      access-control-allow-origin: ['*']
+      cache-control: ['no-cache, private, max-age=0']
+      connection: [keep-alive]
+      content-length: ['1187']
+      content-type: [application/json; charset=utf-8]
+      date: ['Thu, 14 Jan 2016 16:38:02 GMT']
+      etag: ['"c8e7222f4fae0cd227395858860fc541"']
+      pragma: [no-cache]
+      server: [openresty/1.5.8.1]
+      set-cookie: ['demo="6941fb8484874663bf28ce8338df72595ae08811:{\"_city_region\":
+          \"Frankfort\054NY\"\054 \"bf\": 0\054 \"dma\": 526}"; Domain=onion.sodahead.com;
+          expires=Fri, 13-Jan-2017 16:38:02 GMT; Max-Age=31536000; Path=/', 'anonymousUserId="dda70eef99c92832d05889c93c48242e5ba00cd5:";
+          Domain=onion.sodahead.com; expires=Thu, 01-Jan-1970 00:00:00 GMT; Max-Age=0;
+          Path=/', 'session="d751580928f9b48c059f91a75a650e3692d0cb28:{\"country\":
+          \"US\"\054 \"state\": \"NY\"\054 \"postal_code\": \"13340\"}"; Domain=onion.sodahead.com;
+          Path=/; secure', '_crmUserId="f64eed1b50bc4a7841af95a4c41cf246349b1151:78";
+          Domain=onion.sodahead.com; Path=/']
+    status: {code: 200, message: OK}
+- request:
+    body: id=4859310&answer_01=something
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      Content-Length: ['120']
+      Content-Type: [application/x-www-form-urlencoded]
+      User-Agent: [python-requests/2.9.1]
+    method: POST
+    uri: https://onion.sodahead.com/api/polls/4859310/
+  response:
+    body: {string: !!python/unicode '{"vote": null, "poll": {"endDate": null, "demo":
+        {}, "image": null, "video": null, "numComments": 0, "category": {"url": "http:\/\/www.sodahead.com\/entertainment\/",
+        "id": 5, "title": "Entertainment"}, "title": "melissas adventure", "range":
+        {}, "id": 4859310, "closed": false, "hideResults": false, "description": "",
+        "tags": [], "answers": [{"title": "something", "color": null, "image": null,
+        "video": null, "meta_text": null, "totalVotes": 0, "percentage": 0, "id":
+        12065746}, {"title": "default answer 2", "color": null, "image": null, "video":
+        null, "meta_text": null, "totalVotes": 0, "percentage": 0, "id": 12065748}],
+        "slider": null, "sponsored": false, "modifiedDate": "2016-01-14 16:38:03.005838",
+        "creationDate": "2016-01-14 16:38:02", "geo": {}, "name": "BMMFOBDEPL", "url":
+        "http:\/\/www.sodahead.com\/entertainment\/melissas-adventure\/question-4859310\/",
+        "author": {"url": "http:\/\/www.sodahead.com\/user\/profile\/4172828\/test\/",
+        "nickName": "TEST", "id": 4172828, "avatar": "http:\/\/images.sodahead.com\/profiles\/000000001\/profiles_1202SHAvatarFred_1028_226520_small.jpeg"},
+        "hideResults_content": "", "editDate": "2016-01-14 16:38:03.005838", "activationDate":
+        "2016-01-14 16:38:00", "totalVotes": 0}}'}
+    headers:
+      access-control-allow-headers: ['Authorization,Content-Type']
+      access-control-allow-methods: ['POST, GET, PUT, DELETE, HEAD, OPTIONS']
+      access-control-allow-origin: ['*']
+      cache-control: ['no-cache, private, max-age=0']
+      connection: [keep-alive]
+      content-type: [application/json; charset=utf-8]
+      date: ['Thu, 14 Jan 2016 16:38:03 GMT']
+      etag: ['"b2aa18d027f700ef5e78827c36c86db3"']
+      pragma: [no-cache]
+      server: [openresty/1.5.8.1]
+      set-cookie: ['demo="6941fb8484874663bf28ce8338df72595ae08811:{\"_city_region\":
+          \"Frankfort\054NY\"\054 \"bf\": 0\054 \"dma\": 526}"; Domain=onion.sodahead.com;
+          expires=Fri, 13-Jan-2017 16:38:03 GMT; Max-Age=31536000; Path=/', 'anonymousUserId="dda70eef99c92832d05889c93c48242e5ba00cd5:";
+          Domain=onion.sodahead.com; expires=Thu, 01-Jan-1970 00:00:00 GMT; Max-Age=0;
+          Path=/', 'session="d751580928f9b48c059f91a75a650e3692d0cb28:{\"country\":
+          \"US\"\054 \"state\": \"NY\"\054 \"postal_code\": \"13340\"}"; Domain=onion.sodahead.com;
+          Path=/; secure', '_crmUserId="f64eed1b50bc4a7841af95a4c41cf246349b1151:78";
+          Domain=onion.sodahead.com; Path=/']
+    status: {code: 200, message: OK}
+- request:
+    body: id=4859310&answer_02=bridge&answer_01=something
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      Content-Length: ['137']
+      Content-Type: [application/x-www-form-urlencoded]
+      User-Agent: [python-requests/2.9.1]
+    method: POST
+    uri: https://onion.sodahead.com/api/polls/4859310/
+  response:
+    body: {string: !!python/unicode '{"vote": null, "poll": {"endDate": null, "demo":
+        {}, "image": null, "video": null, "numComments": 0, "category": {"url": "http:\/\/www.sodahead.com\/entertainment\/",
+        "id": 5, "title": "Entertainment"}, "title": "melissas adventure", "range":
+        {}, "id": 4859310, "closed": false, "hideResults": false, "description": "",
+        "tags": [], "answers": [{"title": "something", "color": null, "image": null,
+        "video": null, "meta_text": null, "totalVotes": 0, "percentage": 0, "id":
+        12065746}, {"title": "bridge", "color": null, "image": null, "video": null,
+        "meta_text": null, "totalVotes": 0, "percentage": 0, "id": 12065748}], "slider":
+        null, "sponsored": false, "modifiedDate": "2016-01-14 16:38:03", "creationDate":
+        "2016-01-14 16:38:02", "geo": {}, "name": "BMMFOBDEPL", "url": "http:\/\/www.sodahead.com\/entertainment\/melissas-adventure\/question-4859310\/",
+        "author": {"url": "http:\/\/www.sodahead.com\/user\/profile\/4172828\/test\/",
+        "nickName": "TEST", "id": 4172828, "avatar": "http:\/\/images.sodahead.com\/profiles\/000000001\/profiles_1202SHAvatarFred_1028_226520_small.jpeg"},
+        "hideResults_content": "", "editDate": "2016-01-14 16:38:03", "activationDate":
+        "2016-01-14 16:38:00", "totalVotes": 0}}'}
+    headers:
+      access-control-allow-headers: ['Authorization,Content-Type']
+      access-control-allow-methods: ['POST, GET, PUT, DELETE, HEAD, OPTIONS']
+      access-control-allow-origin: ['*']
+      cache-control: ['no-cache, private, max-age=0']
+      connection: [keep-alive]
+      content-type: [application/json; charset=utf-8]
+      date: ['Thu, 14 Jan 2016 16:38:03 GMT']
+      etag: ['"ee5814559acb48b29fdd4402367b037a"']
+      pragma: [no-cache]
+      server: [openresty/1.5.8.1]
+      set-cookie: ['demo="6941fb8484874663bf28ce8338df72595ae08811:{\"_city_region\":
+          \"Frankfort\054NY\"\054 \"bf\": 0\054 \"dma\": 526}"; Domain=onion.sodahead.com;
+          expires=Fri, 13-Jan-2017 16:38:03 GMT; Max-Age=31536000; Path=/', 'anonymousUserId="dda70eef99c92832d05889c93c48242e5ba00cd5:";
+          Domain=onion.sodahead.com; expires=Thu, 01-Jan-1970 00:00:00 GMT; Max-Age=0;
+          Path=/', 'session="d751580928f9b48c059f91a75a650e3692d0cb28:{\"country\":
+          \"US\"\054 \"state\": \"NY\"\054 \"postal_code\": \"13340\"}"; Domain=onion.sodahead.com;
+          Path=/; secure', '_crmUserId="f64eed1b50bc4a7841af95a4c41cf246349b1151:78";
+          Domain=onion.sodahead.com; Path=/']
+    status: {code: 200, message: OK}
+- request:
+    body: answer_03=alibaster&id=4859310&answer_02=bridge&answer_01=something
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      Content-Length: ['157']
+      Content-Type: [application/x-www-form-urlencoded]
+      User-Agent: [python-requests/2.9.1]
+    method: POST
+    uri: https://onion.sodahead.com/api/polls/4859310/
+  response:
+    body: {string: !!python/unicode '{"vote": null, "poll": {"endDate": null, "demo":
+        {}, "image": null, "video": null, "numComments": 0, "category": {"url": "http:\/\/www.sodahead.com\/entertainment\/",
+        "id": 5, "title": "Entertainment"}, "title": "melissas adventure", "range":
+        {}, "id": 4859310, "closed": false, "hideResults": false, "description": "",
+        "tags": [], "answers": [{"title": "something", "color": null, "image": null,
+        "video": null, "meta_text": null, "totalVotes": 0, "percentage": 0, "id":
+        12065746}, {"title": "bridge", "color": null, "image": null, "video": null,
+        "meta_text": null, "totalVotes": 0, "percentage": 0, "id": 12065748}], "slider":
+        null, "sponsored": false, "modifiedDate": "2016-01-14 16:38:03", "creationDate":
+        "2016-01-14 16:38:02", "geo": {}, "name": "BMMFOBDEPL", "url": "http:\/\/www.sodahead.com\/entertainment\/melissas-adventure\/question-4859310\/",
+        "author": {"url": "http:\/\/www.sodahead.com\/user\/profile\/4172828\/test\/",
+        "nickName": "TEST", "id": 4172828, "avatar": "http:\/\/images.sodahead.com\/profiles\/000000001\/profiles_1202SHAvatarFred_1028_226520_small.jpeg"},
+        "hideResults_content": "", "editDate": "2016-01-14 16:38:03", "activationDate":
+        "2016-01-14 16:38:00", "totalVotes": 0}}'}
+    headers:
+      access-control-allow-headers: ['Authorization,Content-Type']
+      access-control-allow-methods: ['POST, GET, PUT, DELETE, HEAD, OPTIONS']
+      access-control-allow-origin: ['*']
+      cache-control: ['no-cache, private, max-age=0']
+      connection: [keep-alive]
+      content-length: ['1204']
+      content-type: [application/json; charset=utf-8]
+      date: ['Thu, 14 Jan 2016 16:38:04 GMT']
+      etag: ['"ee5814559acb48b29fdd4402367b037a"']
+      pragma: [no-cache]
+      server: [openresty/1.5.8.1]
+      set-cookie: ['demo="6941fb8484874663bf28ce8338df72595ae08811:{\"_city_region\":
+          \"Frankfort\054NY\"\054 \"bf\": 0\054 \"dma\": 526}"; Domain=onion.sodahead.com;
+          expires=Fri, 13-Jan-2017 16:38:04 GMT; Max-Age=31536000; Path=/', 'anonymousUserId="dda70eef99c92832d05889c93c48242e5ba00cd5:";
+          Domain=onion.sodahead.com; expires=Thu, 01-Jan-1970 00:00:00 GMT; Max-Age=0;
+          Path=/', 'session="d751580928f9b48c059f91a75a650e3692d0cb28:{\"country\":
+          \"US\"\054 \"state\": \"NY\"\054 \"postal_code\": \"13340\"}"; Domain=onion.sodahead.com;
+          Path=/; secure', '_crmUserId="f64eed1b50bc4a7841af95a4c41cf246349b1151:78";
+          Domain=onion.sodahead.com; Path=/']
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      User-Agent: [python-requests/2.9.1]
+    method: GET
+    uri: https://onion.sodahead.com/api/polls/4859310
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAAwMAAAAAAAAAAAA=
+    headers:
+      connection: [keep-alive]
+      content-encoding: [gzip]
+      content-length: ['20']
+      content-type: [text/html; charset=utf-8; charset=utf-8]
+      date: ['Thu, 14 Jan 2016 16:38:04 GMT']
+      etag: ['"d41d8cd98f00b204e9800998ecf8427e"']
+      location: ['https://onion.sodahead.com/api/polls/4859310/']
+      server: [openresty/1.5.8.1]
+      vary: [Accept-Encoding]
+    status: {code: 301, message: MOVED PERMANENTLY}
+- request:
+    body: null
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      User-Agent: [python-requests/2.9.1]
+    method: GET
+    uri: https://onion.sodahead.com/api/polls/4859310/
+  response:
+    body: {string: !!python/unicode '{"vote": null, "poll": {"endDate": null, "demo":
+        {}, "image": null, "video": null, "numComments": 0, "category": {"url": "http:\/\/www.sodahead.com\/entertainment\/",
+        "id": 5, "title": "Entertainment"}, "title": "melissas adventure", "range":
+        {}, "id": 4859310, "closed": false, "hideResults": false, "description": "",
+        "tags": [], "answers": [{"title": "something", "color": null, "image": null,
+        "video": null, "meta_text": null, "totalVotes": 0, "percentage": 0, "id":
+        12065746}, {"title": "bridge", "color": null, "image": null, "video": null,
+        "meta_text": null, "totalVotes": 0, "percentage": 0, "id": 12065748}, {"title":
+        "alibaster", "color": null, "image": null, "video": null, "meta_text": null,
+        "totalVotes": 0, "percentage": 0, "id": 12065750}], "slider": null, "sponsored":
+        false, "modifiedDate": "2016-01-14 16:38:03", "creationDate": "2016-01-14
+        16:38:02", "geo": {}, "name": "BMMFOBDEPL", "url": "http:\/\/www.sodahead.com\/entertainment\/melissas-adventure\/question-4859310\/",
+        "author": {"url": "http:\/\/www.sodahead.com\/user\/profile\/4172828\/test\/",
+        "nickName": "TEST", "id": 4172828, "avatar": "http:\/\/images.sodahead.com\/profiles\/000000001\/profiles_1202SHAvatarFred_1028_226520_small.jpeg"},
+        "hideResults_content": "", "editDate": "2016-01-14 16:38:03", "activationDate":
+        "2016-01-14 16:38:00", "totalVotes": 0}}'}
+    headers:
+      access-control-allow-headers: ['Authorization,Content-Type']
+      access-control-allow-methods: ['POST, GET, PUT, DELETE, HEAD, OPTIONS']
+      access-control-allow-origin: ['*']
+      cache-control: ['no-cache, private, max-age=0']
+      connection: [keep-alive]
+      content-length: ['1342']
+      content-type: [application/json; charset=utf-8]
+      date: ['Thu, 14 Jan 2016 16:38:04 GMT']
+      etag: ['"0b2c6b156fb8599dc20aea35927eb0f9"']
+      pragma: [no-cache]
+      server: [openresty/1.5.8.1]
+      set-cookie: ['demo="6941fb8484874663bf28ce8338df72595ae08811:{\"_city_region\":
+          \"Frankfort\054NY\"\054 \"bf\": 0\054 \"dma\": 526}"; Domain=onion.sodahead.com;
+          expires=Fri, 13-Jan-2017 16:38:04 GMT; Max-Age=31536000; Path=/', 'anonymousUserId="668b6c23fed943dd9aeba28c2c10a2c0949e18a2:f519ded25f8d48c88f9684369342f244";
+          Domain=onion.sodahead.com; Path=/', 'session="d751580928f9b48c059f91a75a650e3692d0cb28:{\"country\":
+          \"US\"\054 \"state\": \"NY\"\054 \"postal_code\": \"13340\"}"; Domain=onion.sodahead.com;
+          Path=/']
+    status: {code: 200, message: OK}
+version: 1

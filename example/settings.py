@@ -1,6 +1,9 @@
 import os
 
 MODULE_ROOT = os.path.dirname(os.path.realpath(__file__))
+VAULT_BASE_URL = 'http://192.168.220.222:8200/v1/'
+VAULT_BASE_SECRET_PATH = 'secrets/example'
+VAULT_ACCESS_TOKEN = 'beepborp'
 
 DATABASES = {
     'default': {

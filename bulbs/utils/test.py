@@ -1,6 +1,11 @@
+from mock import patch
+
+import contextdecorator
 import json
 import logging
+import os
 import random
+import vcr
 
 from elasticsearch_dsl.connections import connections
 
@@ -9,6 +14,7 @@ from django.contrib.auth.models import Permission
 from django.test import TestCase
 from djes.apps import indexable_registry
 from djes.management.commands.sync_es import get_indexes, sync_index
+
 
 from model_mommy import mommy
 from rest_framework.test import APIClient
@@ -32,6 +38,17 @@ def make_content(*args, **kwargs):
     content = mommy.make(klass, **kwargs)
     return content
 
+def make_vcr(test_path, record_mode='once'):
+    base_dir = os.path.dirname(os.path.realpath(test_path))
+    test_name =  os.path.splitext(test_path)[0]
+    cassette_dir = os.path.join(base_dir, 'test_data/cassettes', test_name)
+
+    return vcr.VCR(
+            cassette_library_dir=cassette_dir,
+            ignore_hosts=['localhost'],
+            record_mode=record_mode,
+            filter_post_data_parameters=['access_token']
+    )
 
 class JsonEncoder(json.JSONEncoder):
     def default(self, value):
@@ -113,3 +130,37 @@ class BaseAPITestCase(BaseIndexableTestCase):
 
     def remove_permissions(self):
         self.admin.user_permissions.clear()
+
+class mock_vault(contextdecorator.ContextDecorator):
+    """Decorator + context manager for mocking Vault secrets in unit tests.
+
+    Usage:
+            def test_vault(self):
+                with mock_vault({'some/secret': 'my value'}):
+                    self.assertEqual('my value', vault.read('some/secret'))
+
+        .. OR ..
+
+            @mock_vault({'some/secret': 'my value'})
+            def test_vault(self):
+                self.assertEqual('my value', vault.read('some/secret'))
+    """
+
+    def __init__(self, secrets=None):
+        super(mock_vault, self).__init__()
+        self.secrets = secrets or {}
+
+    def __enter__(self):
+
+        def read(path):
+            if path not in self.secrets:
+                raise Exception('Did not find secret key "{}" in mock vault: {}'.format(
+                    path, self.secrets))
+            return self.secrets[path]
+
+        self.patched = patch('bulbs.utils.vault.read', side_effect=read)
+        return self.patched.start()
+
+    def __exit__(self, *args):
+        self.patched.stop()
+        return False
