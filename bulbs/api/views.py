@@ -43,6 +43,8 @@ from bulbs.content.serializers import (
 
 from bulbs.contributions.serializers import ContributionSerializer
 from bulbs.contributions.models import Contribution
+from bulbs.special_coverage.models import SpecialCoverage
+from bulbs.special_coverage.serializers import SpecialCoverageSerializer
 
 from bulbs.utils.methods import get_query_params, get_request_data
 
@@ -466,9 +468,42 @@ class ContentResolveViewSet(viewsets.ReadOnlyModelViewSet):
                 raise Http404("No content found matching UUID")
 
             content = get_object_or_404(Content, pk=match.kwargs.get('pk'))
-            return Response(ContentSerializer().to_representation(content))
+            return Response(ContentSerializer(content).data)
         else:
             raise Http404('Must specify content "url" param')
+
+
+class ResolveSpecialCoverageViewSet(viewsets.ReadOnlyModelViewSet):
+    """Retrieve special coverage containing specified content"""
+    model = SpecialCoverage
+
+    def list(self, request):
+        content_id = get_query_params(self.request).get("content_id")
+        if content_id:
+            content = get_object_or_404(Content, pk=content_id)
+            # TODO: Filter active?
+            special_coverage_filter = {
+                "filter": {
+                    "prefix": {"_id": "specialcoverage"}
+                }
+            }
+            search_objects = type(content).search_objects
+            results = search_objects.client.percolate(
+                index=search_objects.mapping.index,
+                doc_type=search_objects.mapping.doc_type,
+                id=content.id,
+                body=special_coverage_filter,
+            )
+            if results["total"]:
+                special_coverage_ids = [int(m["_id"].split(".")[-1]) for m in results["matches"]]
+                qs = SpecialCoverage.objects.filter(id__in=special_coverage_ids).all()
+                serializer = SpecialCoverageSerializer(qs, many=True)
+                return Response(serializer.data)
+            else:
+                return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            raise Http404('Must specify content "url" param')
+
 
 
 class CustomSearchContentViewSet(viewsets.GenericViewSet):
@@ -543,6 +578,7 @@ api_v1_router.register(r"content", ContentViewSet, base_name="content")
 api_v1_router.register(r"custom-search-content", CustomSearchContentViewSet, base_name="custom-search-content")
 api_v1_router.register(r"content-type", ContentTypeViewSet, base_name="content-type")
 api_v1_router.register(r"content-resolve", ContentResolveViewSet, base_name="content-resolve")
+api_v1_router.register(r"resolve-special-coverage", ResolveSpecialCoverageViewSet, base_name="resolve-special-coverage")
 api_v1_router.register(r"tag", TagViewSet, base_name="tag")
 api_v1_router.register(r"log", LogEntryViewSet, base_name="logentry")
 api_v1_router.register(r"author", AuthorViewSet, base_name="author")
