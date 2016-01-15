@@ -4,26 +4,25 @@ import datetime
 
 from django.utils import dateparse, timezone
 
+from elasticsearch_dsl import filter as es_filter
 from rest_framework import viewsets, routers, mixins
 from rest_framework.settings import api_settings
 from rest_framework.response import Response
 from rest_framework_csv.renderers import CSVRenderer
-
-from elasticsearch_dsl import filter as es_filter
 from rest_framework_nested import routers as nested_routers
 
 from bulbs.content.filters import FeatureTypes, Published, Tags
 
 from .models import (
-    ContributorRole, Contribution, FlatRate, FreelanceProfile, HourlyRate, LineItem,
-    OverrideProfile, ReportContent
+    ContributorRole, Contribution, FeatureTypeRate, FlatRate, FreelanceProfile, HourlyRate,
+    LineItem, OverrideProfile, ReportContent
 )
 from .renderers import ContributionReportingRenderer
 from .csv_serializers import ContributionCSVSerializer
 from .serializers import (
     ContributorRoleSerializer, ContributionReportingSerializer, ContentReportingSerializer,
-    FlatRateSerializer, FreelanceProfileSerializer, HourlyRateSerializer, LineItemSerializer,
-    OverrideProfileSerializer
+    FeatureTypeRateSerializer, FlatRateSerializer, FreelanceProfileSerializer,
+    HourlyRateSerializer, LineItemSerializer, OverrideProfileSerializer
 )
 from .utils import get_forced_payment_contributions
 
@@ -62,6 +61,13 @@ class HourlyRateViewSet(NestedRateViewSet):
 
     model = HourlyRate
     serializer_class = HourlyRateSerializer
+    paginate_by = 20
+
+
+class FeatureTypeRateViewSet(NestedRateViewSet):
+
+    model = FeatureTypeRate
+    serializer_class = FeatureTypeRateSerializer
     paginate_by = 20
 
 
@@ -168,9 +174,9 @@ class ReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
         if format == 'csv':
             queryset = self.get_queryset()
             queryset = queryset[:queryset.count()]
-            data = {
-                'results': queryset
-            }
+            # data = {
+            #     'results': queryset
+            # }
             serializer = self.get_serializer(queryset, many=True)
             return Response(serializer.data)
         return super(ReportingViewSet, self).list(request)
@@ -295,6 +301,9 @@ api_v1_role_router.register(r"role", ContributorRoleViewSet, base_name="contribu
 nested_role_router = nested_routers.NestedSimpleRouter(api_v1_role_router, "role", lookup="role")
 nested_role_router.register("flat_rates", FlatRateViewSet, base_name="flat-rate")
 nested_role_router.register("hourly_rates", HourlyRateViewSet, base_name="hourly-rate")
+nested_role_router.register(
+    "feature_type_rates", FeatureTypeRateViewSet, base_name="feature-type-rate"
+)
 
 api_v1_router.register(r"rate-overrides", OverrideProfileViewSet, base_name="rate-overrides")
 api_v1_router.register(r"reporting", ReportingViewSet, base_name="contributionreporting")

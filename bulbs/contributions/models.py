@@ -5,7 +5,7 @@ from django.db import models
 from elasticsearch_dsl import field
 from djes.models import Indexable, IndexableManager
 
-from bulbs.content.models import Content, ContentManager, FeatureType
+from bulbs.content.models import Content, FeatureType
 
 
 FLAT_RATE = 0
@@ -83,8 +83,8 @@ class ContributorField(field.Object):
         return data
 
     def to_python(self, data):
-        User = get_user_model()
-        user = User.objects.filter(id=data['id'])
+        user_cls = get_user_model()
+        user = user_cls.objects.filter(id=data['id'])
         if user.exists():
             return user.first()
 
@@ -340,6 +340,11 @@ class FeatureTypeRate(Rate):
 
     class Meta:
         unique_together = (("role", "feature_type"))
+        ordering = ("feature_type__name",)
+
+    @property
+    def feature_type_slug(self):
+        return getattr(self.feature_type, "slug", None)
 
 
 class FreelanceProfile(Indexable):

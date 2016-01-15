@@ -9,7 +9,6 @@ from django.utils import dateparse, timezone
 
 from rest_framework import serializers
 from rest_framework.utils import model_meta
-from rest_framework_nested.relations import NestedHyperlinkedRelatedField
 
 from bulbs.content.models import Content, FeatureType
 from bulbs.content.serializers import FeatureTypeField, UserSerializer
@@ -137,6 +136,15 @@ class HourlyRateSerializer(NestedRateSerializer):
     class Meta:
         model = HourlyRate
         fields = ("id", "rate")
+
+
+class FeatureTypeRateSerializer(NestedRateSerializer):
+
+    feature_type = FeatureTypeField(queryset=FeatureType.objects.all())
+
+    class Meta:
+        model = FeatureTypeRate
+        fields = ("id", "rate", "feature_type")
 
 
 class RateField(serializers.Field):
