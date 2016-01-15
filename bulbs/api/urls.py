@@ -40,3 +40,9 @@ if "bulbs.sections" in settings.INSTALLED_APPS:
     urlpatterns += (
         url(r"^", include("bulbs.sections.urls")),
     )
+
+if "bulbs.poll" in settings.INSTALLED_APPS:
+    from bulbs.poll.urls import poll_patterns
+    urlpatterns += (
+        url(r"^", include(poll_patterns)),
+    )

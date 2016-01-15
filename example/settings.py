@@ -32,6 +32,8 @@ INSTALLED_APPS = (
     "rest_framework",
     "rest_framework.authtoken",
     "polymorphic",
+    # bulbs content types
+    "bulbs.poll",
     # local apps
     "bulbs.api",
     "bulbs.campaigns",
@@ -45,8 +47,7 @@ INSTALLED_APPS = (
     "bulbs.sections",
     # local testing apps
     "example.testcontent",
-    # bulbs content types
-    "bulbs.poll"
+    "example.example_api"
 )
 
 ROOT_URLCONF = "example.urls"
