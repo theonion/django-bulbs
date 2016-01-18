@@ -1,4 +1,5 @@
 from datetime import timedelta
+import six
 
 from django.core.urlresolvers import reverse
 from django.utils import timezone
@@ -93,7 +94,7 @@ class TestResolveSpecialCoverageAPI(BaseAPITestCase):
 
         r = self.resolve(content_id=123)
         self.assertEqual(r.status_code, 200)
-        self.assertCountEqual([90, 91], [r['id'] for r in r.data])
+        six.assertCountEqual(self, [90, 91], [r['id'] for r in r.data])
 
     def test_no_special_coverage(self):
         make_content(id=123)

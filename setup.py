@@ -27,7 +27,7 @@ requires = [
     "pytz==2012h",
     "requests>=1.1.0",
     "simplejson==3.3.0",
-    "six==1.6.1",
+    "six==1.10.0",
     "firebase-token-generator==1.3.2",
 ]
 
