@@ -174,9 +174,6 @@ class ReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
         if format == 'csv':
             queryset = self.get_queryset()
             queryset = queryset[:queryset.count()]
-            # data = {
-            #     'results': queryset
-            # }
             serializer = self.get_serializer(queryset, many=True)
             return Response(serializer.data)
         return super(ReportingViewSet, self).list(request)
