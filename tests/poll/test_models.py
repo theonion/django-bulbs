@@ -1,7 +1,9 @@
 from bulbs.poll.models import Poll, Answer
-from bulbs.utils.test  import BaseIndexableTestCase, \
-                              make_vcr, mock_vault, \
-                              random_title
+from bulbs.utils.test  import (
+    make_vcr,
+    random_title,
+    mock_vault
+)
 
 import os
 import random

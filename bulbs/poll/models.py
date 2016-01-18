@@ -2,13 +2,14 @@ from bulbs.content.models import Content
 from bulbs.utils import vault
 from django.db import models
 from djes.models import Indexable
-from exceptions import Exception
+from rest_framework.exceptions import APIException
 
 import requests
 
 class Poll(Content):
-    class SodaheadResponseError(Exception):
-        pass
+    class SodaheadResponseError(APIException):
+        status_code = 503
+        default_detail = "Third-party poll provider temporarily unavailable."
 
     question_text = models.TextField(blank=True, default="")
     sodahead_id = models.CharField(max_length=20, blank=True, default="")
@@ -28,7 +29,7 @@ class Poll(Content):
                 'id': self.sodahead_id
                 }
 
-        for answer in self.answer_set.all():
+        for answer in self.answers.all():
             if answer.answer_text is u'':
                 poll_payload[answer.sodahead_answer_id] = 'Intentionally blank'
             else:
@@ -54,7 +55,8 @@ class Poll(Content):
 
 class Answer(Indexable):
     poll = models.ForeignKey(Poll,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='answers'
     )
     sodahead_answer_id = models.CharField(max_length=20, blank=True, default="")
     answer_text = models.TextField(blank=True, default="")
@@ -62,7 +64,7 @@ class Answer(Indexable):
 
     def save(self, *args, **kwargs):
         if self.sodahead_answer_id is "":
-            count = self.poll.answer_set.count()
+            count = self.poll.answers.count()
             self.sodahead_answer_id = 'answer_%02d' % (count + 1)
         super(Answer, self).save(*args, **kwargs)
         self.poll.sync_sodahead()

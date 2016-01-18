@@ -22,6 +22,26 @@ class PollSerializerTestCase(BaseIndexableTestCase):
         self.assertEqual(serializer.data['question_text'], poll.question_text)
         self.assertEqual(serializer.data['title'], poll.title)
 
+    @vcr.use_cassette()
+    @mock_vault(SECRETS)
+    def test_poll_answer_serialization(self):
+        poll = Poll.objects.create(question_text=u'good text',
+                title=random_title())
+        answer1 = Answer.objects.create(poll=poll, answer_text=u'this is some text')
+        answer2 = Answer.objects.create(poll=poll, answer_text=u'forest path')
+        serializer = PollSerializer(poll)
+        answers_data = serializer.data['answers']
+        self.assertEqual(answers_data, [
+            {
+                'id': u'1',
+                'answer_text': answer1.answer_text,
+            },
+            {
+                'id': u'2',
+                'answer_text': answer2.answer_text,
+            },
+        ])
+
 class AnswerTestCase(BaseIndexableTestCase):
 
     """ Tests for the 'AnswerSerializer'"""
