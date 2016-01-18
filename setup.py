@@ -15,19 +15,21 @@ author = "Chris Sinchok"
 author_email = "csinchok@theonion.com"
 license = "BSD"
 requires = [
-    "contextdecorator==0.10.0",
     "Django>=1.8,<1.9",
+    "contextdecorator==0.10.0",
     "django-betty-cropper>=0.2.0",
-    "djangorestframework==3.1.1",
-    "django-polymorphic==0.7.1",
+    "django-filter==0.9.2",
     "django-json-field==0.5.5",
+    "django-polymorphic==0.7.1",
     "djangorestframework-csv==1.3.3",
+    "djangorestframework==3.1.1",
+    "djes>=0.1.7",
+    "firebase-token-generator==1.3.2",
     "python-dateutil==2.1",
     "pytz==2012h",
     "requests>=1.1.0",
     "simplejson==3.3.0",
     "six==1.6.1",
-    "firebase-token-generator==1.3.2",
 ]
 
 dev_requires = [
