@@ -36,12 +36,14 @@ class PollSerializerTestCase(BaseIndexableTestCase):
         answers_data = serializer.data['answers']
         self.assertEqual(answers_data, [
             {
-                'id': u'1',
+                'id': 1,
                 'answer_text': answer1.answer_text,
+                'poll': 1
             },
             {
-                'id': u'2',
+                'id': 2,
                 'answer_text': answer2.answer_text,
+                'poll': 1
             },
         ])
 

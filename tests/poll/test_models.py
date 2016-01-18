@@ -130,8 +130,11 @@ class AnswerTestCase(BaseIndexableTestCase):
 
     @vcr.use_cassette()
     @mock_vault(SECRETS)
-    def test_answer_delete(self):
+    def test_sodahead_id_increments_properly_after_answer_delete(self):
         poll = Poll.objects.create(question_text='good text', title=random_title())
         answer = Answer.objects.create(poll=poll, answer_text='hello')
         answer.delete()
-        self.assertFalse(Answer.objects.filter(id=poll.id))
+        self.assertFalse(Answer.objects.filter(id=poll.id).exists())
+        next_answer = Answer.objects.create(poll=poll, answer_text='yawp!')
+        self.assertEqual(next_answer.sodahead_answer_id, 'answer_02')
+

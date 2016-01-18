@@ -4,6 +4,7 @@ from django.db import models
 from djes.models import Indexable
 from rest_framework.exceptions import APIException
 
+from time import mktime
 import requests
 
 class Poll(Content):
@@ -13,6 +14,7 @@ class Poll(Content):
 
     question_text = models.TextField(blank=True, default="")
     sodahead_id = models.CharField(max_length=20, blank=True, default="")
+    last_answer_index = models.IntegerField(default=0)
 
     def sodahead_payload(self):
         poll_payload = {
@@ -21,6 +23,10 @@ class Poll(Content):
             'name': self.title,
             'title': self.question_text,
         }
+
+        #if self.published:
+        #    activation_date = self.published.isoformat()
+        #    poll_payload['activationDate'] = activation_date
 
         for answer in self.answers.all():
             if answer.answer_text is u'':
@@ -48,13 +54,11 @@ class Poll(Content):
 
         super(Poll, self).save(*args, **kwargs)
 
-
     def delete(self, *args, **kwargs):
         response = requests.delete('https://onion.sodahead.com/api/polls/{}/?access_token={}'
                 .format(self.sodahead_id, vault.read('sodahead/token')))
         if response.status_code is not 204:
             raise Poll.SodaheadResponseError(response.text)
-
         super(Poll, self).delete(*args, **kwargs)
 
     def sync_sodahead(self):
@@ -74,7 +78,9 @@ class Answer(Indexable):
 
     def save(self, *args, **kwargs):
         if self.sodahead_answer_id is "":
-            count = self.poll.answers.count()
+            count = self.poll.last_answer_index
             self.sodahead_answer_id = 'answer_%02d' % (count + 1)
         super(Answer, self).save(*args, **kwargs)
+        self.poll.last_answer_index += 1
+        self.poll.save()
         self.poll.sync_sodahead()
