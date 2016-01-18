@@ -105,8 +105,6 @@ class ContributionApiTestCase(BaseAPITestCase):
 
         payment_type = response.data[0].get('payment_type', None)
         self.assertEqual(payment_type, 'Manual')
-        rates = response.data[0].get('rates')
-        self.assertEqual(rates, dict())
 
         # Add some rates
         editor = self.roles.get("editor")
@@ -115,10 +113,6 @@ class ContributionApiTestCase(BaseAPITestCase):
 
         response = client.get(endpoint)
         self.assertEqual(response.status_code, 200)
-
-        rates = response.data[0].get('rates')
-        self.assertEqual(rates["flat_rate"]['rate'], 100)
-        self.assertIsNotNone(rates["flat_rate"]['updated_on'])
 
     def test_contributor_role_overridable(self):
         client = Client()
@@ -280,11 +274,8 @@ class ContributionApiTestCase(BaseAPITestCase):
             content_type="application/json"
         )
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.data["rates"]["flat_rate"]["rate"], 120)
-        self.assertEqual(resp.data["rates"]["hourly"]["rate"], 100)
-        self.assertEqual(resp.data["rates"]["feature_type"][0]["rate"], 300)
 
-        # Test Hourlyr
+        # Test Hourly
         endpoint = reverse("contributorrole-list")
         data = {
             "name": "Good Fella",
