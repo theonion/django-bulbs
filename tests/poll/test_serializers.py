@@ -1,8 +1,11 @@
 from bulbs.poll.models      import Poll, Answer
 from bulbs.poll.serializers import PollSerializer, AnswerSerializer
-from bulbs.utils.test       import BaseIndexableTestCase, \
-                                   make_vcr, mock_vault, \
-                                   random_title
+from bulbs.utils.test       import (
+    BaseIndexableTestCase,
+    make_vcr,
+    mock_vault,
+    random_title,
+)
 
 from .common import SECRETS
 

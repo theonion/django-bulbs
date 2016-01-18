@@ -1,10 +1,12 @@
 from bulbs.poll.models import Poll, Answer
 from bulbs.utils.test  import (
+    BaseIndexableTestCase,
     make_vcr,
     random_title,
-    mock_vault
+    mock_vault,
 )
 
+from datetime import datetime
 import os
 import random
 import re
@@ -43,6 +45,33 @@ class PollTestCase(BaseIndexableTestCase):
             mocker.post('https://onion.sodahead.com/api/polls/', status_code=666)
             with self.assertRaises(Poll.SodaheadResponseError):
                 Poll.objects.create(question_text='other text', title=random_title())
+
+    @vcr.use_cassette()
+    @mock_vault(SECRETS)
+    def test_changing_question_text_updates_sodahoad(self):
+        poll = Poll.objects.create(
+            question_text='do you want to wear a hat?',
+            title=random_title()
+        )
+        poll.question_text = 'let us have it'
+        poll.save()
+        response = requests.get('https://onion.sodahead.com/api/polls/{}'.format(poll.sodahead_id)).json()
+        self.assertEqual(response['poll']['title'], 'let us have it')
+
+    @vcr.use_cassette()
+    @mock_vault(SECRETS)
+    def test_answer_names_survive_multiple_saves(self):
+        poll = Poll.objects.create(
+            question_text='dangerous waters ahead',
+            title=random_title()
+        )
+        answer1 = Answer.objects.create(answer_text='watch out', poll=poll)
+        answer2 = Answer.objects.create(answer_text='it\'s bad', poll=poll)
+        poll.question_text = 'use a quarter pound of reasons'
+        poll.save()
+        response = requests.get('https://onion.sodahead.com/api/polls/{}'.format(poll.sodahead_id)).json()
+        self.assertEqual(response['poll']['answers'][0]['title'], 'watch out')
+        self.assertEqual(response['poll']['answers'][1]['title'], 'it\'s bad')
 
 class AnswerTestCase(BaseIndexableTestCase):
 

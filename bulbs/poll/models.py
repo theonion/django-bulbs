@@ -15,25 +15,24 @@ class Poll(Content):
     sodahead_id = models.CharField(max_length=20, blank=True, default="")
 
     def sodahead_payload(self):
-        return {
-                'access_token': vault.read('sodahead/token'),
-                'name': self.title,
-                'title': self.question_text,
-                'answer_01': 'default answer 1',
-                'answer_02': 'default answer 2'
-                }
-
-    def sodahead_answer_payload(self):
         poll_payload = {
-                'access_token': vault.read('sodahead/token'),
-                'id': self.sodahead_id
-                }
+            'access_token': vault.read('sodahead/token'),
+            'id': self.sodahead_id,
+            'name': self.title,
+            'title': self.question_text,
+        }
 
         for answer in self.answers.all():
             if answer.answer_text is u'':
                 poll_payload[answer.sodahead_answer_id] = 'Intentionally blank'
             else:
                 poll_payload[answer.sodahead_answer_id] = answer.answer_text
+
+        if not 'answer_01' in poll_payload:
+            poll_payload['answer_01'] = 'default answer 1'
+
+        if not 'answer_02' in poll_payload:
+            poll_payload['answer_02'] = 'default answer 2'
 
         return poll_payload
 
@@ -44,12 +43,14 @@ class Poll(Content):
                 raise Poll.SodaheadResponseError(response.text)
             else:
                 self.sodahead_id = response.json()['poll']['id']
+        else:
+            self.sync_sodahead()
 
         super(Poll, self).save(*args, **kwargs)
 
     def sync_sodahead(self):
         response = requests.post('https://onion.sodahead.com/api/polls/{}/'
-                .format(self.sodahead_id), self.sodahead_answer_payload())
+                .format(self.sodahead_id), self.sodahead_payload())
         if response.status_code is not 200:
             raise Poll.SodaheadResponseError(response.text)
 
