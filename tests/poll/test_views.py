@@ -80,6 +80,16 @@ class PollAPITestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Poll.objects.get(id=poll.id).question_text, 'better_text')
 
+    @vcr.use_cassette()
+    @mock_vault(SECRETS)
+    def test_delete_poll(self):
+        poll = Poll.objects.create(question_text='good text', title=random_title())
+        detail_url = reverse('poll-detail', kwargs={'pk': poll.id})
+        response = self.client.delete(detail_url)
+        self.assertEqual(response.status_code, 204)
+        response2 = self.client.get(detail_url)
+        self.assertEqual(response2.data['detail'], u'Not found.')
+
 class AnswerAPITestCase(TestCase):
     """ Test for Answer API """
 
@@ -129,3 +139,13 @@ class AnswerAPITestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Answer.objects.get(id=answer.id).answer_text, 'he\'s getting stale')
 
+    @vcr.use_cassette()
+    @mock_vault(SECRETS)
+    def test_delete_answer(self):
+        poll = Poll.objects.create(question_text='dreams', title=random_title())
+        answer = Answer.objects.create(answer_text='are fun', poll=poll)
+        answer_url = reverse('answer-detail', kwargs={'pk': answer.id})
+        response = self.client.delete(answer_url)
+        self.assertEqual(response.status_code, 204)
+        response2 = self.client.get(answer_url)
+        self.assertEqual(response2.data['detail'], u'Not found.')
