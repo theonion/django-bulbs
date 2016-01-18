@@ -32,7 +32,10 @@ def make_content(*args, **kwargs):
         klass = args[0]
     else:
         models = indexable_registry.families[Content]
-        model_keys = [key for key in models.keys() if key != "content_content"]
+        model_keys = []
+        for key in models.keys():
+            if not key in ['content_content', 'poll_poll']:
+                model_keys.append(key)
         key = random.choice(model_keys)
         klass = indexable_registry.all_models[key]
 
