@@ -48,7 +48,8 @@ def make_vcr(test_path, record_mode='once'):
             cassette_library_dir=cassette_dir,
             ignore_hosts=['localhost'],
             record_mode=record_mode,
-            filter_post_data_parameters=['access_token']
+            filter_post_data_parameters=['access_token'],
+            filter_query_parameters=['access_token']
     )
 
 def random_title():

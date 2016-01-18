@@ -73,6 +73,21 @@ class PollTestCase(BaseIndexableTestCase):
         self.assertEqual(response['poll']['answers'][0]['title'], 'watch out')
         self.assertEqual(response['poll']['answers'][1]['title'], 'it\'s bad')
 
+    @vcr.use_cassette()
+    @mock_vault(SECRETS)
+    def test_poll_delete(self):
+        poll = Poll.objects.create(question_text='good text', title=random_title())
+        poll.delete()
+        self.assertFalse(Poll.objects.filter(id=poll.id))
+
+    @vcr.use_cassette()
+    @mock_vault(SECRETS)
+    def test_poll_delete_on_sodahead(self):
+        poll = Poll.objects.create(question_text='good text', title=random_title())
+        poll.delete()
+        response = requests.get('https://onion.sodahead.com/api/polls/{}'.format(poll.sodahead_id))
+        self.assertEqual(response.status_code, 400)
+
 class AnswerTestCase(BaseIndexableTestCase):
 
     @vcr.use_cassette()
@@ -112,3 +127,11 @@ class AnswerTestCase(BaseIndexableTestCase):
             mocker.post(sodahead_endpoint, status_code=666)
             with self.assertRaises(Poll.SodaheadResponseError):
                 Answer.objects.create(poll=poll, answer_text='something')
+
+    @vcr.use_cassette()
+    @mock_vault(SECRETS)
+    def test_answer_delete(self):
+        poll = Poll.objects.create(question_text='good text', title=random_title())
+        answer = Answer.objects.create(poll=poll, answer_text='hello')
+        answer.delete()
+        self.assertFalse(Answer.objects.filter(id=poll.id))

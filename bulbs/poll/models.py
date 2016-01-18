@@ -48,6 +48,15 @@ class Poll(Content):
 
         super(Poll, self).save(*args, **kwargs)
 
+
+    def delete(self, *args, **kwargs):
+        response = requests.delete('https://onion.sodahead.com/api/polls/{}/?access_token={}'
+                .format(self.sodahead_id, vault.read('sodahead/token')))
+        if response.status_code is not 204:
+            raise Poll.SodaheadResponseError(response.text)
+
+        super(Poll, self).delete(*args, **kwargs)
+
     def sync_sodahead(self):
         response = requests.post('https://onion.sodahead.com/api/polls/{}/'
                 .format(self.sodahead_id), self.sodahead_payload())
