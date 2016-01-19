@@ -1,10 +1,26 @@
 from django.dispatch import receiver
 from django.db.models.signals import m2m_changed, post_save
 
-from bulbs.content.models import Content
+from bulbs.content.models import Content, FeatureType
 
-from .models import ReportContent, Contribution, ContributorRole
+from .models import Contribution, ContributorRole, FeatureTypeRate, ReportContent
+from .tasks import update_role_rates
 from .utils import update_content_contributions
+
+
+@receiver(post_save, sender=FeatureType)
+def update_feature_type_rates(sender, instance, created, *args, **kwargs):
+    """
+    Creates a default FeatureTypeRate for each role after the creation of a FeatureTypeRate.
+    """
+    if created:
+        for role in ContributorRole.objects.all():
+            FeatureTypeRate.objects.create(role=role, feature_type=instance, rate=0)
+
+
+@receiver(post_save, sender=ContributorRole)
+def call_update_role_rates(sender, instance, * args, **kwargs):
+    update_role_rates.delay(instance.pk)
 
 
 @receiver(m2m_changed, sender=Content.authors.through)
@@ -44,14 +60,3 @@ def index_relations(sender, instance, **kwargs):
         proxy.index()
     except:
         pass
-
-
-@receiver(post_save, sender=ContributorRole)
-def update_rates(sender, instance, **kwargs):
-    for contribution in instance.contribution_set.all():
-        contribution.save()
-
-
-# @receiver(post_save, sender=ContributionOverride)
-# def update_contribution_from_override(sender, instance, **kwargs):
-
