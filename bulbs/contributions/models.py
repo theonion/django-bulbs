@@ -6,7 +6,6 @@ from elasticsearch_dsl import field
 from djes.models import Indexable, IndexableManager
 
 from bulbs.content.models import Content, FeatureType
-from .tasks import update_role_rates
 
 
 FLAT_RATE = 0
@@ -163,7 +162,6 @@ class ContributorRole(Indexable):
         created = bool(self.pk is None)
         super(ContributorRole, self).save(*args, **kwargs)
         self.create_feature_type_rates(created)
-        update_role_rates.delay(self)
 
     def create_feature_type_rates(self, created=False):
         """

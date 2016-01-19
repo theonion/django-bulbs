@@ -15,7 +15,7 @@ from bulbs.content.filters import FeatureTypes, Published, Tags
 
 from .models import (
     ContributorRole, Contribution, FeatureTypeRate, FlatRate, FreelanceProfile, HourlyRate,
-    LineItem, OverrideProfile, ReportContent
+    LineItem, OverrideProfile, ReportContent, MANUAL
 )
 from .renderers import ContributionReportingRenderer
 from .csv_serializers import ContributionCSVSerializer
@@ -38,7 +38,7 @@ class ContributorRoleViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = ContributorRole.objects.all()
         if self.request.QUERY_PARAMS.get("override", None) == "true":
-            queryset = queryset.exclude(payment_type=3)
+            queryset = queryset.exclude(payment_type=MANUAL)
         return queryset
 
 
