@@ -6,6 +6,7 @@ from elasticsearch_dsl import field
 from djes.models import Indexable, IndexableManager
 
 from bulbs.content.models import Content, FeatureType
+from .tasks import update_role_rates
 
 
 FLAT_RATE = 0
@@ -159,14 +160,17 @@ class ContributorRole(Indexable):
     payment_type = models.IntegerField(choices=ROLE_PAYMENT_TYPES, default=MANUAL)
 
     def save(self, *args, **kwargs):
+        created = bool(self.pk is None)
         super(ContributorRole, self).save(*args, **kwargs)
-        if self.payment_type == 1:
-            self.create_feature_type_rates()
+        self.create_feature_type_rates(created)
+        update_role_rates.delay(self)
 
-    def create_feature_type_rates(self):
-        for feature_type in FeatureType.objects.all():
-            rate = FeatureTypeRate.objects.filter(role=self, feature_type=feature_type)
-            if not rate.exists():
+    def create_feature_type_rates(self, created=False):
+        """
+        If the role is being created we want to populate a rate for all existing feature_types.
+        """
+        if created:
+            for feature_type in FeatureType.objects.all():
                 FeatureTypeRate.objects.create(role=self, feature_type=feature_type, rate=0)
 
     def get_rate(self):

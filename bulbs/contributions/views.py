@@ -36,10 +36,10 @@ class ContributorRoleViewSet(viewsets.ModelViewSet):
     serializer_class = ContributorRoleSerializer
 
     def get_queryset(self):
-        qs = ContributorRole.search_objects.all()
-        if self.request.QUERY_PARAMS.get('override', None) == 'true':
-            qs = qs.exclude(payment_type=3)
-        return qs
+        queryset = ContributorRole.objects.all()
+        if self.request.QUERY_PARAMS.get("override", None) == "true":
+            queryset = queryset.exclude(payment_type=3)
+        return queryset
 
 
 class NestedRateViewSet(viewsets.ModelViewSet):

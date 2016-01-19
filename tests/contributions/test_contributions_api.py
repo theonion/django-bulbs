@@ -675,11 +675,13 @@ class ContributionApiTestCase(BaseAPITestCase):
         feature = FeatureType.objects.create(name='A Fun Feature For Kids!')
         content.feature_type = feature
         content.save()
-        feature_rate = FeatureTypeRate.objects.create(
+
+        feature_rate = FeatureTypeRate.objects.get(
             role=self.roles['editor'],
             feature_type=feature,
-            rate=50
         )
+        feature_rate.rate = 50
+        feature_rate.save()
 
         editor.payment_type = PAYMENT_TYPES['FeatureType']
         editor.save()
@@ -1455,10 +1457,12 @@ class FeatureTypeRateAPITestCase(BaseAPITestCase):
         endpoint = reverse("feature-type-rate-detail", kwargs={"role_pk": 1, "pk": 1})
         self.assertEqual(endpoint, "/api/v1/contributions/role/1/feature_type_rates/1/")
 
-    def test_post_success(self):
+    def test_put_success(self):
         data = {"rate": 200, "feature_type": "surf"}
-        resp = self.api_client.post(self.list_endpoint, data=data)
-        self.assertEqual(resp.status_code, 201)
+        rr = self.role.feature_type_rates.filter(feature_type__slug="surf").first()
+        endpoint = reverse("feature-type-rate-detail", kwargs={"role_pk": 1, "pk": rr.id})
+        resp = self.api_client.put(endpoint, data=data)
+        self.assertEqual(resp.status_code, 200)
         rate = FeatureTypeRate.objects.last()
         self.assertEqual(resp.data, {"id": rate.id, "rate": 200, "feature_type": "Surf"})
 
@@ -1468,11 +1472,15 @@ class FeatureTypeRateAPITestCase(BaseAPITestCase):
         another_role = ContributorRole.objects.create(name="RoleTide", payment_type=1)
         for i in alphabet:
             ft = FeatureType.objects.create(name=i)
-            FeatureTypeRate.objects.create(rate=20, role=another_role, feature_type=ft)
-            FeatureTypeRate.objects.create(rate=20, role=self.role, feature_type=ft)
+            ftr1 = FeatureTypeRate.objects.get(role=another_role, feature_type=ft)
+            ftr1.rate = 20
+            ftr1.save()
+            ftr2 = FeatureTypeRate.objects.get(role=self.role, feature_type=ft)
+            ftr2.rate = 20
+            ftr2.save()
         resp = self.api_client.get(self.list_endpoint)
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.data["count"], 26)
+        self.assertEqual(resp.data["count"], FeatureType.objects.count())
         feature_type = None
         for obj in resp.data["results"]:
             new_feature_type = obj.get("feature_type")
@@ -1485,8 +1493,12 @@ class FeatureTypeRateAPITestCase(BaseAPITestCase):
     def test_role_filter(self):
         """Results should be filtered on the role_pk provided in the url"""
         another_role = ContributorRole.objects.create(name="Welcome King", payment_type=2)
-        FeatureTypeRate.objects.create(rate=20, role=self.role, feature_type=self.feature_type)
-        FeatureTypeRate.objects.create(rate=21, role=another_role, feature_type=self.feature_type)
+        rr = FeatureTypeRate.objects.get(role=self.role, feature_type=self.feature_type)
+        rr.rate = 20
+        rr.save()
+        rr = FeatureTypeRate.objects.get(role=another_role, feature_type=self.feature_type)
+        rr.rate = 21
+        rr.save()
         resp = self.api_client.get(self.list_endpoint)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data["count"], 1)
