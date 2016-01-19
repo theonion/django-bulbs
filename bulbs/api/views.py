@@ -473,15 +473,18 @@ class ContentResolveViewSet(viewsets.ReadOnlyModelViewSet):
             raise Http404('Must specify content "url" param')
 
 
-class ResolveSpecialCoverageViewSet(viewsets.ReadOnlyModelViewSet):
+class SpecialCoverageResolveViewSet(viewsets.ReadOnlyModelViewSet):
     """Retrieve special coverage containing specified content"""
     model = SpecialCoverage
 
     def list(self, request):
         content_id = get_query_params(self.request).get("content_id")
         if content_id:
+
             content = get_object_or_404(Content, pk=content_id)
-            # TODO: Filter active?
+            # TODO: Filters:
+            #   - Active
+            #   - Has Campaign ID
             special_coverage_filter = {
                 "filter": {
                     "prefix": {"_id": "specialcoverage"}
@@ -578,7 +581,7 @@ api_v1_router.register(r"content", ContentViewSet, base_name="content")
 api_v1_router.register(r"custom-search-content", CustomSearchContentViewSet, base_name="custom-search-content")
 api_v1_router.register(r"content-type", ContentTypeViewSet, base_name="content-type")
 api_v1_router.register(r"content-resolve", ContentResolveViewSet, base_name="content-resolve")
-api_v1_router.register(r"resolve-special-coverage", ResolveSpecialCoverageViewSet, base_name="resolve-special-coverage")
+api_v1_router.register(r"special-coverage-resolve", SpecialCoverageResolveViewSet, base_name="special-coverage-resolve")
 api_v1_router.register(r"tag", TagViewSet, base_name="tag")
 api_v1_router.register(r"log", LogEntryViewSet, base_name="logentry")
 api_v1_router.register(r"author", AuthorViewSet, base_name="author")

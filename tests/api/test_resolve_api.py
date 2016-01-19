@@ -59,7 +59,7 @@ class TestResolveSpecialCoverageAPI(BaseAPITestCase):
             sc._save_percolator()
 
     def resolve(self, **data):
-        return self.api_client.get(reverse("resolve-special-coverage-list"),
+        return self.api_client.get(reverse("special-coverage-resolve-list"),
                                    data=data, format="json")
 
     def test_found_one(self):
