@@ -29,6 +29,10 @@ class SpecialCoverage(DetailImageMixin, models.Model):
     end_date = models.DateTimeField(blank=True, null=True)
     campaign = models.ForeignKey(
         Campaign, null=True, default=None, blank=True, on_delete=models.SET_NULL)
+    # Tunic Campaign ID
+    # NOTE: Don't want to accidentally overwrite derived model campaign_id fields during migration
+    # Will rename to "campaign_id" (and drop "campaign" field) after migration
+    tunic_campaign_id = models.IntegerField(blank=True, null=True, default=None)
     # Property-specific custom configuration
     config = JSONField(default={}, blank=True)
 
