@@ -29,7 +29,7 @@ requires = [
     "simplejson==3.3.0",
     "six==1.6.1",
     "firebase-token-generator==1.3.2",
-    "drf-nested-routers"
+    "drf-nested-routers==0.11.1"
 ]
 
 dev_requires = [
