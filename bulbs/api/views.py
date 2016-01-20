@@ -480,11 +480,8 @@ class SpecialCoverageResolveViewSet(viewsets.ReadOnlyModelViewSet):
     def list(self, request):
         content_id = get_query_params(self.request).get("content_id")
         if content_id:
-
             content = get_object_or_404(Content, pk=content_id)
-            # TODO: Filters:
-            #   - Active
-            #   - Has Campaign ID
+            # Find special coverage via percolator
             special_coverage_filter = {
                 "filter": {
                     "prefix": {"_id": "specialcoverage"}
@@ -497,6 +494,7 @@ class SpecialCoverageResolveViewSet(viewsets.ReadOnlyModelViewSet):
                 id=content.id,
                 body=special_coverage_filter,
             )
+            # Translate perocolator results into SpecialCoverage objects
             if results["total"]:
                 special_coverage_ids = [int(m["_id"].split(".")[-1]) for m in results["matches"]]
                 qs = SpecialCoverage.objects.filter(id__in=special_coverage_ids)
@@ -521,7 +519,7 @@ class SpecialCoverageResolveViewSet(viewsets.ReadOnlyModelViewSet):
             else:
                 return Response(status=status.HTTP_204_NO_CONTENT)
         else:
-            raise Http404('Must specify content "url" param')
+            raise Http404('Must specify "content_id" param')
 
 
 
