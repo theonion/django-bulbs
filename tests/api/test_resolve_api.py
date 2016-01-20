@@ -6,101 +6,120 @@ from django.utils import timezone
 
 from bulbs.content.models import Tag, Content
 from bulbs.special_coverage.models import SpecialCoverage
-from bulbs.utils.test import BaseAPITestCase, make_content
+from bulbs.utils.test import BaseAPITestCase
 
 
 class TestResolveSpecialCoverageAPI(BaseAPITestCase):
 
-    def setUp(self):
-        super(TestResolveSpecialCoverageAPI, self).setUp()
-        biden_condition = {
+    def make_special_coverage(self, pk, name, **kw):
+        condition = {
             "values": [{
-                "value": "joe-biden",
-                "label": "Joe Biden"
+                "value": name,
+                "label": name
             }],
             "type": "all",
             "field": "tag"
         }
-        obama_condition = {
-            "values": [{
-                "value": "obama",
-                "label": "Obama"
-            }],
-            "type": "all",
-            "field": "tag"
-        }
-        biden_query = {
-            "label": "Uncle Joe",
+        query = {
+            "label": name,
             "query": {
                 "groups": [{
-                    "conditions": [biden_condition]
+                    "conditions": [condition]
                 }]
             },
         }
-        obama_query = {
-            "label": "Obama",
-            "query": {
-                "groups": [{
-                    "conditions": [obama_condition]
-                }]
-            },
-        }
+        sc = SpecialCoverage.objects.create(pk=pk,
+                                            name=name,
+                                            # description="",
+                                            query=query,
+                                            **kw)
+        sc._save_percolator()
+        return sc
 
-        for sc in [SpecialCoverage.objects.create(id=90,
-                                                  name="Uncle Joe",
-                                                  description="Classic Joeseph Biden",
-                                                  query=biden_query),
-                   SpecialCoverage.objects.create(id=91,
-                                                  name="Obama",
-                                                  description="Classic Obama",
-                                                  query=obama_query),
-                   ]:
-            # Manually index this percolator
-            sc._save_percolator()
-
-    def resolve(self, **data):
-        return self.api_client.get(reverse("special-coverage-resolve-list"),
-                                   data=data, format="json")
-
-    def test_found_one(self):
-        # Add some content
+    def make_content(self, id, tags=None):
         content = Content.objects.create(
-            id=123,
+            id=id,
             title='a',
             published=timezone.now() - timedelta(hours=1),
         )
-        content.tags.add(Tag.objects.create(name='joe-biden'))
+        for name in (tags or []):
+            content.tags.add(Tag.objects.get_or_create(name=name)[0])
         content.save()
         Content.search_objects.refresh()
+        return content
+
+    def resolve(self, expected_status_code=200, **data):
+        r = self.api_client.get(reverse("special-coverage-resolve-list"),
+                                data=data, format="json")
+        self.assertEqual(expected_status_code, r.status_code)
+        return r
+
+    def test_found_one(self):
+        self.make_special_coverage(90, 'joe-biden')
+        self.make_content(id=123, tags=['joe-biden'])
 
         r = self.resolve(content_id=123)
-        self.assertEqual(r.status_code, 200)
         self.assertEqual(1, len(r.data))
         data = r.data[0]
         self.assertEqual(90, data['id'])
-        self.assertEqual('Uncle Joe', data['name'])
+        self.assertEqual('joe-biden', data['name'])
 
     def test_found_multiple(self):
-        # Add some content
-        content = Content.objects.create(
-            id=123,
-            title='a',
-            published=timezone.now() - timedelta(hours=1),
-        )
-        content.tags.add(Tag.objects.create(name='joe-biden'))
-        content.tags.add(Tag.objects.create(name='obama'))
-        content.save()
-        Content.search_objects.refresh()
+        self.make_special_coverage(90, 'obama')
+        self.make_special_coverage(91, 'joe-biden')
+        self.make_content(id=123, tags=['joe-biden', 'obama'])
 
         r = self.resolve(content_id=123)
-        self.assertEqual(r.status_code, 200)
         six.assertCountEqual(self, [90, 91], [r['id'] for r in r.data])
 
-    def test_no_special_coverage(self):
-        make_content(id=123)
-        r = self.resolve(content_id=123)
-        self.assertEqual(r.status_code, 204)
+    def test_no_special_coverage_tag(self):
+        self.make_special_coverage(90, 'obama')
+        self.make_content(id=123)
+
+        r = self.resolve(content_id=123, expected_status_code=204)
 
     def test_invalid_content(self):
-        r = self.resolve(content_id=123)
-        self.assertEqual(r.status_code, 404)
+        r = self.resolve(content_id=123, expected_status_code=404)
+
+    def test_filter_sponsored(self):
+        self.make_special_coverage(90, 'obama', tunic_campaign_id=2001)
+        self.make_special_coverage(91, 'joe-biden')
+        self.make_content(id=123, tags=['joe-biden', 'obama'])
+
+        r = self.resolve(content_id=123, sponsored=True)
+        six.assertCountEqual(self, [90], [r['id'] for r in r.data])
+
+    def test_filter_not_sponsored(self):
+        self.make_special_coverage(90, 'obama', tunic_campaign_id=2001)
+        self.make_special_coverage(91, 'joe-biden')
+        self.make_content(id=123, tags=['joe-biden', 'obama'])
+
+        r = self.resolve(content_id=123, sponsored=False)
+        six.assertCountEqual(self, [91], [r['id'] for r in r.data])
+
+    def test_filter_active(self):
+        self.make_special_coverage(90, 'joe-biden',
+                                   start_date=(timezone.now() + timedelta(days=1)),
+                                   end_date=(timezone.now() + timedelta(days=2)),
+                                   )
+        self.make_special_coverage(91, 'obama',
+                                   start_date=(timezone.now() - timedelta(days=1)),
+                                   end_date=(timezone.now() + timedelta(days=1)),
+                                   )
+        self.make_content(id=123, tags=['joe-biden', 'obama'])
+
+        r = self.resolve(content_id=123, active=True)
+        six.assertCountEqual(self, [91], [r['id'] for r in r.data])
+
+    def test_filter_not_active(self):
+        self.make_special_coverage(90, 'joe-biden',
+                                   start_date=(timezone.now() + timedelta(days=1)),
+                                   end_date=(timezone.now() + timedelta(days=2)),
+                                   )
+        self.make_special_coverage(91, 'obama',
+                                   start_date=(timezone.now() - timedelta(days=1)),
+                                   end_date=(timezone.now() + timedelta(days=1)),
+                                   )
+        self.make_content(id=123, tags=['joe-biden', 'obama'])
+        r = self.resolve(content_id=123, active=False)
+        six.assertCountEqual(self, [90], [r['id'] for r in r.data])

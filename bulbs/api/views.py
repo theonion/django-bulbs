@@ -499,7 +499,23 @@ class SpecialCoverageResolveViewSet(viewsets.ReadOnlyModelViewSet):
             )
             if results["total"]:
                 special_coverage_ids = [int(m["_id"].split(".")[-1]) for m in results["matches"]]
-                qs = SpecialCoverage.objects.filter(id__in=special_coverage_ids).all()
+                qs = SpecialCoverage.objects.filter(id__in=special_coverage_ids)
+
+                # Active Filter
+                active = get_query_params(self.request).get('active', '').lower()
+                now = timezone.now()
+                if active == 'true':
+                    qs = qs.filter(start_date__lte=now, end_date__gte=now)
+                elif active == 'false':
+                    qs = qs.exclude(start_date__lte=now, end_date__gte=now)
+
+                # Sponsored Filter
+                sponsored = get_query_params(self.request).get('sponsored', '').lower()
+                if sponsored == 'true':
+                    qs = qs.filter(tunic_campaign_id__isnull=False)
+                elif sponsored == 'false':
+                    qs = qs.exclude(tunic_campaign_id__isnull=False)
+
                 serializer = SpecialCoverageSerializer(qs, many=True)
                 return Response(serializer.data)
             else:
