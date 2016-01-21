@@ -70,7 +70,9 @@ class SpecialCoverageModelTests(BaseIndexableTestCase):
             start_date=timezone.now() - timezone.timedelta(days=5),
             end_date=timezone.now() + timezone.timedelta(days=5)
         )
-        self.assertEqual(sc.custom_template_name, "custom_special/kill_me_now_custom.html")
+        self.assertEqual(
+            sc.custom_template_name, "special_coverage/custom/kill_me_now_custom.html"
+        )
 
     @override_settings(CUSTOM_SPECIAL_COVERAGE_PATH=None)
     def test_custom_template_name_no_root(self):
