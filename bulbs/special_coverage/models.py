@@ -48,7 +48,7 @@ class SpecialCoverage(DetailImageMixin, models.Model):
         if self.end_date:
             if not self.start_date:
                 raise ValidationError("""The End Date requires a Start Date value.""")
-            elif self.end_date < self.start_date:
+            elif self.end_date <= self.start_date:
                 raise ValidationError("""The End Date must not precede the Start Date.""")
         if self.start_date and not self.end_date:
             raise ValidationError("""The Start Date requires an End Date.""")
