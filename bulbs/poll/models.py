@@ -5,7 +5,10 @@ from djes.models import Indexable
 from rest_framework.exceptions import APIException
 
 from time import mktime
+import pytz
 import requests
+
+SODAHEAD_DATE_FORMAT = '%m/%d/%y %I:%M %p'
 
 class Poll(Content):
     class SodaheadResponseError(APIException):
@@ -15,6 +18,7 @@ class Poll(Content):
     question_text = models.TextField(blank=True, default="")
     sodahead_id = models.CharField(max_length=20, blank=True, default="")
     last_answer_index = models.IntegerField(default=0)
+    end_date = models.DateTimeField(null=True, default=None)
 
     def sodahead_payload(self):
         poll_payload = {
@@ -24,9 +28,13 @@ class Poll(Content):
             'title': self.question_text,
         }
 
-        #if self.published:
-        #    activation_date = self.published.isoformat()
-        #    poll_payload['activationDate'] = activation_date
+        if self.published:
+            activation_date = self.published.astimezone(pytz.utc)
+            poll_payload['activationDate'] = activation_date.strftime(SODAHEAD_DATE_FORMAT)
+
+        if self.end_date:
+            end_date = self.end_date.astimezone(pytz.utc)
+            poll_payload['endDate'] = end_date.strftime(SODAHEAD_DATE_FORMAT)
 
         for answer in self.answers.all():
             if answer.answer_text is u'':

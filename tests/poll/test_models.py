@@ -8,6 +8,7 @@ from bulbs.utils.test  import (
 
 from datetime import datetime
 import os
+import pytz
 import random
 import re
 import requests
@@ -87,6 +88,28 @@ class PollTestCase(BaseIndexableTestCase):
         poll.delete()
         response = requests.get('https://onion.sodahead.com/api/polls/{}'.format(poll.sodahead_id))
         self.assertEqual(response.status_code, 400)
+
+    @vcr.use_cassette()
+    @mock_vault(SECRETS)
+    def test_setting_published_sets_sodahead_activation_date(self):
+        poll = Poll.objects.create(question_text='lettuce is good in a salad', title=random_title())
+        collins_birthtime = datetime(1987, 4, 11, 8, 45, 0, tzinfo=pytz.utc)
+        poll.published = collins_birthtime
+        poll.save()
+        response = requests.get('http://onion.sodahead.com/api/polls/{}'.format(poll.sodahead_id))
+        self.assertEqual(response.json()['poll']['activationDate'], u'1987-04-11 08:45:00')
+
+    @vcr.use_cassette()
+    @mock_vault(SECRETS)
+    def test_setting_end_date_sets_sodahead_end_date(self):
+        poll = Poll.objects.create(question_text='this poll ends', title=random_title())
+        collins_birthtime = datetime(1987, 4, 11, 8, 45, 0, tzinfo=pytz.utc)
+        poll.published = collins_birthtime
+        end_of_the_poll = datetime(2050, 4, 11, 8, 45, 0, tzinfo=pytz.utc)
+        poll.end_date = end_of_the_poll
+        poll.save()
+        response = requests.get('http://onion.sodahead.com/api/polls/{}'.format(poll.sodahead_id))
+        self.assertEqual(response.json()['poll']['endDate'], u'2050-04-11 08:45:00')
 
 class AnswerTestCase(BaseIndexableTestCase):
 
