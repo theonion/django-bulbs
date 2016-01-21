@@ -37,17 +37,41 @@ class SpecialCoverage(DetailImageMixin, models.Model):
 
     def clean(self):
         super(SpecialCoverage, self).clean()
+        self.clean_publish_dates()
+        self.clean_query()
+        self.clean_videos()
+
+    def clean_publish_dates(self):
+        """
+        If an end_date value is provided, the start_date must be less.
+        """
+        if self.end_date:
+            if not self.start_date:
+                raise ValidationError("""The End Date requires a Start Date value.""")
+            elif self.end_date < self.start_date:
+                raise ValidationError("""The End Date must not precede the Start Date.""")
+        if self.start_date and not self.end_date:
+            raise ValidationError("""The Start Date requires an End Date.""")
+
+    def clean_query(self):
+        """
+        Removes any `None` value from an elasticsearch query.
+        """
         if self.query and self.query != {}:
             for key, value in self.query.items():
                 if isinstance(value, list) and None in value:
                     self.query[key] = [v for v in value if v is not None]
+
+    def clean_videos(self):
+        """
+        Validates that all values in the video list are integer ids and removes all None values.
+        """
         if self.videos:
             self.videos = [int(v) for v in self.videos if v is not None and is_valid_digit(v)]
 
     def save(self, *args, **kwargs):
         """Saving ensures that the slug, if not set, is set to the slugified name."""
         self.clean()
-        self.validate_publish_dates()
 
         if not self.slug:
             self.slug = slugify(self.name)
@@ -60,20 +84,9 @@ class SpecialCoverage(DetailImageMixin, models.Model):
             else:
                 self._delete_percolator()
 
-    def validate_publish_dates(self):
-        """
-        If an end_date value is provided, the start_date must be less.
-        """
-        if self.end_date:
-            if not self.start_date:
-                raise ValidationError("""The End Date requires a Start Date value.""")
-            elif self.end_date < self.start_date:
-                raise ValidationError("""The End Date must not precede the Start Date.""")
-        if self.start_date and not self.end_date:
-            raise ValidationError("""The Start Date requires an End Date.""")
-
     def _save_percolator(self):
-        """saves the query field as an elasticsearch percolator
+        """
+        S`aves the query field as an elasticsearch percolator
         """
         index = Content.search_objects.mapping.index
         query_filter = self.get_content(published=False).to_dict()
@@ -148,6 +161,18 @@ class SpecialCoverage(DetailImageMixin, models.Model):
         if "pinned_ids" in q:
             return bool(len(q.get("pinned_ids", [])))
         return False
+
+    @property
+    def custom_template_name(self):
+        """
+        Returns the path for the custom special coverage template we want.
+        """
+        base_path = getattr(settings, "CUSTOM_SPECIAL_COVERAGE_PATH", "custom_special")
+        if base_path is None:
+            base_path = ""
+        return "{0}/{1}_custom.html".format(
+            base_path, self.slug.replace("-", "_")
+        ).lstrip("/")
 
 
 def remove_percolator(sender, instance, *args, **kwargs):

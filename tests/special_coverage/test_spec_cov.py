@@ -63,3 +63,23 @@ class SpecialCoverageModelTests(BaseIndexableTestCase):
             end_date=timezone.now() + timezone.timedelta(days=10)
         )
         self.assertTrue(sc.is_active)
+
+    def test_custom_template_default(self):
+        sc = SpecialCoverage.objects.create(
+            name="Kill Me Now",
+            start_date=timezone.now() - timezone.timedelta(days=5),
+            end_date=timezone.now() + timezone.timedelta(days=5)
+        )
+        self.assertEqual(sc.custom_template_name, "custom_special/kill_me_now_custom.html")
+
+    @override_settings(CUSTOM_SPECIAL_COVERAGE_PATH=None)
+    def test_custom_template_name_no_root(self):
+        sc = SpecialCoverage.objects.create(name="Kill Me Now")
+        self.assertEqual(sc.custom_template_name, "kill_me_now_custom.html")
+
+    @override_settings(CUSTOM_SPECIAL_COVERAGE_PATH="templates/garbage")
+    def test_custom_template_name_custom_path(self):
+        sc = SpecialCoverage.objects.create(name="Kill Me Now")
+        self.assertEqual(
+            sc.custom_template_name, "templates/garbage/kill_me_now_custom.html"
+        )

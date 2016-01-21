@@ -129,11 +129,6 @@ class ContentManager(PolymorphicManager, IndexableManager):
     a specialized version of `djes.models.SearchManager` for `bulbs.content.Content`
     """
 
-    # def __getattr__(self, name):
-    #     if name.startswith('__'):
-    #         return super(PolymorphicManager, self).__getattr__(self, name)
-    #     return getattr(self.all(), name)
-
     def search(self, **kwargs):
         """
         Queries using ElasticSearch, returning an elasticsearch queryset.
