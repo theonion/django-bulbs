@@ -19,3 +19,4 @@ reports
 *.sublime-project
 .venv/
 venv/
+.cache/

@@ -25,9 +25,9 @@ class PollAPITestCase(TestCase):
     @mock_vault(SECRETS)
     def test_router_registered(self):
         list_url = reverse('poll-list')
-        self.assertEqual(list_url, '/api/polls/')
+        self.assertEqual(list_url, '/poll/')
         detail_url = reverse('poll-detail', kwargs={'pk': 1})
-        self.assertEqual(detail_url, '/api/polls/1/')
+        self.assertEqual(detail_url, '/poll/1/')
 
     @vcr.use_cassette()
     @mock_vault(SECRETS)
@@ -97,9 +97,9 @@ class AnswerAPITestCase(TestCase):
     @mock_vault(SECRETS)
     def test_router_registered(self):
         list_url = reverse('answer-list')
-        self.assertEqual(list_url, '/api/answers/')
+        self.assertEqual(list_url, '/answer/')
         detail_url = reverse('answer-detail', kwargs={'pk': 1})
-        self.assertEqual(detail_url, '/api/answers/1/')
+        self.assertEqual(detail_url, '/answer/1/')
 
     @vcr.use_cassette()
     @mock_vault(SECRETS)

@@ -5,7 +5,7 @@ from django.db import models
 from elasticsearch_dsl import field
 from djes.models import Indexable, IndexableManager
 
-from bulbs.content.models import Content, ContentManager, FeatureType
+from bulbs.content.models import Content, FeatureType
 
 
 FLAT_RATE = 0
@@ -83,8 +83,8 @@ class ContributorField(field.Object):
         return data
 
     def to_python(self, data):
-        User = get_user_model()
-        user = User.objects.filter(id=data['id'])
+        user_cls = get_user_model()
+        user = user_cls.objects.filter(id=data['id'])
         if user.exists():
             return user.first()
 
@@ -159,14 +159,16 @@ class ContributorRole(Indexable):
     payment_type = models.IntegerField(choices=ROLE_PAYMENT_TYPES, default=MANUAL)
 
     def save(self, *args, **kwargs):
+        created = bool(self.pk is None)
         super(ContributorRole, self).save(*args, **kwargs)
-        if self.payment_type == 1:
-            self.create_feature_type_rates()
+        self.create_feature_type_rates(created)
 
-    def create_feature_type_rates(self):
-        for feature_type in FeatureType.objects.all():
-            rate = FeatureTypeRate.objects.filter(role=self, feature_type=feature_type)
-            if not rate.exists():
+    def create_feature_type_rates(self, created=False):
+        """
+        If the role is being created we want to populate a rate for all existing feature_types.
+        """
+        if created:
+            for feature_type in FeatureType.objects.all():
                 FeatureTypeRate.objects.create(role=self, feature_type=feature_type, rate=0)
 
     def get_rate(self):
@@ -340,6 +342,11 @@ class FeatureTypeRate(Rate):
 
     class Meta:
         unique_together = (("role", "feature_type"))
+        ordering = ("feature_type__name",)
+
+    @property
+    def feature_type_slug(self):
+        return getattr(self.feature_type, "slug", None)
 
 
 class FreelanceProfile(Indexable):

@@ -1,5 +1,6 @@
 import json
 
+from django.db.models import Max
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
@@ -104,8 +105,6 @@ class ContributionApiTestCase(BaseAPITestCase):
 
         payment_type = response.data[0].get('payment_type', None)
         self.assertEqual(payment_type, 'Manual')
-        rates = response.data[0].get('rates')
-        self.assertEqual(rates, dict())
 
         # Add some rates
         editor = self.roles.get("editor")
@@ -114,10 +113,6 @@ class ContributionApiTestCase(BaseAPITestCase):
 
         response = client.get(endpoint)
         self.assertEqual(response.status_code, 200)
-
-        rates = response.data[0].get('rates')
-        self.assertEqual(rates["flat_rate"]['rate'], 100)
-        self.assertIsNotNone(rates["flat_rate"]['updated_on'])
 
     def test_contributor_role_overridable(self):
         client = Client()
@@ -279,11 +274,8 @@ class ContributionApiTestCase(BaseAPITestCase):
             content_type="application/json"
         )
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.data["rates"]["flat_rate"]["rate"], 120)
-        self.assertEqual(resp.data["rates"]["hourly"]["rate"], 100)
-        self.assertEqual(resp.data["rates"]["feature_type"][0]["rate"], 300)
 
-        # Test Hourlyr
+        # Test Hourly
         endpoint = reverse("contributorrole-list")
         data = {
             "name": "Good Fella",
@@ -683,11 +675,13 @@ class ContributionApiTestCase(BaseAPITestCase):
         feature = FeatureType.objects.create(name='A Fun Feature For Kids!')
         content.feature_type = feature
         content.save()
-        feature_rate = FeatureTypeRate.objects.create(
+
+        feature_rate = FeatureTypeRate.objects.get(
             role=self.roles['editor'],
             feature_type=feature,
-            rate=50
         )
+        feature_rate.rate = 50
+        feature_rate.save()
 
         editor.payment_type = PAYMENT_TYPES['FeatureType']
         editor.save()
@@ -1321,3 +1315,203 @@ class ReportingApiTestCase(BaseAPITestCase):
         resp = self.client.get(endpoint, {'staff': 'staff'})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.data['results']), 1)
+
+
+class FlatRateAPITestCase(BaseAPITestCase):
+    """
+    Tests for FlatRate API Endpoint.
+    """
+    def setUp(self):
+        super(FlatRateAPITestCase, self).setUp()
+        self.role = ContributorRole.objects.create(
+            name="GarbageGuy",
+            payment_type=0
+        )
+        self.list_endpoint = reverse("flat-rate-list", kwargs={"role_pk": self.role.pk})
+
+    def test_list_route(self):
+        self.assertEqual(self.list_endpoint, "/api/v1/contributions/role/1/flat_rates/")
+
+    def test_detail_route(self):
+        endpoint = reverse("flat-rate-detail", kwargs={"role_pk": 1, "pk": 1})
+        self.assertEqual(endpoint, "/api/v1/contributions/role/1/flat_rates/1/")
+
+    def test_post_success(self):
+        data = {"rate": 200}
+        resp = self.api_client.post(self.list_endpoint, data=data)
+        self.assertEqual(resp.status_code, 201)
+        rate = FlatRate.objects.last()
+        self.assertEqual(resp.data, {"id": rate.id, "rate": 200})
+
+    def test_list_order(self):
+        """The most recently updated should be at the top of the list."""
+        for i in range(40):
+            FlatRate.objects.create(rate=i, role=self.role)
+        resp = self.api_client.get(self.list_endpoint)
+        self.assertEqual(resp.status_code, 200)
+        rate_max = FlatRate.objects.all().aggregate(Max('rate'))
+        rate = FlatRate.objects.get(rate=rate_max["rate__max"])
+        top_id = resp.data["results"][0]["id"]
+        self.assertEqual(rate.id, top_id)
+
+    def test_role_filter(self):
+        """Results should be filtered on the role_pk provided in the url"""
+        another_role = ContributorRole.objects.create(name="Welcome King", payment_type=1)
+        for i in range(20):
+            FlatRate.objects.create(rate=i, role=self.role)
+            FlatRate.objects.create(rate=i, role=another_role)
+        resp = self.api_client.get(self.list_endpoint)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data["count"], 20)
+        for resp_rate in resp.data["results"]:
+            id = resp_rate.get("id")
+            self.assertEqual(FlatRate.objects.get(id=id).role, self.role)
+
+        another_role_list_endpoint = reverse("flat-rate-list", kwargs={"role_pk": another_role.pk})
+        resp = self.api_client.get(another_role_list_endpoint)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data["count"], 20)
+        for resp_rate in resp.data["results"]:
+            id = resp_rate.get("id")
+            self.assertEqual(FlatRate.objects.get(id=id).role, another_role)
+
+
+class HourlyRateAPITestCase(BaseAPITestCase):
+    """
+    Tests for HourlyRate API Endpoint.
+    """
+    def setUp(self):
+        super(HourlyRateAPITestCase, self).setUp()
+        self.role = ContributorRole.objects.create(
+            name="GarbageGuy",
+            payment_type=2
+        )
+        self.list_endpoint = reverse("hourly-rate-list", kwargs={"role_pk": self.role.pk})
+
+    def test_list_route(self):
+        self.assertEqual(self.list_endpoint, "/api/v1/contributions/role/1/hourly_rates/")
+
+    def test_detail_route(self):
+        endpoint = reverse("hourly-rate-detail", kwargs={"role_pk": 1, "pk": 1})
+        self.assertEqual(endpoint, "/api/v1/contributions/role/1/hourly_rates/1/")
+
+    def test_post_success(self):
+        data = {"rate": 200}
+        resp = self.api_client.post(self.list_endpoint, data=data)
+        self.assertEqual(resp.status_code, 201)
+        rate = HourlyRate.objects.last()
+        self.assertEqual(resp.data, {"id": rate.id, "rate": 200})
+
+    def test_list_order(self):
+        """The most recently updated should be at the top of the list."""
+        for i in range(40):
+            HourlyRate.objects.create(rate=i, role=self.role)
+        resp = self.api_client.get(self.list_endpoint)
+        self.assertEqual(resp.status_code, 200)
+        rate_max = HourlyRate.objects.all().aggregate(Max('rate'))
+        rate = HourlyRate.objects.get(rate=rate_max["rate__max"])
+        top_id = resp.data["results"][0]["id"]
+        self.assertEqual(rate.id, top_id)
+
+    def test_role_filter(self):
+        """Results should be filtered on the role_pk provided in the url"""
+        another_role = ContributorRole.objects.create(name="Welcome King", payment_type=2)
+        for i in range(20):
+            HourlyRate.objects.create(rate=i, role=self.role)
+            HourlyRate.objects.create(rate=i, role=another_role)
+        resp = self.api_client.get(self.list_endpoint)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data["count"], 20)
+        for resp_rate in resp.data["results"]:
+            id = resp_rate.get("id")
+            self.assertEqual(HourlyRate.objects.get(id=id).role, self.role)
+
+        another_role_list_endpoint = reverse(
+            "hourly-rate-list", kwargs={"role_pk": another_role.pk}
+        )
+        resp = self.api_client.get(another_role_list_endpoint)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data["count"], 20)
+        for resp_rate in resp.data["results"]:
+            id = resp_rate.get("id")
+            self.assertEqual(HourlyRate.objects.get(id=id).role, another_role)
+
+
+class FeatureTypeRateAPITestCase(BaseAPITestCase):
+    """
+    Tests for HourlyRate API Endpoint.
+    """
+    def setUp(self):
+        super(FeatureTypeRateAPITestCase, self).setUp()
+        self.role = ContributorRole.objects.create(
+            name="GarbageGuy",
+            payment_type=1
+        )
+        self.feature_type = FeatureType.objects.create(name="Surf")
+        self.list_endpoint = reverse("feature-type-rate-list", kwargs={"role_pk": self.role.pk})
+
+    def test_list_route(self):
+        self.assertEqual(self.list_endpoint, "/api/v1/contributions/role/1/feature_type_rates/")
+
+    def test_detail_route(self):
+        endpoint = reverse("feature-type-rate-detail", kwargs={"role_pk": 1, "pk": 1})
+        self.assertEqual(endpoint, "/api/v1/contributions/role/1/feature_type_rates/1/")
+
+    def test_put_success(self):
+        data = {"rate": 200, "feature_type": "surf"}
+        rr = self.role.feature_type_rates.filter(feature_type__slug="surf").first()
+        endpoint = reverse("feature-type-rate-detail", kwargs={"role_pk": 1, "pk": rr.id})
+        resp = self.api_client.put(endpoint, data=data)
+        self.assertEqual(resp.status_code, 200)
+        rate = FeatureTypeRate.objects.last()
+        self.assertEqual(resp.data, {"id": rate.id, "rate": 200, "feature_type": "Surf"})
+
+    def test_list_order(self):
+        """The most recently updated should be at the top of the list."""
+        alphabet = "abcdefghijklmnopqrstuvwxyz"
+        another_role = ContributorRole.objects.create(name="RoleTide", payment_type=1)
+        for i in alphabet:
+            ft = FeatureType.objects.create(name=i)
+            ftr1 = FeatureTypeRate.objects.get(role=another_role, feature_type=ft)
+            ftr1.rate = 20
+            ftr1.save()
+            ftr2 = FeatureTypeRate.objects.get(role=self.role, feature_type=ft)
+            ftr2.rate = 20
+            ftr2.save()
+        resp = self.api_client.get(self.list_endpoint)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data["count"], FeatureType.objects.count())
+        feature_type = None
+        for obj in resp.data["results"]:
+            new_feature_type = obj.get("feature_type")
+            if not feature_type:
+                pass
+            else:
+                self.assertGreater(new_feature_type, feature_type)
+            feature_type = new_feature_type
+
+    def test_role_filter(self):
+        """Results should be filtered on the role_pk provided in the url"""
+        another_role = ContributorRole.objects.create(name="Welcome King", payment_type=2)
+        rr = FeatureTypeRate.objects.get(role=self.role, feature_type=self.feature_type)
+        rr.rate = 20
+        rr.save()
+        rr = FeatureTypeRate.objects.get(role=another_role, feature_type=self.feature_type)
+        rr.rate = 21
+        rr.save()
+        resp = self.api_client.get(self.list_endpoint)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data["count"], 1)
+        for resp_rate in resp.data["results"]:
+            id = resp_rate.get("id")
+            self.assertEqual(FeatureTypeRate.objects.get(id=id).role, self.role)
+
+        another_role_list_endpoint = reverse(
+            "feature-type-rate-list", kwargs={"role_pk": another_role.pk}
+        )
+        resp = self.api_client.get(another_role_list_endpoint)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data["count"], 1)
+        for resp_rate in resp.data["results"]:
+            id = resp_rate.get("id")
+            self.assertEqual(FeatureTypeRate.objects.get(id=id).role, another_role)
