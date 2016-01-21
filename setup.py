@@ -24,12 +24,13 @@ requires = [
     "djangorestframework-csv==1.3.3",
     "djangorestframework==3.1.1",
     "djes>=0.1.7",
-    "firebase-token-generator==1.3.2",
     "python-dateutil==2.1",
     "pytz==2012h",
     "requests>=1.1.0",
     "simplejson==3.3.0",
-    "six==1.6.1",
+    "six==1.10.0",
+    "firebase-token-generator==1.3.2",
+    "drf-nested-routers==0.11.1"
 ]
 
 dev_requires = [
@@ -38,7 +39,7 @@ dev_requires = [
     "httmock==1.0.5",
     "model-mommy==1.2.4",
     "psycopg2==2.5.1",
-    "pytest==2.7.0",
+    "pytest==2.7.3",
     "pytest-cov==1.8.1",
     "pytest-django==2.8.0",
     "celery==3.1.10",

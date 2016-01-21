@@ -208,6 +208,10 @@ class Content(PolymorphicModel, Indexable):
     # custom ES manager
     search_objects = ContentManager()
     instant_article = models.BooleanField(default=False)
+    # Tunic Campaign ID
+    # NOTE: Don't want to accidentally overwrite derived model campaign_id fields during migration
+    # Will rename to "campaign_id" after migration
+    tunic_campaign_id = models.IntegerField(blank=True, null=True, default=None)
 
     class Meta:
         permissions = (

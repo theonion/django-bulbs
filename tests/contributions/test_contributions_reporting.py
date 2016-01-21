@@ -23,6 +23,7 @@ from bulbs.contributions.models import (
     ContributionOverride, FeatureTypeOverride, HourlyOverride, HourlyRate, ManualRate,
     OverrideProfile
 )
+from bulbs.contributions.signals import *  # NOQA
 from bulbs.contributions.utils import get_forced_payment_contributions
 
 
@@ -320,18 +321,20 @@ class RatePayTestCase(BaseIndexableTestCase):
             'tvclub': FeatureType.objects.create(name='TV Club'),
             'news': FeatureType.objects.create(name='News')
         }
+        tvclub_rate = FeatureTypeRate.objects.get(
+            feature_type=self.feature_types['tvclub'], role=self.roles['featuretype']
+        )
+        tvclub_rate.rate = 30
+        tvclub_rate.save()
+        news_rate = FeatureTypeRate.objects.get(
+            feature_type=self.feature_types['news'], role=self.roles['featuretype']
+        )
+        news_rate.rate = 50
+        news_rate.save()
         self.rates = {
             'featuretype': {
-                'tvclub': FeatureTypeRate.objects.create(
-                    feature_type=self.feature_types['tvclub'],
-                    role=self.roles['featuretype'],
-                    rate=30
-                ),
-                'news': FeatureTypeRate.objects.create(
-                    feature_type=self.feature_types['news'],
-                    role=self.roles['featuretype'],
-                    rate=50
-                )
+                'tvclub': tvclub_rate,
+                'news': news_rate
             },
             'flatrate': {
                 'flatrate': FlatRate.objects.create(
@@ -588,3 +591,9 @@ class RatePayTestCase(BaseIndexableTestCase):
         include, exclude = get_forced_payment_contributions(start_date, end_date)
         self.assertIn(contribution, exclude)
         self.assertEqual(include.count(), 0)
+
+    def test_feature_type_rate_signal(self):
+        feature_type = FeatureType.objects.create(name="Sosa")
+        self.assertTrue(
+            self.roles['featuretype'].feature_type_rates.filter(feature_type=feature_type).exists()
+        )

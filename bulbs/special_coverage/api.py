@@ -1,8 +1,7 @@
 from rest_framework import filters, routers, viewsets
 from rest_framework.permissions import IsAdminUser
 
-from bulbs.utils.filters import CaseInsensitiveBooleanFilter
-
+from .filters import SpecialCoverageFilter
 from .models import SpecialCoverage
 from .serializers import SpecialCoverageSerializer
 
@@ -11,10 +10,10 @@ class SpecialCoverageViewSet(viewsets.ModelViewSet):
     queryset = SpecialCoverage.objects.all()
     serializer_class = SpecialCoverageSerializer
     filter_backends = (
-        CaseInsensitiveBooleanFilter,
+        SpecialCoverageFilter,
         filters.SearchFilter,
         filters.OrderingFilter,)
-    boolean_fields = ("active", "promoted")
+    boolean_fields = ("promoted",)
     search_fields = (
         "name",
         "description",
