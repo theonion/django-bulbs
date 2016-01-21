@@ -86,7 +86,7 @@ class SpecialCoverage(DetailImageMixin, models.Model):
 
     def _save_percolator(self):
         """
-        S`aves the query field as an elasticsearch percolator
+        Saves the query field as an elasticsearch percolator
         """
         index = Content.search_objects.mapping.index
         query_filter = self.get_content(published=False).to_dict()
