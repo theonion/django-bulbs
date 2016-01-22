@@ -1,3 +1,5 @@
+from dateutil import parser
+
 from django.core.urlresolvers import reverse
 from django.utils import timezone
 
@@ -83,7 +85,15 @@ class LineItemTestCase(BaseAPITestCase):
             LineItem.objects.create(
                 contributor=self.admin,
                 amount=i,
-                payment_date=timezone.now - timezone.timedelta(days=i)
+                payment_date=timezone.now() + timezone.timedelta(days=i)
             )
         resp = self.client.get(self.list_endpoint)
         self.assertEqual(resp.status_code, 200)
+        previous = None
+        for instance in resp.data["results"]:
+            payment_date = parser.parse(instance["payment_date"])
+            if previous is None:
+                previous = payment_date
+            else:
+                self.assertLess(payment_date, previous)
+                previous = payment_date
