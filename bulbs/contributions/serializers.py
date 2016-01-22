@@ -58,6 +58,10 @@ class ContributorField(serializers.Field):
 
     def to_internal_value(self, data):
         contributor_cls = get_user_model()
+
+        if isinstance(data, six.text_type) and data.isdigit():
+            data = int(data)
+
         if isinstance(data, int):
             return contributor_cls.objects.get(id=data)
         elif isinstance(data, dict):
