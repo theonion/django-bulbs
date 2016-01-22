@@ -152,6 +152,9 @@ class LineItem(models.Model):
     note = models.TextField()
     payment_date = models.DateTimeField(null=True, blank=True)
 
+    class Meta:
+        ordering = ("-payment_date",)
+
 
 class ContributorRole(Indexable):
     name = models.CharField(max_length=255)

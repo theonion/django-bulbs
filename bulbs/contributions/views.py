@@ -13,6 +13,8 @@ from rest_framework_nested import routers as nested_routers
 
 from bulbs.content.filters import FeatureTypes, Published, Tags
 
+
+from .filters import StartEndFilterBackend
 from .models import (
     ContributorRole, Contribution, FeatureTypeRate, FlatRate, FreelanceProfile, HourlyRate,
     LineItem, OverrideProfile, ReportContent, MANUAL
@@ -30,6 +32,10 @@ from .utils import get_forced_payment_contributions
 class LineItemViewSet(viewsets.ModelViewSet):
     queryset = LineItem.objects.all()
     serializer_class = LineItemSerializer
+    start_fields = ("payment_date",)
+    end_fields = ("payment_date",)
+    filter_backends = (StartEndFilterBackend,)
+    paginate_by = 20
 
 
 class ContributorRoleViewSet(viewsets.ModelViewSet):
