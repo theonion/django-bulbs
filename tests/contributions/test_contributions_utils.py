@@ -38,9 +38,11 @@ class MergeRoleTestCase(BaseIndexableTestCase):
         HourlyRate.objects.create(role=self.deprecated, rate=6)
         HourlyOverride.objects.create(profile=profile, rate=42)
         for feature_type in self.feature_types:
-            FeatureTypeRate.objects.create(
-                role=self.deprecated, rate=21, feature_type=feature_type
+            rate, _ = FeatureTypeRate.objects.get_or_create(
+                role=self.deprecated, feature_type=feature_type
             )
+            rate.rate = 21
+            rate.save()
             FeatureTypeOverride.objects.create(
                 profile=profile, feature_type=feature_type
             )
@@ -73,20 +75,25 @@ class MergeRoleTestCase(BaseIndexableTestCase):
         self.assertEqual(self.dominant.hourly_rates.count(), 1)
 
     def test_feature_type_rate_merge(self):
-        self.assertFalse(self.dominant.feature_type_rates.exists())
         merge_roles(self.dominant.name, self.deprecated.name)
         self.assertEqual(self.dominant.feature_type_rates.count(), len(self.feature_types))
 
     def test_feature_type_rate_merge_zero(self):
         for feature_type in self.feature_types:
-            FeatureTypeRate.objects.create(rate=0, role=self.dominant, feature_type=feature_type)
+            FeatureTypeRate.objects.get_or_create(
+                rate=0, role=self.dominant, feature_type=feature_type
+            )
         merge_roles(self.dominant.name, self.deprecated.name)
         for feature_type_rate in self.dominant.feature_type_rates.all():
             self.assertGreater(feature_type_rate.rate, 0)
 
     def test_feature_type_rate_merge_not_zero(self):
         for feature_type in self.feature_types:
-            FeatureTypeRate.objects.create(rate=1, role=self.dominant, feature_type=feature_type)
+            rate, _ = FeatureTypeRate.objects.get_or_create(
+                role=self.dominant, feature_type=feature_type
+            )
+            rate.rate = 1
+            rate.save()
         merge_roles(self.dominant.name, self.deprecated.name)
         for feature_type_rate in self.dominant.feature_type_rates.all():
             self.assertEqual(feature_type_rate.rate, 1)
