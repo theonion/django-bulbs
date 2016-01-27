@@ -161,6 +161,9 @@ class ContributorRole(Indexable):
     description = models.TextField(null=True, blank=True)
     payment_type = models.IntegerField(choices=ROLE_PAYMENT_TYPES, default=MANUAL)
 
+    def __unicode__(self):
+        return self.name
+
     def save(self, *args, **kwargs):
         created = bool(self.pk is None)
         super(ContributorRole, self).save(*args, **kwargs)
