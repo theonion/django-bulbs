@@ -152,11 +152,17 @@ class LineItem(models.Model):
     note = models.TextField()
     payment_date = models.DateTimeField(null=True, blank=True)
 
+    class Meta:
+        ordering = ("-payment_date",)
+
 
 class ContributorRole(Indexable):
     name = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
     payment_type = models.IntegerField(choices=ROLE_PAYMENT_TYPES, default=MANUAL)
+
+    def __unicode__(self):
+        return self.name
 
     def save(self, *args, **kwargs):
         created = bool(self.pk is None)

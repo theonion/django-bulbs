@@ -287,26 +287,6 @@ class ContributionApiTestCase(BaseAPITestCase):
             content_type="application/json"
         )
 
-    def test_line_item_list_api(self):
-        client = Client()
-        client.login(username="admin", password="secret")
-        endpoint = reverse("line-items-list")
-        LineItem.objects.create(
-            contributor=self.contributors["jarvis"],
-            amount=50.5,
-            note="eyyy good lookin out",
-            payment_date=timezone.now() - timezone.timedelta(days=1)
-        )
-        LineItem.objects.create(
-            contributor=self.contributors["marvin"],
-            amount=60,
-            note="c'mon buster",
-            payment_date=timezone.now() - timezone.timedelta(days=3)
-        )
-        resp = client.get(endpoint)
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(len(resp.data), 2)
-
     def test_line_item_post_success(self):
         client = Client()
         client.login(username="admin", password="secret")
