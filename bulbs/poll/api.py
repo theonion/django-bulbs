@@ -14,3 +14,5 @@ api_v1_router.register(
     r"answer",
     AnswerViewSet,
     base_name="answer")
+
+urlpatterns = api_v1_router.urls

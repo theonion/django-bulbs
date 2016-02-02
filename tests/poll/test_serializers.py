@@ -1,5 +1,9 @@
 from bulbs.poll.models      import Poll, Answer
-from bulbs.poll.serializers import PollSerializer, AnswerSerializer
+from bulbs.poll.serializers import (
+    PollPublicSerializer,
+    PollSerializer,
+    AnswerSerializer,
+)
 from bulbs.utils.test       import (
     BaseIndexableTestCase,
     make_vcr,
@@ -24,7 +28,6 @@ class PollSerializerTestCase(BaseIndexableTestCase):
         self.assertEqual(serializer.data['id'], poll.id)
         self.assertEqual(serializer.data['question_text'], poll.question_text)
         self.assertEqual(serializer.data['title'], poll.title)
-        self.assertEqual(serializer.data['total_votes'], 0)
 
     @vcr.use_cassette()
     @mock_vault(SECRETS)
@@ -36,25 +39,19 @@ class PollSerializerTestCase(BaseIndexableTestCase):
         serializer = PollSerializer(poll)
         answers_data = serializer.data['answers']
 
-        # We cannot predict sodahead_id
-        first_sodahead_id = answers_data[0]['sodahead_id']
-        second_sodahead_id = answers_data[1]['sodahead_id']
-
         self.assertEqual(answers_data[0]['id'], 1)
-        self.assertEqual(answers_data[0]['sodahead_id'], first_sodahead_id)
         self.assertEqual(answers_data[0]['answer_text'], u'this is some text')
         self.assertEqual(answers_data[0]['poll'], 1)
-        self.assertEqual(answers_data[0]['total_votes'], 0)
 
         self.assertEqual(answers_data[1]['id'], 2)
-        self.assertEqual(answers_data[1]['sodahead_id'], second_sodahead_id)
         self.assertEqual(answers_data[1]['answer_text'], u'forest path')
         self.assertEqual(answers_data[1]['poll'], 1)
-        self.assertEqual(answers_data[1]['total_votes'], 0)
+
+class PollPublicSerializerTestCase(BaseIndexableTestCase):
 
     @vcr.use_cassette()
     @mock_vault(SECRETS)
-    def test_poll_answer_serialization_after_answer_deletion(self):
+    def test_serialization_includes_sodahead_data(self):
         poll = Poll.objects.create(
             question_text='is it powerful?',
             title=random_title(),
@@ -63,7 +60,7 @@ class PollSerializerTestCase(BaseIndexableTestCase):
         answer2 = Answer.objects.create(poll=poll, answer_text=u'no')
         answer3 = Answer.objects.create(poll=poll, answer_text=u'maybe')
 
-        serializer = PollSerializer(Poll.objects.get(id=poll.id))
+        serializer = PollPublicSerializer(Poll.objects.get(id=poll.id))
         answers_data = serializer.data['answers']
 
         first_sodahead_id = answers_data[0]['sodahead_id']
@@ -90,7 +87,7 @@ class PollSerializerTestCase(BaseIndexableTestCase):
 
         answer2.delete()
 
-        serializer = PollSerializer(Poll.objects.get(id=poll.id))
+        serializer = PollPublicSerializer(Poll.objects.get(id=poll.id))
         answers_data = serializer.data['answers']
 
         self.assertEqual(answers_data[0]['id'], 1)

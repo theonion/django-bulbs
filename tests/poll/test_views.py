@@ -149,3 +149,33 @@ class AnswerAPITestCase(TestCase):
         self.assertEqual(response.status_code, 204)
         response2 = self.client.get(answer_url)
         self.assertEqual(response2.data['detail'], u'Not found.')
+
+class GetPollDataTestCase(TestCase):
+    """
+        Test for public get poll data.
+        returns json that includes vote counts.
+    """
+
+    @vcr.use_cassette()
+    @mock_vault(SECRETS)
+    def test_get_poll_data(self):
+        poll = Poll.objects.create(question_text=u'are we on vox!?',
+                title=random_title())
+        answer1 = Answer.objects.create(poll=poll, answer_text=u'affirmative')
+        answer2 = Answer.objects.create(poll=poll, answer_text=u'that is a negatory')
+
+        poll_data_url = reverse('get-merged-poll-data', kwargs={'pk': poll.id})
+        response = self.client.get(poll_data_url)
+
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+
+        self.assertEqual(data['id'], poll.id)
+        self.assertEqual(data['total_votes'], 0)
+
+        self.assertEqual(data['answers'][0]['total_votes'], 0)
+        self.assertIsNotNone(data['answers'][0]['sodahead_id'], 0)
+
+        self.assertEqual(data['answers'][1]['total_votes'], 0)
+        self.assertIsNotNone(data['answers'][1]['sodahead_id'], 0)
+

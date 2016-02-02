@@ -1,3 +1,7 @@
-from .api import api_v1_router
+from django.conf.urls import url, patterns
 
-urlpatterns = api_v1_router.urls
+from bulbs.poll.views import get_merged_poll_data
+
+urlpatterns = patterns("",
+    url(r"^poll/(?P<pk>[\d]+)\.json$", get_merged_poll_data, name='get-merged-poll-data')
+)

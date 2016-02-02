@@ -19,6 +19,7 @@ class PollSerializer(ContentSerializer):
     class Meta:
         model = Poll
 
+class PollPublicSerializer(PollSerializer):
     def to_representation(self, poll):
         representation = super(PollSerializer, self).to_representation(poll)
         sodahead_data = poll.get_sodahead_data()
@@ -32,3 +33,4 @@ class PollSerializer(ContentSerializer):
             index += 1
 
         return representation
+
