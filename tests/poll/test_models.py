@@ -1,4 +1,4 @@
-from bulbs.poll.models import Poll, Answer
+from bulbs.poll.models import Poll, Answer, SodaheadResponseError
 from bulbs.utils.test  import (
     BaseIndexableTestCase,
     make_vcr,
@@ -44,7 +44,7 @@ class PollTestCase(BaseIndexableTestCase):
         sodahead_endpoint = re.compile('https://onion.sodahead.com/api/polls/[\d]+/')
         with requests_mock.Mocker() as mocker:
             mocker.post('https://onion.sodahead.com/api/polls/', status_code=666)
-            with self.assertRaises(Poll.SodaheadResponseError):
+            with self.assertRaises(SodaheadResponseError):
                 Poll.objects.create(question_text='other text', title=random_title())
 
     @vcr.use_cassette()
@@ -148,7 +148,7 @@ class AnswerTestCase(BaseIndexableTestCase):
         poll = Poll.objects.create(question_text='listening to your heart', title=random_title())
         with requests_mock.Mocker() as mocker:
             mocker.post(sodahead_endpoint, status_code=666)
-            with self.assertRaises(Poll.SodaheadResponseError):
+            with self.assertRaises(SodaheadResponseError):
                 Answer.objects.create(poll=poll, answer_text='something')
 
     @vcr.use_cassette()
