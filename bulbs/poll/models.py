@@ -22,7 +22,7 @@ class Poll(Content):
 
     def sodahead_payload(self):
         poll_payload = {
-            'access_token': vault.read('sodahead/token'),
+            'access_token': vault.read('sodahead/token')['value'],
             'id': self.sodahead_id,
             'name': self.title,
             'title': self.question_text,
@@ -64,7 +64,7 @@ class Poll(Content):
 
     def delete(self, *args, **kwargs):
         response = requests.delete('https://onion.sodahead.com/api/polls/{}/?access_token={}'
-                .format(self.sodahead_id, vault.read('sodahead/token')))
+                .format(self.sodahead_id, vault.read('sodahead/token')['value']))
         if response.status_code is not 204:
             raise Poll.SodaheadResponseError(response.text)
         super(Poll, self).delete(*args, **kwargs)
