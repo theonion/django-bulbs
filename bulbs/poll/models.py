@@ -80,13 +80,8 @@ class Poll(Content):
         super(Poll, self).save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
-<<<<<<< HEAD
         response = requests.delete(SODAHEAD_DELETE_POLL_ENDPOINT
-            .format(self.sodahead_id, vault.read('sodahead/token')))
-=======
-        response = requests.delete('https://onion.sodahead.com/api/polls/{}/?access_token={}'
-                .format(self.sodahead_id, vault.read('sodahead/token')['value']))
->>>>>>> 8aefd6dae78acf452ee216635a4f063ee5494a20
+            .format(self.sodahead_id, vault.read('sodahead/token')['value']))
         if response.status_code is not 204:
             raise SodaheadResponseError(response.text)
         super(Poll, self).delete(*args, **kwargs)
