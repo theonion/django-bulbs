@@ -16,7 +16,11 @@ class MergedPollDataView(DetailView):
 
     def render_to_response(self, context, **response_kwargs):
         serializer = PollPublicSerializer(self.object)
-        return HttpResponse(json.dumps(serializer.data), content_type="application/json")
+        response = HttpResponse(json.dumps(serializer.data),
+            content_type="application/json"
+        )
+        response["Access-Control-Allow-Origin"] = "*"
+        return response
 
 poll_detail = cache_control(max_age=600)(PollDetailView.as_view())
 get_merged_poll_data = cache_control(max_age=600)(MergedPollDataView.as_view())

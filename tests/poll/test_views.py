@@ -168,6 +168,8 @@ class GetPollDataTestCase(TestCase):
         response = self.client.get(poll_data_url)
 
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Access-Control-Allow-Origin'], '*')
+
         data = json.loads(response.content)
 
         self.assertEqual(data['id'], poll.id)

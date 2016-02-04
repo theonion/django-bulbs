@@ -92,6 +92,8 @@ class Poll(Content):
         if response.status_code is not 200:
             raise SodaheadResponseError(response.text)
 
+from django.db import transaction
+
 class Answer(Indexable):
     poll = models.ForeignKey(Poll,
         on_delete=models.CASCADE,
@@ -100,12 +102,13 @@ class Answer(Indexable):
     sodahead_answer_id = models.CharField(max_length=20, blank=True, default="")
     answer_text = models.TextField(blank=True, default="")
 
-
     def save(self, *args, **kwargs):
-        if self.sodahead_answer_id is "":
-            count = self.poll.last_answer_index
-            self.sodahead_answer_id = 'answer_%02d' % (count + 1)
-        super(Answer, self).save(*args, **kwargs)
-        self.poll.last_answer_index += 1
-        self.poll.save()
-        self.poll.sync_sodahead()
+        with transaction.atomic():
+            poll = Poll.objects.select_for_update().get(pk=self.poll_id)
+            if self.sodahead_answer_id is "":
+                count = poll.last_answer_index
+                self.sodahead_answer_id = 'answer_%02d' % (count + 1)
+            super(Answer, self).save(*args, **kwargs)
+            poll.last_answer_index += 1
+            poll.save()
+            poll.sync_sodahead()
