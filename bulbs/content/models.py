@@ -401,6 +401,9 @@ class Content(PolymorphicModel, Indexable):
         # has poor date filter support.
         now = time.mktime(timezone.now().timetuple())
 
+        # ES v1.4 has more limited percolator capabilities than later
+        # implementations. As such, in order to get this to work, we need to
+        # sort via scoring_functions, and then manually filter out zero scores.
         sponsored_filter = {
             "query": {
                 "function_score": {
@@ -457,7 +460,7 @@ class Content(PolymorphicModel, Indexable):
                 },
             },
 
-            "sort": "_score",
+            "sort": "_score",  # The only sort method supported by ES v1.4 percolator
             "size": max_size,  # Required for sort
         }
 
