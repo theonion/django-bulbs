@@ -1,6 +1,7 @@
 from datetime import date, datetime
 from dateutil import tz
 from six import string_types, text_type, binary_type
+import time
 
 from django.conf import settings
 from django.utils import timezone
@@ -52,3 +53,7 @@ def is_valid_digit(value):
     elif is_str(value):
         return value.isdigit()
     return False
+
+
+def datetime_to_epoch_seconds(value):
+    return time.mktime(value.timetuple())

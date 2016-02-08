@@ -1,6 +1,8 @@
 """Base models for "Content", including the indexing and search features
 that we want any piece of content to have."""
 
+import logging
+import time
 import uuid
 
 from django.conf import settings
@@ -12,6 +14,7 @@ from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django.utils.html import strip_tags
 from djes.models import Indexable, IndexableManager
+from elasticsearch import TransportError
 from elasticsearch_dsl import field
 from polymorphic import PolymorphicModel, PolymorphicManager
 from djbetty import ImageField
@@ -23,8 +26,11 @@ try:
     from bulbs.content.tasks import index as index_task  # noqa
     CELERY_ENABLED = True
 except ImportError:
-    index_task = lambda *x: x
+    def index_task(x): return x
     CELERY_ENABLED = False
+
+
+logger = logging.getLogger(__name__)
 
 
 class ElasticsearchImageField(field.Integer):
@@ -38,6 +44,7 @@ class TagManager(PolymorphicManager, IndexableManager):
 
 
 class Tag(PolymorphicModel, Indexable):
+
     """Model for tagging up Content.
     """
 
@@ -84,6 +91,7 @@ class Tag(PolymorphicModel, Indexable):
 
 
 class FeatureType(Indexable):
+
     """
     special model for featured content
     """
@@ -115,6 +123,7 @@ class FeatureType(Indexable):
 
 
 class TemplateType(models.Model):
+
     """
     Template type for Content.
     """
@@ -125,6 +134,7 @@ class TemplateType(models.Model):
 
 
 class ContentManager(PolymorphicManager, IndexableManager):
+
     """
     a specialized version of `djes.models.SearchManager` for `bulbs.content.Content`
     """
@@ -177,7 +187,26 @@ class ContentManager(PolymorphicManager, IndexableManager):
         return search_query
 
 
+def _percolate(index, doc_type, content_id, body):
+    try:
+        results = Content.search_objects.client.percolate(index=index,
+                                                          doc_type=doc_type,
+                                                          id=content_id,
+                                                          body=body)
+    except TransportError as exc:
+        logger.exception(exc)
+        return []
+
+    if results["total"] > 0:
+        return results['matches']
+    else:
+        if results.get('_shards', {}).get('failures'):
+            logger.error('Elasticearch error: {}'.format(results.get('_shards')))
+        return []
+
+
 class Content(PolymorphicModel, Indexable):
+
     """
     The base content model from which all other content derives.
     """
@@ -337,8 +366,109 @@ class Content(PolymorphicModel, Indexable):
         from .serializers import ContentSerializer
         return ContentSerializer
 
+    def percolate_special_coverages(self):
+
+        special_coverage_filter = {
+            "filter": {
+                "prefix": {"_id": "specialcoverage"}
+            }
+        }
+
+        results = _percolate(index=self.mapping.index,
+                             doc_type=self.mapping.doc_type,
+                             content_id=self.id,
+                             body=special_coverage_filter)
+
+        return [r["_id"] for r in results]
+
+    def percolate_sponsored_special_coverages(self, max_size=10):
+
+        # 1. Any active sponsored special_coverage reading list that contains this item sorted by
+        #   i) Manually added
+        #   ii) Most recent start date
+
+        # Need to use integer date/time (seconds since epoch) as ES (at least as of v1.4)
+        # has poor date filter support.
+        now = time.mktime(timezone.now().timetuple())
+
+        sponsored_filter = {
+            "query": {
+
+                "function_score": {
+
+                    "functions": [
+
+                        # Boost Recent Special Coverage
+                        # Base score is start time (seconds since epoch)
+                        {
+                            # Use epoch time as base score value to sort by date
+                            "field_value_factor": {
+                                "field": "start_date",
+                            },
+                        },
+
+                        # Boost Manually Added Content
+                        {
+                            "filter": {
+                                "terms": {
+                                    "included_ids": [self.id],
+                                }
+                            },
+                            "weight": 10,
+                        },
+
+                        # Penalize Unsponsored
+                        {
+                            "filter": {
+                                "term": {
+                                    "sponsored": False,
+                                }
+                            },
+                            "weight": 0,
+                        },
+
+                        # Penalize Inactive
+                        {
+                            "filter": {
+                                "or": [
+                                    {
+                                        "range": {
+                                            "start_date": {
+                                                "gt": now,
+                                            },
+                                        }
+                                    },
+                                    {
+                                        "range": {
+                                            "end_date": {
+                                                "lte": now,
+                                            },
+                                        }
+                                    },
+                                ],
+                            },
+                            "weight": 0,
+                        },
+                    ],
+                },
+            },
+
+            "sort": "_score",
+            # Required for sort
+            "size": max_size,
+        }
+
+        results = _percolate(index=self.mapping.index,
+                             doc_type=self.mapping.doc_type,
+                             content_id=self.id,
+                             body=sponsored_filter)
+
+        return [r["_id"] for r in results
+                # Zero score used to omit results via scoring function (ex: unsponsored)
+                if r['_score'] > 0]
 
 class LogEntryManager(models.Manager):
+
     """
     provides additional manager methods for `bulbs.content.LogEntry` model
     """
@@ -359,6 +489,7 @@ class LogEntryManager(models.Manager):
 
 
 class LogEntry(models.Model):
+
     """
     log entries for changes to content
     """
@@ -377,6 +508,7 @@ class LogEntry(models.Model):
 
 
 class ObfuscatedUrlInfo(Model):
+
     """
     Stores info used for obfuscated urls of unpublished content.
     """
