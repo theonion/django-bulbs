@@ -368,6 +368,12 @@ class Content(PolymorphicModel, Indexable):
 
     def percolate_special_coverages(self):
 
+        """gets list of special coverages containing this content via Elasticsearch
+        Percolator (see SpecialCoverage._save_percolator)
+
+        Results are unsorted.
+
+        """
         special_coverage_filter = {
             "filter": {
                 "prefix": {"_id": "specialcoverage"}
@@ -383,9 +389,13 @@ class Content(PolymorphicModel, Indexable):
 
     def percolate_sponsored_special_coverages(self, max_size=10):
 
-        # 1. Any active sponsored special_coverage reading list that contains this item sorted by
-        #   i) Manually added
-        #   ii) Most recent start date
+        """gets list of active, sponsored special coverages containing this content via
+        Elasticsearch Percolator (see SpecialCoverage._save_percolator)
+
+        Sorting:
+            1) Manually added
+            2) Most recent start date
+        """
 
         # Need to use integer date/time (seconds since epoch) as ES (at least as of v1.4)
         # has poor date filter support.
@@ -393,11 +403,8 @@ class Content(PolymorphicModel, Indexable):
 
         sponsored_filter = {
             "query": {
-
                 "function_score": {
-
                     "functions": [
-
                         # Boost Recent Special Coverage
                         # Base score is start time (seconds since epoch)
                         {
@@ -406,7 +413,6 @@ class Content(PolymorphicModel, Indexable):
                                 "field": "start_date",
                             },
                         },
-
                         # Boost Manually Added Content
                         {
                             "filter": {
@@ -416,7 +422,6 @@ class Content(PolymorphicModel, Indexable):
                             },
                             "weight": 10,
                         },
-
                         # Penalize Unsponsored
                         {
                             "filter": {
@@ -426,7 +431,6 @@ class Content(PolymorphicModel, Indexable):
                             },
                             "weight": 0,
                         },
-
                         # Penalize Inactive
                         {
                             "filter": {
@@ -454,8 +458,7 @@ class Content(PolymorphicModel, Indexable):
             },
 
             "sort": "_score",
-            # Required for sort
-            "size": max_size,
+            "size": max_size,  # Required for sort
         }
 
         results = _percolate(index=self.mapping.index,
