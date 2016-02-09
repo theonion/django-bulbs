@@ -11,7 +11,7 @@ env:
 install:
   # Use same ES version as in production (also the Travis "elasticsearch" service setting fails to start)
   - travis_retry curl -O https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-$ELASTICSEARCH_VERSION.deb && sudo dpkg -i --force-confnew elasticsearch-$ELASTICSEARCH_VERSION.deb
-  - service elasticsearch start
+  - sudo service elasticsearch start
   - travis_retry pip install -e .
   - travis_retry pip install "file://$(pwd)#egg=django-bulbs[dev]"
 services:
