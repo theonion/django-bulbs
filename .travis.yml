@@ -3,11 +3,15 @@ python:
   - '2.7'
   - '3.4'
   - '3.5'
+env:
+    - ELASTICSEARCH_VERSION=1.4.4
+    #- ELASTICSEARCH_VERSION=1.4.5
+    # TODO: MORE?
 install:
   - travis_retry pip install -e .
   - travis_retry pip install "file://$(pwd)#egg=django-bulbs[dev]"
   # Use same ES version as in production (also the Travis "elasticsearch" service setting fails to start)
-  - curl -O https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.4.4.deb && sudo dpkg -i --force-confnew elasticsearch-1.4.4.deb
+  - travis_retry curl -O https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-${ELASTICSEARCH_VERSION}.deb && sudo dpkg -i --force-confnew elasticsearch-${ELASTICSEARCH_VERSION}.deb
   - sudo service elasticsearch start
 services:
   - postgresql
