@@ -1,5 +1,7 @@
 language: python
+
 sudo: required
+
 python:
   - '2.7'
   - '3.4'
@@ -23,4 +25,3 @@ before_script:
 script: py.test --cov bulbs --cov-report term-missing
 after_success:
   - coveralls
-sudo: false
