@@ -6,9 +6,10 @@ python:
   - '2.7'
   - '3.4'
   - '3.5'
+cache: pip
 env:
     - ELASTICSEARCH_VERSION=1.4.4
-    #- ELASTICSEARCH_VERSION=1.4.5
+    - ELASTICSEARCH_VERSION=1.7.3
     # TODO: MORE?
 install:
   # Use same ES version as in production (also the Travis "elasticsearch" service setting fails to start)
