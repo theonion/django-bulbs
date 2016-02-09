@@ -6,9 +6,12 @@ python:
 install:
   - travis_retry pip install -e .
   - travis_retry pip install "file://$(pwd)#egg=django-bulbs[dev]"
+  # Use same ES version as in production (also the Travis "elasticsearch" service setting fails to start)
+  - curl -O https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.4.4.deb && sudo dpkg -i --force-confnew elasticsearch-1.4.4.deb
+  - sudo service elasticsearch start
 services:
   - postgresql
-  - elasticsearch
+  #- elasticsearch
 before_script:
   - psql -c 'create database bulbs;' -U postgres
   - until curl http://localhost:9200/; do sleep 1; done
