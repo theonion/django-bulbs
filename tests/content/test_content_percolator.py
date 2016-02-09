@@ -1,8 +1,10 @@
-from django.utils import timezone
+from datetime import timedelta
 
 from freezegun import freeze_time
 from model_mommy import mommy
 import six
+
+from django.utils import timezone
 
 from bulbs.special_coverage.models import SpecialCoverage
 from bulbs.utils.test import BaseIndexableTestCase
@@ -15,11 +17,13 @@ def make_special_coverage(start, end, tag='test', included=None, sponsored=True)
     def days(count):
         return timezone.now() + timezone.timedelta(days=count)
 
-    start_date = days(start)
-    end_date = days(end)
+    if isinstance(start, int):
+        start = days(start)
+    if isinstance(end, int):
+        end = days(end)
 
     if sponsored:
-        campaign = mommy.make("campaigns.Campaign", start_date=start_date, end_date=end_date)
+        campaign = mommy.make("campaigns.Campaign", start_date=start, end_date=end)
     else:
         campaign = None
 
@@ -27,8 +31,8 @@ def make_special_coverage(start, end, tag='test', included=None, sponsored=True)
         id=(SpecialCoverage.objects.count() + 1),  # Fixed ID ordering for easier asserts
         name="Test Coverage {}".format(SpecialCoverage.objects.count()),
         campaign=campaign,
-        start_date=start_date,
-        end_date=end_date,
+        start_date=start,
+        end_date=end,
         query={
             'excluded_ids': [],
             'groups': [{
@@ -146,6 +150,14 @@ class PercolateSponsoredSpecialCoveragesTestCase(BaseIndexableTestCase):
         make_special_coverage(tag='white', start=-3, end=1)
         make_special_coverage(tag='white', start=-2, end=1)
         self.check_special_coverages([3, 5, 4, 2, 1])
+
+    def test_sort_start_date_same_day(self):
+        # Percolator v1.4 scoring by date has ~1 hour accuracy (not sure why!)
+        make_special_coverage(tag='white', start=(timezone.now() - timedelta(hours=4)), end=1)  # Oldest
+        make_special_coverage(tag='white', start=(timezone.now() - timedelta(hours=2)), end=1)  # 2nd Newest
+        make_special_coverage(tag='white', start=(timezone.now() - timedelta(hours=3)), end=1)  # 3rd Newest
+        make_special_coverage(tag='white', start=(timezone.now() - timedelta(hours=1)), end=1)  # Newest
+        self.check_special_coverages([4, 2, 3, 1])
 
     def test_precedence(self):
         # Manually added

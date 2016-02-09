@@ -2,7 +2,6 @@
 that we want any piece of content to have."""
 
 import logging
-import time
 import uuid
 
 from django.conf import settings
@@ -197,11 +196,13 @@ def _percolate(index, doc_type, content_id, body):
         logger.exception(exc)
         return []
 
+    # Log any errors (but still try to return any results)
+    if results.get('_shards', {}).get('failures'):
+        logger.error('Elasticearch error: {}'.format(results.get('_shards')))
+
     if results["total"] > 0:
         return results['matches']
     else:
-        if results.get('_shards', {}).get('failures'):
-            logger.error('Elasticearch error: {}'.format(results.get('_shards')))
         return []
 
 
@@ -397,9 +398,7 @@ class Content(PolymorphicModel, Indexable):
             2) Most recent start date
         """
 
-        # Need to use integer date/time (seconds since epoch) as ES (at least as of v1.4)
-        # has poor date filter support.
-        now = time.mktime(timezone.now().timetuple())
+        now = timezone.now()
 
         # ES v1.4 has more limited percolator capabilities than later
         # implementations. As such, in order to get this to work, we need to
@@ -408,14 +407,17 @@ class Content(PolymorphicModel, Indexable):
             "query": {
                 "function_score": {
                     "functions": [
+
                         # Boost Recent Special Coverage
-                        # Base score is start time (seconds since epoch)
+                        # Base score is start time
+                        # Note: ES 1.4 sorting granularity is poor for times
+                        # within 1 hour of each other.
                         {
-                            # Use epoch time as base score value to sort by date
                             "field_value_factor": {
                                 "field": "start_date",
-                            },
+                            }
                         },
+
                         # Boost Manually Added Content
                         {
                             "filter": {
