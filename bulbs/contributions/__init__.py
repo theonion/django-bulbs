@@ -1,1 +1,0 @@
-default_app_config = "bulbs.contributions.apps.ContributionsConfig"
