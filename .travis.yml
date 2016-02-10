@@ -5,9 +5,10 @@ sudo: required
 python:
   - '2.7'
   - '3.4'
- cache:
+  - '3.5'
+cache:
   directories:
-    - $HOME/.cache/pip - '3.5'
+    - $HOME/.cache/pip
 env:
     # Current production
     - ELASTICSEARCH_VERSION=1.4.4
