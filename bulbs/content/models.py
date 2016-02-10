@@ -20,10 +20,11 @@ from bulbs.content import TagCache
 from .filters import Authors, Published, Status, Tags, FeatureTypes
 
 try:
-    from bulbs.content.tasks import index as index_task  # noqa
+    from bulbs.content.tasks import index_content_contributions, index as index_task  # noqa
     CELERY_ENABLED = True
 except ImportError:
     index_task = lambda *x: x
+    index_content_contributions = lambda *x: x
     CELERY_ENABLED = False
 
 
@@ -326,7 +327,9 @@ class Content(PolymorphicModel, Indexable):
             if kwargs is None:
                 kwargs = {}
             kwargs["index"] = False
-        return super(Content, self).save(*args, **kwargs)
+        content = super(Content, self).save(*args, **kwargs)
+        index_content_contributions.delay(self.id)
+        return content
 
     @classmethod
     def get_serializer_class(cls):

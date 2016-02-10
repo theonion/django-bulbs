@@ -5,7 +5,7 @@ from django.db.models.signals import m2m_changed, post_save
 from bulbs.content.models import Content, FeatureType
 
 from .models import Contribution, ContributorRole, FeatureTypeRate, ReportContent
-from .tasks import update_contribution_index_from_content, update_role_rates
+from .tasks import update_role_rates
 from .utils import update_content_contributions
 
 
@@ -47,36 +47,13 @@ def index_relations(sender, instance, **kwargs):
         pass
 
 
+@receiver(post_save, sender=Content)
 def index_content_dependencies(sender, instance, **kwargs):
     """
     Indexes the reporting document for the piece of content
     """
-    update_contribution_index_from_content.delay(instance.id)
     try:
         proxy = ReportContent.reference.get(id=instance.id)
         proxy.index()
     except ObjectDoesNotExist:
         pass
-
-def get_all_cls_child_classes(cls, exclude=[]):
-    clsses = [cls]
-    for sub_cls in cls.__subclasses__():
-        clsses += get_all_cls_child_classes(sub_cls)
-    for exc_cls in exclude:
-        try:
-            index = clsses.index(exc_cls)
-            clsses.pop(index)
-        except:
-            pass
-    return clsses
-
-
-# Signals are not aware of child classes, which creates a problem for indexing.
-# This allows us to create a signal for each subclass of Content per property.
-content_classes = get_all_cls_child_classes(Content, exclude=[ReportContent])
-for content_class in content_classes:
-    post_save.connect(
-        index_content_dependencies,
-        sender=content_class,
-        dispatch_uid="att_post_save_" + content_class.__name__
-    )
