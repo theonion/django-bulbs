@@ -4,7 +4,7 @@ from django.db.models.signals import m2m_changed, post_save
 from bulbs.content.models import Content, FeatureType
 
 from .models import Contribution, ContributorRole, FeatureTypeRate, ReportContent
-from .tasks import update_role_rates
+from .tasks import update_contribution_index_from_content, update_role_rates
 from .utils import update_content_contributions
 
 
@@ -27,27 +27,11 @@ def call_update_role_rates(sender, instance, * args, **kwargs):
 def update_contributions(sender, instance, action, model, pk_set, **kwargs):
     """Creates a contribution for each author added to an article.
     """
-    # action = kwargs.get('action')
-    # import pdb; pdb.set_trace()
     if action != 'pre_add':
         return
     else:
-        # model = kwargs.get('model')
-        # pk_set = kwargs.get('pk_set')
         for author in model.objects.filter(pk__in=pk_set):
             update_content_contributions(instance, author)
-
-
-@receiver(post_save, sender=Content)
-def index_reportcontent(sender, instance, **kwargs):
-    """
-    Indexes the reporting document for the piece of content
-    """
-    try:
-        proxy = ReportContent.reference.get(id=instance.id)
-        proxy.index()
-    except:
-        pass
 
 
 @receiver(post_save, sender=Contribution)
@@ -60,3 +44,38 @@ def index_relations(sender, instance, **kwargs):
         proxy.index()
     except:
         pass
+
+
+def index_content_dependencies(sender, instance, **kwargs):
+    """
+    Indexes the reporting document for the piece of content
+    """
+    update_contribution_index_from_content.delay(instance.id)
+    try:
+        proxy = ReportContent.reference.get(id=instance.id)
+        proxy.index()
+    except:
+        pass
+
+def get_all_cls_child_classes(cls, exclude=[]):
+    clsses = [cls]
+    for sub_cls in cls.__subclasses__():
+        clsses += get_all_cls_child_classes(sub_cls)
+    for exc_cls in exclude:
+        try:
+            index = clsses.index(exc_cls)
+            clsses.pop(index)
+        except:
+            pass
+    return clsses
+
+
+# Signals are not aware of child classes, which creates a problem for indexing.
+# This allows us to create a signal for each subclass of Content per property.
+content_classes = get_all_cls_child_classes(Content, exclude=[ReportContent])
+for content_class in content_classes:
+    post_save.connect(
+        index_content_dependencies,
+        sender=content_class,
+        dispatch_uid="att_post_save_" + content_class.__name__
+    )

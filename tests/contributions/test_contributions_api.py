@@ -6,6 +6,9 @@ from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.test.client import Client
 
+from elasticsearch_dsl import filter as es_filter
+from freezegun import freeze_time
+
 from bulbs.content.models import Content, FeatureType, Tag
 from bulbs.contributions.models import (
     Contribution, ContributorRole, ManualRate, HourlyRate, FeatureTypeOverride,
@@ -15,7 +18,6 @@ from bulbs.contributions.models import (
 from bulbs.contributions.serializers import RateSerializer
 from bulbs.contributions.signals import *  # NOQA
 from bulbs.utils.test import BaseAPITestCase, make_content
-from freezegun import freeze_time
 
 PAYMENT_TYPES = dict((label, value) for value, label in RATE_PAYMENT_TYPES)
 
@@ -51,6 +53,51 @@ class ContributionApiTestCase(BaseAPITestCase):
         for c in contributor_cls.objects.all():
             c.save()
 
+    def test_contribution_indexed_on_content_create_and_update(self):
+        client = Client()
+        client.login(username="admin", password="secret")
+        self.give_permissions()
+        content_url = reverse("content-list")
+
+        content_data = {
+            "title": "WhyOhWhy",
+            "foo": "help!",
+            "authors": [{
+                "first_name": self.contributors["jarvis"].first_name,
+                "last_name": self.contributors["jarvis"].last_name,
+                "username": self.contributors["jarvis"].username
+            }]
+        }
+        content_url = reverse("content-list") + "?doctype=testcontent_testcontentobj"
+        resp = client.post(
+            content_url, json.dumps(content_data), content_type="application/json"
+        )
+        self.assertEquals(resp.status_code, 201)
+        content_data = resp.data
+        Contribution.search_objects.refresh()
+        contribution = Contribution.objects.last()
+        index = Contribution.search_objects.mapping.index
+        doc_type = Contribution.search_objects.mapping.doc_type
+        body = Contribution.search_objects.search().filter(
+            es_filter.Terms(**{"id": [contribution.id]})
+        ).to_dict()
+
+        results = self.es.search(index, doc_type, body=body)
+        published = results['hits']['hits'][0]['_source']['content']['published']
+        self.assertIsNone(published)
+        content_detail_url = reverse("content-detail", kwargs={"pk": content_data["id"]})
+        expected_published = "2013-06-09T00:00:00-06:00"
+        content_data.update({"published": expected_published})
+        resp = client.put(
+            content_detail_url, json.dumps(content_data), content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, 200)
+        Contribution.search_objects.refresh()
+
+        results = self.es.search(index, doc_type, body=body)
+        published = results['hits']['hits'][0]['_source']['content']['published']
+        self.assertEqual(published, "2013-06-09T06:00:00+00:00")
+
     def test_content_authors_default_contribution(self):
         client = Client()
         client.login(username="admin", password="secret")
@@ -59,6 +106,8 @@ class ContributionApiTestCase(BaseAPITestCase):
 
         endpoint = reverse("content-list")
         data = {
+
+
             "title": "howdy",
             "authors": [{
                 "username": self.contributors["jarvis"].username,
