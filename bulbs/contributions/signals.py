@@ -55,7 +55,7 @@ def index_content_dependencies(sender, instance, **kwargs):
     try:
         proxy = ReportContent.reference.get(id=instance.id)
         proxy.index()
-    except:
+    except ObjectDoesNotExist:
         pass
 
 def get_all_cls_child_classes(cls, exclude=[]):
