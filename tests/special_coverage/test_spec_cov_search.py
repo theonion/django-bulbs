@@ -80,6 +80,7 @@ class SpecialCoverageSearchTests(BaseIndexableTestCase):
         self.assertEqual(search_party[1], news_search[0])
         self.assertEqual(search_party[2], video_search[1])
 
+        video_search = Content.search_objects.search().filter(FeatureTypes(["video"]))
         tv_club_search = Content.search_objects.search().filter(FeatureTypes(["tv-club"]))
         search_party = [obj for obj in second_slot_query_generator(video_search, tv_club_search)]
         self.assertEqual(search_party[0], video_search[0])

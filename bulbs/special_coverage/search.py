@@ -1,4 +1,5 @@
 """Custom search function to assist in customizing our special coverage searches."""
+import six
 
 
 def second_slot_query_generator(query1, query2):
@@ -10,18 +11,16 @@ def second_slot_query_generator(query1, query2):
     :type  query2: Any iterable object; intended for djes.search.LazySearch and django.Querysets.
     """
     index = 0
-    offset = 0
     while True:
         result = None
         if index == 1:
             try:
-                result = query2[0]
-                offset += 1
+                result = six.next(query2)
             except IndexError:
                 pass
         if result is None:
             try:
-                result = query1[index - offset]
+                result = six.next(query1)
             except IndexError:
                 break
         yield result
