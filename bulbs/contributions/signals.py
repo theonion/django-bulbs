@@ -45,15 +45,3 @@ def index_relations(sender, instance, **kwargs):
         proxy.index()
     except ObjectDoesNotExist:
         pass
-
-
-@receiver(post_save, sender=Content)
-def index_content_dependencies(sender, instance, **kwargs):
-    """
-    Indexes the reporting document for the piece of content
-    """
-    try:
-        proxy = ReportContent.reference.get(id=instance.id)
-        proxy.index()
-    except ObjectDoesNotExist:
-        pass

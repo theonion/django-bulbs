@@ -20,11 +20,15 @@ from bulbs.content import TagCache
 from .filters import Authors, Published, Status, Tags, FeatureTypes
 
 try:
-    from bulbs.content.tasks import index_content_contributions, index as index_task  # noqa
+    from bulbs.content.tasks import (
+        index_content_contributions, index_content_report_content_proxy,
+        index as index_task
+    )  # noqa
     CELERY_ENABLED = True
 except ImportError:
     index_task = lambda *x: x
     index_content_contributions = lambda *x: x
+    index_content_report_content_proxy = lambda *x: x
     CELERY_ENABLED = False
 
 
@@ -329,6 +333,7 @@ class Content(PolymorphicModel, Indexable):
             kwargs["index"] = False
         content = super(Content, self).save(*args, **kwargs)
         index_content_contributions.delay(self.id)
+        index_content_report_content_proxy.delay(self.id)
         return content
 
     @classmethod
