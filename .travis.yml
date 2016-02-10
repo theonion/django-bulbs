@@ -16,8 +16,6 @@ env:
     - ELASTICSEARCH_VERSION=1.4.5
     # Latest in 1.X line (as of 2016-02-10)
     - ELASTICSEARCH_VERSION=1.7.5
-    # Future
-    - ELASTICSEARCH_VERSION=2.2.0
 services:
   - postgresql
 before_install:
