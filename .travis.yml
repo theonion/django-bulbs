@@ -5,12 +5,13 @@ sudo: required
 python:
   - '2.7'
   - '3.4'
-  - '3.5'
-cache: pip
+ cache:
+  directories:
+    - $HOME/.cache/pip - '3.5'
 env:
     # Current production
     - ELASTICSEARCH_VERSION=1.4.4
-    # Should at least upgrade to this soon
+    # Future production point release
     - ELASTICSEARCH_VERSION=1.4.5
     # Latest in 1.X line (as of 2016-02-10)
     - ELASTICSEARCH_VERSION=1.7.5
@@ -24,7 +25,6 @@ install:
   - travis_retry pip install "file://$(pwd)#egg=django-bulbs[dev]"
 services:
   - postgresql
-  #- elasticsearch
 before_script:
   - psql -c 'create database bulbs;' -U postgres
   - until curl http://localhost:9200/; do sleep 1; done
