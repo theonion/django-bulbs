@@ -2,7 +2,6 @@ from datetime import timedelta
 
 from freezegun import freeze_time
 from model_mommy import mommy
-import six
 
 from django.utils import timezone
 
@@ -53,10 +52,10 @@ def make_special_coverage(start, end, tag='test', included=None, sponsored=True)
     )
 
 
-class PercolateSpecialCoveragesTestCase(BaseIndexableTestCase):
+class PercolateSpecialCoverageTestCase(BaseIndexableTestCase):
 
     def setUp(self):
-        super(PercolateSpecialCoveragesTestCase, self).setUp()
+        super(PercolateSpecialCoverageTestCase, self).setUp()
         self.content = Content.objects.create(
             id=1,
             title='A fun little article for the kids',
@@ -65,83 +64,52 @@ class PercolateSpecialCoveragesTestCase(BaseIndexableTestCase):
         self.content.tags.add(Tag.objects.create(name='white', slug='white'))
         self.content.save()
 
-    def check_special_coverages(self, expected_ids):
+    def check_special_coverages(self, expected_ids, sponsored_only=False):
         Content.search_objects.refresh()
-        # Unordered results
-        six.assertCountEqual(self, self.content.percolate_special_coverages(),
-                             ['specialcoverage.{}'.format(i) for i in expected_ids])
-
-    def test_empty(self):
-        self.check_special_coverages([])
-
-    def test_match_manual(self):
-        make_special_coverage(included=[self.content], start=-1, end=1),
-        make_special_coverage(tag='white', included=[self.content], start=-1, end=1),
-        self.check_special_coverages([1, 2])  # Both match
-
-    def test_match_tag(self):
-        make_special_coverage(tag='white', start=-1, end=1)
-        make_special_coverage(tag='black', start=-1, end=1)
-        self.check_special_coverages([1])  # Only 'white' tag match
-
-    def test_match_both_sponsored_and_unsponsored(self):
-        make_special_coverage(tag='white', start=-1, end=1, sponsored=True)
-        make_special_coverage(tag='white', start=-1, end=1, sponsored=False)
-        self.check_special_coverages([1, 2])  # Both match
-
-
-class PercolateSponsoredSpecialCoveragesTestCase(BaseIndexableTestCase):
-
-    def setUp(self):
-        super(PercolateSponsoredSpecialCoveragesTestCase, self).setUp()
-        self.content = Content.objects.create(
-            id=1,
-            title='A fun little article for the kids',
-            published=timezone.now() - timezone.timedelta(days=500)
-        )
-        self.content.tags.add(Tag.objects.create(name='white', slug='white'))
-        self.content.save()
-
-    def check_special_coverages(self, expected_ids):
-        Content.search_objects.refresh()
-        self.assertEqual(self.content.percolate_sponsored_special_coverages(),
+        self.assertEqual(self.content.percolate_special_coverage(sponsored_only=sponsored_only),
                          ['specialcoverage.{}'.format(i) for i in expected_ids])
 
     def test_empty(self):
-        self.check_special_coverages([])
+        self.check_special_coverages([], sponsored_only=True)
+        self.check_special_coverages([], sponsored_only=False)
+
+    def test_match_both_sponsored_and_unsponsored(self):
+        make_special_coverage(tag='white', start=-1, end=1, sponsored=True)
+        make_special_coverage(tag='white', start=-2, end=1, sponsored=False)
+        self.check_special_coverages([1, 2])  # Both match
 
     def test_ignore_unsponsored(self):
         for sponsored in [True, False]:
             make_special_coverage(tag='white', start=-1, end=1, sponsored=sponsored)
-        self.check_special_coverages([1])
+        self.check_special_coverages([1], sponsored_only=True)
 
     def test_active_dates(self):
 
         with freeze_time('2016-02-07'):
-            # Created 1 days before activation (2016-02-08)
+            # Created 1 day before activation (2016-02-08)
             make_special_coverage(tag='white', start=1, end=2)
             # Inactive (1 day early)
-            self.check_special_coverages([])
+            self.check_special_coverages([], sponsored_only=True)
 
         # Active
         with freeze_time('2016-02-08'):
-            self.check_special_coverages([1])
+            self.check_special_coverages([1], sponsored_only=True)
 
         # Inactive (1 day after)
         with freeze_time('2016-02-09'):
-            self.check_special_coverages([])
+            self.check_special_coverages([], sponsored_only=True)
 
     def test_match_tag(self):
         make_special_coverage(tag='white', start=-1, end=1)
         make_special_coverage(tag='black', start=-1, end=1)
-        self.check_special_coverages([1])
+        self.check_special_coverages([1], sponsored_only=True)
 
     def test_prefer_manual(self):
         # Query match
         make_special_coverage(tag='white', start=-1, end=1),
         # Manually added (older but will be first)
         make_special_coverage(included=[self.content], start=-2, end=1),
-        self.check_special_coverages([2, 1])
+        self.check_special_coverages([2, 1], sponsored_only=True)
 
     def test_sort_start_date(self):
         make_special_coverage(tag='white', start=-5, end=1)
@@ -149,7 +117,7 @@ class PercolateSponsoredSpecialCoveragesTestCase(BaseIndexableTestCase):
         make_special_coverage(tag='white', start=-1, end=1)
         make_special_coverage(tag='white', start=-3, end=1)
         make_special_coverage(tag='white', start=-2, end=1)
-        self.check_special_coverages([3, 5, 4, 2, 1])
+        self.check_special_coverages([3, 5, 4, 2, 1], sponsored_only=True)
 
     def test_sort_start_date_same_day(self):
         # Percolator v1.4 scoring by date has ~1 hour accuracy (not sure why!)
@@ -157,11 +125,13 @@ class PercolateSponsoredSpecialCoveragesTestCase(BaseIndexableTestCase):
         make_special_coverage(tag='white', start=(timezone.now() - timedelta(hours=2)), end=1)  # 2nd Newest
         make_special_coverage(tag='white', start=(timezone.now() - timedelta(hours=3)), end=1)  # 3rd Newest
         make_special_coverage(tag='white', start=(timezone.now() - timedelta(hours=1)), end=1)  # Newest
-        self.check_special_coverages([4, 2, 3, 1])
+        self.check_special_coverages([4, 2, 3, 1], sponsored_only=True)
 
     def test_precedence(self):
         # Manually added
         make_special_coverage(included=[self.content], start=-10, end=1)
+        # Manually added but unsponsored
+        make_special_coverage(included=[self.content], tag='white', start=-9, end=1, sponsored=False)
         # Manually added + tagged
         make_special_coverage(included=[self.content], tag='white', start=-5, end=1)
         # Query match
@@ -173,8 +143,13 @@ class PercolateSponsoredSpecialCoveragesTestCase(BaseIndexableTestCase):
         # Inactive
         make_special_coverage(tag='black', start=-10, end=0)
         make_special_coverage(tag='black', start=1, end=20)
-        # Not sponsored
-        make_special_coverage(tag='white', start=-10, end=1, sponsored=False)
+        # Active, but not sponsored
+        make_special_coverage(tag='white', start=-50, end=1, sponsored=False)
 
-        self.check_special_coverages([2, 1,      # Manually added (sorted start date)
-                                      5, 4, 3])  # Query included (sorted start date)
+        self.check_special_coverages([3, 1,      # Manually added (sorted start date)
+                                      6, 5, 4],  # Query included (sorted start date)
+                                     sponsored_only=True)
+        self.check_special_coverages([3, 2, 1,  # Manually added (sorted start date)
+                                      6, 5, 4,  # Query included (sorted start date)
+                                      10],      # Not Sponsored
+                                     sponsored_only=False)

@@ -107,18 +107,19 @@ class SpecialCoverage(DetailImageMixin, models.Model):
         q["sponsored"] = bool(self.campaign)
         # Elasticsearch v1.4 percolator "field_value_factor" does not
         # support missing fields, so always need to include
-        q["start_date"] = 0
-        q["end_date"] = 0
         if self.campaign:
             q["start_date"] = self.campaign.start_date
             q["end_date"] = self.campaign.end_date
+        else:
+            q["start_date"] = self.start_date
+            q["end_date"] = self.end_date
 
-            # Elasticsearch v1.4 percolator range query does not support DateTime range queries
-            # (PercolateContext.nowInMillisImpl is not implemented).
-            if self.campaign.start_date:
-                q['start_date_epoch'] = datetime_to_epoch_seconds(self.campaign.start_date)
-            if self.campaign.end_date:
-                q['end_date_epoch'] = datetime_to_epoch_seconds(self.campaign.end_date)
+        # Elasticsearch v1.4 percolator range query does not support DateTime range queries
+        # (PercolateContext.nowInMillisImpl is not implemented).
+        if q["start_date"]:
+            q['start_date_epoch'] = datetime_to_epoch_seconds(q["start_date"])
+        if q["end_date"]:
+            q['end_date_epoch'] = datetime_to_epoch_seconds(q["end_date"])
 
         # Store manually included IDs for percolator retrieval scoring (boost
         # manually included content).

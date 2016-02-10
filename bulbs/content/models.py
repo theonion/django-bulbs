@@ -368,28 +368,7 @@ class Content(PolymorphicModel, Indexable):
         from .serializers import ContentSerializer
         return ContentSerializer
 
-    def percolate_special_coverages(self):
-
-        """gets list of special coverages containing this content via Elasticsearch
-        Percolator (see SpecialCoverage._save_percolator)
-
-        Results are unsorted.
-
-        """
-        special_coverage_filter = {
-            "filter": {
-                "prefix": {"_id": "specialcoverage"}
-            }
-        }
-
-        results = _percolate(index=self.mapping.index,
-                             doc_type=self.mapping.doc_type,
-                             content_id=self.id,
-                             body=special_coverage_filter)
-
-        return [r["_id"] for r in results]
-
-    def percolate_sponsored_special_coverages(self, max_size=10):
+    def percolate_special_coverage(self, max_size=10, sponsored_only=False):
 
         """gets list of active, sponsored special coverages containing this content via
         Elasticsearch Percolator (see SpecialCoverage._save_percolator)
@@ -431,15 +410,6 @@ class Content(PolymorphicModel, Indexable):
                             },
                             "weight": 10,
                         },
-                        # Penalize Unsponsored
-                        {
-                            "filter": {
-                                "term": {
-                                    "sponsored": False,
-                                }
-                            },
-                            "weight": 0,
-                        },
                         # Penalize Inactive
                         {
                             "filter": {
@@ -470,13 +440,26 @@ class Content(PolymorphicModel, Indexable):
             "size": max_size,  # Required for sort
         }
 
+        if sponsored_only:
+            # Append penalty for unsponsored content
+            sponsored_filter['query']['function_score']['functions'].append(
+                # Penalize Unsponsored
+                {
+                    "filter": {
+                        "term": {
+                            "sponsored": False,
+                        }
+                    },
+                    "weight": 0,
+                })
+
         results = _percolate(index=self.mapping.index,
                              doc_type=self.mapping.doc_type,
                              content_id=self.id,
                              body=sponsored_filter)
 
         return [r["_id"] for r in results
-                # Zero score used to omit results via scoring function (ex: unsponsored)
+                # Zero score used to omit results via scoring function (ex: inactive)
                 if r['_score'] > 0]
 
 class LogEntryManager(models.Manager):
