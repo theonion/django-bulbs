@@ -8,9 +8,14 @@ python:
   - '3.5'
 cache: pip
 env:
+    # Current production
     - ELASTICSEARCH_VERSION=1.4.4
-    - ELASTICSEARCH_VERSION=1.7.3
-    # TODO: MORE?
+    # Should at least upgrade to this soon
+    - ELASTICSEARCH_VERSION=1.4.5
+    # Latest in 1.X line (as of 2016-02-10)
+    - ELASTICSEARCH_VERSION=1.7.5
+    # Future
+    - ELASTICSEARCH_VERSION=2.2.0
 install:
   # Use same ES version as in production (also the Travis "elasticsearch" service setting fails to start)
   - travis_retry curl -O https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-$ELASTICSEARCH_VERSION.deb && sudo dpkg -i --force-confnew elasticsearch-$ELASTICSEARCH_VERSION.deb
