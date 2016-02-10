@@ -418,7 +418,7 @@ class Content(PolymorphicModel, Indexable):
                             },
                             "weight": 10,
                         },
-                        # Penalize Inactive
+                        # Penalize Inactive (Zero Score Will be Omitted)
                         {
                             "filter": {
                                 "or": [
@@ -449,9 +449,8 @@ class Content(PolymorphicModel, Indexable):
         }
 
         if sponsored_only:
-            # Append penalty for unsponsored content
             sponsored_filter['query']['function_score']['functions'].append(
-                # Penalize Unsponsored
+                # Penalize Unsponsored (Zero Score Will be Omitted)
                 {
                     "filter": {
                         "term": {
