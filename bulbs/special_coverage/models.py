@@ -14,7 +14,7 @@ from bulbs.content.mixins import DetailImageMixin
 from bulbs.utils.methods import today_as_utc_datetime, is_valid_digit
 
 
-es = Elasticsearch(settings.ES_URLS)
+es = Elasticsearch(settings.ES_CONNECTIONS["default"]["hosts"])
 
 
 class SpecialCoverage(DetailImageMixin, models.Model):
