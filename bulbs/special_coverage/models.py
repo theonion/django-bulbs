@@ -11,7 +11,9 @@ from bulbs.campaigns.models import Campaign
 from bulbs.content.custom_search import custom_search_model
 from bulbs.content.models import Content
 from bulbs.content.mixins import DetailImageMixin
-from bulbs.utils.methods import today_as_utc_datetime, is_valid_digit
+from bulbs.utils.methods import (datetime_to_epoch_seconds,
+                                 today_as_utc_datetime,
+                                 is_valid_digit)
 
 
 es = Elasticsearch(settings.ES_URLS)
@@ -103,13 +105,20 @@ class SpecialCoverage(DetailImageMixin, models.Model):
 
         # We'll need this data, to decide which special coverage section to use
         q["sponsored"] = bool(self.campaign)
+        # Elasticsearch v1.4 percolator "field_value_factor" does not
+        # support missing fields, so always need to include
+        q["start_date"] = 0
+        q["end_date"] = 0
         if self.campaign:
             q["start_date"] = self.campaign.start_date
             q["end_date"] = self.campaign.end_date
-        else:
-            # Always include: ES v1.4 percolator retrieval doesn't support "missing" fields
-            q["start_date"] = 0
-            q["end_date"] = 0
+
+            # Elasticsearch v1.4 percolator range query does not support DateTime range queries
+            # (PercolateContext.nowInMillisImpl is not implemented).
+            if self.campaign.start_date:
+                q['start_date_epoch'] = datetime_to_epoch_seconds(self.campaign.start_date)
+            if self.campaign.end_date:
+                q['end_date_epoch'] = datetime_to_epoch_seconds(self.campaign.end_date)
 
         # Store manually included IDs for percolator retrieval scoring (boost
         # manually included content).

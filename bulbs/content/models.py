@@ -12,6 +12,7 @@ from django.db.models import Model
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django.utils.html import strip_tags
+from bulbs.utils.methods import datetime_to_epoch_seconds
 from djes.models import Indexable, IndexableManager
 from elasticsearch import TransportError
 from elasticsearch_dsl import field
@@ -398,7 +399,10 @@ class Content(PolymorphicModel, Indexable):
             2) Most recent start date
         """
 
-        now = timezone.now()
+        # Elasticsearch v1.4 percolator range query does not support DateTime range queries
+        # (PercolateContext.nowInMillisImpl is not implemented). Once using
+        # v1.6+ we can instead compare "start_date/end_date" to python DateTime
+        now_epoch = datetime_to_epoch_seconds(timezone.now())
 
         # ES v1.4 has more limited percolator capabilities than later
         # implementations. As such, in order to get this to work, we need to
@@ -442,15 +446,15 @@ class Content(PolymorphicModel, Indexable):
                                 "or": [
                                     {
                                         "range": {
-                                            "start_date": {
-                                                "gt": now,
+                                            "start_date_epoch": {
+                                                "gt": now_epoch,
                                             },
                                         }
                                     },
                                     {
                                         "range": {
-                                            "end_date": {
-                                                "lte": now,
+                                            "end_date_epoch": {
+                                                "lte": now_epoch,
                                             },
                                         }
                                     },
