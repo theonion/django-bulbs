@@ -18,17 +18,21 @@ env:
     - ELASTICSEARCH_VERSION=1.7.5
     # Future
     - ELASTICSEARCH_VERSION=2.2.0
-install:
-  # Use same ES version as in production (also the Travis "elasticsearch" service setting fails to start)
-  - travis_retry curl -O https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-$ELASTICSEARCH_VERSION.deb && sudo dpkg -i --force-confnew elasticsearch-$ELASTICSEARCH_VERSION.deb
-  - sudo service elasticsearch start
-  - travis_retry pip install -e .
-  - travis_retry pip install "file://$(pwd)#egg=django-bulbs[dev]"
 services:
   - postgresql
+before_install:
+  # Use same ES version as in production (also the Travis "elasticsearch" service setting fails to start)
+  - travis_retry curl -O https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-$ELASTICSEARCH_VERSION.deb
+  - sudo dpkg -i --force-confnew elasticsearch-$ELASTICSEARCH_VERSION.deb
+  - sudo service elasticsearch start
+install:
+  - travis_retry pip install -e .
+  - travis_retry pip install "file://$(pwd)#egg=django-bulbs[dev]"
 before_script:
   - psql -c 'create database bulbs;' -U postgres
+  # Wait for ES startup
   - until curl http://localhost:9200/; do sleep 1; done
-script: py.test --cov bulbs --cov-report term-missing
+script:
+  - py.test --cov bulbs --cov-report term-missing
 after_success:
   - coveralls
