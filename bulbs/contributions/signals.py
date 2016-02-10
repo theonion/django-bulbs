@@ -1,3 +1,4 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.dispatch import receiver
 from django.db.models.signals import m2m_changed, post_save
 
@@ -42,7 +43,7 @@ def index_relations(sender, instance, **kwargs):
     try:
         proxy = ReportContent.reference.get(id=instance.content_id)
         proxy.index()
-    except:
+    except ObjectDoesNotExist:
         pass
 
 
