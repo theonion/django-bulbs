@@ -17,6 +17,9 @@ class Campaign(Indexable):
     campaign_label = models.CharField(max_length=255)
     impression_goal = models.IntegerField(null=True, blank=True)
 
+    # Tunic Campaign ID
+    tunic_campaign_id = models.IntegerField(blank=True, null=True, default=None)
+
     class Mapping:
         sponsor_logo = ElasticsearchImageField()
 
