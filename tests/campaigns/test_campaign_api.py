@@ -76,6 +76,7 @@ class CampaignApiCase(BaseIndexableTestCase):
             "impression_goal": 1000,
             "pixels": [{"url": "http://example.com/pixel/1",
                         "pixel_type": "Listing"}],
+            "tunic_campaign_id": None
         }
 
         campaign_detail_endpoint = reverse("campaign-list")
@@ -104,6 +105,7 @@ class CampaignApiCase(BaseIndexableTestCase):
             "pixels": [{"id": pixel.id,
                         "url": "http://example.com/pixel/1",
                         "pixel_type": "Listing"}],
+            "tunic_campaign_id": None
         }
 
     def test_update_campaign(self):
@@ -121,6 +123,7 @@ class CampaignApiCase(BaseIndexableTestCase):
             "impression_goal": 1000,
             "pixels": [{"url": "http://example.com/pixel/1",
                         "pixel_type": "Listing"}],
+            "tunic_campaign_id": None
         }
 
         campaign_detail_endpoint = reverse("campaign-detail", kwargs=dict(pk=campaign.pk))
@@ -148,7 +151,7 @@ class CampaignApiCase(BaseIndexableTestCase):
                           "pixels": [{"id": pixel.id,
                                       "url": "http://example.com/pixel/1",
                                       "pixel_type": "Listing"}],
-                          },
+                          "tunic_campaign_id": None},
                          response.data)
 
     def test_update_campaign_delete_pixel(self):
@@ -190,6 +193,7 @@ class CampaignApiCase(BaseIndexableTestCase):
                           "start_date": get_drf_iso(START_DATE),
                           "end_date": get_drf_iso(END_DATE),
                           "pixels": [],
+                          "tunic_campaign_id": None
                           },
                          response.data)
 
