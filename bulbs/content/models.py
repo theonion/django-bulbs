@@ -400,7 +400,7 @@ class Content(PolymorphicModel, Indexable):
             unsponsored_boost = 0
         else:
             # Below sponsored (inverse boost, since we're filtering on "sponsored=False"
-            unsponsored_boost = (1 / SPONSORED_BOOST)
+            unsponsored_boost = (1.0 / SPONSORED_BOOST)
 
         # ES v1.4 has more limited percolator capabilities than later
         # implementations. As such, in order to get this to work, we need to
