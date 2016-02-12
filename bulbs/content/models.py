@@ -391,6 +391,17 @@ class Content(PolymorphicModel, Indexable):
         # v1.6+ we can instead compare "start_date/end_date" to python DateTime
         now_epoch = datetime_to_epoch_seconds(timezone.now())
 
+        MANUALLY_ADDED_BOOST = 10
+        SPONSORED_BOOST = 100  # Must be order of magnitude higher than "Manual" boost
+
+        # Unsponsored boosting to either lower priority or exclude
+        if sponsored_only:
+            # Omit unsponsored
+            unsponsored_boost = 0
+        else:
+            # Below sponsored (inverse boost, since we're filtering on "sponsored=False"
+            unsponsored_boost = (1 / SPONSORED_BOOST)
+
         # ES v1.4 has more limited percolator capabilities than later
         # implementations. As such, in order to get this to work, we need to
         # sort via scoring_functions, and then manually filter out zero scores.
@@ -416,7 +427,7 @@ class Content(PolymorphicModel, Indexable):
                                     "included_ids": [self.id],
                                 }
                             },
-                            "weight": 10,
+                            "weight": MANUALLY_ADDED_BOOST,
                         },
                         # Penalize Inactive (Zero Score Will be Omitted)
                         {
@@ -440,6 +451,16 @@ class Content(PolymorphicModel, Indexable):
                             },
                             "weight": 0,
                         },
+                        # Penalize Unsponsored (will either exclude or lower
+                        # based on "sponsored_only" flag)
+                        {
+                            "filter": {
+                                "term": {
+                                    "sponsored": False,
+                                }
+                            },
+                            "weight": unsponsored_boost,
+                        },
                     ],
                 },
             },
@@ -447,18 +468,6 @@ class Content(PolymorphicModel, Indexable):
             "sort": "_score",  # The only sort method supported by ES v1.4 percolator
             "size": max_size,  # Required for sort
         }
-
-        if sponsored_only:
-            sponsored_filter['query']['function_score']['functions'].append(
-                # Penalize Unsponsored (Zero Score Will be Omitted)
-                {
-                    "filter": {
-                        "term": {
-                            "sponsored": False,
-                        }
-                    },
-                    "weight": 0,
-                })
 
         results = _percolate(index=self.mapping.index,
                              doc_type=self.mapping.doc_type,
@@ -468,6 +477,7 @@ class Content(PolymorphicModel, Indexable):
         return [r["_id"] for r in results
                 # Zero score used to omit results via scoring function (ex: inactive)
                 if r['_score'] > 0]
+
 
 class LogEntryManager(models.Manager):
 

@@ -74,9 +74,12 @@ class PercolateSpecialCoverageTestCase(BaseIndexableTestCase):
         self.check_special_coverages([], sponsored_only=False)
 
     def test_match_both_sponsored_and_unsponsored(self):
-        make_special_coverage(tag='white', start=-1, end=1, sponsored=True)
+        make_special_coverage(tag='white', start=-3, end=1, sponsored=True)
         make_special_coverage(tag='white', start=-2, end=1, sponsored=False)
-        self.check_special_coverages([1, 2])  # Both match
+        make_special_coverage(tag='white', start=-1, end=1, sponsored=False)
+        make_special_coverage(tag='white', start=0, end=1, sponsored=True)
+        self.check_special_coverages([4, 1,   # Sponsored (sorted start date)
+                                      3, 2])  # Unsponsored (sorted start date)
 
     def test_ignore_unsponsored(self):
         for sponsored in [True, False]:
@@ -146,10 +149,12 @@ class PercolateSpecialCoverageTestCase(BaseIndexableTestCase):
         # Active, but not sponsored
         make_special_coverage(tag='white', start=-50, end=1, sponsored=False)
 
-        self.check_special_coverages([3, 1,      # Manually added (sorted start date)
-                                      6, 5, 4],  # Query included (sorted start date)
+        # Within each group, sorted by start date
+        self.check_special_coverages([3, 1,      # Sponsored manually added
+                                      6, 5, 4],  # Sponsored query included
                                      sponsored_only=True)
-        self.check_special_coverages([3, 2, 1,  # Manually added (sorted start date)
-                                      6, 5, 4,  # Query included (sorted start date)
-                                      10],      # Not Sponsored
+        self.check_special_coverages([3, 1,     # Sponsored manually added
+                                      6, 5, 4,  # Sponsored query included
+                                      2,        # Not Sponsored manually added
+                                      10],      # Not Sponsored query included
                                      sponsored_only=False)
