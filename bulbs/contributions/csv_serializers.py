@@ -16,7 +16,7 @@ class ContributionCSVSerializer(serializers.ModelSerializer):
     def to_representation(self, obj):
         full_name = obj.contributor.get_full_name()
         data = {
-            'id': obj.id,
+            'id': obj.content.id,
             'first_name': obj.contributor.first_name,
             'last_name': obj.contributor.last_name,
             'title': obj.content.title,
