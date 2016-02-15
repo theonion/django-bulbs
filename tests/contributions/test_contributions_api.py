@@ -13,7 +13,7 @@ from bulbs.content.models import Content, FeatureType, Tag
 from bulbs.contributions.models import (
     Contribution, ContributorRole, ManualRate, HourlyRate, FeatureTypeOverride,
     FlatRate, FlatRateOverride, FeatureTypeRate, FreelanceProfile, LineItem, OverrideProfile,
-    Rate, RATE_PAYMENT_TYPES
+    ReportContent, Rate, RATE_PAYMENT_TYPES
 )
 from bulbs.contributions.serializers import RateSerializer
 from bulbs.contributions.signals import *  # NOQA
