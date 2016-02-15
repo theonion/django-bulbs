@@ -1,6 +1,7 @@
 """Base models for "Content", including the indexing and search features
 that we want any piece of content to have."""
 
+import logging
 import uuid
 
 from django.conf import settings
@@ -11,7 +12,9 @@ from django.db.models import Model
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django.utils.html import strip_tags
+from bulbs.utils.methods import datetime_to_epoch_seconds
 from djes.models import Indexable, IndexableManager
+from elasticsearch import TransportError
 from elasticsearch_dsl import field
 from polymorphic import PolymorphicModel, PolymorphicManager
 from djbetty import ImageField
@@ -32,6 +35,9 @@ except ImportError:
     CELERY_ENABLED = False
 
 
+logger = logging.getLogger(__name__)
+
+
 class ElasticsearchImageField(field.Integer):
 
     def to_es(self, data):
@@ -43,6 +49,7 @@ class TagManager(PolymorphicManager, IndexableManager):
 
 
 class Tag(PolymorphicModel, Indexable):
+
     """Model for tagging up Content.
     """
 
@@ -89,6 +96,7 @@ class Tag(PolymorphicModel, Indexable):
 
 
 class FeatureType(Indexable):
+
     """
     special model for featured content
     """
@@ -120,6 +128,7 @@ class FeatureType(Indexable):
 
 
 class TemplateType(models.Model):
+
     """
     Template type for Content.
     """
@@ -130,6 +139,7 @@ class TemplateType(models.Model):
 
 
 class ContentManager(PolymorphicManager, IndexableManager):
+
     """
     a specialized version of `djes.models.SearchManager` for `bulbs.content.Content`
     """
@@ -182,7 +192,28 @@ class ContentManager(PolymorphicManager, IndexableManager):
         return search_query
 
 
+def _percolate(index, doc_type, content_id, body):
+    try:
+        results = Content.search_objects.client.percolate(index=index,
+                                                          doc_type=doc_type,
+                                                          id=content_id,
+                                                          body=body)
+    except TransportError as exc:
+        logger.exception(exc)
+        return []
+
+    # Log any errors (but still try to return any results)
+    if results.get('_shards', {}).get('failures'):
+        logger.error('Elasticearch error: {}'.format(results.get('_shards')))
+
+    if results["total"] > 0:
+        return results['matches']
+    else:
+        return []
+
+
 class Content(PolymorphicModel, Indexable):
+
     """
     The base content model from which all other content derives.
     """
@@ -345,8 +376,111 @@ class Content(PolymorphicModel, Indexable):
         from .serializers import ContentSerializer
         return ContentSerializer
 
+    def percolate_special_coverage(self, max_size=10, sponsored_only=False):
+
+        """gets list of active, sponsored special coverages containing this content via
+        Elasticsearch Percolator (see SpecialCoverage._save_percolator)
+
+        Sorting:
+            1) Manually added
+            2) Most recent start date
+        """
+
+        # Elasticsearch v1.4 percolator range query does not support DateTime range queries
+        # (PercolateContext.nowInMillisImpl is not implemented). Once using
+        # v1.6+ we can instead compare "start_date/end_date" to python DateTime
+        now_epoch = datetime_to_epoch_seconds(timezone.now())
+
+        MANUALLY_ADDED_BOOST = 10
+        SPONSORED_BOOST = 100  # Must be order of magnitude higher than "Manual" boost
+
+        # Unsponsored boosting to either lower priority or exclude
+        if sponsored_only:
+            # Omit unsponsored
+            unsponsored_boost = 0
+        else:
+            # Below sponsored (inverse boost, since we're filtering on "sponsored=False"
+            unsponsored_boost = (1.0 / SPONSORED_BOOST)
+
+        # ES v1.4 has more limited percolator capabilities than later
+        # implementations. As such, in order to get this to work, we need to
+        # sort via scoring_functions, and then manually filter out zero scores.
+        sponsored_filter = {
+            "query": {
+                "function_score": {
+                    "functions": [
+
+                        # Boost Recent Special Coverage
+                        # Base score is start time
+                        # Note: ES 1.4 sorting granularity is poor for times
+                        # within 1 hour of each other.
+                        {
+                            "field_value_factor": {
+                                "field": "start_date",
+                            }
+                        },
+
+                        # Boost Manually Added Content
+                        {
+                            "filter": {
+                                "terms": {
+                                    "included_ids": [self.id],
+                                }
+                            },
+                            "weight": MANUALLY_ADDED_BOOST,
+                        },
+                        # Penalize Inactive (Zero Score Will be Omitted)
+                        {
+                            "filter": {
+                                "or": [
+                                    {
+                                        "range": {
+                                            "start_date_epoch": {
+                                                "gt": now_epoch,
+                                            },
+                                        }
+                                    },
+                                    {
+                                        "range": {
+                                            "end_date_epoch": {
+                                                "lte": now_epoch,
+                                            },
+                                        }
+                                    },
+                                ],
+                            },
+                            "weight": 0,
+                        },
+                        # Penalize Unsponsored (will either exclude or lower
+                        # based on "sponsored_only" flag)
+                        {
+                            "filter": {
+                                "term": {
+                                    "sponsored": False,
+                                }
+                            },
+                            "weight": unsponsored_boost,
+                        },
+                    ],
+                },
+            },
+
+            "sort": "_score",  # The only sort method supported by ES v1.4 percolator
+            "size": max_size,  # Required for sort
+        }
+
+        results = _percolate(index=self.mapping.index,
+                             doc_type=self.mapping.doc_type,
+                             content_id=self.id,
+                             body=sponsored_filter)
+
+        return [r["_id"] for r in results
+                # Zero score used to omit results via scoring function (ex: inactive)
+                if r['_score'] > 0]
+
 
 class LogEntryManager(models.Manager):
+
     """
     provides additional manager methods for `bulbs.content.LogEntry` model
     """
@@ -367,6 +501,7 @@ class LogEntryManager(models.Manager):
 
 
 class LogEntry(models.Model):
+
     """
     log entries for changes to content
     """
@@ -385,6 +520,7 @@ class LogEntry(models.Model):
 
 
 class ObfuscatedUrlInfo(Model):
+
     """
     Stores info used for obfuscated urls of unpublished content.
     """

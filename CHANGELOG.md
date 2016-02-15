@@ -1,5 +1,11 @@
 # django-bulbs Change Log
 
+## Version 0.7.0
+
+- Added `Content.percolate_special_coverage()` containing new Special Coverage ordering rules to be shared by all client
+  sites
+- Fixed `SpecialCoverage._save_percolator()` to *always* save to percolator. This fixes regression in **0.6.49** with switch from `active` boolean flag to `is_active` property based on start/end dates, which would cause inclusion in percolator based on when SpecialCoverage was last saved. This fix requires percolator retrieval to filter active Special Coverage by start/end dates, and is the reason for the breaking minor version change. Easiest to just use the new `Content.percolate_special_coverage()` method instead of site-specific queries.
+
 ## Version 0.6.43
 
 - Added `instant_article` flag to content model to set whether or not content eligible for Instant Articles RSS Feed
