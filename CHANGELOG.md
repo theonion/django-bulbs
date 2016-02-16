@@ -1,5 +1,11 @@
 # django-bulbs Change Log
 
+## Version 0.7.1
+
+- Fix Content.percoloate_special_coverage() to ignore non-special-coverage results (ex: Sections)
+- Fix Content.percoloate_special_coverage() to filter out enries without start_date fields (prevents search failure if
+  one entry in shard was missing field)
+
 ## Version 0.7.0
 
 - Added `Content.percolate_special_coverage()` containing new Special Coverage ordering rules to be shared by all client
