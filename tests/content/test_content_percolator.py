@@ -17,10 +17,11 @@ except ImportError:
     from mock import patch
 
 
-def make_special_coverage(start=None, end=None, tag='test', included=None, sponsored=True):
+def days(count):
+    return timezone.now() + timezone.timedelta(days=count)
 
-    def days(count):
-        return timezone.now() + timezone.timedelta(days=count)
+
+def make_special_coverage(start=None, end=None, tag='test', included=None, sponsored=True):
 
     if start is not None and isinstance(start, int):
         start = days(start)
@@ -204,3 +205,23 @@ class PercolateSpecialCoverageTestCase(BaseIndexableTestCase):
                                       2,        # Not Sponsored manually added
                                       10],      # Not Sponsored query included
                                      sponsored_only=False)
+
+    def test_update_special_coverage_date_resaves_percolator(self):
+        # Verify SpecialCoverage save updates percolator
+        special = make_special_coverage(tag='white', start=-2, end=-1, sponsored=False)
+        self.check_special_coverages([])
+
+        special.end_date = days(1)
+        special.save()
+
+        self.check_special_coverages([1])
+
+    def test_update_campaign_date_resaves_percolator(self):
+        # Verify Campaign save updates percolator
+        special = make_special_coverage(tag='white', start=-2, end=-1, sponsored=True)
+        self.check_special_coverages([])
+
+        special.campaign.end_date = days(1)
+        special.campaign.save()
+
+        self.check_special_coverages([1])
