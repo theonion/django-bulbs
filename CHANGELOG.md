@@ -1,5 +1,10 @@
 # django-bulbs Change Log
 
+## Version 0.7.3
+
+- Fix special coverage migration to grab model directly so that custom SpecialCoverage.save() method is called and
+  triggers _save_percolator.
+
 ## Version 0.7.1
 
 - Fix Content.percoloate_special_coverage() to ignore non-special-coverage results (ex: Sections)
