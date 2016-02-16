@@ -2,9 +2,11 @@ from datetime import timedelta
 
 from django.utils import timezone
 
+from bulbs.campaigns.models import Campaign
 from bulbs.content.filters import FeatureTypes
 from bulbs.content.models import Content, FeatureType, Tag
-from bulbs.special_coverage.search import second_slot_query_generator
+from bulbs.special_coverage.models import SpecialCoverage
+from bulbs.special_coverage.search import SearchParty, second_slot_query_generator
 from bulbs.utils.test import BaseIndexableTestCase, make_content
 
 
@@ -12,6 +14,7 @@ class SpecialCoverageSearchTests(BaseIndexableTestCase):
     """TestCase for custom special coverage test cases."""
     def setUp(self):
         super(SpecialCoverageSearchTests, self).setUp()
+        self.now = timezone.now()
         feature_type_names = (
             "News", "Slideshow", "TV Club", "Video",
         )
@@ -19,7 +22,7 @@ class SpecialCoverageSearchTests(BaseIndexableTestCase):
         for name in feature_type_names:
             feature_types.append(FeatureType.objects.create(name=name))
         tag_names = (
-            "Barack Obama", "Joe Biden", "Wow", "Funny", "Politics"
+            "Barack Obama", "Joe Biden", "wow", "Funny", "Politics"
         )
         tags = []
         for name in tag_names:
@@ -57,7 +60,7 @@ class SpecialCoverageSearchTests(BaseIndexableTestCase):
             ),
         )
         time_step = timedelta(hours=12)
-        pubtime = timezone.now() + time_step
+        pubtime = self.now + time_step
         content_list = []
         for data in content_data:
             data["published"] = pubtime
@@ -70,7 +73,77 @@ class SpecialCoverageSearchTests(BaseIndexableTestCase):
         self.content_list = content_list
         self.feature_types = feature_types
         self.tags = tags
+
+        campaign = Campaign.objects.create(
+            sponsor_name="big",
+            start_date=self.now - timezone.timedelta(days=5),
+            end_date=self.now + timezone.timedelta(days=5)
+        )
+
+        self.special_coverages = [
+            SpecialCoverage.objects.create(
+                name="Slime Season",
+                campaign=campaign,
+                start_date=self.now - timezone.timedelta(days=10),
+                end_date=self.now + timezone.timedelta(days=10),
+                query={
+                    "groups": [{
+                        "conditions": [{
+                            "field": "feature-type",
+                            "type": "any",
+                            "values": [{
+                                "name": "news", "value": "news"
+                            }]
+                        }],
+                        "time": None
+                    }]
+                }
+            ),
+            SpecialCoverage.objects.create(
+                name="Slime Season 2",
+                start_date=self.now - timezone.timedelta(days=10),
+                end_date=self.now + timezone.timedelta(days=10),
+                query={
+                    "groups": [{
+                        "conditions": [{
+                            "field": "tag",
+                            "type": "any",
+                            "values": [{
+                                "name": "wow", "value": "wow"
+                            }]
+                        }],
+                        "time": None
+                    }],
+                }
+            )
+        ]
+
         Content.search_objects.refresh()
+
+    def test_search_party_query(self):
+        search_party = SearchParty(self.special_coverages)
+        self.assertItemsEqual(
+            search_party.query,
+            {
+                "excluded_ids": [],
+                "included_ids": [],
+                "pinned_ids": [],
+                "groups": [{
+                    "conditions": [{
+                        "field": "feature-type",
+                        "type": "any",
+                        "values": [{"name": "news", "values": "news"}],
+                        "time": None
+                    }],
+                    "conditions": [{
+                        "field": "tags",
+                        "type": "any",
+                        "values": [{"name": "wow", "values": "wow"}],
+                        "time": None
+                    }]
+                }]
+            }
+        )
 
     def test_second_slot_query_generator(self):
         news_search = Content.search_objects.search().filter(FeatureTypes(["news"]))
