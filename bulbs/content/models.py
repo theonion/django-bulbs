@@ -415,9 +415,41 @@ class Content(PolymorphicModel, Indexable):
                         # Note: ES 1.4 sorting granularity is poor for times
                         # within 1 hour of each other.
                         {
+
+                            # v1.4 "field_value_factor" does not yet support
+                            # "missing" param, and so must filter on whether
+                            # "start_date" field exists.
+                            "filter": {
+                                "exists": {
+                                    "field": "start_date",
+                                },
+                            },
                             "field_value_factor": {
                                 "field": "start_date",
                             }
+                        },
+                        {
+                            # Related to above, if "start_date" not found, omit
+                            # via zero score.
+                            "filter": {
+                                "not": {
+                                    "exists": {
+                                        "field": "start_date",
+                                    },
+                                },
+                            },
+                            "weight": 0,
+                        },
+
+
+                        # Ignore non-special-coverage percolator entries
+                        {
+                            "filter": {
+                                "not": {
+                                    "prefix": {"_id": "specialcoverage"},
+                                },
+                            },
+                            "weight": 0,
                         },
 
                         # Boost Manually Added Content

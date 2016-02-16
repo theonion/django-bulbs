@@ -5,20 +5,26 @@ from model_mommy import mommy
 
 from django.utils import timezone
 
+from bulbs.sections.models import Section
 from bulbs.special_coverage.models import SpecialCoverage
 from bulbs.utils.test import BaseIndexableTestCase
 
 from bulbs.content.models import Content, Tag
 
+try:
+    from unittest.mock import patch
+except ImportError:
+    from mock import patch
 
-def make_special_coverage(start, end, tag='test', included=None, sponsored=True):
+
+def make_special_coverage(start=None, end=None, tag='test', included=None, sponsored=True):
 
     def days(count):
         return timezone.now() + timezone.timedelta(days=count)
 
-    if isinstance(start, int):
+    if start is not None and isinstance(start, int):
         start = days(start)
-    if isinstance(end, int):
+    if end is not None and isinstance(end, int):
         end = days(end)
 
     if sponsored:
@@ -45,11 +51,30 @@ def make_special_coverage(start, end, tag='test', included=None, sponsored=True)
                 }],
                 'time': None
             }],
-            # 'included_ids': [local_article.id] + [a.id for a in sponsored_articles],
             'included_ids': [i.id for i in (included or [])],
             'pinned_ids': []
         }
     )
+
+
+def make_section(tag='test'):
+    section = Section.objects.create(
+        id=(Section.objects.count() + 1),  # Fixed ID ordering for easier asserts
+        name="Test Section {}".format(Section.objects.count()),
+        query= {
+            'groups': [{
+                'conditions': [{
+                    'field': 'tag',
+                    'type': 'all',
+                    'values': [{
+                        'name': tag,
+                        'value': tag,
+                    }]
+                }],
+                'time': None
+            }],
+        })
+    section._save_percolator()
 
 
 class PercolateSpecialCoverageTestCase(BaseIndexableTestCase):
@@ -64,12 +89,33 @@ class PercolateSpecialCoverageTestCase(BaseIndexableTestCase):
         self.content.tags.add(Tag.objects.create(name='white', slug='white'))
         self.content.save()
 
+        self.patch = patch('bulbs.content.models.logger')
+        self.mock_logger = self.patch.start()
+
+    def tearDown(self):
+        self.patch.stop()
+        # Ensure no errors or warnings
+        self.assertFalse(self.mock_logger.error.call_args)
+        self.assertFalse(self.mock_logger.warning.call_args)
+
     def check_special_coverages(self, expected_ids, sponsored_only=False):
         Content.search_objects.refresh()
         self.assertEqual(self.content.percolate_special_coverage(sponsored_only=sponsored_only),
                          ['specialcoverage.{}'.format(i) for i in expected_ids])
 
     def test_empty(self):
+        self.check_special_coverages([], sponsored_only=True)
+        self.check_special_coverages([], sponsored_only=False)
+
+    def test_ignore_non_special_coverage(self):
+        make_section(tag='white')
+        self.check_special_coverages([], sponsored_only=True)
+        self.check_special_coverages([], sponsored_only=False)
+
+    def test_missing_dates(self):
+        # Nothing will match, but need to no ES errors from missing
+        # "start_date/end_date"
+        make_special_coverage(tag='white')  # No dates
         self.check_special_coverages([], sponsored_only=True)
         self.check_special_coverages([], sponsored_only=False)
 
