@@ -113,8 +113,8 @@ class PercolateSpecialCoverageTestCase(BaseIndexableTestCase):
         self.check_special_coverages([], sponsored_only=False)
 
     def test_missing_dates(self):
-        # Nothing will match, but need to no ES errors from missing
-        # "start_date/end_date"
+        # Nothing will match, but need to ensure no ES errors from missing
+        # "start_date/end_date" (via tearDown log check)
         make_special_coverage(tag='white')  # No dates
         self.check_special_coverages([], sponsored_only=True)
         self.check_special_coverages([], sponsored_only=False)
