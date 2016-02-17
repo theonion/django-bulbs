@@ -20,19 +20,10 @@ from polymorphic import PolymorphicModel, PolymorphicManager
 from djbetty import ImageField
 
 from bulbs.content import TagCache
+from bulbs.content.tasks import (index_content_contributions,
+                                 index_content_report_content_proxy)
 from .filters import Authors, Published, Status, Tags, FeatureTypes
 
-try:
-    from bulbs.content.tasks import (
-        index_content_contributions, index_content_report_content_proxy,
-        index as index_task
-    )  # noqa
-    CELERY_ENABLED = True
-except ImportError:
-    index_task = lambda *x: x
-    index_content_contributions = lambda *x: x
-    index_content_report_content_proxy = lambda *x: x
-    CELERY_ENABLED = False
 
 
 logger = logging.getLogger(__name__)
