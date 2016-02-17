@@ -2,7 +2,7 @@
 
 ## Version 0.7.3
 
-- Fix special coverage migration to grab model directly so that custom SpecialCoverage.save() method is called and triggers _save_percolator.
+- Fix special coverage migration to grab model directly so that custom `SpecialCoverage.save()` method is called and triggers `_save_percolator`
 - Campaign.save() triggers `SpecialCoverage._save_percolator()` via Celery task
 - Install: Celery is now a regular (non-dev) requirement
 - Bump min DJES dependency to reflect latest requirements
