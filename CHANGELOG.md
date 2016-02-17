@@ -1,5 +1,9 @@
 # django-bulbs Change Log
 
+## Development
+
+- Campaign.save() triggers SpecialCoverage._save_percolator() via Celery task
+
 ## Version 0.7.1
 
 - Fix Content.percoloate_special_coverage() to ignore non-special-coverage results (ex: Sections)
