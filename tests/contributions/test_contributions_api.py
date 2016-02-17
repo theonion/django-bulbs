@@ -1180,6 +1180,44 @@ class ReportingApiTestCase(BaseAPITestCase):
 
         ReportContent.search_objects.refresh()
 
+        end_date = Content.objects.order_by("-published").first().published
+        resp = self.client.get(endpoint, {"end": end_date})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data["count"], 6)
+
+        resp = self.client.get(endpoint, {"end": end_date - timezone.timedelta(seconds=1)})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data["count"], 4)
+
+        resp = self.client.get(endpoint, {"end": str(end_date.date())})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data["count"], 6)
+
+        resp = self.client.get(
+            endpoint, {"end": str((end_date - timezone.timedelta(seconds=1)).date())}
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data["count"], 4)
+
+        start_date = Content.objects.order_by("-published").first().published
+        resp = self.client.get(endpoint, {"start": start_date})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data["count"], 2)
+
+        resp = self.client.get(endpoint, {"start": start_date - timezone.timedelta(seconds=1)})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data["count"], 3)
+
+        resp = self.client.get(endpoint, {"start": str(start_date.date())})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data["count"], 2)
+
+        resp = self.client.get(
+            endpoint, {"start": str((start_date - timezone.timedelta(seconds=1)).date())}
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data["count"], 3)
+
         # contributors filters
         # resp = self.client.get(endpoint, {'contributors': [self.a1.username]})
         # self.assertEqual(resp.status_code, 200)

@@ -101,19 +101,33 @@ class ContentReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
         )
 
         if "start" in self.request.GET:
-            start_date = dateparse.parse_date(self.request.GET["start"])
+            start_param = self.request.GET["start"]
+            # Match and interpret param if formatted as a date.
+            start_date_match = dateparse.date_re.match(start_param)
+            if start_date_match:
+                start_date = dateparse.parse_date(start_date_match.group(0))
+            # Match and interpret param if formatted as datetime.
+            start_datetime_match = dateparse.datetime_re.match(start_param)
+            if start_datetime_match:
+                start_date = dateparse.parse_datetime(start_datetime_match.group(0)).date()
 
         end_date = now
-        if "end" in self.request.GET and "published" not in self.request.QUERY_PARAMS:
+        if "end" in self.request.GET:
             # Needs to get specific with time
-            end_date = dateparse.parse_date(self.request.GET["end"])
-            import pdb; pdb.set_trace()
+            end_param = self.request.GET["end"]
+            # Match and interpret param if formatted as a date.
+            end_date_match = dateparse.date_re.match(end_param)
+            if end_date_match:
+                end_date = dateparse.parse_date(end_date_match.group(0))
+            # Match and interpret param if formatted as datetime.
+            end_datetime_match = dateparse.datetime_re.match(end_param)
+            if end_datetime_match:
+                end_date = dateparse.parse_datetime(end_datetime_match.group(0)).date()
         end_date += timezone.timedelta(days=1)
         end_date = (
             timezone.datetime.combine(end_date, timezone.datetime.min.time()) -
             timezone.timedelta(seconds=1)
         )
-
         qs = qs.filter(Published(after=start_date, before=end_date))
 
         # TODO: reintroduce forced submissions
@@ -232,7 +246,6 @@ class ReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
             end_datetime_match = dateparse.datetime_re.match(end_param)
             if end_datetime_match:
                 end_date = dateparse.parse_datetime(end_datetime_match.group(0)).date()
-
         end_date += timezone.timedelta(days=1)
         end_date = (
             timezone.datetime.combine(end_date, timezone.datetime.min.time()) -
