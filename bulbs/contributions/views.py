@@ -88,47 +88,11 @@ class ContentReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 
     renderer_classes = (CSVRenderer, ) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
     serializer_class = ContentReportingSerializer
+    filter_backends = (ESPublishedFilterBackend,)
     paginate_by = 20
 
     def get_queryset(self):
         qs = ReportContent.search_objects.search()
-        now = timezone.now()
-        start_date = datetime.datetime(
-            year=now.year,
-            month=now.month,
-            day=1,
-            tzinfo=now.tzinfo
-        )
-
-        if "start" in self.request.GET:
-            start_param = self.request.GET["start"]
-            # Match and interpret param if formatted as a date.
-            start_date_match = dateparse.date_re.match(start_param)
-            if start_date_match:
-                start_date = dateparse.parse_date(start_date_match.group(0))
-            # Match and interpret param if formatted as datetime.
-            start_datetime_match = dateparse.datetime_re.match(start_param)
-            if start_datetime_match:
-                start_date = dateparse.parse_datetime(start_datetime_match.group(0)).date()
-
-        end_date = now
-        if "end" in self.request.GET:
-            # Needs to get specific with time
-            end_param = self.request.GET["end"]
-            # Match and interpret param if formatted as a date.
-            end_date_match = dateparse.date_re.match(end_param)
-            if end_date_match:
-                end_date = dateparse.parse_date(end_date_match.group(0))
-            # Match and interpret param if formatted as datetime.
-            end_datetime_match = dateparse.datetime_re.match(end_param)
-            if end_datetime_match:
-                end_date = dateparse.parse_datetime(end_datetime_match.group(0)).date()
-        end_date += timezone.timedelta(days=1)
-        end_date = (
-            timezone.datetime.combine(end_date, timezone.datetime.min.time()) -
-            timezone.timedelta(seconds=1)
-        )
-        qs = qs.filter(Published(after=start_date, before=end_date))
 
         # TODO: reintroduce forced submissions
         # include, exclude = get_forced_payment_contributions(start_date, end_date)

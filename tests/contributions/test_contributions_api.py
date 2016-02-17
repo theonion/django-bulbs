@@ -1323,7 +1323,7 @@ class ReportingApiTestCase(BaseAPITestCase):
         start_date = latest_content.published + timezone.timedelta(seconds=1)
         resp = self.client.get(endpoint, {"start": start_date})
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.data["count"], 0)
+        self.assertEqual(resp.data["count"], 5)
 
         # Second should switch the date.
         latest_content = Content.objects.all().order_by("-published").first()

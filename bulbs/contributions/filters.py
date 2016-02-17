@@ -54,7 +54,7 @@ class ESPublishedFilterBackend(filters.BaseFilterBackend):
                 return dateparse.parse_date(date_match.group(0))
             datetime_match = dateparse.datetime_re.match(param_value)
             if datetime_match:
-                return dateparse.parse_datetime(datetime_match.group(0))
+                return dateparse.parse_datetime(datetime_match.group(0)).date()
         return None
 
 
