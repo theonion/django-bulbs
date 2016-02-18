@@ -1,4 +1,5 @@
 from datetime import timedelta
+import six
 
 from django.utils import timezone
 
@@ -122,7 +123,7 @@ class SpecialCoverageSearchTests(BaseIndexableTestCase):
 
     def test_search_party_query(self):
         search_party = SearchParty(self.special_coverages)
-        self.assertItemsEqual(
+        self.assertCountEqual(
             search_party.query,
             {
                 "excluded_ids": [],
@@ -183,7 +184,7 @@ class SpecialCoverageSearchTests(BaseIndexableTestCase):
         search = search_party.search()
         self.assertEqual(search.count(), 2)
         expected_content = list(sc1.get_content()) + list(sc2.get_content())
-        self.assertItemsEqual(expected_content, search)
+        self.assertCountEqual(expected_content, search)
 
         sc2.query["included_ids"] = [self.content_list[1].id]
         sc2.save()
@@ -191,7 +192,7 @@ class SpecialCoverageSearchTests(BaseIndexableTestCase):
         search = search_party.search()
         self.assertEqual(search.count(), 3)
         expected_content.append(self.content_list[1])
-        self.assertItemsEqual(expected_content, search)
+        self.assertCountEqual(expected_content, search)
 
         sc2.query["pinned_ids"] = [self.content_list[3].id]
         sc2.save()
@@ -199,7 +200,7 @@ class SpecialCoverageSearchTests(BaseIndexableTestCase):
         search = search_party.search()
         self.assertEqual(search.count(), 4)
         expected_content.append(self.content_list[3])
-        self.assertItemsEqual(expected_content, search)
+        self.assertCountEqual(expected_content, search)
 
         sc2.query["excluded_ids"] = [sc1.get_content()[0].id]
         sc2.save()
@@ -207,7 +208,7 @@ class SpecialCoverageSearchTests(BaseIndexableTestCase):
         search = search_party.search()
         self.assertEqual(search.count(), 3)
         expected_content.pop(expected_content.index(sc1.get_content()[0]))
-        self.assertItemsEqual(expected_content, search)
+        self.assertCountEqual(expected_content, search)
 
     def test_second_slot_query_generator(self):
         news_search = Content.search_objects.search().filter(FeatureTypes(["news"]))
