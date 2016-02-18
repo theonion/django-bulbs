@@ -20,6 +20,8 @@ class ESPublishedFilterBackend(filters.BaseFilterBackend):
             queryset = self.apply_published_filter(queryset, "after", start_value)
         end_value = self.get_date_datetime_param(request, "end")
         if end_value:
+            # Forces the end_value to be the last second of the date provided in the query.
+            # Necessary currently as our Published filter for es only applies to gte & lte.
             end_value += timezone.timedelta(days=1)
             end_value = (
                 timezone.datetime.combine(end_value, timezone.datetime.min.time()) -
