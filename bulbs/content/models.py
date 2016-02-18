@@ -225,6 +225,8 @@ class Content(PolymorphicModel, Indexable):
     tags = models.ManyToManyField(Tag, blank=True)
     # Should this item be indexed?
     indexed = models.BooleanField(default=True)
+    # Is this content always fresh / relevant?
+    evergreen = models.BooleanField(default=False)
     # Is this a read only model? (i.e. from elasticsearch)
     _readonly = False
     # custom ES manager
