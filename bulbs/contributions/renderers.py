@@ -18,7 +18,7 @@ class HeaderCSVRenderer(CSVRenderer):
         So this will by defining the header_fields attribute.
         """
         table = super(HeaderCSVRenderer, self).tablize(data)
-        if self.header_fields:
+        if self.header_fields and table:
             header_row = []
             for key in table[0]:
                 header_row.append(self.header_fields.get(key, key))
