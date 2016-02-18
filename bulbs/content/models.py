@@ -189,13 +189,13 @@ def _percolate(index, doc_type, content_id, body):
                                                           doc_type=doc_type,
                                                           id=content_id,
                                                           body=body)
-    except TransportError as exc:
-        logger.exception(exc)
+    except TransportError:
+        logger.exception('Percolator error: Content ID %s, %s', content_id, body)
         return []
 
     # Log any errors (but still try to return any results)
     if results.get('_shards', {}).get('failures'):
-        logger.error('Elasticearch error: {}'.format(results.get('_shards')))
+        logger.error('Elasticsearch error: {}'.format(results.get('_shards')))
 
     if results["total"] > 0:
         return results['matches']
