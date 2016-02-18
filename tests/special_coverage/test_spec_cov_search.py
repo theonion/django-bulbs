@@ -145,6 +145,46 @@ class SpecialCoverageSearchTests(BaseIndexableTestCase):
             }
         )
 
+    def test_search_party_search(self):
+        search_party = SearchParty(self.special_coverages)
+        search = search_party.search()
+        # Returns all published content
+        self.assertEqual(search.count(), 5)
+
+        # Update special coverages for more unique test cases.
+        sc1, sc2 = self.special_coverages[0], self.special_coverages[1]
+        sc1.query = {
+            "groups": [{
+                "conditions": [{
+                    "field": "feature-type",
+                    "type": "any",
+                    "values": [{
+                        "name": "slideshow", "value": "slideshow"
+                    }]
+                }],
+                "time": None
+            }]
+        }
+        sc1.save()
+        sc2.query = {
+            "groups": [{
+                "conditions": [{
+                    "field": "tag",
+                    "type": "any",
+                    "values": [{
+                        "name": "funny", "value": "funny"
+                    }]
+                }],
+                "time": None
+            }],
+        }
+        sc2.save()
+
+        search_party = SearchParty(self.special_coverages)
+        import pdb; pdb.set_trace()
+        search = search_party.search()
+        self.assertEqual(search.count(), 2)
+
     def test_second_slot_query_generator(self):
         news_search = Content.search_objects.search().filter(FeatureTypes(["news"]))
         video_search = Content.search_objects.search().filter(FeatureTypes(["video"]))
