@@ -16,9 +16,9 @@ class PollViewSet(viewsets.ModelViewSet):
             "title",
             "published",
             "end_date",)
-    search_fields = (
+    search_fields = [
             "answers",
-            "title",)
+            "title",]
 
 class AnswerViewSet(viewsets.ModelViewSet):
     model = Answer
