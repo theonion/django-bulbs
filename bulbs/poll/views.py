@@ -8,16 +8,19 @@ from bulbs.content.views import BaseContentDetailView
 from bulbs.poll.models import Poll, Answer
 from bulbs.poll.serializers import PollPublicSerializer
 
+
 class PollDetailView(BaseContentDetailView):
     model = Poll
-    ordering_fields= "__all__"
+    ordering_fields = "__all__"
+
 
 class MergedPollDataView(DetailView):
     model = Poll
 
     def render_to_response(self, context, **response_kwargs):
         serializer = PollPublicSerializer(self.object)
-        response = HttpResponse(json.dumps(serializer.data),
+        response = HttpResponse(
+            json.dumps(serializer.data),
             content_type="application/json"
         )
         response["Access-Control-Allow-Origin"] = "*"
