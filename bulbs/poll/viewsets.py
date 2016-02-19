@@ -9,8 +9,16 @@ class PollViewSet(viewsets.ModelViewSet):
     model = Poll
     queryset = Poll.objects.all()
     serializer_class = PollSerializer
-    filter_backends = (filters.OrderingFilter,)
-
+    filter_backends = (
+            filters.OrderingFilter,
+            filters.SearchFilter,)
+    ordering_fields = (
+            "title",
+            "published",
+            "end_date",)
+    search_fields = (
+            "answers",
+            "title",)
 
 class AnswerViewSet(viewsets.ModelViewSet):
     model = Answer
