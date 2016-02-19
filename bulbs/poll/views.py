@@ -10,6 +10,7 @@ from bulbs.poll.serializers import PollPublicSerializer
 
 class PollDetailView(BaseContentDetailView):
     model = Poll
+    ordering_fields= "__all__"
 
 class MergedPollDataView(DetailView):
     model = Poll
