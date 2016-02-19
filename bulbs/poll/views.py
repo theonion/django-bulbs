@@ -2,8 +2,6 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.cache import cache_control
 from django.views.generic.detail import DetailView
-from rest_framework import filters
-from rest_framework import generic
 import json
 
 from bulbs.content.views import BaseContentDetailView
@@ -12,8 +10,6 @@ from bulbs.poll.serializers import PollPublicSerializer
 
 class PollDetailView(BaseContentDetailView):
     model = Poll
-    filter_backends = (filters.OrderingFilter,)
-    ordering_fields= "__all__"
 
 class MergedPollDataView(DetailView):
     model = Poll
