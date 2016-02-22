@@ -7,9 +7,7 @@ from bulbs.campaigns.models import Campaign
 from bulbs.content.filters import FeatureTypes
 from bulbs.content.models import Content, FeatureType, Tag
 from bulbs.special_coverage.models import SpecialCoverage
-from bulbs.special_coverage.search import (
-    ReadingListIterator, SearchParty, second_slot_query_generator
-)
+from bulbs.special_coverage.search import ReadingListIterator, SearchParty
 from bulbs.utils.test import BaseIndexableTestCase, make_content
 
 
@@ -182,9 +180,9 @@ class SpecialCoverageSearchTests(BaseIndexableTestCase):
 
     def test_search_party_query(self):
         search_party = SearchParty(self.special_coverages)
-        six.assertItemsEqual(
-            search_party.query,
-            {
+        self.assertEqual(
+            sorted(search_party.query),
+            sorted({
                 "excluded_ids": [],
                 "included_ids": [],
                 "pinned_ids": [],
@@ -202,7 +200,7 @@ class SpecialCoverageSearchTests(BaseIndexableTestCase):
                         "time": None
                     }]
                 }]
-            }
+            })
         )
 
     def test_search_party_search(self):
@@ -243,7 +241,8 @@ class SpecialCoverageSearchTests(BaseIndexableTestCase):
         search = search_party.search()
         self.assertEqual(search.count(), 2)
         expected_content = list(sc1.get_content()) + list(sc2.get_content())
-        six.asserItemsEqual(expected_content, search)
+        for obj in search:
+            self.assertIn(obj, expected_content)
 
         sc2.query["included_ids"] = [self.content_list[1].id]
         sc2.save()
@@ -251,7 +250,8 @@ class SpecialCoverageSearchTests(BaseIndexableTestCase):
         search = search_party.search()
         self.assertEqual(search.count(), 3)
         expected_content.append(self.content_list[1])
-        six.asserItemsEqual(expected_content, search)
+        for obj in search:
+            self.assertIn(obj, expected_content)
 
         sc2.query["pinned_ids"] = [self.content_list[3].id]
         sc2.save()
@@ -259,7 +259,8 @@ class SpecialCoverageSearchTests(BaseIndexableTestCase):
         search = search_party.search()
         self.assertEqual(search.count(), 4)
         expected_content.append(self.content_list[3])
-        six.asserItemsEqual(expected_content, search)
+        for obj in search:
+            self.assertIn(obj, expected_content)
 
         sc2.query["excluded_ids"] = [sc1.get_content()[0].id]
         sc2.save()
@@ -267,19 +268,5 @@ class SpecialCoverageSearchTests(BaseIndexableTestCase):
         search = search_party.search()
         self.assertEqual(search.count(), 3)
         expected_content.pop(expected_content.index(sc1.get_content()[0]))
-        six.asserItemsEqual(expected_content, search)
-
-    def test_second_slot_query_generator(self):
-        news_search = Content.search_objects.search().filter(FeatureTypes(["news"]))
-        video_search = Content.search_objects.search().filter(FeatureTypes(["video"]))
-        search_party = [obj for obj in second_slot_query_generator(video_search, news_search)]
-        self.assertEqual(search_party[0], video_search[0])
-        self.assertEqual(search_party[1], news_search[0])
-        self.assertEqual(search_party[2], video_search[1])
-
-        video_search = Content.search_objects.search().filter(FeatureTypes(["video"]))
-        tv_club_search = Content.search_objects.search().filter(FeatureTypes(["tv-club"]))
-        search_party = [obj for obj in second_slot_query_generator(video_search, tv_club_search)]
-        self.assertEqual(search_party[0], video_search[0])
-        self.assertEqual(search_party[1], tv_club_search[0])
-        self.assertEqual(search_party[2], video_search[1])
+        for obj in search:
+            self.assertIn(obj, expected_content)
