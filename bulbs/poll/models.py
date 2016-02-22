@@ -83,7 +83,7 @@ class Poll(Content):
             return response.json()
 
     def sodahead_payload(self):
-        poll_payload = {
+        payload = {
             'access_token': vault.read('sodahead/token')['value'],
             'id': self.sodahead_id,
             'name': self.title,
@@ -92,25 +92,25 @@ class Poll(Content):
 
         if self.published:
             activation_date = self.published.astimezone(pytz.utc)
-            poll_payload['activationDate'] = activation_date.strftime(SODAHEAD_DATE_FORMAT)
+            payload['activationDate'] = activation_date.strftime(SODAHEAD_DATE_FORMAT)
 
         if self.end_date:
             end_date = self.end_date.astimezone(pytz.utc)
-            poll_payload['endDate'] = end_date.strftime(SODAHEAD_DATE_FORMAT)
+            payload['endDate'] = end_date.strftime(SODAHEAD_DATE_FORMAT)
 
         for answer in self.answers.all():
             if answer.answer_text == u'':
-                poll_payload[answer.sodahead_answer_id] = BLANK_ANSWER
+                payload[answer.sodahead_answer_id] = BLANK_ANSWER
             else:
-                poll_payload[answer.sodahead_answer_id] = answer.answer_text
+                payload[answer.sodahead_answer_id] = answer.answer_text
 
-        if not 'answer_01' in poll_payload:
-            poll_payload['answer_01'] = DEFAULT_ANSWER_1
+        if not 'answer_01' in payload:
+            payload['answer_01'] = DEFAULT_ANSWER_1
 
-        if not 'answer_02' in poll_payload:
-            poll_payload['answer_02'] = DEFAULT_ANSWER_2
+        if not 'answer_02' in payload:
+            payload['answer_02'] = DEFAULT_ANSWER_2
 
-        return poll_payload
+        return payload
 
     def save(self, *args, **kwargs):
         if not self.sodahead_id:
