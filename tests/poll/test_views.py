@@ -165,10 +165,11 @@ class GetPollDataTestCase(TestCase):
         answer2 = Answer.objects.create(poll=poll, answer_text=u'that is a negatory')
 
         poll_data_url = reverse('get-merged-poll-data', kwargs={'pk': poll.id})
-        response = self.client.get(poll_data_url)
+        response = self.client.get(poll_data_url, **{ 'HTTP_ORIGIN': 'this.cool.origin' })
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response['Access-Control-Allow-Origin'], '*')
+        self.assertEqual(response['Access-Control-Allow-Origin'], 'this.cool.origin')
+        self.assertEqual(response['Access-Control-Allow-Credentials'], 'true')
 
         data = json.loads(response.content)
 

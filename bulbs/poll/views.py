@@ -19,7 +19,10 @@ class MergedPollDataView(DetailView):
         response = HttpResponse(json.dumps(serializer.data),
             content_type="application/json"
         )
-        response["Access-Control-Allow-Origin"] = "*"
+        if "HTTP_ORIGIN" in self.request.META:
+            response["Access-Control-Allow-Origin"] = self.request.META["HTTP_ORIGIN"]
+            response["Access-Control-Allow-Credentials"] = 'true'
+
         return response
 
 poll_detail = cache_control(max_age=600)(PollDetailView.as_view())
