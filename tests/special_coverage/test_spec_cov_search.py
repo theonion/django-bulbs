@@ -1,10 +1,8 @@
 from datetime import timedelta
-import six
 
 from django.utils import timezone
 
 from bulbs.campaigns.models import Campaign
-from bulbs.content.filters import FeatureTypes
 from bulbs.content.models import Content, FeatureType, Tag
 from bulbs.special_coverage.models import SpecialCoverage
 from bulbs.special_coverage.search import ReadingListIterator, SearchParty
