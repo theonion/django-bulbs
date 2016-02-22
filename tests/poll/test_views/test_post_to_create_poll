@@ -1,6 +1,6 @@
 interactions:
 - request:
-    body: answer_01=default+answer+1&answer_02=default+answer+2&title=go+underneath+the+bridge%21&id=&name=MJVJDODGWM
+    body: answer_01=default+answer+1&answer_02=default+answer+2&title=go+underneath+the+bridge%21&id=&name=DRMTEYXFCY
     headers:
       Accept: ['*/*']
       Accept-Encoding: ['gzip, deflate']
@@ -14,77 +14,36 @@ interactions:
     body: {string: !!python/unicode '{"vote": null, "poll": {"endDate": null, "demo":
         {}, "image": null, "video": null, "numComments": 0, "category": {"url": "http:\/\/www.sodahead.com\/entertainment\/",
         "id": 5, "title": "Entertainment"}, "title": "go underneath the bridge!",
-        "range": {}, "id": 4860488, "closed": false, "hideResults": false, "description":
+        "range": {}, "id": 4861340, "closed": false, "hideResults": false, "description":
         "", "tags": [], "answers": [{"title": "default answer 1", "color": null, "image":
         null, "video": null, "meta_text": null, "totalVotes": 0, "percentage": 0,
-        "id": 12069088}, {"title": "default answer 2", "color": null, "image": null,
+        "id": 12071720}, {"title": "default answer 2", "color": null, "image": null,
         "video": null, "meta_text": null, "totalVotes": 0, "percentage": 0, "id":
-        12069090}], "slider": null, "sponsored": false, "modifiedDate": null, "creationDate":
-        "2016-02-02 20:06:24", "geo": {}, "name": "MJVJDODGWM", "url": "http:\/\/www.sodahead.com\/entertainment\/go-underneath-the-bridge\/question-4860488\/",
+        12071722}], "slider": null, "sponsored": false, "modifiedDate": null, "creationDate":
+        "2016-02-19 17:52:41", "geo": {}, "name": "DRMTEYXFCY", "url": "http:\/\/www.sodahead.com\/entertainment\/go-underneath-the-bridge\/question-4861340\/",
         "author": {"url": "http:\/\/www.sodahead.com\/user\/profile\/4172828\/test\/",
         "nickName": "TEST", "id": 4172828, "avatar": "http:\/\/images.sodahead.com\/profiles\/000000001\/profiles_1202SHAvatarFred_1028_226520_small.jpeg"},
-        "hideResults_content": "", "editDate": null, "activationDate": "2016-02-02
-        20:06:24", "totalVotes": 0}}'}
+        "hideResults_content": "", "editDate": null, "activationDate": "2016-02-19
+        17:52:41", "totalVotes": 0}}'}
     headers:
       access-control-allow-headers: ['Authorization,Content-Type']
       access-control-allow-methods: ['POST, GET, PUT, DELETE, HEAD, OPTIONS']
       access-control-allow-origin: ['*']
       cache-control: ['no-cache, private, max-age=0']
       connection: [keep-alive]
+      content-length: ['1200']
       content-type: [application/json; charset=utf-8]
-      date: ['Tue, 02 Feb 2016 20:06:25 GMT']
-      etag: ['"735218e8ddf3adf6ac88f6e15fa6c26d"']
+      date: ['Fri, 19 Feb 2016 17:52:41 GMT']
+      etag: ['"6b48f72a7d62644e1c510ac61b4ef71d"']
       pragma: [no-cache]
       server: [openresty/1.5.8.1]
       set-cookie: ['demo="6941fb8484874663bf28ce8338df72595ae08811:{\"_city_region\":
           \"Frankfort\054NY\"\054 \"bf\": 0\054 \"dma\": 526}"; Domain=onion.sodahead.com;
-          expires=Wed, 01-Feb-2017 20:06:25 GMT; Max-Age=31536000; Path=/', 'anonymousUserId="dda70eef99c92832d05889c93c48242e5ba00cd5:";
+          expires=Sat, 18-Feb-2017 17:52:41 GMT; Max-Age=31536000; Path=/', 'anonymousUserId="dda70eef99c92832d05889c93c48242e5ba00cd5:";
           Domain=onion.sodahead.com; expires=Thu, 01-Jan-1970 00:00:00 GMT; Max-Age=0;
           Path=/', 'session="d751580928f9b48c059f91a75a650e3692d0cb28:{\"country\":
           \"US\"\054 \"state\": \"NY\"\054 \"postal_code\": \"13340\"}"; Domain=onion.sodahead.com;
           Path=/; secure', '_crmUserId="f64eed1b50bc4a7841af95a4c41cf246349b1151:78";
           Domain=onion.sodahead.com; Path=/']
-    status: {code: 200, message: OK}
-- request:
-    body: null
-    headers:
-      Accept: ['*/*']
-      Accept-Encoding: ['gzip, deflate']
-      Connection: [keep-alive]
-      User-Agent: [python-requests/2.9.1]
-    method: GET
-    uri: https://onion.sodahead.com/api/polls/4860488/
-  response:
-    body: {string: !!python/unicode '{"vote": null, "poll": {"endDate": null, "demo":
-        {}, "image": null, "video": null, "numComments": 0, "category": {"url": "http:\/\/www.sodahead.com\/entertainment\/",
-        "id": 5, "title": "Entertainment"}, "title": "go underneath the bridge!",
-        "range": {}, "id": 4860488, "closed": false, "hideResults": false, "description":
-        "", "tags": [], "answers": [{"title": "default answer 1", "color": null, "image":
-        null, "video": null, "meta_text": null, "totalVotes": 0, "percentage": 0,
-        "id": 12069088}, {"title": "default answer 2", "color": null, "image": null,
-        "video": null, "meta_text": null, "totalVotes": 0, "percentage": 0, "id":
-        12069090}], "slider": null, "sponsored": false, "modifiedDate": null, "creationDate":
-        "2016-02-02 20:06:24", "geo": {}, "name": "MJVJDODGWM", "url": "http:\/\/www.sodahead.com\/entertainment\/go-underneath-the-bridge\/question-4860488\/",
-        "author": {"url": "http:\/\/www.sodahead.com\/user\/profile\/4172828\/test\/",
-        "nickName": "TEST", "id": 4172828, "avatar": "http:\/\/images.sodahead.com\/profiles\/000000001\/profiles_1202SHAvatarFred_1028_226520_small.jpeg"},
-        "hideResults_content": "", "editDate": null, "activationDate": "2016-02-02
-        20:06:24", "totalVotes": 0}}'}
-    headers:
-      access-control-allow-headers: ['Authorization,Content-Type']
-      access-control-allow-methods: ['POST, GET, PUT, DELETE, HEAD, OPTIONS']
-      access-control-allow-origin: ['*']
-      cache-control: ['no-cache, private, max-age=0']
-      connection: [keep-alive]
-      content-type: [application/json; charset=utf-8]
-      date: ['Tue, 02 Feb 2016 20:06:25 GMT']
-      etag: ['"735218e8ddf3adf6ac88f6e15fa6c26d"']
-      pragma: [no-cache]
-      server: [openresty/1.5.8.1]
-      set-cookie: ['demo="6941fb8484874663bf28ce8338df72595ae08811:{\"_city_region\":
-          \"Frankfort\054NY\"\054 \"bf\": 0\054 \"dma\": 526}"; Domain=onion.sodahead.com;
-          expires=Wed, 01-Feb-2017 20:06:25 GMT; Max-Age=31536000; Path=/', 'anonymousUserId="111dd3325af0453e57759e0839c0e18e82d1a473:0ec9e056aaf74137b1ac22cf7767e75f";
-          Domain=onion.sodahead.com; Path=/', 'session="d751580928f9b48c059f91a75a650e3692d0cb28:{\"country\":
-          \"US\"\054 \"state\": \"NY\"\054 \"postal_code\": \"13340\"}"; Domain=onion.sodahead.com;
-          Path=/']
     status: {code: 200, message: OK}
 version: 1
