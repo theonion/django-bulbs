@@ -7,8 +7,67 @@ from bulbs.campaigns.models import Campaign
 from bulbs.content.filters import FeatureTypes
 from bulbs.content.models import Content, FeatureType, Tag
 from bulbs.special_coverage.models import SpecialCoverage
-from bulbs.special_coverage.search import SearchParty, second_slot_query_generator
+from bulbs.special_coverage.search import (
+    ReadingListIterator, SearchParty, second_slot_query_generator
+)
 from bulbs.utils.test import BaseIndexableTestCase, make_content
+
+
+class ReadingListIteratorTestCase(BaseIndexableTestCase):
+
+    def setUp(self):
+        super(ReadingListIteratorTestCase, self).setUp()
+        self.now = timezone.now()
+        self.feature_type1 = FeatureType.objects.create(name="Arguments")
+        self.feature_type2 = FeatureType.objects.create(name="Falling")
+        for i in range(20):
+            Content.objects.create(
+                title="content %s" % i,
+                published=self.now - timezone.timedelta(hours=i),
+                feature_type=self.feature_type1
+            )
+            Content.objects.create(
+                title="article %s" % i,
+                published=self.now - timezone.timedelta(hours=i),
+                feature_type=self.feature_type2
+            )
+        Content.search_objects.refresh()
+
+    def test_register_queryset_default_first(self):
+        queryset = Content.search_objects.search(feature_types=[self.feature_type1.slug])
+        reading_list = ReadingListIterator()
+        # First queryset should be default until explicitly state otherwise.
+        reading_list.register_queryset(queryset)
+        self.assertEqual(reading_list.default_queryset, queryset)
+        out = [obj for obj in reading_list]
+        for obj in queryset.full():
+            self.assertIn(obj, out)
+
+    def test_register_queryset_set_default(self):
+        queryset1 = Content.search_objects.search(feature_types=[self.feature_type1.slug])
+        queryset2 = Content.search_objects.search(feature_types=[self.feature_type2.slug])
+        reading_list = ReadingListIterator()
+        reading_list.register_queryset(queryset1)
+        reading_list.register_queryset(queryset2, default=True)
+        self.assertEqual(reading_list.default_queryset, queryset2)
+
+    def test_validator(self):
+        queryset1 = Content.search_objects.search(feature_types=[self.feature_type1.slug])
+        queryset2 = Content.search_objects.search(feature_types=[self.feature_type2.slug])
+        reading_list = ReadingListIterator()
+        reading_list.register_queryset(queryset1)
+
+        def even_validator(index):
+            return bool(index % 2 == 0)
+
+        reading_list.register_queryset(queryset2, validator=even_validator)
+        out = [obj for obj in reading_list]
+        for obj in queryset1:
+            index = out.index(obj)
+            self.assertTrue(bool(index % 2 != 0))
+        for obj in queryset2:
+            index = out.index(obj)
+            self.assertTrue(bool(index % 2 == 0))
 
 
 class SpecialCoverageSearchTests(BaseIndexableTestCase):
@@ -123,7 +182,7 @@ class SpecialCoverageSearchTests(BaseIndexableTestCase):
 
     def test_search_party_query(self):
         search_party = SearchParty(self.special_coverages)
-        self.assertCountEqual(
+        six.assertItemsEqual(
             search_party.query,
             {
                 "excluded_ids": [],
@@ -184,7 +243,7 @@ class SpecialCoverageSearchTests(BaseIndexableTestCase):
         search = search_party.search()
         self.assertEqual(search.count(), 2)
         expected_content = list(sc1.get_content()) + list(sc2.get_content())
-        self.assertCountEqual(expected_content, search)
+        six.asserItemsEqual(expected_content, search)
 
         sc2.query["included_ids"] = [self.content_list[1].id]
         sc2.save()
@@ -192,7 +251,7 @@ class SpecialCoverageSearchTests(BaseIndexableTestCase):
         search = search_party.search()
         self.assertEqual(search.count(), 3)
         expected_content.append(self.content_list[1])
-        self.assertCountEqual(expected_content, search)
+        six.asserItemsEqual(expected_content, search)
 
         sc2.query["pinned_ids"] = [self.content_list[3].id]
         sc2.save()
@@ -200,7 +259,7 @@ class SpecialCoverageSearchTests(BaseIndexableTestCase):
         search = search_party.search()
         self.assertEqual(search.count(), 4)
         expected_content.append(self.content_list[3])
-        self.assertCountEqual(expected_content, search)
+        six.asserItemsEqual(expected_content, search)
 
         sc2.query["excluded_ids"] = [sc1.get_content()[0].id]
         sc2.save()
@@ -208,7 +267,7 @@ class SpecialCoverageSearchTests(BaseIndexableTestCase):
         search = search_party.search()
         self.assertEqual(search.count(), 3)
         expected_content.pop(expected_content.index(sc1.get_content()[0]))
-        self.assertCountEqual(expected_content, search)
+        six.asserItemsEqual(expected_content, search)
 
     def test_second_slot_query_generator(self):
         news_search = Content.search_objects.search().filter(FeatureTypes(["news"]))

@@ -74,7 +74,43 @@ class SearchParty(object):
         return self._query
 
 
-def second_slot_query_generator(query1, query2):
+class ReadingListIterator(object):
+
+    def __init__(self, *args, **kwargs):
+        self.default_queryset = None
+        self.querysets = {}
+        self.index = 0
+
+    def __iter__(self):
+        return self
+
+    def next(self):
+        for validator, queryset in self.querysets.items():
+            if validator(self.index):
+                self.index += 1
+                return queryset.next()
+        self.index += 1
+        return self.default_queryset.next()
+
+    def __next__(self):
+        return self.next()
+
+    def register_queryset(self, queryset, validator=None, default=False):
+        """
+        Add a given queryset to the iterator with custom logic for iteration.
+
+        :param queryset: List of objects included in the reading list.
+        :param validator: Custom logic to determine a queryset's position in a reading_list.
+            Validators must accept an index as an argument and return a truthy value.
+        :param default: Sets the given queryset as the primary queryset when no validator applies.
+        """
+        if default or self.default_queryset is None:
+            self.default_queryset = queryset
+        if validator:
+            self.querysets[validator] = queryset
+
+
+def second_slot_query_generator(query1, query2, max_index=None):
     """Returns the result of a different query at the 1st index of iteration.
 
     :param query1: Primary search that will be the default result set.
@@ -84,6 +120,8 @@ def second_slot_query_generator(query1, query2):
     """
     index = 0
     while True:
+        if max_index and index > max_index:
+            break
         result = None
         if index == 1:
             try:
@@ -95,5 +133,5 @@ def second_slot_query_generator(query1, query2):
                 result = six.next(query1)
             except IndexError:
                 break
-        yield result
+        return result
         index += 1
