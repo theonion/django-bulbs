@@ -9,8 +9,8 @@ This project very much under active development, and is currently not as reusabl
 
 First, enter any virtualenv, etc, that you plan on developing in.
 ```bash
-$ pip install -e .
-$ pip install "file://$(pwd)#egg=django-bulbs[dev]"
+pip install -e .
+pip install "file://$(pwd)#egg=django-bulbs[dev]"
 ```
 
 ## Running Tests
