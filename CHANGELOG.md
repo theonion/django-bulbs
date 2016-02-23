@@ -1,5 +1,9 @@
 # django-bulbs Change Log
 
+## Version 0.7.6
+
+- Add `Content.evergreen` boolean column to indicate "always fresh" content
+
 ## Version 0.7.5
 
 - Improved special coverage percolator retrieval logging
