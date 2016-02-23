@@ -109,7 +109,7 @@ class ReadingListIterator(object):
             return
         if validator:
             self.querysets[validator] = queryset
-        elif not validator and not default:
+        else:
             raise ValueError(
                 """Querysets require validation logic to integrate with reading lists."""
             )
