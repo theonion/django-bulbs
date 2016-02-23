@@ -13,9 +13,9 @@ def get_sponsored_special_coverages():
     return SpecialCoverage.objects.filter(
         campaign__isnull=False,
         campaign__start_date__lte=now,
-        campaign__end_date__gte=now,
+        campaign__end_date__gt=now,
         start_date__lte=now,
-        end_date__gte=now
+        end_date__gt=now
     )
 
 
@@ -23,14 +23,14 @@ def get_sponsored_special_coverage_query(only_recent=False):
     """
     Reference to all SpecialCovearge queries.
 
-    :param only_recent: references RECENT_SPONSORED_OFFSET from django settings.
+    :param only_recent: references RECENT_SPONSORED_OFFSET_HOURS from django settings.
         Used to return sponsored content within a given configuration of hours.
     :returns: Djes.LazySearch query matching all active speical coverages.
     """
     special_coverages = get_sponsored_special_coverages()
     es_query = SearchParty(special_coverages).search()
     if only_recent:
-        offset = getattr(settings, "RECENT_SPONSORED_OFFSET", 0)
+        offset = getattr(settings, "RECENT_SPONSORED_OFFSET_HOURS", 0)
         es_query = es_query.filter(
             Published(after=timezone.now() - timezone.timedelta(hours=offset))
         )

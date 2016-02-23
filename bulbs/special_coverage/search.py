@@ -1,5 +1,5 @@
 """Custom search function to assist in customizing our special coverage searches."""
-import six
+from collections import OrderedDict
 
 from elasticsearch_dsl import filter as es_filter
 
@@ -10,7 +10,7 @@ from bulbs.content.models import Content
 class SearchParty(object):
     """Wrapper that searches for content from a group of SpecialCoverage objects."""
 
-    def __init__(self, special_coverages, *args, **kwargs):
+    def __init__(self, special_coverages):
         """Store list of special_coverages class level."""
         self._special_coverages = special_coverages
         self._query = {}
@@ -63,10 +63,6 @@ class SearchParty(object):
                 query = getattr(special_coverage, "query", {})
                 if "query" in query:
                     query = query.get("query")
-
-                self._query.update({
-
-                })
                 self._query["excluded_ids"] += query.get("excluded_ids", [])
                 self._query["included_ids"] += query.get("included_ids", [])
                 self._query["pinned_ids"] += query.get("pinned_ids", [])
@@ -78,7 +74,7 @@ class ReadingListIterator(object):
 
     def __init__(self, *args, **kwargs):
         self.default_queryset = None
-        self.querysets = {}
+        self.querysets = OrderedDict()
         self.index = 0
 
     def __iter__(self):
@@ -87,8 +83,11 @@ class ReadingListIterator(object):
     def next(self):
         for validator, queryset in self.querysets.items():
             if validator(self.index):
-                self.index += 1
-                return queryset.next()
+                try:
+                    self.index += 1
+                    return queryset.next()
+                except StopIteration:
+                    pass
         self.index += 1
         return self.default_queryset.next()
 
@@ -106,5 +105,10 @@ class ReadingListIterator(object):
         """
         if default or self.default_queryset is None:
             self.default_queryset = queryset
+            return
         if validator:
             self.querysets[validator] = queryset
+        elif not validator and not default:
+            raise ValueError(
+                """Querysets require validation logic to integrate with reading lists."""
+            )

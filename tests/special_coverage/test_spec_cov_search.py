@@ -2,6 +2,8 @@ from datetime import timedelta
 
 from django.utils import timezone
 
+from elasticsearch_dsl import filter as es_filter
+
 from bulbs.campaigns.models import Campaign
 from bulbs.content.models import Content, FeatureType, Tag
 from bulbs.special_coverage.models import SpecialCoverage
@@ -30,14 +32,16 @@ class ReadingListIteratorTestCase(BaseIndexableTestCase):
         Content.search_objects.refresh()
 
     def test_register_queryset_default_first(self):
-        queryset = Content.search_objects.search(feature_types=[self.feature_type1.slug])
+        queryset = Content.search_objects.search(
+            feature_types=[self.feature_type1.slug]
+        ).sort("id")
         reading_list = ReadingListIterator()
         # First queryset should be default until explicitly state otherwise.
         reading_list.register_queryset(queryset)
         self.assertEqual(reading_list.default_queryset, queryset)
         out = [obj for obj in reading_list]
-        for obj in queryset.full():
-            self.assertIn(obj, out)
+        expected_out = [obj for obj in queryset[:queryset.count()]]
+        self.assertEqual(out, expected_out)
 
     def test_register_queryset_set_default(self):
         queryset1 = Content.search_objects.search(feature_types=[self.feature_type1.slug])
@@ -64,6 +68,25 @@ class ReadingListIteratorTestCase(BaseIndexableTestCase):
         for obj in queryset2:
             index = out.index(obj)
             self.assertTrue(bool(index % 2 == 0))
+
+    def test_stop_iteration_exception(self):
+        queryset1 = Content.search_objects.search(feature_types=[self.feature_type1.slug])
+        queryset2 = Content.search_objects.search(feature_types=[self.feature_type2.slug])
+        queryset2 = queryset2.filter(es_filter.Terms(**{"id": [queryset2[0].id]}))
+        reading_list = ReadingListIterator()
+        reading_list.register_queryset(queryset1)
+
+        def even_validator(index):
+            return bool(index % 2 == 0)
+
+        reading_list.register_queryset(queryset2, validator=even_validator)
+        out = [obj for obj in reading_list]
+        for obj in queryset1:
+            self.assertIn(obj, out)
+        for obj in queryset2:
+            index = out.index(obj)
+            self.assertTrue(bool(index % 2 == 0))
+
 
 
 class SpecialCoverageSearchTests(BaseIndexableTestCase):

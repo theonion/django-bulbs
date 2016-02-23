@@ -145,7 +145,7 @@ class SponsoredSpecialCoverageUtilsTestCase(BaseIndexableTestCase):
         for obj in self.special_coverages[2].get_content():
             self.assertIn(obj, query)
 
-    @override_settings(RECENT_SPONSORED_OFFSET=4)
+    @override_settings(RECENT_SPONSORED_OFFSET_HOURS=4)
     def test_get_sponsored_special_coverage_query_only_recent(self):
         """Should return all sponsored & published content."""
         query = get_sponsored_special_coverage_query(only_recent=True)

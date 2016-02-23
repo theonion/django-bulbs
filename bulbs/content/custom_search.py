@@ -152,6 +152,10 @@ def get_condition_filter(condition, field_map={}):
                 condition_filter &= ~Nested(path=path, filter=Terms(**{field_name: values}))
             else:
                 condition_filter &= ~Terms(**{field_name: values})
+        else:
+            raise ValueError(
+                """ES conditions must be one of the following values: ['all', 'any', 'none']"""
+            )
     return condition_filter
 
 
