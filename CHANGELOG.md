@@ -1,5 +1,9 @@
 # django-bulbs Change Log
 
+## Version 0.7.5
+
+- Improved special coverage percolator retrieval logging
+
 ## Version 0.7.3
 
 - Fix special coverage migration to grab model directly so that custom `SpecialCoverage.save()` method is called and triggers `_save_percolator`
