@@ -96,6 +96,7 @@ class PercolateSpecialCoverageTestCase(BaseIndexableTestCase):
     def tearDown(self):
         self.patch.stop()
         # Ensure no errors or warnings
+        self.assertFalse(self.mock_logger.exception.call_args)
         self.assertFalse(self.mock_logger.error.call_args)
         self.assertFalse(self.mock_logger.warning.call_args)
 
