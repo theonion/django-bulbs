@@ -84,8 +84,9 @@ class ReadingListIterator(object):
         for validator, queryset in self.querysets.items():
             if validator(self.index):
                 try:
+                    result = queryset.next()
                     self.index += 1
-                    return queryset.next()
+                    return result
                 except StopIteration:
                     pass
         self.index += 1
