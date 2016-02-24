@@ -14,7 +14,7 @@ from rest_framework_nested import routers as nested_routers
 from bulbs.content.filters import FeatureTypes, Published, Tags
 
 
-from .filters import StartEndFilterBackend
+from .filters import ESPublishedFilterBackend, StartEndFilterBackend
 from .models import (
     ContributorRole, Contribution, FeatureTypeRate, FlatRate, FreelanceProfile, HourlyRate,
     LineItem, OverrideProfile, ReportContent, MANUAL
@@ -88,26 +88,11 @@ class ContentReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 
     renderer_classes = (CSVRenderer, ) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
     serializer_class = ContentReportingSerializer
+    filter_backends = (ESPublishedFilterBackend,)
     paginate_by = 20
 
     def get_queryset(self):
         qs = ReportContent.search_objects.search()
-        now = timezone.now()
-        start_date = datetime.datetime(
-            year=now.year,
-            month=now.month,
-            day=1,
-            tzinfo=now.tzinfo
-        )
-
-        if "start" in self.request.GET:
-            start_date = dateparse.parse_date(self.request.GET["start"])
-
-        end_date = now
-        if "end" in self.request.GET and "published" not in self.request.QUERY_PARAMS:
-            end_date = dateparse.parse_date(self.request.GET["end"])
-
-        qs = qs.filter(Published(after=start_date, before=end_date))
 
         # TODO: reintroduce forced submissions
         # include, exclude = get_forced_payment_contributions(start_date, end_date)
@@ -173,6 +158,7 @@ class ReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
     ) + tuple(
         api_settings.DEFAULT_RENDERER_CLASSES
     )
+    filter_backends = (ESPublishedFilterBackend,)
     paginate_by = 20
 
     def list(self, request):
@@ -192,23 +178,6 @@ class ReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 
     def get_queryset(self):
         qs = Contribution.search_objects.search()
-
-        now = timezone.now()
-        start_date = datetime.datetime(
-            year=now.year,
-            month=now.month,
-            day=1,
-            tzinfo=now.tzinfo
-        )
-
-        if "start" in self.request.GET:
-            start_date = dateparse.parse_date(self.request.GET["start"])
-        qs = qs.filter(Published(after=start_date))
-
-        end_date = now
-        if "end" in self.request.GET:
-            end_date = dateparse.parse_date(self.request.GET["end"])
-        qs = qs.filter(Published(before=end_date))
 
         feature_types = self.request.QUERY_PARAMS.getlist('feature_types')
         if feature_types:

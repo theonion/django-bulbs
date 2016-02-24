@@ -104,12 +104,24 @@ class SpecialCoverageApiTestCase(BaseAPITestCase):
     def test_query_string_filters_null_values_when_saving(self):
         """Andrew Kos comments on tests. I however, do not."""
 
+        group = {
+            "conditions": [
+                {
+                    "values": [{
+                        "value": 'test',
+                        "label": 'test'
+                    }],
+                    "type": "all",
+                    "field": "tag"
+                },
+            ],
+        }
         data = {
             "name": "special boy cammy",
             "query": {
                 "pinned_ids": [1, 2, 3, None],
                 "excluded_ids": [4, 5, 6, None],
-                "groups": ["fun guys", None],
+                "groups": [group, None],
                 "included_ids": [7, 8, 9, None]
             }
         }
@@ -126,5 +138,5 @@ class SpecialCoverageApiTestCase(BaseAPITestCase):
         included_ids = query.get("included_ids")
         self.assertEqual(pinned_ids, [1, 2, 3])
         self.assertEqual(excluded_ids, [4, 5, 6])
-        self.assertEqual(groups, ["fun guys"])
+        self.assertEqual(groups, [group])
         self.assertEqual(included_ids, [7, 8, 9])

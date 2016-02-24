@@ -6,6 +6,8 @@ from djes.models import Indexable
 
 from bulbs.content.models import ElasticsearchImageField
 
+from bulbs.campaigns.tasks import save_campaign_special_coverage_percolator
+
 
 class Campaign(Indexable):
 
@@ -17,8 +19,22 @@ class Campaign(Indexable):
     campaign_label = models.CharField(max_length=255)
     impression_goal = models.IntegerField(null=True, blank=True)
 
+    # Tunic Campaign ID
+    tunic_campaign_id = models.IntegerField(blank=True, null=True, default=None)
+
     class Mapping:
         sponsor_logo = ElasticsearchImageField()
+
+    def save(self, *args, **kwargs):
+        """Kicks off celery task to re-save associated special coverages to percolator
+
+        :param args: inline arguments (optional)
+        :param kwargs: keyword arguments
+        :return: `bulbs.campaigns.Campaign`
+        """
+        campaign = super(Campaign, self).save(*args, **kwargs)
+        save_campaign_special_coverage_percolator.delay(self.id)
+        return campaign
 
     @property
     def pixel_dict(self):

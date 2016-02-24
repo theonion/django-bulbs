@@ -11,7 +11,9 @@ from bulbs.campaigns.models import Campaign
 from bulbs.content.custom_search import custom_search_model
 from bulbs.content.models import Content
 from bulbs.content.mixins import DetailImageMixin
-from bulbs.utils.methods import today_as_utc_datetime, is_valid_digit
+from bulbs.utils.methods import (datetime_to_epoch_seconds,
+                                 today_as_utc_datetime,
+                                 is_valid_digit)
 
 
 es = Elasticsearch(settings.ES_CONNECTIONS["default"]["hosts"])
@@ -83,10 +85,8 @@ class SpecialCoverage(DetailImageMixin, models.Model):
         super(SpecialCoverage, self).save(*args, **kwargs)
 
         if self.query and self.query != {}:
-            if self.is_active:
-                self._save_percolator()
-            else:
-                self._delete_percolator()
+            # Always save and require client to filter active date range
+            self._save_percolator()
 
     def _save_percolator(self):
         """
@@ -104,10 +104,27 @@ class SpecialCoverage(DetailImageMixin, models.Model):
             return
 
         # We'll need this data, to decide which special coverage section to use
+        q["sponsored"] = bool(self.campaign)
+        # Elasticsearch v1.4 percolator "field_value_factor" does not
+        # support missing fields, so always need to include
         if self.campaign:
-            q["sponsored"] = True
             q["start_date"] = self.campaign.start_date
             q["end_date"] = self.campaign.end_date
+        else:
+            q["start_date"] = self.start_date
+            q["end_date"] = self.end_date
+
+        # Elasticsearch v1.4 percolator range query does not support DateTime range queries
+        # (PercolateContext.nowInMillisImpl is not implemented).
+        if q["start_date"]:
+            q['start_date_epoch'] = datetime_to_epoch_seconds(q["start_date"])
+        if q["end_date"]:
+            q['end_date_epoch'] = datetime_to_epoch_seconds(q["end_date"])
+
+        # Store manually included IDs for percolator retrieval scoring (boost
+        # manually included content).
+        if self.query:
+            q['included_ids'] = self.query.get('included_ids', [])
 
         es.index(
             index=index,
@@ -138,8 +155,7 @@ class SpecialCoverage(DetailImageMixin, models.Model):
     def is_active(self):
         now = today_as_utc_datetime()
         if self.start_date and self.end_date:
-            if self.start_date < now and self.end_date > now:
-                return True
+            return self.start_date <= now < self.end_date
         return False
 
     @property

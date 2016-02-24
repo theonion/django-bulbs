@@ -8,6 +8,10 @@ from elasticsearch_dsl.filter import Term, Terms, Range, MatchAll, Nested
 from six import string_types, text_type, binary_type
 
 
+def Evergreen(evergreen=True):
+    return Term(evergreen=evergreen)
+
+
 def parse_datetime(value):
     """Returns a datetime object for a given argument
 
