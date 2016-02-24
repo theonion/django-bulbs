@@ -1,6 +1,8 @@
 """Custom search function to assist in customizing our special coverage searches."""
 from collections import OrderedDict
 
+from django.conf import settings
+
 from elasticsearch_dsl import filter as es_filter
 
 from bulbs.content.custom_search import get_condition_filter
@@ -77,11 +79,14 @@ class SearchSlicer(object):
         self.default_queryset = None
         self.querysets = OrderedDict()
         self.index = 0
+        self.limit = kwargs.get("limit", getattr(settings, "READING_LIST_LIMIT", 100))
 
     def __iter__(self):
         return self
 
     def next(self):
+        if self.index > self.limit:
+            raise StopIteration
         for validator, queryset in self.querysets.items():
             if validator(self.index):
                 try:
@@ -90,8 +95,12 @@ class SearchSlicer(object):
                     return result
                 except StopIteration:
                     pass
-        self.index += 1
-        return self.default_queryset.next()
+        try:
+            result = self.default_queryset.next()
+            self.index += 1
+            return result
+        except StopIteration:
+            pass
 
     def __next__(self):
         return self.next()

@@ -88,7 +88,6 @@ class SearchSlicerTestCase(BaseIndexableTestCase):
             self.assertTrue(bool(index % 2 == 0))
 
 
-
 class SpecialCoverageSearchTests(BaseIndexableTestCase):
     """TestCase for custom special coverage test cases."""
     def setUp(self):
