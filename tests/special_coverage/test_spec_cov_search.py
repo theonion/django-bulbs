@@ -7,14 +7,14 @@ from elasticsearch_dsl import filter as es_filter
 from bulbs.campaigns.models import Campaign
 from bulbs.content.models import Content, FeatureType, Tag
 from bulbs.special_coverage.models import SpecialCoverage
-from bulbs.special_coverage.search import SearchSaw, SearchParty
+from bulbs.special_coverage.search import SearchSlicer, SearchParty
 from bulbs.utils.test import BaseIndexableTestCase, make_content
 
 
-class SearchSawTestCase(BaseIndexableTestCase):
+class SearchSlicerTestCase(BaseIndexableTestCase):
 
     def setUp(self):
-        super(SearchSawTestCase, self).setUp()
+        super(SearchSlicerTestCase, self).setUp()
         self.now = timezone.now()
         self.feature_type1 = FeatureType.objects.create(name="Arguments")
         self.feature_type2 = FeatureType.objects.create(name="Falling")
@@ -35,7 +35,7 @@ class SearchSawTestCase(BaseIndexableTestCase):
         queryset = Content.search_objects.search(
             feature_types=[self.feature_type1.slug]
         ).sort("id")
-        reading_list = SearchSaw()
+        reading_list = SearchSlicer()
         # First queryset should be default until explicitly state otherwise.
         reading_list.register_queryset(queryset)
         self.assertEqual(reading_list.default_queryset, queryset)
@@ -46,7 +46,7 @@ class SearchSawTestCase(BaseIndexableTestCase):
     def test_register_queryset_set_default(self):
         queryset1 = Content.search_objects.search(feature_types=[self.feature_type1.slug])
         queryset2 = Content.search_objects.search(feature_types=[self.feature_type2.slug])
-        reading_list = SearchSaw()
+        reading_list = SearchSlicer()
         reading_list.register_queryset(queryset1)
         reading_list.register_queryset(queryset2, default=True)
         self.assertEqual(reading_list.default_queryset, queryset2)
@@ -54,7 +54,7 @@ class SearchSawTestCase(BaseIndexableTestCase):
     def test_validator(self):
         queryset1 = Content.search_objects.search(feature_types=[self.feature_type1.slug])
         queryset2 = Content.search_objects.search(feature_types=[self.feature_type2.slug])
-        reading_list = SearchSaw()
+        reading_list = SearchSlicer()
         reading_list.register_queryset(queryset1)
 
         def even_validator(index):
@@ -73,7 +73,7 @@ class SearchSawTestCase(BaseIndexableTestCase):
         queryset1 = Content.search_objects.search(feature_types=[self.feature_type1.slug])
         queryset2 = Content.search_objects.search(feature_types=[self.feature_type2.slug])
         queryset2 = queryset2.filter(es_filter.Terms(**{"id": [queryset2[0].id]}))
-        reading_list = SearchSaw()
+        reading_list = SearchSlicer()
         reading_list.register_queryset(queryset1)
 
         def even_validator(index):

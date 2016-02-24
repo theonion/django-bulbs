@@ -70,7 +70,7 @@ class SearchParty(object):
         return self._query
 
 
-class SearchSaw(object):
+class SearchSlicer(object):
     """We want to search things like a seesaw. take that mike parent.
     """
     def __init__(self, *args, **kwargs):
