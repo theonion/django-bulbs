@@ -70,8 +70,9 @@ class SearchParty(object):
         return self._query
 
 
-class ReadingListIterator(object):
-
+class SearchSaw(object):
+    """We want to search things like a seesaw. take that mike parent.
+    """
     def __init__(self, *args, **kwargs):
         self.default_queryset = None
         self.querysets = OrderedDict()
