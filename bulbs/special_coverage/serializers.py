@@ -14,3 +14,8 @@ class SpecialCoverageSerializer(ImageSerializerMixin, serializers.ModelSerialize
 
     class Meta:
         model = SpecialCoverage
+
+
+class SpecialCoverageLandingSerializer(SpecialCoverageSerializer):
+
+    pass
