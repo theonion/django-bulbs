@@ -1,0 +1,3 @@
+#!/bin/sh -e
+
+django-admin makemigrations --settings=example.settings content
