@@ -1,14 +1,18 @@
 import json
 import sys
 
+from datetime import timedelta
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+from django.test.client import Client
+from django.utils import timezone
 
 from bulbs.poll.models import Poll, Answer
 from bulbs.utils.test  import (
     make_vcr,
     random_title,
-    mock_vault
+    mock_vault,
+    BaseAPITestCase,
 )
 
 import re
@@ -18,7 +22,7 @@ from .common import SECRETS
 
 vcr = make_vcr(__file__)  # Define vcr file path
 
-class PollAPITestCase(TestCase):
+class PollAPITestCase(BaseAPITestCase):
     """ Test for Poll API """
 
     @vcr.use_cassette()
@@ -40,7 +44,8 @@ class PollAPITestCase(TestCase):
                 'questions_text': 'go underneath the bridge!',
                 'title': random_title()
             }
-            response = self.client.post(list_url, json.dumps(data), content_type='application/json')
+            self.give_permissions()
+            response = self.api_client.post(list_url, json.dumps(data), content_type='application/json')
             self.assertEqual(response.status_code, 503)
 
     @vcr.use_cassette()
@@ -51,7 +56,8 @@ class PollAPITestCase(TestCase):
             'question_text': 'go underneath the bridge!',
             'title': random_title()
         }
-        response = self.client.post(list_url, json.dumps(data), content_type='application/json')
+        self.give_permissions()
+        response = self.api_client.post(list_url, json.dumps(data), content_type='application/json')
         self.assertEqual(response.status_code, 201)
         id = response.data.get('id')
         self.assertIsNotNone(id)
@@ -63,34 +69,61 @@ class PollAPITestCase(TestCase):
     def test_get_poll(self):
         poll = Poll.objects.create(question_text='good text', title=random_title())
         detail_url = reverse('poll-detail', kwargs={'pk': poll.id})
-        response = self.client.get(detail_url)
+        self.give_permissions()
+        response = self.api_client.get(detail_url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['id'], poll.id)
 
     @vcr.use_cassette()
     @mock_vault(SECRETS)
+    def test_put_proctected(self):
+        poll = Poll.objects.create(
+            question_text='decent text',
+            title=random_title(),
+        )
+        detail_url = reverse('poll-detail', kwargs={'pk': poll.id})
+        response = self.api_client.put(
+            detail_url,
+            data=json.dumps({}),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 403)
+
+    @vcr.use_cassette()
+    @mock_vault(SECRETS)
     def test_put_to_update_poll(self):
-        poll = Poll.objects.create(question_text='decent text', title=random_title())
+        poll = Poll.objects.create(
+            question_text='decent text',
+            title=random_title(),
+        )
         detail_url = reverse('poll-detail', kwargs={'pk': poll.id})
         data = {
-            'question_text': 'better_text',
-            'title': random_title()
+            'question_text': 'better text',
+            'title': random_title(),
+            'published': timezone.now().isoformat(),
+            'end_date': (timezone.now() + timedelta(10)).isoformat(),
         }
-        response = self.client.put(detail_url, data=json.dumps(data), content_type='application/json')
+        self.give_permissions()
+        response = self.api_client.put(
+            detail_url,
+            data=json.dumps(data),
+            content_type='application/json'
+        )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(Poll.objects.get(id=poll.id).question_text, 'better_text')
+        self.assertEqual(Poll.objects.get(id=poll.id).question_text, 'better text')
 
     @vcr.use_cassette()
     @mock_vault(SECRETS)
     def test_delete_poll(self):
         poll = Poll.objects.create(question_text='good text', title=random_title())
         detail_url = reverse('poll-detail', kwargs={'pk': poll.id})
-        response = self.client.delete(detail_url)
+        self.give_permissions()
+        response = self.api_client.delete(detail_url)
         self.assertEqual(response.status_code, 204)
-        response2 = self.client.get(detail_url)
+        response2 = self.api_client.get(detail_url)
         self.assertEqual(response2.data['detail'], u'Not found.')
 
-class AnswerAPITestCase(TestCase):
+class AnswerAPITestCase(BaseAPITestCase):
     """ Test for Answer API """
 
     @vcr.use_cassette()
@@ -123,7 +156,8 @@ class AnswerAPITestCase(TestCase):
             'poll': poll.id,
             'answer_text': 'he\'s getting stale'
         }
-        response = self.client.post(answers_url, json.dumps(data), content_type='application/json')
+        self.give_permissions()
+        response = self.api_client.post(answers_url, json.dumps(data), content_type='application/json')
         self.assertEqual(response.status_code, 201)
 
     @vcr.use_cassette()
@@ -135,7 +169,8 @@ class AnswerAPITestCase(TestCase):
         data = {
             'answer_text': 'he\'s getting stale'
         }
-        response = self.client.put(answer_url, json.dumps(data), content_type='application/json')
+        self.give_permissions()
+        response = self.api_client.put(answer_url, json.dumps(data), content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Answer.objects.get(id=answer.id).answer_text, 'he\'s getting stale')
 
@@ -145,12 +180,13 @@ class AnswerAPITestCase(TestCase):
         poll = Poll.objects.create(question_text='dreams', title=random_title())
         answer = Answer.objects.create(answer_text='are fun', poll=poll)
         answer_url = reverse('answer-detail', kwargs={'pk': answer.id})
-        response = self.client.delete(answer_url)
+        self.give_permissions()
+        response = self.api_client.delete(answer_url)
         self.assertEqual(response.status_code, 204)
-        response2 = self.client.get(answer_url)
+        response2 = self.api_client.get(answer_url)
         self.assertEqual(response2.data['detail'], u'Not found.')
 
-class GetPollDataTestCase(TestCase):
+class GetPollDataTestCase(BaseAPITestCase):
     """
         Test for public get poll data.
         returns json that includes vote counts.
@@ -165,7 +201,7 @@ class GetPollDataTestCase(TestCase):
         answer2 = Answer.objects.create(poll=poll, answer_text=u'that is a negatory')
 
         poll_data_url = reverse('get-merged-poll-data', kwargs={'pk': poll.id})
-        response = self.client.get(poll_data_url, **{ 'HTTP_ORIGIN': 'this.cool.origin' })
+        response = self.api_client.get(poll_data_url, **{ 'HTTP_ORIGIN': 'this.cool.origin' })
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['Access-Control-Allow-Origin'], 'this.cool.origin')

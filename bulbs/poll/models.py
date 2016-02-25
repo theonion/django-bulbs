@@ -67,6 +67,16 @@ class SodaheadResponseError(APIException):
     status_code = 503
     default_detail = "Third-party poll provider temporarily unavailable."
 
+    def __init__(self, detail):
+        self.detail = detail
+
+class SodaheadResponseFailure(APIException):
+    status_code = 400
+    default_detail = "Error from third-party poll provider"
+
+    def __init__(self, detail):
+        self.detail = detail
+
 class Poll(Content):
 
     question_text = models.TextField(blank=True, default="")
@@ -115,8 +125,10 @@ class Poll(Content):
     def save(self, *args, **kwargs):
         if not self.sodahead_id:
             response = requests.post(SODAHEAD_POLLS_ENDPOINT, self.sodahead_payload())
-            if response.status_code != 200:
+            if response.status_code > 499:
                 raise SodaheadResponseError(response.text)
+            elif response.status_code > 399:
+                raise SodaheadResponseFailure(response.text)
             else:
                 self.sodahead_id = response.json()['poll']['id']
         else:
@@ -127,15 +139,19 @@ class Poll(Content):
     def delete(self, *args, **kwargs):
         response = requests.delete(SODAHEAD_DELETE_POLL_ENDPOINT
                 .format(self.sodahead_id, vault.read('sodahead/token')['value']))
-        if response.status_code != 204:
+        if response.status_code > 499:
             raise SodaheadResponseError(response.text)
+        elif response.status_code > 399:
+            raise SodaheadResponseFailure(response.text)
         super(Poll, self).delete(*args, **kwargs)
 
     def sync_sodahead(self):
         response = requests.post(SODAHEAD_POLL_ENDPOINT
                 .format(self.sodahead_id), self.sodahead_payload())
-        if response.status_code != 200:
-            raise SodaheadResponseError(response.text)
+        if response.status_code > 499:
+            raise SodaheadResponseError(response.json())
+        elif response.status_code > 399:
+            raise SodaheadResponseFailure(response.json())
 
 class Answer(Indexable):
     poll = models.ForeignKey(Poll,
