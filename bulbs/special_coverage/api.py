@@ -7,6 +7,7 @@ from .serializers import SpecialCoverageSerializer
 
 
 class SpecialCoverageViewSet(viewsets.ModelViewSet):
+    queryset = SpecialCoverage.objects.all()
     serializer_class = SpecialCoverageSerializer
     filter_backends = (
         SpecialCoverageFilter,
@@ -28,9 +29,6 @@ class SpecialCoverageViewSet(viewsets.ModelViewSet):
     )
     paginate_by = 10
     permission_classes = [IsAdminUser]
-
-    def get_queryset(self):
-        return SpecialCoverage.objects.all()
 
 api_v1_router = routers.DefaultRouter()
 api_v1_router.register(
