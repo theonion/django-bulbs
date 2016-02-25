@@ -13,6 +13,8 @@ from bulbs.utils.test       import (
 
 from .common import SECRETS
 
+from django.utils import timezone
+
 vcr = make_vcr(__file__)  # Define vcr file path
 
 class PollSerializerTestCase(BaseIndexableTestCase):
@@ -22,12 +24,16 @@ class PollSerializerTestCase(BaseIndexableTestCase):
     @vcr.use_cassette()
     @mock_vault(SECRETS)
     def test_poll_serialization(self):
-        poll = Poll.objects.create(question_text='good text',
-                title=random_title())
+        poll = Poll.objects.create(
+            question_text='good text',
+            title=random_title(),
+            end_date=timezone.now(),
+         )
         serializer = PollSerializer(poll)
         self.assertEqual(serializer.data['id'], poll.id)
         self.assertEqual(serializer.data['question_text'], poll.question_text)
         self.assertEqual(serializer.data['title'], poll.title)
+        self.assertIsNotNone(serializer.data['end_date'])
 
     @vcr.use_cassette()
     @mock_vault(SECRETS)

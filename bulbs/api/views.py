@@ -130,7 +130,7 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         if "search" in get_query_params(self.request):
             search_kwargs["query"] = get_query_params(self.request).get("search")
 
-        queryset = Content.search_objects.search(**search_kwargs)
+        queryset = self.model.search_objects.search(**search_kwargs)
 
         if "authors" in get_query_params(self.request):
             authors = get_query_params(self.request).getlist("authors")
@@ -189,10 +189,10 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         doc_type = content.__class__.search_objects.mapping.doc_type
 
         try:
-            Content.search_objects.client.delete(
-                index=index,
-                doc_type=doc_type,
-                id=content.id)
+            self.model.search_objects.client.delete(
+                    index=index,
+                    doc_type=doc_type,
+                    id=content.id)
             LogEntry.objects.log(request.user, content, "Trashed")
             return Response({"status": "Trashed"})
         except elasticsearch.exceptions.NotFoundError:
@@ -230,13 +230,13 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
             return Response([], status=status.HTTP_404_NOT_FOUND)
 
         queryset = Contribution.search_objects.search().filter(
-            es_filter.Term(**{'content.id': content_pk})
-        )
+                es_filter.Term(**{'content.id': content_pk})
+                )
         if request.method == "POST":
             serializer = ContributionSerializer(
-                queryset[:queryset.count()].sort('id')[:25],
-                data=get_request_data(request),
-                many=True)
+                    queryset[:queryset.count()].sort('id')[:25],
+                    data=get_request_data(request),
+                    many=True)
             if not serializer.is_valid():
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             serializer.save()
@@ -255,10 +255,10 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         """
 
         data = {
-            "content": self.get_object().id,
-            "create_date": get_request_data(request)["create_date"],
-            "expire_date": get_request_data(request)["expire_date"]
-        }
+                "content": self.get_object().id,
+                "create_date": get_request_data(request)["create_date"],
+                "expire_date": get_request_data(request)["expire_date"]
+                }
         serializer = ObfuscatedUrlInfoSerializer(data=data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST, content_type="application/json")
@@ -278,7 +278,7 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         # no date checking is done here to make it more obvious if there's an issue with the
         # number of records. Date filtering will be done on the frontend.
         infos = [ObfuscatedUrlInfoSerializer(info).data
-                 for info in ObfuscatedUrlInfo.objects.filter(content=self.get_object())]
+                for info in ObfuscatedUrlInfo.objects.filter(content=self.get_object())]
         return Response(infos, status=status.HTTP_200_OK, content_type="application/json")
 
 
@@ -356,9 +356,9 @@ class LogEntryViewSet(UncachedResponse, viewsets.ModelViewSet):
             self.post_save(self.object, created=True)
             headers = self.get_success_headers(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED,
-                            headers=headers)
+                    headers=headers)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AuthorViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
@@ -424,11 +424,11 @@ class MeViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
         if secret:
             # use firebase auth to provide auth variables to firebase security api
             firebase_auth_payload = {
-                'id': request.user.pk,
-                'username': request.user.username,
-                'email': request.user.email,
-                'is_staff': request.user.is_staff
-            }
+                    'id': request.user.pk,
+                    'username': request.user.username,
+                    'email': request.user.email,
+                    'is_staff': request.user.is_staff
+                    }
             data['firebase_token'] = create_token(secret, firebase_auth_payload)
 
         return Response(data)
@@ -450,8 +450,8 @@ class ContentTypeViewSet(viewsets.ViewSet):
                 results.append(dict(
                     name=name,
                     doctype=doctype
-                ))
-        results.sort(key=lambda x: x["name"])
+                    ))
+                results.sort(key=lambda x: x["name"])
         return Response(dict(results=results))
 
 

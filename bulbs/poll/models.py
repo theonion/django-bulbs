@@ -67,6 +67,16 @@ class SodaheadResponseError(APIException):
     status_code = 503
     default_detail = "Third-party poll provider temporarily unavailable."
 
+    def __init__(self, detail):
+        self.detail = detail
+
+class SodaheadResponseFailure(APIException):
+    status_code = 400
+    default_detail = "Error from third-party poll provider"
+
+    def __init__(self, detail):
+        self.detail = detail
+
 class Poll(Content):
 
     question_text = models.TextField(blank=True, default="")
@@ -83,7 +93,7 @@ class Poll(Content):
             return response.json()
 
     def sodahead_payload(self):
-        poll_payload = {
+        payload = {
             'access_token': vault.read('sodahead/token')['value'],
             'id': self.sodahead_id,
             'name': self.title,
@@ -92,31 +102,33 @@ class Poll(Content):
 
         if self.published:
             activation_date = self.published.astimezone(pytz.utc)
-            poll_payload['activationDate'] = activation_date.strftime(SODAHEAD_DATE_FORMAT)
+            payload['activationDate'] = activation_date.strftime(SODAHEAD_DATE_FORMAT)
 
         if self.end_date:
             end_date = self.end_date.astimezone(pytz.utc)
-            poll_payload['endDate'] = end_date.strftime(SODAHEAD_DATE_FORMAT)
+            payload['endDate'] = end_date.strftime(SODAHEAD_DATE_FORMAT)
 
         for answer in self.answers.all():
             if answer.answer_text == u'':
-                poll_payload[answer.sodahead_answer_id] = BLANK_ANSWER
+                payload[answer.sodahead_answer_id] = BLANK_ANSWER
             else:
-                poll_payload[answer.sodahead_answer_id] = answer.answer_text
+                payload[answer.sodahead_answer_id] = answer.answer_text
 
-        if not 'answer_01' in poll_payload:
-            poll_payload['answer_01'] = DEFAULT_ANSWER_1
+        if not 'answer_01' in payload:
+            payload['answer_01'] = DEFAULT_ANSWER_1
 
-        if not 'answer_02' in poll_payload:
-            poll_payload['answer_02'] = DEFAULT_ANSWER_2
+        if not 'answer_02' in payload:
+            payload['answer_02'] = DEFAULT_ANSWER_2
 
-        return poll_payload
+        return payload
 
     def save(self, *args, **kwargs):
         if not self.sodahead_id:
             response = requests.post(SODAHEAD_POLLS_ENDPOINT, self.sodahead_payload())
-            if response.status_code != 200:
+            if response.status_code > 499:
                 raise SodaheadResponseError(response.text)
+            elif response.status_code > 399:
+                raise SodaheadResponseFailure(response.text)
             else:
                 self.sodahead_id = response.json()['poll']['id']
         else:
@@ -127,15 +139,19 @@ class Poll(Content):
     def delete(self, *args, **kwargs):
         response = requests.delete(SODAHEAD_DELETE_POLL_ENDPOINT
                 .format(self.sodahead_id, vault.read('sodahead/token')['value']))
-        if response.status_code != 204:
+        if response.status_code > 499:
             raise SodaheadResponseError(response.text)
+        elif response.status_code > 399:
+            raise SodaheadResponseFailure(response.text)
         super(Poll, self).delete(*args, **kwargs)
 
     def sync_sodahead(self):
         response = requests.post(SODAHEAD_POLL_ENDPOINT
                 .format(self.sodahead_id), self.sodahead_payload())
-        if response.status_code != 200:
-            raise SodaheadResponseError(response.text)
+        if response.status_code > 499:
+            raise SodaheadResponseError(response.json())
+        elif response.status_code > 399:
+            raise SodaheadResponseFailure(response.json())
 
 class Answer(Indexable):
     poll = models.ForeignKey(Poll,
