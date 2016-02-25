@@ -44,6 +44,7 @@ class TestSpecialCoverageViews(BaseIndexableTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['content_list'].count(), sc.get_content().count())
         self.assertEqual(response.context['content_list'][0].id, content.id)
+        self.assertEqual(response.template_name[0], 'special_coverage/landing.html')
 
     def test_inactive_special_coverage_view(self):
         content = make_content(published=timezone.now())

@@ -1,7 +1,7 @@
-from django.conf import settings
 from django.http import Http404
-from django.views.generic import DetailView
 from django.shortcuts import get_object_or_404
+from django.views.decorators.cache import cache_control
+
 
 from bulbs.special_coverage.models import SpecialCoverage
 from bulbs.content.views import BaseContentDetailView
@@ -11,7 +11,7 @@ class SpecialCoverageView(BaseContentDetailView):
     redirect_correct_path = False
 
     def get_template_names(self):
-        template_names = ["special_coverage/default.html"]
+        template_names = ["special_coverage/landing.html"]
         return template_names
 
     def get_object(self, *args, **kwargs):
@@ -33,4 +33,4 @@ class SpecialCoverageView(BaseContentDetailView):
         return context
 
 
-special_coverage = SpecialCoverageView.as_view()
+special_coverage = cache_control(max_age=600)(SpecialCoverageView.as_view())
