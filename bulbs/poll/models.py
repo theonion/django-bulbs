@@ -1,7 +1,12 @@
-from bulbs.content.models import Content
+from bulbs.content.filters import Published
+from bulbs.content.models import Content, ContentManager
 from bulbs.utils import vault
+
 from django.db import models, transaction
+from django.utils import timezone
+
 from djes.models import Indexable
+from elasticsearch_dsl.filter import Range
 from rest_framework.exceptions import APIException
 
 from time import mktime
@@ -77,7 +82,27 @@ class SodaheadResponseFailure(APIException):
     def __init__(self, detail):
         self.detail = detail
 
+def Closed(): # noqa
+    end_date_params = {
+        "lte": timezone.now(),
+    }
+
+    return Range(end_date=end_date_params)
+
+class PollManager(ContentManager):
+    def search(self, **kwargs):
+        search_query = super(PollManager, self).search(**kwargs)
+
+        if "active" in kwargs:
+            search_query = search_query.filter(Published(before=timezone.now()))
+
+        if "closed" in kwargs:
+            search_query = search_query.filter(Closed())
+
+        return search_query
+
 class Poll(Content):
+    search_objects = PollManager()
 
     question_text = models.TextField(blank=True, default="")
     sodahead_id = models.CharField(max_length=20, blank=True, default="")
@@ -95,10 +120,12 @@ class Poll(Content):
     def sodahead_payload(self):
         payload = {
             'access_token': vault.read('sodahead/token')['value'],
-            'id': self.sodahead_id,
             'name': self.title,
             'title': self.question_text,
         }
+
+        if self.sodahead_id:
+            payload['id'] = self.sodahead_id
 
         if self.published:
             activation_date = self.published.astimezone(pytz.utc)

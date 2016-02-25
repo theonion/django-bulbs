@@ -143,11 +143,11 @@ class AnswerTestCase(BaseIndexableTestCase):
 
     @vcr.use_cassette()
     @mock_vault(SECRETS)
-    def test_handles_blank_answer_text(self):
+    def test_handles_sodahead_answer_creation_errors(self):
         sodahead_endpoint = re.compile('https://onion.sodahead.com/api/polls/[\d]+/')
         poll = Poll.objects.create(question_text='listening to your heart', title=random_title())
         with requests_mock.Mocker() as mocker:
-            mocker.post(sodahead_endpoint, status_code=666)
+            mocker.post(sodahead_endpoint, status_code=666, json={})
             with self.assertRaises(SodaheadResponseError):
                 Answer.objects.create(poll=poll, answer_text='something')
 
