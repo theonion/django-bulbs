@@ -95,12 +95,9 @@ class SearchSlicer(object):
                     return result
                 except StopIteration:
                     pass
-        try:
-            result = self.default_queryset.next()
-            self.index += 1
-            return result
-        except StopIteration:
-            pass
+        result = self.default_queryset.next()
+        self.index += 1
+        return result
 
     def __next__(self):
         return self.next()
