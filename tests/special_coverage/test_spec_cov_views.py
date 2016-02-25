@@ -39,7 +39,6 @@ class TestSpecialCoverageViews(BaseIndexableTestCase):
             start_date=timezone.now() - timezone.timedelta(days=10),
             end_date=timezone.now() + timezone.timedelta(days=10)
         )
-        sc.save()
 
         response = self.client.get(reverse("special", kwargs={"slug": sc.slug}))
         self.assertEqual(response.status_code, 200)
@@ -63,7 +62,6 @@ class TestSpecialCoverageViews(BaseIndexableTestCase):
             start_date=timezone.now() - timezone.timedelta(days=20),
             end_date=timezone.now() - timezone.timedelta(days=10)
         )
-        sc.save()
 
         response = self.client.get(reverse("special", kwargs={"slug": sc.slug}))
         self.assertEqual(response.status_code, 404)
@@ -80,7 +78,6 @@ class TestSpecialCoverageViews(BaseIndexableTestCase):
             start_date=timezone.now() - timezone.timedelta(days=10),
             end_date=timezone.now() + timezone.timedelta(days=10)
         )
-        sc.save()
 
         response = self.client.get(reverse("special", kwargs={"slug": sc.slug}))
         self.assertEqual(response.status_code, 404)
@@ -102,7 +99,6 @@ class TestSpecialCoverageViews(BaseIndexableTestCase):
             start_date=timezone.now() - timezone.timedelta(days=10),
             end_date=timezone.now() + timezone.timedelta(days=10)
         )
-        sc.save()
 
         response = self.client.get(reverse("special", kwargs={"slug": sc.slug}))
         self.assertEqual(response.status_code, 200)
