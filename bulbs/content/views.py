@@ -151,6 +151,9 @@ class BaseContentDetailView(DetailView):
     context_object_name = "content"
     redirect_correct_path = True  # By default, we'll redirect the user to the proper URL
 
+    def show_published_only(self):
+        return bool("full_preview" not in self.request.GET)
+
     def get(self, request, *args, **kwargs):
         """Override default get function to use token if there is one to retrieve object. If a
         subclass should use their own GET implementation, token_from_kwargs should be called if

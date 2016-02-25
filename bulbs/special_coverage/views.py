@@ -10,9 +10,6 @@ from bulbs.content.views import BaseContentDetailView
 class SpecialCoverageView(BaseContentDetailView):
     redirect_correct_path = False
 
-    def show_published_only(self):
-        return bool("full_preview" not in self.request.GET)
-
     def get_template_names(self):
         template_names = ["special_coverage/default.html"]
 
