@@ -16,6 +16,7 @@ class PollViewSet(viewsets.ModelViewSet):
         CanEditContent,
     ]
     serializer_class = PollSerializer
+    paginate_by = 20
     filter_backends = (
             filters.OrderingFilter,
             filters.SearchFilter,)
