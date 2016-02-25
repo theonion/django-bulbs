@@ -12,11 +12,6 @@ class SpecialCoverageView(BaseContentDetailView):
 
     def get_template_names(self):
         template_names = ["special_coverage/default.html"]
-
-        extended = getattr(settings, 'SPECIAL_COVERAGE_LANDING_TEMPLATE', None)
-        if extended:
-            template_names.append(extended)
-
         return template_names
 
     def get_object(self, *args, **kwargs):

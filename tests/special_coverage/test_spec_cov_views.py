@@ -81,25 +81,3 @@ class TestSpecialCoverageViews(BaseIndexableTestCase):
 
         response = self.client.get(reverse("special", kwargs={"slug": sc.slug}))
         self.assertEqual(response.status_code, 404)
-
-    @override_settings(SPECIAL_COVERAGE_LANDING_TEMPLATE="special/landing.html")
-    def test_special_coverage_custom_template(self):
-        content = make_content(published=timezone.now())
-        content.__class__.search_objects.refresh()
-
-        sc = SpecialCoverage.objects.create(
-            name="Test Coverage",
-            slug="test-coverage",
-            description="Testing special coverage",
-            query={
-                "included_ids": [content.id]
-            },
-            videos=[],
-            campaign=self.campaign,
-            start_date=timezone.now() - timezone.timedelta(days=10),
-            end_date=timezone.now() + timezone.timedelta(days=10)
-        )
-
-        response = self.client.get(reverse("special", kwargs={"slug": sc.slug}))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.template_name[1], "special/landing.html")
