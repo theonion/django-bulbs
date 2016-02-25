@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.http import Http404
 from django.views.generic import DetailView
 from django.shortcuts import get_object_or_404
@@ -11,6 +12,15 @@ class SpecialCoverageView(BaseContentDetailView):
 
     def show_published_only(self):
         return bool("full_preview" not in self.request.GET)
+
+    def get_template_names(self):
+        template_names = ["special_coverage/default.html"]
+
+        extended = getattr(settings, 'SPECIAL_COVERAGE_LANDING_TEMPLATE', None)
+        if extended:
+            template_names.append(extended)
+
+        return template_names
 
     def get_object(self, *args, **kwargs):
         self.special_coverage = get_object_or_404(SpecialCoverage, slug=self.kwargs.get("slug"))
