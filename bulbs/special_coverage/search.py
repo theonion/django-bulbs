@@ -85,7 +85,7 @@ class SearchSlicer(object):
         return self
 
     def next(self):
-        if self.index > self.limit:
+        if self.index >= self.limit:
             raise StopIteration
         for validator, queryset in self.querysets.items():
             if validator(self.index):
