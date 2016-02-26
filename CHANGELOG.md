@@ -1,5 +1,9 @@
 # django-bulbs Change Log
 
+## Version 0.7.6
+
+- Added SpecialCoverageView to /bulbs/special_coverage/views for Special Coverage reuse
+
 ## Version 0.7.5
 
 - Improved special coverage percolator retrieval logging
