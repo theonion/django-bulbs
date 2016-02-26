@@ -1,6 +1,6 @@
 # django-bulbs Change Log
 
-## Version 0.7.7
+## Version 0.7.9
 
 - Remove redundant ES_URLS settings, just use ES_CONNECTIONS
 
