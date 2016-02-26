@@ -103,7 +103,11 @@ class ContributionReportingTestCase(BaseAPITestCase):
             authors=[],
             published=timezone.now() - datetime.timedelta(days=3)
         )
-        for content in content_one, content_two:
+        content_three = make_content(
+            authors=[],
+            published=timezone.now() - datetime.timedelta(days=50)
+        )
+        for content in content_one, content_two, content_three:
             Contribution.objects.create(
                 content=content,
                 contributor=self.chris,
