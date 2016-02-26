@@ -12,7 +12,7 @@ from djbetty import ImageField
 from json_field import JSONField
 
 
-es = Elasticsearch(settings.ES_CONNECTIONS["default"]["hosts"])
+es = Elasticsearch(settings.ES_URLS)
 
 
 class Section(Indexable):

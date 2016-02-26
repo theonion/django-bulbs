@@ -16,7 +16,7 @@ from bulbs.utils.methods import (datetime_to_epoch_seconds,
                                  is_valid_digit)
 
 
-es = Elasticsearch(settings.ES_CONNECTIONS["default"]["hosts"])
+es = Elasticsearch(settings.ES_URLS)
 
 
 class SpecialCoverage(DetailImageMixin, models.Model):
