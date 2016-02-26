@@ -1,9 +1,5 @@
 # django-bulbs Change Log
 
-## Version 0.7.8
-
-- Remove redundant ES_URLS settings, just use ES_CONNECTIONS
-
 ## Version 0.7.6
 
 - Add `Content.evergreen` boolean column to indicate "always fresh" content
