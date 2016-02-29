@@ -10,6 +10,7 @@ urlpatterns = patterns("",
     # testing unpublished links
     url(r"^unpublished/(?P<token>\w+)$", "bulbs.content.views.unpublished", name="unpublished"),
     url(r"^detail/(?P<pk>\d+)/$", "example.testcontent.views.test_content_detail", name="published"),
+    url(r"^special/(?P<slug>[\w-]+)/?$", "bulbs.special_coverage.views.special_coverage", name="special"),
 
     url(r"^r/", include("bulbs.redirects.urls")),
     url(r"^feeds", include("bulbs.feeds.urls"))
