@@ -1,8 +1,16 @@
 # django-bulbs Change Log
 
-## Version 0.7.6
+## Version 0.7.9
 
 - Added SpecialCoverageView to /bulbs/special_coverage/views for Special Coverage reuse
+
+## Version 0.7.8
+
+- Hotfix for contribution csv & api discrepencies with publish filters.
+
+## Version 0.7.6
+
+- Add `Content.evergreen` boolean column to indicate "always fresh" content
 
 ## Version 0.7.5
 
