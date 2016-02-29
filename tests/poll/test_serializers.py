@@ -4,6 +4,7 @@ from bulbs.poll.serializers import (
     PollSerializer,
     AnswerSerializer,
 )
+from datetime import datetime, timedelta
 from bulbs.utils.test       import (
     BaseIndexableTestCase,
     make_vcr,
@@ -34,6 +35,17 @@ class PollSerializerTestCase(BaseIndexableTestCase):
         self.assertEqual(serializer.data['question_text'], poll.question_text)
         self.assertEqual(serializer.data['title'], poll.title)
         self.assertIsNotNone(serializer.data['end_date'])
+
+    @vcr.use_cassette()
+    @mock_vault(SECRETS)
+    def test_poll_image_serialization(self):
+        poll = Poll.objects.create(
+                question_text='Where are we?',
+                title=random_title(),
+                end_date=timezone.now() + timedelta(hours=9),
+                )
+        serializer = PollSerializer(poll)
+        self.assertTrue(serializer['poll_image'])
 
     @vcr.use_cassette()
     @mock_vault(SECRETS)

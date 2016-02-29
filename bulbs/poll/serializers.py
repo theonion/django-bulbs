@@ -1,4 +1,6 @@
 from bulbs.content.serializers import ContentSerializer
+from djbetty.serializers import ImageFieldSerializer
+from rest_framework import serializers
 from models import Poll, Answer
 from rest_framework import serializers
 import re
@@ -14,6 +16,7 @@ class AnswerSerializer(serializers.ModelSerializer):
         fields = ('id', 'answer_text', 'poll',)
 
 class PollSerializer(ContentSerializer):
+    poll_image = ImageFieldSerializer(required=False)
     answers = AnswerSerializer(many=True, read_only=True)
 
     class Meta:

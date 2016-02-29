@@ -114,6 +114,7 @@ class Poll(Content):
 
     # This keeps Poll out of Content.search_objects
     class Mapping(Content.Mapping):
+        poll_image = ElasticsearchImageField()
         class Meta():
             orphaned = True
 
@@ -157,8 +158,6 @@ class Poll(Content):
 
         return payload
 
-    class Mapping:
-        poll_image = ElasticsearchImageField()
 
     def save(self, *args, **kwargs):
         if not self.sodahead_id:
