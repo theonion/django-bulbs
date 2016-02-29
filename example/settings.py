@@ -46,7 +46,7 @@ INSTALLED_APPS = (
     "bulbs.sections",
     # local testing apps
     "example.testcontent",
-    "example.example_api"
+    "example.example_api",
     "bulbs.contributions",
 )
 

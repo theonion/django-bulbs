@@ -109,6 +109,11 @@ class Poll(Content):
     last_answer_index = models.IntegerField(default=0)
     end_date = models.DateTimeField(null=True, default=None)
 
+    # This keeps Poll out of Content.search_objects
+    class Mapping(Content.Mapping):
+        class Meta:
+            orphaned = True
+
     def get_sodahead_data(self):
         response = requests.get(SODAHEAD_POLL_ENDPOINT.format(self.sodahead_id))
 

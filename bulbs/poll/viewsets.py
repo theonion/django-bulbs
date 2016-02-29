@@ -32,6 +32,9 @@ class PollViewSet(viewsets.ModelViewSet):
             "answers",
             "title",)
 
+    class Meta:
+        exclude = ('thumbnail_override',)
+
     def list(self, request, *args, **kwargs):
         """Modified list view to driving listing from ES"""
         search_kwargs = {"published": False}
