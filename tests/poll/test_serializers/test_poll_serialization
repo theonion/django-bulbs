@@ -1,91 +1,49 @@
 interactions:
 - request:
-    body: answer_01=default+answer+1&answer_02=default+answer+2&title=good+text&id=&name=JFAGPYPETD
+    body: endDate=03%2F01%2F16+07%3A44+AM&answer_01=default+answer+1&answer_02=default+answer+2&title=good+text&name=UNXFXVXEBR
     headers:
       Accept: ['*/*']
       Accept-Encoding: ['gzip, deflate']
       Connection: [keep-alive]
-      Content-Length: ['179']
+      Content-Length: ['207']
       Content-Type: [application/x-www-form-urlencoded]
       User-Agent: [python-requests/2.9.1]
     method: POST
     uri: https://onion.sodahead.com/api/polls/
   response:
-    body: {string: !!python/unicode '{"vote": null, "poll": {"endDate": null, "demo":
-        {}, "image": null, "video": null, "numComments": 0, "category": {"url": "http:\/\/www.sodahead.com\/entertainment\/",
-        "id": 5, "title": "Entertainment"}, "title": "good text", "range": {}, "id":
-        4860456, "closed": false, "hideResults": false, "description": "", "tags":
-        [], "answers": [{"title": "default answer 1", "color": null, "image": null,
-        "video": null, "meta_text": null, "totalVotes": 0, "percentage": 0, "id":
-        12069022}, {"title": "default answer 2", "color": null, "image": null, "video":
-        null, "meta_text": null, "totalVotes": 0, "percentage": 0, "id": 12069024}],
-        "slider": null, "sponsored": false, "modifiedDate": null, "creationDate":
-        "2016-02-02 19:59:36", "geo": {}, "name": "JFAGPYPETD", "url": "http:\/\/www.sodahead.com\/entertainment\/good-text\/question-4860456\/",
+    body: {string: !!python/unicode '{"vote": null, "poll": {"endDate": "2016-03-01
+        07:44:00", "demo": {}, "image": null, "video": null, "numComments": 0, "category":
+        {"url": "http:\/\/www.sodahead.com\/entertainment\/", "id": 5, "title": "Entertainment"},
+        "title": "good text", "range": {}, "id": 4861860, "closed": false, "hideResults":
+        false, "description": "", "tags": [], "answers": [{"title": "default answer
+        1", "color": null, "image": null, "video": null, "meta_text": null, "totalVotes":
+        0, "percentage": 0, "id": 12073172}, {"title": "default answer 2", "color":
+        null, "image": null, "video": null, "meta_text": null, "totalVotes": 0, "percentage":
+        0, "id": 12073174}], "slider": null, "sponsored": false, "modifiedDate": null,
+        "creationDate": "2016-02-29 22:44:22", "geo": {}, "name": "UNXFXVXEBR", "url":
+        "http:\/\/www.sodahead.com\/entertainment\/good-text\/question-4861860\/",
         "author": {"url": "http:\/\/www.sodahead.com\/user\/profile\/4172828\/test\/",
         "nickName": "TEST", "id": 4172828, "avatar": "http:\/\/images.sodahead.com\/profiles\/000000001\/profiles_1202SHAvatarFred_1028_226520_small.jpeg"},
-        "hideResults_content": "", "editDate": null, "activationDate": "2016-02-02
-        19:59:36", "totalVotes": 0}}'}
+        "hideResults_content": "", "editDate": null, "activationDate": "2016-02-29
+        22:44:22", "totalVotes": 0}}'}
     headers:
       access-control-allow-headers: ['Authorization,Content-Type']
       access-control-allow-methods: ['POST, GET, PUT, DELETE, HEAD, OPTIONS']
       access-control-allow-origin: ['*']
       cache-control: ['no-cache, private, max-age=0']
       connection: [keep-alive]
-      content-length: ['1169']
       content-type: [application/json; charset=utf-8]
-      date: ['Tue, 02 Feb 2016 19:59:39 GMT']
-      etag: ['"5746f95a6e0069f08f1734aae79a8a9a"']
+      date: ['Mon, 29 Feb 2016 22:44:22 GMT']
+      etag: ['"1058cbaed88efbc3067ea6d47a90e466"']
       pragma: [no-cache]
       server: [openresty/1.5.8.1]
       set-cookie: ['demo="6941fb8484874663bf28ce8338df72595ae08811:{\"_city_region\":
           \"Frankfort\054NY\"\054 \"bf\": 0\054 \"dma\": 526}"; Domain=onion.sodahead.com;
-          expires=Wed, 01-Feb-2017 19:59:36 GMT; Max-Age=31536000; Path=/', 'anonymousUserId="dda70eef99c92832d05889c93c48242e5ba00cd5:";
+          expires=Tue, 28-Feb-2017 22:44:22 GMT; Max-Age=31536000; Path=/', 'anonymousUserId="dda70eef99c92832d05889c93c48242e5ba00cd5:";
           Domain=onion.sodahead.com; expires=Thu, 01-Jan-1970 00:00:00 GMT; Max-Age=0;
           Path=/', 'session="d751580928f9b48c059f91a75a650e3692d0cb28:{\"country\":
           \"US\"\054 \"state\": \"NY\"\054 \"postal_code\": \"13340\"}"; Domain=onion.sodahead.com;
-          Path=/; secure', '_crmUserId="f64eed1b50bc4a7841af95a4c41cf246349b1151:78";
+          Path=/; secure', '_crmUserId="b60e3d4b8e8f1668d1ffd185b357eb6ca6b5e3ac:80";
           Domain=onion.sodahead.com; Path=/']
-    status: {code: 200, message: OK}
-- request:
-    body: null
-    headers:
-      Accept: ['*/*']
-      Accept-Encoding: ['gzip, deflate']
-      Connection: [keep-alive]
-      User-Agent: [python-requests/2.9.1]
-    method: GET
-    uri: https://onion.sodahead.com/api/polls/4860456/
-  response:
-    body: {string: !!python/unicode '{"vote": null, "poll": {"endDate": null, "demo":
-        {}, "image": null, "video": null, "numComments": 0, "category": {"url": "http:\/\/www.sodahead.com\/entertainment\/",
-        "id": 5, "title": "Entertainment"}, "title": "good text", "range": {}, "id":
-        4860456, "closed": false, "hideResults": false, "description": "", "tags":
-        [], "answers": [{"title": "default answer 1", "color": null, "image": null,
-        "video": null, "meta_text": null, "totalVotes": 0, "percentage": 0, "id":
-        12069022}, {"title": "default answer 2", "color": null, "image": null, "video":
-        null, "meta_text": null, "totalVotes": 0, "percentage": 0, "id": 12069024}],
-        "slider": null, "sponsored": false, "modifiedDate": null, "creationDate":
-        "2016-02-02 19:59:36", "geo": {}, "name": "JFAGPYPETD", "url": "http:\/\/www.sodahead.com\/entertainment\/good-text\/question-4860456\/",
-        "author": {"url": "http:\/\/www.sodahead.com\/user\/profile\/4172828\/test\/",
-        "nickName": "TEST", "id": 4172828, "avatar": "http:\/\/images.sodahead.com\/profiles\/000000001\/profiles_1202SHAvatarFred_1028_226520_small.jpeg"},
-        "hideResults_content": "", "editDate": null, "activationDate": "2016-02-02
-        19:59:36", "totalVotes": 0}}'}
-    headers:
-      access-control-allow-headers: ['Authorization,Content-Type']
-      access-control-allow-methods: ['POST, GET, PUT, DELETE, HEAD, OPTIONS']
-      access-control-allow-origin: ['*']
-      cache-control: ['no-cache, private, max-age=0']
-      connection: [keep-alive]
-      content-type: [application/json; charset=utf-8]
-      date: ['Tue, 02 Feb 2016 19:59:39 GMT']
-      etag: ['"5746f95a6e0069f08f1734aae79a8a9a"']
-      pragma: [no-cache]
-      server: [openresty/1.5.8.1]
-      set-cookie: ['demo="6941fb8484874663bf28ce8338df72595ae08811:{\"_city_region\":
-          \"Frankfort\054NY\"\054 \"bf\": 0\054 \"dma\": 526}"; Domain=onion.sodahead.com;
-          expires=Wed, 01-Feb-2017 19:59:39 GMT; Max-Age=31536000; Path=/', 'anonymousUserId="f07dbde56613940275cc413e35499d63822fc8b7:4d3e8d169a224a04834586e3d32a33c0";
-          Domain=onion.sodahead.com; Path=/', 'session="d751580928f9b48c059f91a75a650e3692d0cb28:{\"country\":
-          \"US\"\054 \"state\": \"NY\"\054 \"postal_code\": \"13340\"}"; Domain=onion.sodahead.com;
-          Path=/']
     status: {code: 200, message: OK}
 version: 1

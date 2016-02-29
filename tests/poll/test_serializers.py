@@ -28,7 +28,7 @@ class PollSerializerTestCase(BaseIndexableTestCase):
         poll = Poll.objects.create(
             question_text='good text',
             title=random_title(),
-            end_date=timezone.now(),
+            end_date=timezone.now() + timedelta(hours=9),
          )
         serializer = PollSerializer(poll)
         self.assertEqual(serializer.data['id'], poll.id)
@@ -132,6 +132,18 @@ class AnswerSerializerTestCase(BaseIndexableTestCase):
         answer = Answer.objects.create(poll=poll, answer_text='this is some text')
         serializer = AnswerSerializer(answer)
         self.assertEqual(serializer.data['answer_text'], answer.answer_text)
+
+    @vcr.use_cassette()
+    @mock_vault(SECRETS)
+    def test_answer_image_serialization(self):
+        poll = Poll.objects.create(
+                question_text='Where are we?',
+                title=random_title(),
+                end_date=timezone.now() + timedelta(hours=9),
+                )
+        answer = Answer.objects.create(poll=poll, answer_text='woop')
+        serializer = AnswerSerializer(answer)
+        self.assertTrue(serializer['answer_image'])
 
     @vcr.use_cassette()
     @mock_vault(SECRETS)

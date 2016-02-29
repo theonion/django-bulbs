@@ -7,13 +7,14 @@ import re
 import requests
 
 class AnswerSerializer(serializers.ModelSerializer):
+    answer_image = ImageFieldSerializer(required=False)
     poll = serializers.PrimaryKeyRelatedField(
         queryset=Poll.objects.all(),
         required=False
     )
     class Meta:
         model = Answer
-        fields = ('id', 'answer_text', 'poll',)
+        fields = ('id', 'answer_text', 'poll', 'answer_image',)
 
 class PollSerializer(ContentSerializer):
     poll_image = ImageFieldSerializer(required=False)

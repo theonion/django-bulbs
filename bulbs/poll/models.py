@@ -197,6 +197,10 @@ class Answer(Indexable):
     )
     sodahead_answer_id = models.CharField(max_length=20, blank=True, default="")
     answer_text = models.TextField(blank=True, default="")
+    answer_image = ImageField(null=True, blank=True)
+
+    class Mapping:
+        answer_image = ElasticsearchImageField()
 
     def save(self, *args, **kwargs):
         with transaction.atomic():
@@ -207,7 +211,7 @@ class Answer(Indexable):
                 # See Rationale at top of file for in depth explanation
                 # of what is going on here. We have to track how many answers
                 # have ever been created for a Poll.
-                # A simple count will not suffice because we dont want to 
+                # A simple count will not suffice because we dont want to
                 # re-use any answer keys.
                 answer_index = poll.last_answer_index + 1
                 self.sodahead_answer_id = 'answer_%02d' % (answer_index)
