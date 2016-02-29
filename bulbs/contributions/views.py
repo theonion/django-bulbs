@@ -165,6 +165,8 @@ class ReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
         format = self.request.QUERY_PARAMS.get('format', None)
         if format == 'csv':
             queryset = self.get_queryset()
+            # TODO: get rid of this csv pattern so it incorporates the typical restful patterns.
+            queryset = ESPublishedFilterBackend().filter_queryset(request, queryset, None)
             queryset = queryset[:queryset.count()]
             serializer = self.get_serializer(queryset, many=True)
             return Response(serializer.data)
