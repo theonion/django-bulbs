@@ -42,6 +42,7 @@ class TestSpecialCoverageViews(BaseIndexableTestCase):
 
         response = self.client.get(reverse("special", kwargs={"slug": sc.slug}))
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['special_coverage'], sc)
         self.assertEqual(response.context['content_list'].count(), sc.get_content().count())
         self.assertEqual(response.context['content_list'][0].id, content.id)
         self.assertEqual(response.template_name[0], 'special_coverage/landing.html')
