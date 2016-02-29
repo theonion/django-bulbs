@@ -15,9 +15,13 @@ author = "Chris Sinchok"
 author_email = "csinchok@theonion.com"
 license = "BSD"
 requires = [
+    "celery==3.1.10",
     "Django>=1.8,<1.9",
     "contextdecorator==0.10.0",
     "django-betty-cropper>=0.2.0",
+    "djangorestframework==3.1.1",
+    "django-polymorphic==0.7.1",
+    "djes>=0.1.108",
     "django-filter==0.9.2",
     "django-json-field==0.5.5",
     "django-polymorphic==0.7.1",
@@ -42,7 +46,6 @@ dev_requires = [
     "pytest==2.7.3",
     "pytest-cov==1.8.1",
     "pytest-django==2.8.0",
-    "celery==3.1.10",
     "coveralls==0.4.1",
     "freezegun",
     "vcrpy",

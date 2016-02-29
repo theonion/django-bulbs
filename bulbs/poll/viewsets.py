@@ -1,11 +1,12 @@
 from rest_framework import viewsets
 from rest_framework import filters
+from rest_framework.permissions import IsAdminUser
+from rest_framework.response import Response
+
+from django.utils import timezone
 
 from .models import Poll, Answer
 from .serializers import PollSerializer, AnswerSerializer
-
-from rest_framework.permissions import IsAdminUser
-from rest_framework.response import Response
 
 from bulbs.api.views import ContentViewSet
 from bulbs.api.permissions import CanEditContent
@@ -35,13 +36,22 @@ class PollViewSet(viewsets.ModelViewSet):
         """Modified list view to driving listing from ES"""
         search_kwargs = {"published": False}
 
+        query_params = get_query_params(self.request)
+
         for field_name in ("before", "after", "status", "published"):
+            if field_name in query_params:
+                search_kwargs[field_name] = query_params.get(field_name)
 
-            if field_name in get_query_params(self.request):
-                search_kwargs[field_name] = get_query_params(self.request).get(field_name)
+        if "search" in query_params:
+            search_kwargs["query"] = query_params.get("search")
 
-        if "search" in get_query_params(self.request):
-            search_kwargs["query"] = get_query_params(self.request).get("search")
+        if "active" in query_params:
+            del search_kwargs["published"]
+            search_kwargs["active"] = True
+
+        if "closed" in query_params:
+            del search_kwargs["published"]
+            search_kwargs["closed"] = True
 
         queryset = self.model.search_objects.search(**search_kwargs)
 

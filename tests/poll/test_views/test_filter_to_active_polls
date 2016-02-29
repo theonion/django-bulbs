@@ -1,11 +1,11 @@
 interactions:
 - request:
-    body: answer_01=default+answer+1&name=VTYNZDXCXL&answer_02=default+answer+2&title=listening+to+your+heart
+    body: answer_01=default+answer+1&answer_02=default+answer+2&title=find+me&activationDate=02%2F24%2F16+09%3A33+PM&name=EVANFYCXYK
     headers:
       Accept: ['*/*']
       Accept-Encoding: ['gzip, deflate']
       Connection: [keep-alive]
-      Content-Length: ['189']
+      Content-Length: ['212']
       Content-Type: [application/x-www-form-urlencoded]
       User-Agent: [python-requests/2.9.1]
     method: POST
@@ -13,33 +13,33 @@ interactions:
   response:
     body: {string: !!python/unicode '{"vote": null, "poll": {"endDate": null, "demo":
         {}, "image": null, "video": null, "numComments": 0, "category": {"url": "http:\/\/www.sodahead.com\/entertainment\/",
-        "id": 5, "title": "Entertainment"}, "title": "listening to your heart", "range":
-        {}, "id": 4861646, "closed": false, "hideResults": false, "description": "",
-        "tags": [], "answers": [{"title": "default answer 1", "color": null, "image":
-        null, "video": null, "meta_text": null, "totalVotes": 0, "percentage": 0,
-        "id": 12072554}, {"title": "default answer 2", "color": null, "image": null,
+        "id": 5, "title": "Entertainment"}, "title": "find me", "range": {}, "id":
+        4861638, "closed": false, "hideResults": false, "description": "", "tags":
+        [], "answers": [{"title": "default answer 1", "color": null, "image": null,
         "video": null, "meta_text": null, "totalVotes": 0, "percentage": 0, "id":
-        12072556}], "slider": null, "sponsored": false, "modifiedDate": null, "creationDate":
-        "2016-02-25 21:47:02", "geo": {}, "name": "VTYNZDXCXL", "url": "http:\/\/www.sodahead.com\/entertainment\/listening-to-your-heart\/question-4861646\/",
+        12072538}, {"title": "default answer 2", "color": null, "image": null, "video":
+        null, "meta_text": null, "totalVotes": 0, "percentage": 0, "id": 12072540}],
+        "slider": null, "sponsored": false, "modifiedDate": null, "creationDate":
+        "2016-02-25 21:33:27", "geo": {}, "name": "EVANFYCXYK", "url": "http:\/\/www.sodahead.com\/entertainment\/find-me\/question-4861638\/",
         "author": {"url": "http:\/\/www.sodahead.com\/user\/profile\/4172828\/test\/",
         "nickName": "TEST", "id": 4172828, "avatar": "http:\/\/images.sodahead.com\/profiles\/000000001\/profiles_1202SHAvatarFred_1028_226520_small.jpeg"},
         "hideResults_content": "", "editDate": null, "activationDate": "2016-02-25
-        21:47:02", "totalVotes": 0}}'}
+        21:33:27", "totalVotes": 0}}'}
     headers:
       access-control-allow-headers: ['Authorization,Content-Type']
       access-control-allow-methods: ['POST, GET, PUT, DELETE, HEAD, OPTIONS']
       access-control-allow-origin: ['*']
       cache-control: ['no-cache, private, max-age=0']
       connection: [keep-alive]
-      content-length: ['1197']
+      content-length: ['1165']
       content-type: [application/json; charset=utf-8]
-      date: ['Thu, 25 Feb 2016 21:47:02 GMT']
-      etag: ['"0b17cb9914e8bbb0d34ce9de47489275"']
+      date: ['Thu, 25 Feb 2016 21:33:27 GMT']
+      etag: ['"8e1cd134c3e506e07be2bdc3bf4fcffc"']
       pragma: [no-cache]
       server: [openresty/1.5.8.1]
       set-cookie: ['demo="6941fb8484874663bf28ce8338df72595ae08811:{\"_city_region\":
           \"Frankfort\054NY\"\054 \"bf\": 0\054 \"dma\": 526}"; Domain=onion.sodahead.com;
-          expires=Fri, 24-Feb-2017 21:47:02 GMT; Max-Age=31536000; Path=/', 'anonymousUserId="dda70eef99c92832d05889c93c48242e5ba00cd5:";
+          expires=Fri, 24-Feb-2017 21:33:27 GMT; Max-Age=31536000; Path=/', 'anonymousUserId="dda70eef99c92832d05889c93c48242e5ba00cd5:";
           Domain=onion.sodahead.com; expires=Thu, 01-Jan-1970 00:00:00 GMT; Max-Age=0;
           Path=/', 'session="d751580928f9b48c059f91a75a650e3692d0cb28:{\"country\":
           \"US\"\054 \"state\": \"NY\"\054 \"postal_code\": \"13340\"}"; Domain=onion.sodahead.com;
@@ -47,47 +47,45 @@ interactions:
           Domain=onion.sodahead.com; Path=/']
     status: {code: 200, message: OK}
 - request:
-    body: answer_01=Intentionally+blank&answer_02=default+answer+2&title=listening+to+your+heart&id=4861646&name=VTYNZDXCXL
+    body: answer_01=default+answer+1&name=TJYKRZLFRV&answer_02=default+answer+2&title=dont+find+me
     headers:
       Accept: ['*/*']
       Accept-Encoding: ['gzip, deflate']
       Connection: [keep-alive]
-      Content-Length: ['203']
+      Content-Length: ['178']
       Content-Type: [application/x-www-form-urlencoded]
       User-Agent: [python-requests/2.9.1]
     method: POST
-    uri: https://onion.sodahead.com/api/polls/4861646/
+    uri: https://onion.sodahead.com/api/polls/
   response:
     body: {string: !!python/unicode '{"vote": null, "poll": {"endDate": null, "demo":
         {}, "image": null, "video": null, "numComments": 0, "category": {"url": "http:\/\/www.sodahead.com\/entertainment\/",
-        "id": 5, "title": "Entertainment"}, "title": "listening to your heart", "range":
-        {}, "id": 4861646, "closed": false, "hideResults": false, "description": "",
-        "tags": [], "answers": [{"title": "Intentionally blank", "color": null, "image":
-        null, "video": null, "meta_text": null, "totalVotes": 0, "percentage": 0,
-        "id": 12072554}, {"title": "default answer 2", "color": null, "image": null,
+        "id": 5, "title": "Entertainment"}, "title": "dont find me", "range": {},
+        "id": 4861640, "closed": false, "hideResults": false, "description": "", "tags":
+        [], "answers": [{"title": "default answer 1", "color": null, "image": null,
         "video": null, "meta_text": null, "totalVotes": 0, "percentage": 0, "id":
-        12072556}], "slider": null, "sponsored": false, "modifiedDate": "2016-02-25
-        21:47:02.972219", "creationDate": "2016-02-25 21:47:02", "geo": {}, "name":
-        "VTYNZDXCXL", "url": "http:\/\/www.sodahead.com\/entertainment\/listening-to-your-heart\/question-4861646\/",
+        12072542}, {"title": "default answer 2", "color": null, "image": null, "video":
+        null, "meta_text": null, "totalVotes": 0, "percentage": 0, "id": 12072544}],
+        "slider": null, "sponsored": false, "modifiedDate": null, "creationDate":
+        "2016-02-25 21:33:28", "geo": {}, "name": "TJYKRZLFRV", "url": "http:\/\/www.sodahead.com\/entertainment\/dont-find-me\/question-4861640\/",
         "author": {"url": "http:\/\/www.sodahead.com\/user\/profile\/4172828\/test\/",
         "nickName": "TEST", "id": 4172828, "avatar": "http:\/\/images.sodahead.com\/profiles\/000000001\/profiles_1202SHAvatarFred_1028_226520_small.jpeg"},
-        "hideResults_content": "", "editDate": "2016-02-25 21:47:02.972219", "activationDate":
-        "2016-02-25 21:47:00", "totalVotes": 0}}'}
+        "hideResults_content": "", "editDate": null, "activationDate": "2016-02-25
+        21:33:28", "totalVotes": 0}}'}
     headers:
       access-control-allow-headers: ['Authorization,Content-Type']
       access-control-allow-methods: ['POST, GET, PUT, DELETE, HEAD, OPTIONS']
       access-control-allow-origin: ['*']
       cache-control: ['no-cache, private, max-age=0']
       connection: [keep-alive]
-      content-length: ['1248']
       content-type: [application/json; charset=utf-8]
-      date: ['Thu, 25 Feb 2016 21:47:02 GMT']
-      etag: ['"28299e90779b5e726815749f77242b8c"']
+      date: ['Thu, 25 Feb 2016 21:33:28 GMT']
+      etag: ['"6d76de014c465b8c5aa85bff20f849c9"']
       pragma: [no-cache]
       server: [openresty/1.5.8.1]
       set-cookie: ['demo="6941fb8484874663bf28ce8338df72595ae08811:{\"_city_region\":
           \"Frankfort\054NY\"\054 \"bf\": 0\054 \"dma\": 526}"; Domain=onion.sodahead.com;
-          expires=Fri, 24-Feb-2017 21:47:02 GMT; Max-Age=31536000; Path=/', 'anonymousUserId="dda70eef99c92832d05889c93c48242e5ba00cd5:";
+          expires=Fri, 24-Feb-2017 21:33:28 GMT; Max-Age=31536000; Path=/', 'anonymousUserId="dda70eef99c92832d05889c93c48242e5ba00cd5:";
           Domain=onion.sodahead.com; expires=Thu, 01-Jan-1970 00:00:00 GMT; Max-Age=0;
           Path=/', 'session="d751580928f9b48c059f91a75a650e3692d0cb28:{\"country\":
           \"US\"\054 \"state\": \"NY\"\054 \"postal_code\": \"13340\"}"; Domain=onion.sodahead.com;
@@ -95,71 +93,51 @@ interactions:
           Domain=onion.sodahead.com; Path=/']
     status: {code: 200, message: OK}
 - request:
-    body: null
+    body: answer_01=default+answer+1&answer_02=default+answer+2&title=dont+find+me&activationDate=02%2F27%2F16+09%3A33+PM&id=4861640&name=TJYKRZLFRV
     headers:
       Accept: ['*/*']
       Accept-Encoding: ['gzip, deflate']
       Connection: [keep-alive]
+      Content-Length: ['228']
+      Content-Type: [application/x-www-form-urlencoded]
       User-Agent: [python-requests/2.9.1]
-    method: GET
-    uri: https://onion.sodahead.com/api/polls/4861646
-  response:
-    body:
-      string: !!binary |
-        H4sIAAAAAAAAAwMAAAAAAAAAAAA=
-    headers:
-      connection: [keep-alive]
-      content-encoding: [gzip]
-      content-length: ['20']
-      content-type: [text/html; charset=utf-8; charset=utf-8]
-      date: ['Thu, 25 Feb 2016 21:47:03 GMT']
-      etag: ['"d41d8cd98f00b204e9800998ecf8427e"']
-      location: ['https://onion.sodahead.com/api/polls/4861646/']
-      server: [openresty/1.5.8.1]
-      vary: [Accept-Encoding]
-    status: {code: 301, message: MOVED PERMANENTLY}
-- request:
-    body: null
-    headers:
-      Accept: ['*/*']
-      Accept-Encoding: ['gzip, deflate']
-      Connection: [keep-alive]
-      User-Agent: [python-requests/2.9.1]
-    method: GET
-    uri: https://onion.sodahead.com/api/polls/4861646/
+    method: POST
+    uri: https://onion.sodahead.com/api/polls/4861640/
   response:
     body: {string: !!python/unicode '{"vote": null, "poll": {"endDate": null, "demo":
         {}, "image": null, "video": null, "numComments": 0, "category": {"url": "http:\/\/www.sodahead.com\/entertainment\/",
-        "id": 5, "title": "Entertainment"}, "title": "listening to your heart", "range":
-        {}, "id": 4861646, "closed": false, "hideResults": false, "description": "",
-        "tags": [], "answers": [{"title": "Intentionally blank", "color": null, "image":
-        null, "video": null, "meta_text": null, "totalVotes": 0, "percentage": 0,
-        "id": 12072554}, {"title": "default answer 2", "color": null, "image": null,
+        "id": 5, "title": "Entertainment"}, "title": "dont find me", "range": {},
+        "id": 4861640, "closed": false, "hideResults": false, "description": "", "tags":
+        [], "answers": [{"title": "default answer 1", "color": null, "image": null,
         "video": null, "meta_text": null, "totalVotes": 0, "percentage": 0, "id":
-        12072556}], "slider": null, "sponsored": false, "modifiedDate": "2016-02-25
-        21:47:02", "creationDate": "2016-02-25 21:47:02", "geo": {}, "name": "VTYNZDXCXL",
-        "url": "http:\/\/www.sodahead.com\/entertainment\/listening-to-your-heart\/question-4861646\/",
+        12072542}, {"title": "default answer 2", "color": null, "image": null, "video":
+        null, "meta_text": null, "totalVotes": 0, "percentage": 0, "id": 12072544}],
+        "slider": null, "sponsored": false, "modifiedDate": "2016-02-25 21:33:28.559751",
+        "creationDate": "2016-02-25 21:33:28", "geo": {}, "name": "TJYKRZLFRV", "url":
+        "http:\/\/www.sodahead.com\/entertainment\/dont-find-me\/question-4861640\/",
         "author": {"url": "http:\/\/www.sodahead.com\/user\/profile\/4172828\/test\/",
         "nickName": "TEST", "id": 4172828, "avatar": "http:\/\/images.sodahead.com\/profiles\/000000001\/profiles_1202SHAvatarFred_1028_226520_small.jpeg"},
-        "hideResults_content": "", "editDate": "2016-02-25 21:47:02", "activationDate":
-        "2016-02-25 21:47:00", "totalVotes": 0}}'}
+        "hideResults_content": "", "editDate": "2016-02-25 21:33:28.559751", "activationDate":
+        "2016-02-27 21:33:00", "totalVotes": 0}}'}
     headers:
       access-control-allow-headers: ['Authorization,Content-Type']
       access-control-allow-methods: ['POST, GET, PUT, DELETE, HEAD, OPTIONS']
       access-control-allow-origin: ['*']
       cache-control: ['no-cache, private, max-age=0']
       connection: [keep-alive]
-      content-length: ['1234']
+      content-length: ['1223']
       content-type: [application/json; charset=utf-8]
-      date: ['Thu, 25 Feb 2016 21:47:03 GMT']
-      etag: ['"054d2790b63f107d8e4f7be351c5aa90"']
+      date: ['Thu, 25 Feb 2016 21:33:28 GMT']
+      etag: ['"50396c45156401caf4695edd20424e83"']
       pragma: [no-cache]
       server: [openresty/1.5.8.1]
       set-cookie: ['demo="6941fb8484874663bf28ce8338df72595ae08811:{\"_city_region\":
           \"Frankfort\054NY\"\054 \"bf\": 0\054 \"dma\": 526}"; Domain=onion.sodahead.com;
-          expires=Fri, 24-Feb-2017 21:47:03 GMT; Max-Age=31536000; Path=/', 'anonymousUserId="d162eb2a15e5a85c4b7f2fd88b1fad683dd1ca65:5991ce5d204e452587e3497c09791b79";
-          Domain=onion.sodahead.com; Path=/', 'session="d751580928f9b48c059f91a75a650e3692d0cb28:{\"country\":
+          expires=Fri, 24-Feb-2017 21:33:28 GMT; Max-Age=31536000; Path=/', 'anonymousUserId="dda70eef99c92832d05889c93c48242e5ba00cd5:";
+          Domain=onion.sodahead.com; expires=Thu, 01-Jan-1970 00:00:00 GMT; Max-Age=0;
+          Path=/', 'session="d751580928f9b48c059f91a75a650e3692d0cb28:{\"country\":
           \"US\"\054 \"state\": \"NY\"\054 \"postal_code\": \"13340\"}"; Domain=onion.sodahead.com;
-          Path=/']
+          Path=/; secure', '_crmUserId="f64eed1b50bc4a7841af95a4c41cf246349b1151:78";
+          Domain=onion.sodahead.com; Path=/']
     status: {code: 200, message: OK}
 version: 1

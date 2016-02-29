@@ -1,12 +1,14 @@
 import json
 import sys
 
+import elasticsearch
 from datetime import timedelta
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import Client
 from django.utils import timezone
 
+from bulbs.content.models import Content
 from bulbs.poll.models import Poll, Answer
 from bulbs.utils.test  import (
     make_vcr,
@@ -24,6 +26,10 @@ vcr = make_vcr(__file__)  # Define vcr file path
 
 class PollAPITestCase(BaseAPITestCase):
     """ Test for Poll API """
+
+    def setUp(self):
+        super(PollAPITestCase, self).setUp()
+        Content.search_objects.refresh()
 
     @vcr.use_cassette()
     @mock_vault(SECRETS)
@@ -47,6 +53,75 @@ class PollAPITestCase(BaseAPITestCase):
             self.give_permissions()
             response = self.api_client.post(list_url, json.dumps(data), content_type='application/json')
             self.assertEqual(response.status_code, 503)
+
+    @mock_vault(SECRETS)
+    def test_search_polls(self):
+        with vcr.use_cassette('test_search_polls'):
+            poll1 = Poll.objects.create(
+                question_text='find me',
+                title=random_title(),
+            )
+            poll2 = Poll.objects.create(
+                question_text='dont find me',
+                title=random_title(),
+            )
+        Poll.search_objects.refresh()
+
+        self.give_permissions()
+        list_url = reverse('poll-list') + '?search=' + poll1.title
+
+        response = self.api_client.get(list_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data['results']), 1)
+        self.assertEqual(response.data['results'][0]['question_text'], 'find me')
+
+    @mock_vault(SECRETS)
+    def test_filter_to_active_polls(self):
+        with vcr.use_cassette('test_filter_to_active_polls'):
+            poll1 = Poll.objects.create(
+                question_text='find me',
+                title=random_title(),
+                published=(timezone.now() - timedelta(1)),
+            )
+            poll2 = Poll.objects.create(
+                question_text='dont find me',
+                title=random_title(),
+            )
+            poll2.published = timezone.now() + timedelta(2)
+            poll2.save()
+        Poll.search_objects.refresh()
+
+        self.give_permissions()
+        list_url = reverse('poll-list') + '?active=true'
+        response = self.api_client.get(list_url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data['results']), 1)
+        self.assertEqual(response.data['results'][0]['question_text'], 'find me')
+
+    @mock_vault(SECRETS)
+    def test_filter_to_closed_polls(self):
+        with vcr.use_cassette('test_filter_to_closed_polls'):
+            poll1 = Poll.objects.create(
+                question_text='find me',
+                title=random_title(),
+                published=(timezone.now() - timedelta(2)),
+            )
+            poll2 = Poll.objects.create(
+                question_text='dont find me',
+                title=random_title(),
+            )
+            poll1.end_date = timezone.now() - timedelta(1)
+            poll1.save()
+        Poll.search_objects.refresh()
+
+        self.give_permissions()
+        list_url = reverse('poll-list') + '?closed=true'
+        response = self.api_client.get(list_url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data['results']), 1)
+        self.assertEqual(response.data['results'][0]['question_text'], 'find me')
 
     @vcr.use_cassette()
     @mock_vault(SECRETS)
