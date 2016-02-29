@@ -1,9 +1,11 @@
 from bulbs.content.filters import Published
-from bulbs.content.models import Content, ContentManager
+from bulbs.content.models import Content, ContentManager, ElasticsearchImageField
 from bulbs.utils import vault
 
 from django.db import models, transaction
 from django.utils import timezone
+
+from djbetty import ImageField
 
 from djes.models import Indexable
 from elasticsearch_dsl.filter import Range
@@ -108,6 +110,7 @@ class Poll(Content):
     sodahead_id = models.CharField(max_length=20, blank=True, default="")
     last_answer_index = models.IntegerField(default=0)
     end_date = models.DateTimeField(null=True, default=None)
+    poll_image = ImageField(null=True, blank=True)
 
     def get_sodahead_data(self):
         response = requests.get(SODAHEAD_POLL_ENDPOINT.format(self.sodahead_id))
@@ -148,6 +151,9 @@ class Poll(Content):
             payload['answer_02'] = DEFAULT_ANSWER_2
 
         return payload
+
+    class Mapping:
+        poll_image = ElasticsearchImageField()
 
     def save(self, *args, **kwargs):
         if not self.sodahead_id:
