@@ -1,5 +1,9 @@
 # django-bulbs Change Log
 
+## Version 0.7.9
+
+- Added SpecialCoverageView to /bulbs/special_coverage/views for Special Coverage reuse
+
 ## Version 0.7.8
 
 - Hotfix for contribution csv & api discrepencies with publish filters.
