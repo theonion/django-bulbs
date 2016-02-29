@@ -112,6 +112,11 @@ class Poll(Content):
     end_date = models.DateTimeField(null=True, default=None)
     poll_image = ImageField(null=True, blank=True)
 
+    # This keeps Poll out of Content.search_objects
+    class Mapping(Content.Mapping):
+        class Meta():
+            orphaned = True
+
     def get_sodahead_data(self):
         response = requests.get(SODAHEAD_POLL_ENDPOINT.format(self.sodahead_id))
 
