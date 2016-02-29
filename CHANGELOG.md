@@ -2,7 +2,7 @@
 
 ## Version 0.7.9
 
-- Remove redundant ES_URLS settings, just use ES_CONNECTIONS. Eventually all client projects can stop using ES_URLS too. 
+- Remove redundant ES_URLS setting, just use ES_CONNECTIONS. Eventually all client projects can stop using ES_URLS too. 
 - Example app checks ELASTICSEARCH_HOST env variable (useful for using docker-based ES served inside VM)
 
 ## Version 0.7.8
