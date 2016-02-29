@@ -41,13 +41,13 @@ INSTALLED_APPS = (
     "bulbs.redirects",
     "bulbs.cms_notifications",
     "bulbs.content",
-    "bulbs.contributions",
     "bulbs.promotion",
     "bulbs.special_coverage",
     "bulbs.sections",
     # local testing apps
     "example.testcontent",
     "example.example_api"
+    "bulbs.contributions",
 )
 
 ROOT_URLCONF = "example.urls"

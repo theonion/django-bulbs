@@ -1,18 +1,36 @@
 language: python
+
+sudo: required
+
 python:
   - '2.7'
   - '3.4'
   - '3.5'
+cache:
+  directories:
+    - $HOME/.cache/pip
+env:
+    # Current production
+    - ELASTICSEARCH_VERSION=1.4.4
+    # Future production point release
+    - ELASTICSEARCH_VERSION=1.4.5
+    # Latest in 1.X line (as of 2016-02-10)
+    - ELASTICSEARCH_VERSION=1.7.5
+services:
+  - postgresql
+before_install:
+  # Use same ES version as in production (also the Travis "elasticsearch" service setting fails to start)
+  - travis_retry curl -OL https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-$ELASTICSEARCH_VERSION.deb
+  - sudo dpkg -i --force-confnew elasticsearch-$ELASTICSEARCH_VERSION.deb
+  - sudo service elasticsearch start
 install:
   - travis_retry pip install -e .
   - travis_retry pip install "file://$(pwd)#egg=django-bulbs[dev]"
-services:
-  - postgresql
-  - elasticsearch
 before_script:
   - psql -c 'create database bulbs;' -U postgres
+  # Wait for ES startup
   - until curl http://localhost:9200/; do sleep 1; done
-script: py.test --cov bulbs --cov-report term-missing
+script:
+  - py.test --cov bulbs --cov-report term-missing
 after_success:
   - coveralls
-sudo: false

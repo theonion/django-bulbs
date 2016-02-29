@@ -11,8 +11,8 @@ Make sure an instance of elasticsearch is available at `http://elasticsearch.loc
 
 First, enter any virtualenv, etc, that you plan on developing in.
 ```bash
-$ pip install -e .
-$ pip install "file://$(pwd)#egg=django-bulbs[dev]"
+pip install -e .
+pip install "file://$(pwd)#egg=django-bulbs[dev]"
 ```
 
 ## Running Tests
@@ -20,15 +20,15 @@ $ pip install "file://$(pwd)#egg=django-bulbs[dev]"
 1. Clone [django-elastimorphic](https://github.com/theonion/django-elastimorphic) into a sibiling directory
 2. Install dev requirements
 ```bash
-$ pip install -e ".[dev]"
+pip install -e ".[dev]"
 ```
 3. Run tests
 ```bash
-$ py.test tests/
+py.test tests/
 ```
 
 ## Building Docs
 ```bash
-$ cd docs
-$ make html
+cd docs
+make html
 ```
