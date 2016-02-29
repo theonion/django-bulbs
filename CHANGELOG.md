@@ -1,8 +1,12 @@
 # django-bulbs Change Log
 
+## Version 0.7.9
+
+- Remove redundant ES_URLS settings, just use ES_CONNECTIONS. Eventually all client projects can stop using ES_URLS too. 
+
 ## Version 0.7.8
 
-- Remove redundant ES_URLS settings, just use ES_CONNECTIONS
+- Hotfix for contribution csv & api discrepencies with publish filters.
 
 ## Version 0.7.6
 
