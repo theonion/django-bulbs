@@ -111,7 +111,7 @@ class Poll(Content):
 
     # This keeps Poll out of Content.search_objects
     class Mapping(Content.Mapping):
-        class Meta:
+        class Meta():
             orphaned = True
 
     def get_sodahead_data(self):
