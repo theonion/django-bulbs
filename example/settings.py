@@ -82,7 +82,12 @@ SECRET_KEY = "no-op"
 
 ES_DISABLED = False
 
-ES_URLS = ['http://localhost:9200']
+ES_CONNECTIONS = {
+    "default": {
+        "hosts": [os.environ.get('ELASTICSEARCH_HOST', 'localhost')]
+    }
+}
+
 ES_INDEX = "django-bulbs"
 
 ES_INDEX_SETTINGS = {
