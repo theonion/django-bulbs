@@ -3,14 +3,12 @@ from rest_framework import filters
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
-from django.utils import timezone
-
 from .models import Poll, Answer
 from .serializers import PollSerializer, AnswerSerializer
 
-from bulbs.api.views import ContentViewSet
 from bulbs.api.permissions import CanEditContent
-from bulbs.utils.methods import get_query_params, get_request_data
+from bulbs.utils.methods import get_query_params
+
 
 class PollViewSet(viewsets.ModelViewSet):
     model = Poll
@@ -65,6 +63,7 @@ class PollViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
 
 class AnswerViewSet(viewsets.ModelViewSet):
     model = Answer

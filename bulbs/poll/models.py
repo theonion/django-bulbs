@@ -9,7 +9,6 @@ from djes.models import Indexable
 from elasticsearch_dsl.filter import Range
 from rest_framework.exceptions import APIException
 
-from time import mktime
 import pytz
 import requests
 
@@ -68,12 +67,14 @@ This is done by the field `last_answer_index` on the Poll model.
 It is incremented by 1 every time an Answer is saved.
 """
 
+
 class SodaheadResponseError(APIException):
     status_code = 503
     default_detail = "Third-party poll provider temporarily unavailable."
 
     def __init__(self, detail):
         self.detail = detail
+
 
 class SodaheadResponseFailure(APIException):
     status_code = 400
@@ -82,12 +83,14 @@ class SodaheadResponseFailure(APIException):
     def __init__(self, detail):
         self.detail = detail
 
-def Closed(): # noqa
+
+def Closed():  # noqa
     end_date_params = {
         "lte": timezone.now(),
     }
 
     return Range(end_date=end_date_params)
+
 
 class PollManager(ContentManager):
     def search(self, **kwargs):
@@ -100,6 +103,7 @@ class PollManager(ContentManager):
             search_query = search_query.filter(Closed())
 
         return search_query
+
 
 class Poll(Content):
     search_objects = PollManager()
@@ -150,10 +154,10 @@ class Poll(Content):
             else:
                 payload[answer.sodahead_answer_id] = answer.answer_text
 
-        if not 'answer_01' in payload:
+        if 'answer_01' not in payload:
             payload['answer_01'] = DEFAULT_ANSWER_1
 
-        if not 'answer_02' in payload:
+        if 'answer_02' not in payload:
             payload['answer_02'] = DEFAULT_ANSWER_2
 
         return payload
@@ -173,8 +177,12 @@ class Poll(Content):
         super(Poll, self).save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
-        response = requests.delete(SODAHEAD_DELETE_POLL_ENDPOINT
-                .format(self.sodahead_id, vault.read('sodahead/token')['value']))
+        response = requests.delete(
+            SODAHEAD_DELETE_POLL_ENDPOINT.format(
+                self.sodahead_id,
+                vault.read('sodahead/token')['value'],
+            )
+         )
         if response.status_code > 499:
             raise SodaheadResponseError(response.text)
         elif response.status_code > 399:
@@ -182,15 +190,20 @@ class Poll(Content):
         super(Poll, self).delete(*args, **kwargs)
 
     def sync_sodahead(self):
-        response = requests.post(SODAHEAD_POLL_ENDPOINT
-                .format(self.sodahead_id), self.sodahead_payload())
+        response = requests.post(
+            SODAHEAD_POLL_ENDPOINT.format(self.sodahead_id),
+            self.sodahead_payload()
+        )
+
         if response.status_code > 499:
             raise SodaheadResponseError(response.json())
         elif response.status_code > 399:
             raise SodaheadResponseFailure(response.json())
 
+
 class Answer(Indexable):
-    poll = models.ForeignKey(Poll,
+    poll = models.ForeignKey(
+        Poll,
         on_delete=models.CASCADE,
         related_name='answers'
     )
@@ -212,7 +225,7 @@ class Answer(Indexable):
                 # See Rationale at top of file for in depth explanation
                 # of what is going on here. We have to track how many answers
                 # have ever been created for a Poll.
-                # A simple count will not suffice because we dont want to 
+                # A simple count will not suffice because we dont want to
                 # re-use any answer keys.
                 answer_index = poll.last_answer_index + 1
                 self.sodahead_answer_id = 'answer_%02d' % (answer_index)

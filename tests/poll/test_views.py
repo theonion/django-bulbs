@@ -1,17 +1,13 @@
 import json
-import sys
 
 import requests
-import elasticsearch
 from datetime import timedelta
 from django.core.urlresolvers import reverse
-from django.test import TestCase
-from django.test.client import Client
 from django.utils import timezone
 
 from bulbs.content.models import Content
 from bulbs.poll.models import Poll, Answer
-from bulbs.utils.test  import (
+from bulbs.utils.test import (
     make_vcr,
     random_title,
     mock_vault,
@@ -24,6 +20,7 @@ import requests_mock
 from .common import SECRETS
 
 vcr = make_vcr(__file__)  # Define vcr file path
+
 
 class PollAPITestCase(BaseAPITestCase):
     """ Test for Poll API """
@@ -52,7 +49,11 @@ class PollAPITestCase(BaseAPITestCase):
                 'title': random_title()
             }
             self.give_permissions()
-            response = self.api_client.post(list_url, json.dumps(data), content_type='application/json')
+            response = self.api_client.post(
+                list_url,
+                json.dumps(data),
+                content_type='application/json'
+            )
             self.assertEqual(response.status_code, 503)
 
     @mock_vault(SECRETS)
@@ -62,7 +63,7 @@ class PollAPITestCase(BaseAPITestCase):
                 question_text='find me',
                 title=random_title(),
             )
-            poll2 = Poll.objects.create(
+            Poll.objects.create(
                 question_text='dont find me',
                 title=random_title(),
             )
@@ -79,7 +80,7 @@ class PollAPITestCase(BaseAPITestCase):
     @mock_vault(SECRETS)
     def test_filter_to_active_polls(self):
         with vcr.use_cassette('test_filter_to_active_polls'):
-            poll1 = Poll.objects.create(
+            Poll.objects.create(
                 question_text='find me',
                 title=random_title(),
                 published=(timezone.now() - timedelta(1)),
@@ -108,7 +109,7 @@ class PollAPITestCase(BaseAPITestCase):
                 title=random_title(),
                 published=(timezone.now() - timedelta(2)),
             )
-            poll2 = Poll.objects.create(
+            Poll.objects.create(
                 question_text='dont find me',
                 title=random_title(),
             )
@@ -222,8 +223,11 @@ class PollAPITestCase(BaseAPITestCase):
             content_type='application/json',
         )
 
-        response = requests.get('https://onion.sodahead.com/api/polls/{}'.format(poll.sodahead_id)).json()
+        response = requests.get(
+            'https://onion.sodahead.com/api/polls/{}'.format(poll.sodahead_id)
+        ).json()
         self.assertIsNone(response['poll']['endDate'])
+
 
 class AnswerAPITestCase(BaseAPITestCase):
     """ Test for Answer API """
@@ -238,19 +242,6 @@ class AnswerAPITestCase(BaseAPITestCase):
 
     @vcr.use_cassette()
     @mock_vault(SECRETS)
-    def test_sodahead_service_failure(self):
-        poll = Poll.objects.create(question_text='it is time for Russell', title=random_title())
-        with requests_mock.Mocker() as mocker:
-            sodahead_endpoint = re.compile('https://onion.sodahead.com/api/polls/')
-            mocker.post(sodahead_endpoint, status_code=666)
-            list_url = reverse('answer-list')
-            data = {
-                'poll': poll.id,
-                'answer_text': 'he is ready'
-            }
-
-    @vcr.use_cassette()
-    @mock_vault(SECRETS)
     def test_post_to_answers(self):
         poll = Poll.objects.create(question_text='Russell\'s time was over', title=random_title())
         answers_url = reverse('answer-list')
@@ -259,7 +250,11 @@ class AnswerAPITestCase(BaseAPITestCase):
             'answer_text': 'he\'s getting stale'
         }
         self.give_permissions()
-        response = self.api_client.post(answers_url, json.dumps(data), content_type='application/json')
+        response = self.api_client.post(
+            answers_url,
+            json.dumps(data),
+            content_type='application/json'
+         )
         self.assertEqual(response.status_code, 201)
 
     @vcr.use_cassette()
@@ -272,7 +267,11 @@ class AnswerAPITestCase(BaseAPITestCase):
             'answer_text': 'he\'s getting stale'
         }
         self.give_permissions()
-        response = self.api_client.put(answer_url, json.dumps(data), content_type='application/json')
+        response = self.api_client.put(
+            answer_url,
+            json.dumps(data),
+            content_type='application/json'
+        )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Answer.objects.get(id=answer.id).answer_text, 'he\'s getting stale')
 
@@ -288,6 +287,7 @@ class AnswerAPITestCase(BaseAPITestCase):
         response2 = self.api_client.get(answer_url)
         self.assertEqual(response2.data['detail'], u'Not found.')
 
+
 class GetPollDataTestCase(BaseAPITestCase):
     """
         Test for public get poll data.
@@ -297,13 +297,18 @@ class GetPollDataTestCase(BaseAPITestCase):
     @vcr.use_cassette()
     @mock_vault(SECRETS)
     def test_get_poll_data(self):
-        poll = Poll.objects.create(question_text=u'are we on vox!?',
-                title=random_title())
-        answer1 = Answer.objects.create(poll=poll, answer_text=u'affirmative')
-        answer2 = Answer.objects.create(poll=poll, answer_text=u'that is a negatory')
+        poll = Poll.objects.create(
+            question_text=u'are we on vox!?',
+            title=random_title()
+        )
+        Answer.objects.create(poll=poll, answer_text=u'affirmative')
+        Answer.objects.create(poll=poll, answer_text=u'that is a negatory')
 
         poll_data_url = reverse('get-merged-poll-data', kwargs={'pk': poll.id})
-        response = self.api_client.get(poll_data_url, **{ 'HTTP_ORIGIN': 'this.cool.origin' })
+        response = self.api_client.get(
+            poll_data_url,
+            **{'HTTP_ORIGIN': 'this.cool.origin'}
+        )
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['Access-Control-Allow-Origin'], 'this.cool.origin')
@@ -319,4 +324,3 @@ class GetPollDataTestCase(BaseAPITestCase):
 
         self.assertEqual(data['answers'][1]['total_votes'], 0)
         self.assertIsNotNone(data['answers'][1]['sodahead_id'], 0)
-

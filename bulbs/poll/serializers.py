@@ -2,16 +2,18 @@ from bulbs.content.serializers import ContentSerializer
 from models import Poll, Answer
 from rest_framework import serializers
 import re
-import requests
+
 
 class AnswerSerializer(serializers.ModelSerializer):
     poll = serializers.PrimaryKeyRelatedField(
         queryset=Poll.objects.all(),
         required=False
     )
+
     class Meta:
         model = Answer
         fields = ('id', 'answer_text', 'poll',)
+
 
 class PollSerializer(ContentSerializer):
     answers = AnswerSerializer(many=True, read_only=True)
@@ -19,6 +21,7 @@ class PollSerializer(ContentSerializer):
     class Meta:
         model = Poll
         exclude = ('thumbnail_override',)
+
 
 class PollPublicSerializer(PollSerializer):
     def to_representation(self, poll):
@@ -34,4 +37,3 @@ class PollPublicSerializer(PollSerializer):
             index += 1
 
         return representation
-
