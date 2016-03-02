@@ -3,11 +3,10 @@ from rest_framework import filters
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
-from .models import Poll, Answer
-from .serializers import PollSerializer, AnswerSerializer
-
 from bulbs.api.permissions import CanEditContent
 from bulbs.utils.methods import get_query_params
+from .models import Poll, Answer
+from .serializers import PollSerializer, AnswerSerializer
 
 
 class PollViewSet(viewsets.ModelViewSet):
@@ -39,13 +38,16 @@ class PollViewSet(viewsets.ModelViewSet):
 
         query_params = get_query_params(self.request)
 
-        for field_name in ("before", "after", "status", "published"):
+        for field_name in ("status"):
             if field_name in query_params:
                 search_kwargs[field_name] = query_params.get(field_name)
 
         if "search" in query_params:
             search_kwargs["query"] = query_params.get("search")
 
+        # active/closed are semantics of the Poll model
+        # active is analagous to 'published' in Content
+        # closed is in relation to the end_date of a Poll
         if "active" in query_params:
             del search_kwargs["published"]
             search_kwargs["active"] = True

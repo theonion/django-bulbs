@@ -127,3 +127,5 @@ ES_INDEX_SETTINGS = {
         }
     }
 }
+
+SODAHEAD_BASE_URL = 'https://onion.sodahead.com'

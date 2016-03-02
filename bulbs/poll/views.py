@@ -1,7 +1,8 @@
+import json
+
 from django.http import HttpResponse
 from django.views.decorators.cache import cache_control
 from django.views.generic.detail import DetailView
-import json
 
 from bulbs.content.views import BaseContentDetailView
 from bulbs.poll.models import Poll

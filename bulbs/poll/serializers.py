@@ -1,7 +1,10 @@
-from bulbs.content.serializers import ContentSerializer
-from models import Poll, Answer
-from rest_framework import serializers
 import re
+
+from rest_framework import serializers
+
+from bulbs.content.serializers import ContentSerializer
+
+from .models import Poll, Answer
 
 
 class AnswerSerializer(serializers.ModelSerializer):

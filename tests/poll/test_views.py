@@ -1,7 +1,9 @@
-import json
-
-import requests
 from datetime import timedelta
+import json
+import re
+import requests
+import requests_mock
+
 from django.core.urlresolvers import reverse
 from django.utils import timezone
 
@@ -13,10 +15,6 @@ from bulbs.utils.test import (
     mock_vault,
     BaseAPITestCase,
 )
-
-import re
-import requests_mock
-
 from .common import SECRETS
 
 vcr = make_vcr(__file__)  # Define vcr file path
@@ -33,9 +31,9 @@ class PollAPITestCase(BaseAPITestCase):
     @mock_vault(SECRETS)
     def test_router_registered(self):
         list_url = reverse('poll-list')
-        self.assertEqual(list_url, '/poll/')
+        self.assertEqual(list_url, '/api/v1/poll/')
         detail_url = reverse('poll-detail', kwargs={'pk': 1})
-        self.assertEqual(detail_url, '/poll/1/')
+        self.assertEqual(detail_url, '/api/v1/poll/1/')
 
     @vcr.use_cassette()
     @mock_vault(SECRETS)
@@ -236,9 +234,9 @@ class AnswerAPITestCase(BaseAPITestCase):
     @mock_vault(SECRETS)
     def test_router_registered(self):
         list_url = reverse('answer-list')
-        self.assertEqual(list_url, '/answer/')
+        self.assertEqual(list_url, '/api/v1/answer/')
         detail_url = reverse('answer-detail', kwargs={'pk': 1})
-        self.assertEqual(detail_url, '/answer/1/')
+        self.assertEqual(detail_url, '/api/v1/answer/1/')
 
     @vcr.use_cassette()
     @mock_vault(SECRETS)

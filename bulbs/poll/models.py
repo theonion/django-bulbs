@@ -1,22 +1,23 @@
-from bulbs.content.filters import Published
-from bulbs.content.models import Content, ContentManager
-from bulbs.utils import vault
+import pytz
+import requests
 
 from django.db import models, transaction
 from django.utils import timezone
+from django.conf import settings
 
 from djes.models import Indexable
 from elasticsearch_dsl.filter import Range
 from rest_framework.exceptions import APIException
 
-import pytz
-import requests
+from bulbs.content.filters import Published
+from bulbs.content.models import Content, ContentManager
+from bulbs.utils import vault
 
 SODAHEAD_DATE_FORMAT = '%m/%d/%y %I:%M %p'
 
-SODAHEAD_POLL_ENDPOINT = 'https://onion.sodahead.com/api/polls/{}/'
-SODAHEAD_POLLS_ENDPOINT = 'https://onion.sodahead.com/api/polls/'
-SODAHEAD_DELETE_POLL_ENDPOINT = 'https://onion.sodahead.com/api/polls/{}/?access_token={}'
+SODAHEAD_POLL_ENDPOINT = '{}/api/polls/{{}}/'.format(settings.SODAHEAD_BASE_URL)
+SODAHEAD_POLLS_ENDPOINT = '{}/api/polls/'.format(settings.SODAHEAD_BASE_URL)
+SODAHEAD_DELETE_POLL_ENDPOINT = '{}/api/polls/{{}}/?access_token={{}}'.format(settings.SODAHEAD_BASE_URL)
 
 BLANK_ANSWER = 'Intentionally blank'
 DEFAULT_ANSWER_1 = 'default answer 1'
@@ -121,7 +122,7 @@ class Poll(Content):
     def get_sodahead_data(self):
         response = requests.get(SODAHEAD_POLL_ENDPOINT.format(self.sodahead_id))
 
-        if response.status_code != 200:
+        if not response.ok:
             raise SodaheadResponseError(response.text)
         else:
             return response.json()
@@ -149,7 +150,7 @@ class Poll(Content):
             payload['endDate'] = ''
 
         for answer in self.answers.all():
-            if answer.answer_text == u'':
+            if answer.answer_text:
                 payload[answer.sodahead_answer_id] = BLANK_ANSWER
             else:
                 payload[answer.sodahead_answer_id] = answer.answer_text

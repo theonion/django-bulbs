@@ -1,3 +1,5 @@
+from django.utils import timezone
+
 from bulbs.poll.models import Poll, Answer
 from bulbs.poll.serializers import (
     PollPublicSerializer,
@@ -10,10 +12,7 @@ from bulbs.utils.test import (
     mock_vault,
     random_title,
 )
-
 from .common import SECRETS
-
-from django.utils import timezone
 
 vcr = make_vcr(__file__)  # Define vcr file path
 
