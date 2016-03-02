@@ -1,6 +1,7 @@
 import json
 import sys
 
+import requests
 import elasticsearch
 from datetime import timedelta
 from django.core.urlresolvers import reverse
@@ -182,7 +183,7 @@ class PollAPITestCase(BaseAPITestCase):
         response = self.api_client.put(
             detail_url,
             data=json.dumps(data),
-            content_type='application/json'
+            content_type='application/json',
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Poll.objects.get(id=poll.id).question_text, 'better text')
@@ -197,6 +198,32 @@ class PollAPITestCase(BaseAPITestCase):
         self.assertEqual(response.status_code, 204)
         response2 = self.api_client.get(detail_url)
         self.assertEqual(response2.data['detail'], u'Not found.')
+
+    @vcr.use_cassette()
+    @mock_vault(SECRETS)
+    def test_set_end_date_to_null(self):
+        poll = Poll.objects.create(question_text='dont end this poll', title=random_title())
+        poll.published = timezone.now()
+        poll.end_date = timezone.now() + timedelta(1)
+        poll.save()
+
+        data = {
+            'published': poll.published.isoformat(),
+            'title': poll.title,
+            'question_text': poll.question_text,
+            'end_date': None,
+        }
+
+        self.give_permissions()
+        detail_url = reverse('poll-detail', kwargs={'pk': poll.id})
+        response = self.api_client.put(
+            detail_url,
+            data=json.dumps(data),
+            content_type='application/json',
+        )
+
+        response = requests.get('https://onion.sodahead.com/api/polls/{}'.format(poll.sodahead_id)).json()
+        self.assertIsNone(response['poll']['endDate'])
 
 class AnswerAPITestCase(BaseAPITestCase):
     """ Test for Answer API """
