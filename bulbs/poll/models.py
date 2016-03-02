@@ -135,10 +135,14 @@ class Poll(Content):
         if self.published:
             activation_date = self.published.astimezone(pytz.utc)
             payload['activationDate'] = activation_date.strftime(SODAHEAD_DATE_FORMAT)
+        else:
+            payload['activationDate'] = None
 
         if self.end_date:
             end_date = self.end_date.astimezone(pytz.utc)
             payload['endDate'] = end_date.strftime(SODAHEAD_DATE_FORMAT)
+        else:
+            payload['endDate'] = ''
 
         for answer in self.answers.all():
             if answer.answer_text == u'':
