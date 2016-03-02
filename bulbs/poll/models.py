@@ -156,8 +156,6 @@ class Poll(Content):
         if not 'answer_02' in payload:
             payload['answer_02'] = DEFAULT_ANSWER_2
 
-        import json
-        print json.dumps(payload)
         return payload
 
     def save(self, *args, **kwargs):
@@ -200,6 +198,12 @@ class Answer(Indexable):
     answer_text = models.TextField(blank=True, default="")
 
     def save(self, *args, **kwargs):
+        # using transaction/select_for_update here because we don't want to
+        # run this block in parallel. If we did, we would end up with answers
+        # with the same value for `answer.sodahead_answer_id`.
+        # This is because we are deriving sodahead_answer_id based on the count
+        # of answers that have ever been created for an poll.
+        #   (see top of file for in depth explainer)
         with transaction.atomic():
             poll = Poll.objects.select_for_update().get(pk=self.poll_id)
             if self.sodahead_answer_id:
