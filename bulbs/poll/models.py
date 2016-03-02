@@ -156,6 +156,8 @@ class Poll(Content):
         if not 'answer_02' in payload:
             payload['answer_02'] = DEFAULT_ANSWER_2
 
+        import json
+        print json.dumps(payload)
         return payload
 
     def save(self, *args, **kwargs):
