@@ -17,7 +17,9 @@ SODAHEAD_DATE_FORMAT = '%m/%d/%y %I:%M %p'
 
 SODAHEAD_POLL_ENDPOINT = '{}/api/polls/{{}}/'.format(settings.SODAHEAD_BASE_URL)
 SODAHEAD_POLLS_ENDPOINT = '{}/api/polls/'.format(settings.SODAHEAD_BASE_URL)
-SODAHEAD_DELETE_POLL_ENDPOINT = '{}/api/polls/{{}}/?access_token={{}}'.format(settings.SODAHEAD_BASE_URL)
+SODAHEAD_DELETE_POLL_ENDPOINT = '{}/api/polls/{{}}/?access_token={{}}'.format(
+    settings.SODAHEAD_BASE_URL
+)
 
 BLANK_ANSWER = 'Intentionally blank'
 DEFAULT_ANSWER_1 = 'default answer 1'
@@ -166,12 +168,13 @@ class Poll(Content):
     def save(self, *args, **kwargs):
         if not self.sodahead_id:
             response = requests.post(SODAHEAD_POLLS_ENDPOINT, self.sodahead_payload())
-            if response.status_code > 499:
+
+            if response.ok:
+                self.sodahead_id = response.json()['poll']['id']
+            elif response.status_code > 499:
                 raise SodaheadResponseError(response.text)
             elif response.status_code > 399:
                 raise SodaheadResponseFailure(response.text)
-            else:
-                self.sodahead_id = response.json()['poll']['id']
         else:
             self.sync_sodahead()
 
@@ -184,6 +187,8 @@ class Poll(Content):
                 vault.read('sodahead/token')['value'],
             )
          )
+        if response.ok:
+            pass
         if response.status_code > 499:
             raise SodaheadResponseError(response.text)
         elif response.status_code > 399:
@@ -196,7 +201,9 @@ class Poll(Content):
             self.sodahead_payload()
         )
 
-        if response.status_code > 499:
+        if response.ok:
+            pass
+        elif response.status_code > 499:
             raise SodaheadResponseError(response.json())
         elif response.status_code > 399:
             raise SodaheadResponseFailure(response.json())
