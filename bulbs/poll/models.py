@@ -130,9 +130,12 @@ class Poll(Content):
         else:
             return response.json()
 
+    def get_sodahead_token(self):
+        return vault.read(settings.SODAHEAD_TOKEN_VAULT_PATH)['value']
+
     def sodahead_payload(self):
         payload = {
-            'access_token': vault.read('sodahead/token')['value'],
+            'access_token': self.get_sodahead_token(),
             'name': self.title,
             'title': self.question_text,
         }
@@ -186,7 +189,7 @@ class Poll(Content):
         response = requests.delete(
             SODAHEAD_DELETE_POLL_ENDPOINT.format(
                 self.sodahead_id,
-                vault.read('sodahead/token')['value'],
+                self.get_sodahead_token(),
             )
          )
         if response.status_code > 499:
