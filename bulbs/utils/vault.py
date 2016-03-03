@@ -65,5 +65,5 @@ def _read_endpoint(path):
     if resp.ok:
         return resp.json()['data']
     else:
-        log.error('Failed VAULT GET request: %s %s', resp.status_code, resp.text)
+        logger.error('Failed VAULT GET request: %s %s', resp.status_code, resp.text)
         raise VaultError('Failed Vault GET request: {} {}'.format(resp.status_code, resp.text))
