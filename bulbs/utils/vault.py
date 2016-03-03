@@ -61,9 +61,15 @@ def _read_endpoint(path):
                             path.lstrip('/'))
 
     headers = {'X-Vault-Token': settings.VAULT_ACCESS_TOKEN}
-    resp = requests.get(url, headers=headers)
-    if resp.ok:
-        return resp.json()['data']
-    else:
-        logger.error('Failed VAULT GET request: %s %s', resp.status_code, resp.text)
-        raise VaultError('Failed Vault GET request: {} {}'.format(resp.status_code, resp.text))
+    try:
+
+        resp = requests.get(url, headers=headers)
+        if resp.ok:
+            return resp.json()['data']
+        else:
+            logger.error('Failed VAULT GET request: %s %s', resp.status_code, resp.text)
+            raise VaultError('Failed Vault GET request: {} {}'.format(resp.status_code, resp.text))
+
+    except requests.exceptions.RequestException as exc:
+        logger.exception('Vault request error')
+        raise VaultError('Vault request error', exc)
