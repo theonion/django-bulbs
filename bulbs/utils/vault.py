@@ -8,11 +8,17 @@
 import requests
 
 from django.conf import settings
+from django.core.cache import cache
 
-log = __import__('logging').getLogger(__name__)
+logger = __import__('logging').getLogger(__name__)
 
 CACHE_SEC = 60
 BACKSTOP_CACHE_SEC = (60 * 60)
+CACHE_VERSION = 1  # Increment me to invalidate cache
+
+
+class VaultError(Exception):
+    pass
 
 
 def read(path):
@@ -26,16 +32,16 @@ def read(path):
     short_key = _make_key('short', path)
     backstop_key = _make_key('backstop', path)
 
+    # Short-term cache hit avoid hitting Vault endpoint altogether
     result = cache.get(short_key)
-
     if not result:
 
         try:
-            result = _read_uncached(path)
-            cache.set(short_key, result, CACHE_SEC=60)
-            cache.set(backstop_key, result, BACKSTOP_CACHE_SEC=60)
-        except VaultRequestError:
-            log.exception('Vault read error: %s', path)
+            result = _read_endpoint(path)
+            cache.set(short_key, result, CACHE_SEC)
+            cache.set(backstop_key, result, BACKSTOP_CACHE_SEC)
+        except VaultError:
+            logger.exception('Vault read error: %s', path)
             # On endpoint failure, try to get value from longer-lasting cache
             result = cache.get(backstop_key)
             if not result:
@@ -45,10 +51,10 @@ def read(path):
 
 
 def _make_key(*args):
-    return ':'.join(['vault', 'read', CACHE_VERSION] + args])
+    return ':'.join(['vault', 'read', str(CACHE_VERSION)] + list(args))
 
 
-def _read_uncached(path):
+def _read_endpoint(path):
     """Read a secret from Vault REST endpoint"""
     url = '{}/{}/{}'.format(settings.VAULT_BASE_URL.rstrip('/'),
                             settings.VAULT_BASE_SECRET_PATH.strip('/'),
@@ -60,4 +66,4 @@ def _read_uncached(path):
         return resp.json()['data']
     else:
         log.error('Failed VAULT GET request: %s %s', resp.status_code, resp.text)
-        raise Exception('Failed Vault GET request: {} {}'.format(resp.status_code, resp.text))
+        raise VaultError('Failed Vault GET request: {} {}'.format(resp.status_code, resp.text))
