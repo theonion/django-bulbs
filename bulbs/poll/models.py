@@ -5,9 +5,10 @@ from django.db import models, transaction
 from django.utils import timezone
 from django.conf import settings
 
-from djes.models import Indexable
 from elasticsearch_dsl.filter import Range
 from rest_framework.exceptions import APIException
+
+from djes.models import Indexable
 
 from bulbs.content.filters import Published
 from bulbs.content.models import Content, ContentManager

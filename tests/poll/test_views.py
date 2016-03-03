@@ -3,7 +3,7 @@ import json
 import re
 import requests
 import requests_mock
-import sys
+from six import PY2
 
 from django.core.urlresolvers import reverse
 from django.utils import timezone
@@ -313,7 +313,7 @@ class GetPollDataTestCase(BaseAPITestCase):
         self.assertEqual(response['Access-Control-Allow-Origin'], 'this.cool.origin')
         self.assertEqual(response['Access-Control-Allow-Credentials'], 'true')
 
-        if sys.version_info[0] == 2:
+        if PY2:
             data = json.loads(response.content)
         else:
             data = json.loads(response.read().decode('utf-8'))
