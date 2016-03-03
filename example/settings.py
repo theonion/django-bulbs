@@ -96,12 +96,6 @@ ES_CONNECTIONS = {
 
 ES_INDEX = "django-bulbs"
 
-ES_CONNECTIONS = {
-    "default": {
-        "hosts": "localhost:9200"
-    }
-}
-
 ES_INDEX_SETTINGS = {
     "django-bulbs": {
         "index": {

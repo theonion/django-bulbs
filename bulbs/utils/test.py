@@ -10,12 +10,12 @@ import vcr
 
 from elasticsearch_dsl.connections import connections
 
+from djang.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
 from django.test import TestCase
 from djes.apps import indexable_registry
 from djes.management.commands.sync_es import get_indexes, sync_index
-
 
 from model_mommy import mommy
 from rest_framework.test import APIClient
@@ -49,9 +49,7 @@ def make_vcr(test_path, record_mode='once'):
 
     return vcr.VCR(
             cassette_library_dir=cassette_dir,
-            ignore_hosts=[
-                'localhost',
-            ],
+            ignore_hosts=settings.ES_CONNECTIONS['default']['hosts'],
             record_mode=record_mode,
             filter_post_data_parameters=['access_token'],
             filter_query_parameters=['access_token']
