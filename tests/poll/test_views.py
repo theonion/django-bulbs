@@ -41,7 +41,7 @@ class PollAPITestCase(BaseAPITestCase):
     def test_sodahead_service_failure(self):
         with requests_mock.Mocker() as mocker:
             sodahead_endpoint = re.compile('https://onion.sodahead.com/api/polls/')
-            mocker.post(sodahead_endpoint, status_code=666)
+            mocker.post(sodahead_endpoint, status_code=500)
             list_url = reverse('poll-list')
             data = {
                 'questions_text': 'go underneath the bridge!',
