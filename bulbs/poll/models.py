@@ -174,7 +174,7 @@ class Poll(Content):
                 self.sodahead_id = response.json()['poll']['id']
             elif response.status_code > 499:
                 raise SodaheadResponseError(response.text)
-            elif response.status_code > 399:
+            else:
                 raise SodaheadResponseFailure(response.text)
         else:
             self.sync_sodahead()
