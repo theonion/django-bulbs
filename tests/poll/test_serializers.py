@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.utils import timezone
 
 from bulbs.poll.models import Poll, Answer
@@ -27,7 +29,8 @@ class PollSerializerTestCase(BaseIndexableTestCase):
         poll = Poll.objects.create(
             question_text='good text',
             title=random_title(),
-            end_date=timezone.now(),
+            published=timezone.now(),
+            end_date=timezone.now() + timedelta(1),
          )
         serializer = PollSerializer(poll)
         self.assertEqual(serializer.data['id'], poll.id)

@@ -42,21 +42,23 @@ def make_content(*args, **kwargs):
     content = mommy.make(klass, **kwargs)
     return content
 
+
 def make_vcr(test_path, record_mode='once'):
     base_dir = os.path.dirname(os.path.realpath(test_path))
-    test_name =  os.path.splitext(test_path)[0]
-    cassette_dir = os.path.join(base_dir, 'test_data/cassettes', test_name)
+    cassette_dir = os.path.join(base_dir, 'test_data', 'cassettes')
 
     return vcr.VCR(
-            cassette_library_dir=cassette_dir,
-            ignore_hosts=settings.ES_CONNECTIONS['default']['hosts'],
-            record_mode=record_mode,
-            filter_post_data_parameters=['access_token'],
-            filter_query_parameters=['access_token']
+        cassette_library_dir=cassette_dir,
+        ignore_hosts=settings.ES_CONNECTIONS['default']['hosts'],
+        record_mode=record_mode,
+        filter_post_data_parameters=['access_token'],
+        filter_query_parameters=['access_token']
     )
+
 
 def random_title():
     return ''.join([random.choice(string.ascii_uppercase) for _ in range(10)])
+
 
 class JsonEncoder(json.JSONEncoder):
     def default(self, value):
@@ -138,6 +140,7 @@ class BaseAPITestCase(BaseIndexableTestCase):
 
     def remove_permissions(self):
         self.admin.user_permissions.clear()
+
 
 class mock_vault(contextdecorator.ContextDecorator):
     """Decorator + context manager for mocking Vault secrets in unit tests.

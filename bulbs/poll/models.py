@@ -153,10 +153,10 @@ class Poll(Content):
             payload['endDate'] = ''
 
         for answer in self.answers.all():
-            if answer.answer_text:
-                payload[answer.sodahead_answer_id] = BLANK_ANSWER
-            else:
+            if answer.answer_text and answer.answer_text is not u'':
                 payload[answer.sodahead_answer_id] = answer.answer_text
+            else:
+                payload[answer.sodahead_answer_id] = BLANK_ANSWER
 
         if 'answer_01' not in payload:
             payload['answer_01'] = DEFAULT_ANSWER_1
@@ -164,6 +164,7 @@ class Poll(Content):
         if 'answer_02' not in payload:
             payload['answer_02'] = DEFAULT_ANSWER_2
 
+        print(payload)
         return payload
 
     def save(self, *args, **kwargs):
