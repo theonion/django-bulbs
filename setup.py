@@ -37,7 +37,7 @@ requires = [
 dev_requires = [
     "pylint==1.0.0",
     "mock==1.0.1",
-    "httmock==1.0.5",
+    "httmock==1.2.4",
     "model-mommy==1.2.4",
     "psycopg2==2.5.1",
     "pytest==2.7.3",
