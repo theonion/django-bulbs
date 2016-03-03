@@ -3,7 +3,7 @@ import json
 import re
 import requests
 import requests_mock
-import sys
+from six import PY2
 
 from django.core.urlresolvers import reverse
 from django.utils import timezone
@@ -41,7 +41,7 @@ class PollAPITestCase(BaseAPITestCase):
     def test_sodahead_service_failure(self):
         with requests_mock.Mocker() as mocker:
             sodahead_endpoint = re.compile('https://onion.sodahead.com/api/polls/')
-            mocker.post(sodahead_endpoint, status_code=666)
+            mocker.post(sodahead_endpoint, status_code=500)
             list_url = reverse('poll-list')
             data = {
                 'questions_text': 'go underneath the bridge!',
@@ -313,7 +313,7 @@ class GetPollDataTestCase(BaseAPITestCase):
         self.assertEqual(response['Access-Control-Allow-Origin'], 'this.cool.origin')
         self.assertEqual(response['Access-Control-Allow-Credentials'], 'true')
 
-        if sys.version_info[0] == 2:
+        if PY2:
             data = json.loads(response.content)
         else:
             data = json.loads(response.read().decode('utf-8'))

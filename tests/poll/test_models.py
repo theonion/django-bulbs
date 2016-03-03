@@ -36,7 +36,7 @@ class PollTestCase(BaseIndexableTestCase):
     @mock_vault(SECRETS)
     def test_poll_creation_fails_when_sodahead_request_fails(self):
         with requests_mock.Mocker() as mocker:
-            mocker.post('https://onion.sodahead.com/api/polls/', status_code=666)
+            mocker.post('https://onion.sodahead.com/api/polls/', status_code=500)
             with self.assertRaises(SodaheadResponseError):
                 Poll.objects.create(question_text='other text', title=random_title())
 
@@ -149,7 +149,7 @@ class AnswerTestCase(BaseIndexableTestCase):
         sodahead_endpoint = re.compile('https://onion.sodahead.com/api/polls/[\d]+/')
         poll = Poll.objects.create(question_text='listening to your heart', title=random_title())
         with requests_mock.Mocker() as mocker:
-            mocker.post(sodahead_endpoint, status_code=666, json={})
+            mocker.post(sodahead_endpoint, status_code=500, json={})
             with self.assertRaises(SodaheadResponseError):
                 Answer.objects.create(poll=poll, answer_text='something')
 
