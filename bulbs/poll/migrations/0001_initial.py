@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Answer',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),  # noqa
                 ('sodahead_answer_id', models.CharField(default=b'', max_length=20, blank=True)),
                 ('answer_text', models.TextField(default=b'', blank=True)),
             ],
@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Poll',
             fields=[
-                ('content_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='content.Content')),
+                ('content_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='content.Content')),  # noqa
                 ('question_text', models.TextField(default=b'', blank=True)),
                 ('sodahead_id', models.CharField(default=b'', max_length=20, blank=True)),
                 ('last_answer_index', models.IntegerField(default=0)),

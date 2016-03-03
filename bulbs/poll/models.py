@@ -1,9 +1,9 @@
-from bulbs.content.filters import Published
-from bulbs.content.models import Content, ContentManager, ElasticsearchImageField
-from bulbs.utils import vault
+import pytz
+import requests
 
 from django.db import models, transaction
 from django.utils import timezone
+from django.conf import settings
 
 from djbetty import ImageField
 
@@ -11,15 +11,15 @@ from djes.models import Indexable
 from elasticsearch_dsl.filter import Range
 from rest_framework.exceptions import APIException
 
-from time import mktime
-import pytz
-import requests
+from bulbs.content.filters import Published
+from bulbs.content.models import Content, ContentManager, ElasticsearchImageField
+from bulbs.utils import vault
 
 SODAHEAD_DATE_FORMAT = '%m/%d/%y %I:%M %p'
 
-SODAHEAD_POLL_ENDPOINT = 'https://onion.sodahead.com/api/polls/{}/'
-SODAHEAD_POLLS_ENDPOINT = 'https://onion.sodahead.com/api/polls/'
-SODAHEAD_DELETE_POLL_ENDPOINT = 'https://onion.sodahead.com/api/polls/{}/?access_token={}'
+SODAHEAD_POLL_ENDPOINT = '{}/api/polls/{{}}/'.format(settings.SODAHEAD_BASE_URL)
+SODAHEAD_POLLS_ENDPOINT = '{}/api/polls/'.format(settings.SODAHEAD_BASE_URL)
+SODAHEAD_DELETE_POLL_ENDPOINT = '{}/api/polls/{{}}/?access_token={{}}'.format(settings.SODAHEAD_BASE_URL)
 
 BLANK_ANSWER = 'Intentionally blank'
 DEFAULT_ANSWER_1 = 'default answer 1'
@@ -70,12 +70,14 @@ This is done by the field `last_answer_index` on the Poll model.
 It is incremented by 1 every time an Answer is saved.
 """
 
+
 class SodaheadResponseError(APIException):
     status_code = 503
     default_detail = "Third-party poll provider temporarily unavailable."
 
     def __init__(self, detail):
         self.detail = detail
+
 
 class SodaheadResponseFailure(APIException):
     status_code = 400
@@ -84,12 +86,14 @@ class SodaheadResponseFailure(APIException):
     def __init__(self, detail):
         self.detail = detail
 
-def Closed(): # noqa
+
+def Closed():  # noqa
     end_date_params = {
         "lte": timezone.now(),
     }
 
     return Range(end_date=end_date_params)
+
 
 class PollManager(ContentManager):
     def search(self, **kwargs):
@@ -102,6 +106,7 @@ class PollManager(ContentManager):
             search_query = search_query.filter(Closed())
 
         return search_query
+
 
 class Poll(Content):
     search_objects = PollManager()
@@ -121,7 +126,7 @@ class Poll(Content):
     def get_sodahead_data(self):
         response = requests.get(SODAHEAD_POLL_ENDPOINT.format(self.sodahead_id))
 
-        if response.status_code != 200:
+        if not response.ok:
             raise SodaheadResponseError(response.text)
         else:
             return response.json()
@@ -139,21 +144,25 @@ class Poll(Content):
         if self.published:
             activation_date = self.published.astimezone(pytz.utc)
             payload['activationDate'] = activation_date.strftime(SODAHEAD_DATE_FORMAT)
+        else:
+            payload['activationDate'] = None
 
         if self.end_date:
             end_date = self.end_date.astimezone(pytz.utc)
             payload['endDate'] = end_date.strftime(SODAHEAD_DATE_FORMAT)
+        else:
+            payload['endDate'] = ''
 
         for answer in self.answers.all():
-            if answer.answer_text == u'':
+            if answer.answer_text:
                 payload[answer.sodahead_answer_id] = BLANK_ANSWER
             else:
                 payload[answer.sodahead_answer_id] = answer.answer_text
 
-        if not 'answer_01' in payload:
+        if 'answer_01' not in payload:
             payload['answer_01'] = DEFAULT_ANSWER_1
 
-        if not 'answer_02' in payload:
+        if 'answer_02' not in payload:
             payload['answer_02'] = DEFAULT_ANSWER_2
 
         return payload
@@ -174,8 +183,12 @@ class Poll(Content):
         super(Poll, self).save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
-        response = requests.delete(SODAHEAD_DELETE_POLL_ENDPOINT
-                .format(self.sodahead_id, vault.read('sodahead/token')['value']))
+        response = requests.delete(
+            SODAHEAD_DELETE_POLL_ENDPOINT.format(
+                self.sodahead_id,
+                vault.read('sodahead/token')['value'],
+            )
+         )
         if response.status_code > 499:
             raise SodaheadResponseError(response.text)
         elif response.status_code > 399:
@@ -183,15 +196,20 @@ class Poll(Content):
         super(Poll, self).delete(*args, **kwargs)
 
     def sync_sodahead(self):
-        response = requests.post(SODAHEAD_POLL_ENDPOINT
-                .format(self.sodahead_id), self.sodahead_payload())
+        response = requests.post(
+            SODAHEAD_POLL_ENDPOINT.format(self.sodahead_id),
+            self.sodahead_payload()
+        )
+
         if response.status_code > 499:
             raise SodaheadResponseError(response.json())
         elif response.status_code > 399:
             raise SodaheadResponseFailure(response.json())
 
+
 class Answer(Indexable):
-    poll = models.ForeignKey(Poll,
+    poll = models.ForeignKey(
+        Poll,
         on_delete=models.CASCADE,
         related_name='answers'
     )
@@ -203,6 +221,12 @@ class Answer(Indexable):
         answer_image = ElasticsearchImageField()
 
     def save(self, *args, **kwargs):
+        # using transaction/select_for_update here because we don't want to
+        # run this block in parallel. If we did, we would end up with answers
+        # with the same value for `answer.sodahead_answer_id`.
+        # This is because we are deriving sodahead_answer_id based on the count
+        # of answers that have ever been created for an poll.
+        #   (see top of file for in depth explainer)
         with transaction.atomic():
             poll = Poll.objects.select_for_update().get(pk=self.poll_id)
             if self.sodahead_answer_id:

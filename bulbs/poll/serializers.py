@@ -1,10 +1,12 @@
-from bulbs.content.serializers import ContentSerializer
-from djbetty.serializers import ImageFieldSerializer
-from rest_framework import serializers
-from models import Poll, Answer
-from rest_framework import serializers
 import re
-import requests
+
+from rest_framework import serializers
+
+from djbetty.serializers import ImageFieldSerializer
+
+from bulbs.content.serializers import ContentSerializer
+from .models import Poll, Answer
+
 
 class AnswerSerializer(serializers.ModelSerializer):
     answer_image = ImageFieldSerializer(required=False)
@@ -12,9 +14,11 @@ class AnswerSerializer(serializers.ModelSerializer):
         queryset=Poll.objects.all(),
         required=False
     )
+
     class Meta:
         model = Answer
         fields = ('id', 'answer_text', 'poll', 'answer_image',)
+
 
 class PollSerializer(ContentSerializer):
     poll_image = ImageFieldSerializer(required=False)
@@ -23,6 +27,7 @@ class PollSerializer(ContentSerializer):
     class Meta:
         model = Poll
         exclude = ('thumbnail_override',)
+
 
 class PollPublicSerializer(PollSerializer):
     def to_representation(self, poll):
@@ -38,4 +43,3 @@ class PollPublicSerializer(PollSerializer):
             index += 1
 
         return representation
-

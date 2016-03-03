@@ -1,11 +1,11 @@
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
-from django.views.decorators.cache import cache_control
-from django.views.generic.detail import DetailView
 import json
 
+from django.http import HttpResponse
+from django.views.decorators.cache import cache_control
+from django.views.generic.detail import DetailView
+
 from bulbs.content.views import BaseContentDetailView
-from bulbs.poll.models import Poll, Answer
+from bulbs.poll.models import Poll
 from bulbs.poll.serializers import PollPublicSerializer
 
 

@@ -1,22 +1,23 @@
-from bulbs.poll.models      import Poll, Answer
+from datetime import timedelta
+
+from django.utils import timezone
+
+from bulbs.poll.models import Poll, Answer
 from bulbs.poll.serializers import (
     PollPublicSerializer,
     PollSerializer,
     AnswerSerializer,
 )
-from datetime import datetime, timedelta
-from bulbs.utils.test       import (
+from bulbs.utils.test import (
     BaseIndexableTestCase,
     make_vcr,
     mock_vault,
     random_title,
 )
-
 from .common import SECRETS
 
-from django.utils import timezone
-
 vcr = make_vcr(__file__)  # Define vcr file path
+
 
 class PollSerializerTestCase(BaseIndexableTestCase):
 
@@ -50,10 +51,12 @@ class PollSerializerTestCase(BaseIndexableTestCase):
     @vcr.use_cassette()
     @mock_vault(SECRETS)
     def test_poll_answer_serialization(self):
-        poll = Poll.objects.create(question_text=u'good text',
-                title=random_title())
-        answer1 = Answer.objects.create(poll=poll, answer_text=u'this is some text')
-        answer2 = Answer.objects.create(poll=poll, answer_text=u'forest path')
+        poll = Poll.objects.create(
+            question_text=u'good text',
+            title=random_title(),
+        )
+        Answer.objects.create(poll=poll, answer_text=u'this is some text')
+        Answer.objects.create(poll=poll, answer_text=u'forest path')
         serializer = PollSerializer(poll)
         answers_data = serializer.data['answers']
 
@@ -65,6 +68,7 @@ class PollSerializerTestCase(BaseIndexableTestCase):
         self.assertEqual(answers_data[1]['answer_text'], u'forest path')
         self.assertEqual(answers_data[1]['poll'], 1)
 
+
 class PollPublicSerializerTestCase(BaseIndexableTestCase):
 
     @vcr.use_cassette()
@@ -74,13 +78,12 @@ class PollPublicSerializerTestCase(BaseIndexableTestCase):
             question_text='is it powerful?',
             title=random_title(),
         )
-        answer1 = Answer.objects.create(poll=poll, answer_text=u'yes')
+        Answer.objects.create(poll=poll, answer_text=u'yes')
         answer2 = Answer.objects.create(poll=poll, answer_text=u'no')
-        answer3 = Answer.objects.create(poll=poll, answer_text=u'maybe')
+        Answer.objects.create(poll=poll, answer_text=u'maybe')
 
         serializer = PollPublicSerializer(Poll.objects.get(id=poll.id))
         answers_data = serializer.data['answers']
-
         first_sodahead_id = answers_data[0]['sodahead_id']
         second_sodahead_id = answers_data[1]['sodahead_id']
         third_sodahead_id = answers_data[2]['sodahead_id']
@@ -120,6 +123,7 @@ class PollPublicSerializerTestCase(BaseIndexableTestCase):
         self.assertEqual(answers_data[1]['poll'], 1)
         self.assertEqual(answers_data[1]['total_votes'], 0)
 
+
 class AnswerSerializerTestCase(BaseIndexableTestCase):
 
     """ Tests for the 'AnswerSerializer'"""
@@ -127,8 +131,10 @@ class AnswerSerializerTestCase(BaseIndexableTestCase):
     @vcr.use_cassette()
     @mock_vault(SECRETS)
     def test_answer_serialization(self):
-        poll = Poll.objects.create(question_text='good text',
-                title=random_title())
+        poll = Poll.objects.create(
+            question_text='good text',
+            title=random_title(),
+        )
         answer = Answer.objects.create(poll=poll, answer_text='this is some text')
         serializer = AnswerSerializer(answer)
         self.assertEqual(serializer.data['answer_text'], answer.answer_text)
@@ -148,8 +154,10 @@ class AnswerSerializerTestCase(BaseIndexableTestCase):
     @vcr.use_cassette()
     @mock_vault(SECRETS)
     def test_multiple_answer_serialization(self):
-        poll = Poll.objects.create(question_text='good text',
-                title=random_title())
+        poll = Poll.objects.create(
+            question_text='good text',
+            title=random_title(),
+        )
         answer1 = Answer.objects.create(poll=poll, answer_text='this is some text')
         answer2 = Answer.objects.create(poll=poll, answer_text='forest path')
         serializer = AnswerSerializer(Answer.objects.all(), many=True)

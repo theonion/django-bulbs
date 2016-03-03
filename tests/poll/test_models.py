@@ -1,25 +1,20 @@
+from datetime import datetime
+import pytz
+import re
+import requests
+import requests_mock
+
 from bulbs.poll.models import Poll, Answer, SodaheadResponseError
-from bulbs.utils.test  import (
+from bulbs.utils.test import (
     BaseIndexableTestCase,
     make_vcr,
     random_title,
     mock_vault,
 )
-
-from datetime import datetime
-import os
-import pytz
-import random
-import re
-import requests
-import requests_mock
-import simplejson as json
-
-from bulbs.utils import vault
-
 from .common import SECRETS
 
 vcr = make_vcr(__file__)  # Define vcr file path
+
 
 class PollTestCase(BaseIndexableTestCase):
 
@@ -31,7 +26,6 @@ class PollTestCase(BaseIndexableTestCase):
         poll = Poll.objects.create(question_text='good text', title=random_title())
         self.assertTrue(Poll.objects.filter(id=poll.id).exists())
 
-
     @vcr.use_cassette('test_create')
     @mock_vault(SECRETS)
     def test_poll_creation_gets_sodahead_id(self):
@@ -41,7 +35,6 @@ class PollTestCase(BaseIndexableTestCase):
     @vcr.use_cassette()
     @mock_vault(SECRETS)
     def test_poll_creation_fails_when_sodahead_request_fails(self):
-        sodahead_endpoint = re.compile('https://onion.sodahead.com/api/polls/[\d]+/')
         with requests_mock.Mocker() as mocker:
             mocker.post('https://onion.sodahead.com/api/polls/', status_code=666)
             with self.assertRaises(SodaheadResponseError):
@@ -56,7 +49,9 @@ class PollTestCase(BaseIndexableTestCase):
         )
         poll.question_text = 'let us have it'
         poll.save()
-        response = requests.get('https://onion.sodahead.com/api/polls/{}'.format(poll.sodahead_id)).json()
+        response = requests.get(
+            'https://onion.sodahead.com/api/polls/{}'.format(poll.sodahead_id)
+        ).json()
         self.assertEqual(response['poll']['title'], 'let us have it')
 
     @vcr.use_cassette()
@@ -66,11 +61,13 @@ class PollTestCase(BaseIndexableTestCase):
             question_text='dangerous waters ahead',
             title=random_title()
         )
-        answer1 = Answer.objects.create(answer_text='watch out', poll=poll)
-        answer2 = Answer.objects.create(answer_text='it\'s bad', poll=poll)
+        Answer.objects.create(answer_text='watch out', poll=poll)
+        Answer.objects.create(answer_text='it\'s bad', poll=poll)
         poll.question_text = 'use a quarter pound of reasons'
         poll.save()
-        response = requests.get('https://onion.sodahead.com/api/polls/{}'.format(poll.sodahead_id)).json()
+        response = requests.get(
+            'https://onion.sodahead.com/api/polls/{}'.format(poll.sodahead_id)
+        ).json()
         self.assertEqual(response['poll']['answers'][0]['title'], 'watch out')
         self.assertEqual(response['poll']['answers'][1]['title'], 'it\'s bad')
 
@@ -111,6 +108,7 @@ class PollTestCase(BaseIndexableTestCase):
         response = requests.get('http://onion.sodahead.com/api/polls/{}'.format(poll.sodahead_id))
         self.assertEqual(response.json()['poll']['endDate'], u'2050-04-11 08:45:00')
 
+
 class AnswerTestCase(BaseIndexableTestCase):
 
     @vcr.use_cassette()
@@ -124,10 +122,12 @@ class AnswerTestCase(BaseIndexableTestCase):
     @mock_vault(SECRETS)
     def test_multiple_answer_creation(self):
         poll = Poll.objects.create(question_text='melissas adventure', title=random_title())
-        answer1 = Answer.objects.create(poll=poll, answer_text='something')
-        answer2 = Answer.objects.create(poll=poll, answer_text='bridge')
-        answer3 = Answer.objects.create(poll=poll, answer_text='alibaster')
-        response = requests.get('https://onion.sodahead.com/api/polls/{}'.format(poll.sodahead_id)).json()
+        Answer.objects.create(poll=poll, answer_text='something')
+        Answer.objects.create(poll=poll, answer_text='bridge')
+        Answer.objects.create(poll=poll, answer_text='alibaster')
+        response = requests.get(
+            'https://onion.sodahead.com/api/polls/{}'.format(poll.sodahead_id)
+        ).json()
         self.assertEqual(len(response['poll']['answers']), 3)
         self.assertEqual(response['poll']['answers'][0]['title'], 'something')
         self.assertEqual(response['poll']['answers'][1]['title'], 'bridge')
@@ -137,8 +137,10 @@ class AnswerTestCase(BaseIndexableTestCase):
     @mock_vault(SECRETS)
     def test_handles_blank_answer_text(self):
         poll = Poll.objects.create(question_text='listening to your heart', title=random_title())
-        answer = Answer.objects.create(poll=poll, answer_text='')
-        response = requests.get('https://onion.sodahead.com/api/polls/{}'.format(poll.sodahead_id)).json()
+        Answer.objects.create(poll=poll, answer_text='')
+        response = requests.get(
+            'https://onion.sodahead.com/api/polls/{}'.format(poll.sodahead_id)
+        ).json()
         self.assertEqual(response['poll']['answers'][0]['title'], 'Intentionally blank')
 
     @vcr.use_cassette()
@@ -160,4 +162,3 @@ class AnswerTestCase(BaseIndexableTestCase):
         self.assertFalse(Answer.objects.filter(id=poll.id).exists())
         next_answer = Answer.objects.create(poll=poll, answer_text='yawp!')
         self.assertEqual(next_answer.sodahead_answer_id, 'answer_02')
-
