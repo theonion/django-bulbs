@@ -1,0 +1,136 @@
+interactions:
+- request:
+    body: endDate=&answer_01=default+answer+1&answer_02=default+answer+2&title=good+text&name=CRCQIAJTMN
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      Content-Length: ['184']
+      Content-Type: [application/x-www-form-urlencoded]
+      User-Agent: [python-requests/2.9.1]
+    method: POST
+    uri: https://onion.sodahead.com/api/polls/
+  response:
+    body: {string: !!python/unicode '{"vote": null, "poll": {"endDate": null, "demo":
+        {}, "image": null, "video": null, "numComments": 0, "category": {"url": "http:\/\/www.sodahead.com\/entertainment\/",
+        "id": 5, "title": "Entertainment"}, "title": "good text", "range": {}, "id":
+        4862024, "closed": false, "hideResults": false, "description": "", "tags":
+        [], "answers": [{"title": "default answer 1", "color": null, "image": null,
+        "video": null, "meta_text": null, "totalVotes": 0, "percentage": 0, "id":
+        12073620}, {"title": "default answer 2", "color": null, "image": null, "video":
+        null, "meta_text": null, "totalVotes": 0, "percentage": 0, "id": 12073622}],
+        "slider": null, "sponsored": false, "modifiedDate": null, "creationDate":
+        "2016-03-03 18:28:22", "geo": {}, "name": "CRCQIAJTMN", "url": "http:\/\/www.sodahead.com\/entertainment\/good-text\/question-4862024\/",
+        "author": {"url": "http:\/\/www.sodahead.com\/user\/profile\/4172828\/test\/",
+        "nickName": "TEST", "id": 4172828, "avatar": "http:\/\/images.sodahead.com\/profiles\/000000001\/profiles_1202SHAvatarFred_1028_226520_small.jpeg"},
+        "hideResults_content": "", "editDate": null, "activationDate": "2016-03-03
+        18:28:22", "totalVotes": 0}}'}
+    headers:
+      access-control-allow-headers: ['Authorization,Content-Type']
+      access-control-allow-methods: ['POST, GET, PUT, DELETE, HEAD, OPTIONS']
+      access-control-allow-origin: ['*']
+      cache-control: ['no-cache, private, max-age=0']
+      connection: [keep-alive]
+      content-length: ['1169']
+      content-type: [application/json; charset=utf-8]
+      date: ['Thu, 03 Mar 2016 18:28:22 GMT']
+      etag: ['"6760735c26f00470c5a30fd32488c66c"']
+      pragma: [no-cache]
+      server: [openresty/1.5.8.1]
+      set-cookie: ['demo="6941fb8484874663bf28ce8338df72595ae08811:{\"_city_region\":
+          \"Frankfort\054NY\"\054 \"bf\": 0\054 \"dma\": 526}"; Domain=onion.sodahead.com;
+          expires=Fri, 03-Mar-2017 18:28:22 GMT; Max-Age=31536000; Path=/', 'anonymousUserId="dda70eef99c92832d05889c93c48242e5ba00cd5:";
+          Domain=onion.sodahead.com; expires=Thu, 01-Jan-1970 00:00:00 GMT; Max-Age=0;
+          Path=/', 'session="d751580928f9b48c059f91a75a650e3692d0cb28:{\"country\":
+          \"US\"\054 \"state\": \"NY\"\054 \"postal_code\": \"13340\"}"; Domain=onion.sodahead.com;
+          Path=/; secure', '_crmUserId="f64eed1b50bc4a7841af95a4c41cf246349b1151:78";
+          Domain=onion.sodahead.com; Path=/']
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      Content-Length: ['0']
+      User-Agent: [python-requests/2.9.1]
+    method: DELETE
+    uri: https://onion.sodahead.com/api/polls/4862024/
+  response:
+    body: {string: !!python/unicode ''}
+    headers:
+      access-control-allow-headers: ['Authorization,Content-Type']
+      access-control-allow-methods: ['POST, GET, PUT, DELETE, HEAD, OPTIONS']
+      access-control-allow-origin: ['*']
+      cache-control: ['no-cache, private, max-age=0']
+      connection: [keep-alive]
+      content-length: ['0']
+      content-type: [application/json; charset=utf-8]
+      date: ['Thu, 03 Mar 2016 18:28:22 GMT']
+      etag: ['"883eeb59d6c85e331907b29c5b1295ba"']
+      pragma: [no-cache]
+      server: [openresty/1.5.8.1]
+      set-cookie: ['demo="6941fb8484874663bf28ce8338df72595ae08811:{\"_city_region\":
+          \"Frankfort\054NY\"\054 \"bf\": 0\054 \"dma\": 526}"; Domain=onion.sodahead.com;
+          expires=Fri, 03-Mar-2017 18:28:22 GMT; Max-Age=31536000; Path=/', 'anonymousUserId="dda70eef99c92832d05889c93c48242e5ba00cd5:";
+          Domain=onion.sodahead.com; expires=Thu, 01-Jan-1970 00:00:00 GMT; Max-Age=0;
+          Path=/', 'session="d751580928f9b48c059f91a75a650e3692d0cb28:{\"country\":
+          \"US\"\054 \"state\": \"NY\"\054 \"postal_code\": \"13340\"}"; Domain=onion.sodahead.com;
+          Path=/; secure', '_crmUserId="f64eed1b50bc4a7841af95a4c41cf246349b1151:78";
+          Domain=onion.sodahead.com; Path=/']
+    status: {code: 204, message: NO CONTENT}
+- request:
+    body: null
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      User-Agent: [python-requests/2.9.1]
+    method: GET
+    uri: https://onion.sodahead.com/api/polls/4862024
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAAwMAAAAAAAAAAAA=
+    headers:
+      connection: [keep-alive]
+      content-encoding: [gzip]
+      content-length: ['20']
+      content-type: [text/html; charset=utf-8; charset=utf-8]
+      date: ['Thu, 03 Mar 2016 18:28:22 GMT']
+      etag: ['"d41d8cd98f00b204e9800998ecf8427e"']
+      location: ['https://onion.sodahead.com/api/polls/4862024/']
+      server: [openresty/1.5.8.1]
+      vary: [Accept-Encoding]
+    status: {code: 301, message: MOVED PERMANENTLY}
+- request:
+    body: null
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      User-Agent: [python-requests/2.9.1]
+    method: GET
+    uri: https://onion.sodahead.com/api/polls/4862024/
+  response:
+    body: {string: !!python/unicode '{"error": "poll_id_rejected"}'}
+    headers:
+      access-control-allow-headers: ['Authorization,Content-Type']
+      access-control-allow-methods: ['POST, GET, PUT, DELETE, HEAD, OPTIONS']
+      access-control-allow-origin: ['*']
+      cache-control: ['no-cache, private, max-age=0']
+      connection: [keep-alive]
+      content-length: ['29']
+      content-type: [application/json; charset=utf-8]
+      date: ['Thu, 03 Mar 2016 18:28:22 GMT']
+      etag: ['"0ae64ab81c06806bb731460bf76b5c32"']
+      pragma: [no-cache]
+      server: [openresty/1.5.8.1]
+      set-cookie: ['demo="6941fb8484874663bf28ce8338df72595ae08811:{\"_city_region\":
+          \"Frankfort\054NY\"\054 \"bf\": 0\054 \"dma\": 526}"; Domain=onion.sodahead.com;
+          expires=Fri, 03-Mar-2017 18:28:22 GMT; Max-Age=31536000; Path=/', 'anonymousUserId="ac02ec3ee338518edb7bfa74e88db80dfdf5089e:debfeeae04a841c9af20715c94497db8";
+          Domain=onion.sodahead.com; Path=/', 'session="d751580928f9b48c059f91a75a650e3692d0cb28:{\"country\":
+          \"US\"\054 \"state\": \"NY\"\054 \"postal_code\": \"13340\"}"; Domain=onion.sodahead.com;
+          Path=/']
+    status: {code: 400, message: BAD REQUEST}
+version: 1

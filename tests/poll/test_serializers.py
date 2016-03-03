@@ -29,7 +29,8 @@ class PollSerializerTestCase(BaseIndexableTestCase):
         poll = Poll.objects.create(
             question_text='good text',
             title=random_title(),
-            end_date=timezone.now() + timedelta(hours=9),
+            published=timezone.now(),
+            end_date=timezone.now() + timedelta(1),
          )
         serializer = PollSerializer(poll)
         self.assertEqual(serializer.data['id'], poll.id)

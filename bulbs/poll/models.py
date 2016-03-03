@@ -133,9 +133,12 @@ class Poll(Content):
         else:
             return response.json()
 
+    def get_sodahead_token(self):
+        return vault.read(settings.SODAHEAD_TOKEN_VAULT_PATH)['value']
+
     def sodahead_payload(self):
         payload = {
-            'access_token': vault.read('sodahead/token')['value'],
+            'access_token': self.get_sodahead_token(),
             'name': self.title,
             'title': self.question_text,
         }
@@ -156,10 +159,10 @@ class Poll(Content):
             payload['endDate'] = ''
 
         for answer in self.answers.all():
-            if answer.answer_text:
-                payload[answer.sodahead_answer_id] = BLANK_ANSWER
-            else:
+            if answer.answer_text and answer.answer_text is not u'':
                 payload[answer.sodahead_answer_id] = answer.answer_text
+            else:
+                payload[answer.sodahead_answer_id] = BLANK_ANSWER
 
         if 'answer_01' not in payload:
             payload['answer_01'] = DEFAULT_ANSWER_1
@@ -167,6 +170,7 @@ class Poll(Content):
         if 'answer_02' not in payload:
             payload['answer_02'] = DEFAULT_ANSWER_2
 
+        print(payload)
         return payload
 
 
@@ -178,7 +182,7 @@ class Poll(Content):
                 self.sodahead_id = response.json()['poll']['id']
             elif response.status_code > 499:
                 raise SodaheadResponseError(response.text)
-            elif response.status_code > 399:
+            else:
                 raise SodaheadResponseFailure(response.text)
         else:
             self.sync_sodahead()
@@ -189,11 +193,9 @@ class Poll(Content):
         response = requests.delete(
             SODAHEAD_DELETE_POLL_ENDPOINT.format(
                 self.sodahead_id,
-                vault.read('sodahead/token')['value'],
+                self.get_sodahead_token(),
             )
          )
-        if response.ok:
-            pass
         if response.status_code > 499:
             raise SodaheadResponseError(response.text)
         elif response.status_code > 399:
@@ -206,9 +208,7 @@ class Poll(Content):
             self.sodahead_payload()
         )
 
-        if response.ok:
-            pass
-        elif response.status_code > 499:
+        if response.status_code > 499:
             raise SodaheadResponseError(response.json())
         elif response.status_code > 399:
             raise SodaheadResponseFailure(response.json())

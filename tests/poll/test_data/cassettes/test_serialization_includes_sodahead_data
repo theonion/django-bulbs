@@ -1,0 +1,280 @@
+interactions:
+- request:
+    body: endDate=&answer_01=default+answer+1&answer_02=default+answer+2&title=is+it+powerful%3F&name=UXKMBTTNGG
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      Content-Length: ['192']
+      Content-Type: [application/x-www-form-urlencoded]
+      User-Agent: [python-requests/2.9.1]
+    method: POST
+    uri: https://onion.sodahead.com/api/polls/
+  response:
+    body: {string: !!python/unicode '{"vote": null, "poll": {"endDate": null, "demo":
+        {}, "image": null, "video": null, "numComments": 0, "category": {"url": "http:\/\/www.sodahead.com\/entertainment\/",
+        "id": 5, "title": "Entertainment"}, "title": "is it powerful?", "range": {},
+        "id": 4862112, "closed": false, "hideResults": false, "description": "", "tags":
+        [], "answers": [{"title": "default answer 1", "color": null, "image": null,
+        "video": null, "meta_text": null, "totalVotes": 0, "percentage": 0, "id":
+        12073810}, {"title": "default answer 2", "color": null, "image": null, "video":
+        null, "meta_text": null, "totalVotes": 0, "percentage": 0, "id": 12073812}],
+        "slider": null, "sponsored": false, "modifiedDate": null, "creationDate":
+        "2016-03-03 21:28:29", "geo": {}, "name": "UXKMBTTNGG", "url": "http:\/\/www.sodahead.com\/entertainment\/is-it-powerful\/question-4862112\/",
+        "author": {"url": "http:\/\/www.sodahead.com\/user\/profile\/4172828\/test\/",
+        "nickName": "TEST", "id": 4172828, "avatar": "http:\/\/images.sodahead.com\/profiles\/000000001\/profiles_1202SHAvatarFred_1028_226520_small.jpeg"},
+        "hideResults_content": "", "editDate": null, "activationDate": "2016-03-03
+        21:28:29", "totalVotes": 0}}'}
+    headers:
+      access-control-allow-headers: ['Authorization,Content-Type']
+      access-control-allow-methods: ['POST, GET, PUT, DELETE, HEAD, OPTIONS']
+      access-control-allow-origin: ['*']
+      cache-control: ['no-cache, private, max-age=0']
+      connection: [keep-alive]
+      content-length: ['1180']
+      content-type: [application/json; charset=utf-8]
+      date: ['Thu, 03 Mar 2016 21:28:29 GMT']
+      etag: ['"671ec4da0ddb0b1166285b21078155a3"']
+      pragma: [no-cache]
+      server: [openresty/1.5.8.1]
+      set-cookie: ['demo="6941fb8484874663bf28ce8338df72595ae08811:{\"_city_region\":
+          \"Frankfort\054NY\"\054 \"bf\": 0\054 \"dma\": 526}"; Domain=onion.sodahead.com;
+          expires=Fri, 03-Mar-2017 21:28:29 GMT; Max-Age=31536000; Path=/', 'anonymousUserId="dda70eef99c92832d05889c93c48242e5ba00cd5:";
+          Domain=onion.sodahead.com; expires=Thu, 01-Jan-1970 00:00:00 GMT; Max-Age=0;
+          Path=/', 'session="d751580928f9b48c059f91a75a650e3692d0cb28:{\"country\":
+          \"US\"\054 \"state\": \"NY\"\054 \"postal_code\": \"13340\"}"; Domain=onion.sodahead.com;
+          Path=/; secure', '_crmUserId="b60e3d4b8e8f1668d1ffd185b357eb6ca6b5e3ac:80";
+          Domain=onion.sodahead.com; Path=/']
+    status: {code: 200, message: OK}
+- request:
+    body: endDate=&name=UXKMBTTNGG&answer_02=default+answer+2&title=is+it+powerful%3F&id=4862112&answer_01=yes
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      Content-Length: ['190']
+      Content-Type: [application/x-www-form-urlencoded]
+      User-Agent: [python-requests/2.9.1]
+    method: POST
+    uri: https://onion.sodahead.com/api/polls/4862112/
+  response:
+    body: {string: !!python/unicode '{"vote": null, "poll": {"endDate": null, "demo":
+        {}, "image": null, "video": null, "numComments": 0, "category": {"url": "http:\/\/www.sodahead.com\/entertainment\/",
+        "id": 5, "title": "Entertainment"}, "title": "is it powerful?", "range": {},
+        "id": 4862112, "closed": false, "hideResults": false, "description": "", "tags":
+        [], "answers": [{"title": "yes", "color": null, "image": null, "video": null,
+        "meta_text": null, "totalVotes": 0, "percentage": 0, "id": 12073810}, {"title":
+        "default answer 2", "color": null, "image": null, "video": null, "meta_text":
+        null, "totalVotes": 0, "percentage": 0, "id": 12073812}], "slider": null,
+        "sponsored": false, "modifiedDate": "2016-03-03 21:28:30.101760", "creationDate":
+        "2016-03-03 21:28:29", "geo": {}, "name": "UXKMBTTNGG", "url": "http:\/\/www.sodahead.com\/entertainment\/is-it-powerful\/question-4862112\/",
+        "author": {"url": "http:\/\/www.sodahead.com\/user\/profile\/4172828\/test\/",
+        "nickName": "TEST", "id": 4172828, "avatar": "http:\/\/images.sodahead.com\/profiles\/000000001\/profiles_1202SHAvatarFred_1028_226520_small.jpeg"},
+        "hideResults_content": "", "editDate": "2016-03-03 21:28:30.101760", "activationDate":
+        "2016-03-03 21:28:00", "totalVotes": 0}}'}
+    headers:
+      access-control-allow-headers: ['Authorization,Content-Type']
+      access-control-allow-methods: ['POST, GET, PUT, DELETE, HEAD, OPTIONS']
+      access-control-allow-origin: ['*']
+      cache-control: ['no-cache, private, max-age=0']
+      connection: [keep-alive]
+      content-length: ['1215']
+      content-type: [application/json; charset=utf-8]
+      date: ['Thu, 03 Mar 2016 21:28:30 GMT']
+      etag: ['"3e2497cf5a2d89d7746a4b52a99c5748"']
+      pragma: [no-cache]
+      server: [openresty/1.5.8.1]
+      set-cookie: ['demo="6941fb8484874663bf28ce8338df72595ae08811:{\"_city_region\":
+          \"Frankfort\054NY\"\054 \"bf\": 0\054 \"dma\": 526}"; Domain=onion.sodahead.com;
+          expires=Fri, 03-Mar-2017 21:28:30 GMT; Max-Age=31536000; Path=/', 'anonymousUserId="dda70eef99c92832d05889c93c48242e5ba00cd5:";
+          Domain=onion.sodahead.com; expires=Thu, 01-Jan-1970 00:00:00 GMT; Max-Age=0;
+          Path=/', 'session="d751580928f9b48c059f91a75a650e3692d0cb28:{\"country\":
+          \"US\"\054 \"state\": \"NY\"\054 \"postal_code\": \"13340\"}"; Domain=onion.sodahead.com;
+          Path=/; secure', '_crmUserId="b60e3d4b8e8f1668d1ffd185b357eb6ca6b5e3ac:80";
+          Domain=onion.sodahead.com; Path=/']
+    status: {code: 200, message: OK}
+- request:
+    body: endDate=&name=UXKMBTTNGG&answer_02=no&title=is+it+powerful%3F&id=4862112&answer_01=yes
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      Content-Length: ['176']
+      Content-Type: [application/x-www-form-urlencoded]
+      User-Agent: [python-requests/2.9.1]
+    method: POST
+    uri: https://onion.sodahead.com/api/polls/4862112/
+  response:
+    body: {string: !!python/unicode '{"vote": null, "poll": {"endDate": null, "demo":
+        {}, "image": null, "video": null, "numComments": 0, "category": {"url": "http:\/\/www.sodahead.com\/entertainment\/",
+        "id": 5, "title": "Entertainment"}, "title": "is it powerful?", "range": {},
+        "id": 4862112, "closed": false, "hideResults": false, "description": "", "tags":
+        [], "answers": [{"title": "yes", "color": null, "image": null, "video": null,
+        "meta_text": null, "totalVotes": 0, "percentage": 0, "id": 12073810}, {"title":
+        "no", "color": null, "image": null, "video": null, "meta_text": null, "totalVotes":
+        0, "percentage": 0, "id": 12073812}], "slider": null, "sponsored": false,
+        "modifiedDate": "2016-03-03 21:28:30", "creationDate": "2016-03-03 21:28:29",
+        "geo": {}, "name": "UXKMBTTNGG", "url": "http:\/\/www.sodahead.com\/entertainment\/is-it-powerful\/question-4862112\/",
+        "author": {"url": "http:\/\/www.sodahead.com\/user\/profile\/4172828\/test\/",
+        "nickName": "TEST", "id": 4172828, "avatar": "http:\/\/images.sodahead.com\/profiles\/000000001\/profiles_1202SHAvatarFred_1028_226520_small.jpeg"},
+        "hideResults_content": "", "editDate": "2016-03-03 21:28:30", "activationDate":
+        "2016-03-03 21:28:00", "totalVotes": 0}}'}
+    headers:
+      access-control-allow-headers: ['Authorization,Content-Type']
+      access-control-allow-methods: ['POST, GET, PUT, DELETE, HEAD, OPTIONS']
+      access-control-allow-origin: ['*']
+      cache-control: ['no-cache, private, max-age=0']
+      connection: [keep-alive]
+      content-length: ['1187']
+      content-type: [application/json; charset=utf-8]
+      date: ['Thu, 03 Mar 2016 21:28:30 GMT']
+      etag: ['"44538102d64580b3e96f24025d1d7908"']
+      pragma: [no-cache]
+      server: [openresty/1.5.8.1]
+      set-cookie: ['demo="6941fb8484874663bf28ce8338df72595ae08811:{\"_city_region\":
+          \"Frankfort\054NY\"\054 \"bf\": 0\054 \"dma\": 526}"; Domain=onion.sodahead.com;
+          expires=Fri, 03-Mar-2017 21:28:30 GMT; Max-Age=31536000; Path=/', 'anonymousUserId="dda70eef99c92832d05889c93c48242e5ba00cd5:";
+          Domain=onion.sodahead.com; expires=Thu, 01-Jan-1970 00:00:00 GMT; Max-Age=0;
+          Path=/', 'session="d751580928f9b48c059f91a75a650e3692d0cb28:{\"country\":
+          \"US\"\054 \"state\": \"NY\"\054 \"postal_code\": \"13340\"}"; Domain=onion.sodahead.com;
+          Path=/; secure', '_crmUserId="b60e3d4b8e8f1668d1ffd185b357eb6ca6b5e3ac:80";
+          Domain=onion.sodahead.com; Path=/']
+    status: {code: 200, message: OK}
+- request:
+    body: endDate=&name=UXKMBTTNGG&answer_02=no&title=is+it+powerful%3F&answer_03=maybe&id=4862112&answer_01=yes
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      Content-Length: ['192']
+      Content-Type: [application/x-www-form-urlencoded]
+      User-Agent: [python-requests/2.9.1]
+    method: POST
+    uri: https://onion.sodahead.com/api/polls/4862112/
+  response:
+    body: {string: !!python/unicode '{"vote": null, "poll": {"endDate": null, "demo":
+        {}, "image": null, "video": null, "numComments": 0, "category": {"url": "http:\/\/www.sodahead.com\/entertainment\/",
+        "id": 5, "title": "Entertainment"}, "title": "is it powerful?", "range": {},
+        "id": 4862112, "closed": false, "hideResults": false, "description": "", "tags":
+        [], "answers": [{"title": "yes", "color": null, "image": null, "video": null,
+        "meta_text": null, "totalVotes": 0, "percentage": 0, "id": 12073810}, {"title":
+        "no", "color": null, "image": null, "video": null, "meta_text": null, "totalVotes":
+        0, "percentage": 0, "id": 12073812}], "slider": null, "sponsored": false,
+        "modifiedDate": "2016-03-03 21:28:30", "creationDate": "2016-03-03 21:28:29",
+        "geo": {}, "name": "UXKMBTTNGG", "url": "http:\/\/www.sodahead.com\/entertainment\/is-it-powerful\/question-4862112\/",
+        "author": {"url": "http:\/\/www.sodahead.com\/user\/profile\/4172828\/test\/",
+        "nickName": "TEST", "id": 4172828, "avatar": "http:\/\/images.sodahead.com\/profiles\/000000001\/profiles_1202SHAvatarFred_1028_226520_small.jpeg"},
+        "hideResults_content": "", "editDate": "2016-03-03 21:28:30", "activationDate":
+        "2016-03-03 21:28:00", "totalVotes": 0}}'}
+    headers:
+      access-control-allow-headers: ['Authorization,Content-Type']
+      access-control-allow-methods: ['POST, GET, PUT, DELETE, HEAD, OPTIONS']
+      access-control-allow-origin: ['*']
+      cache-control: ['no-cache, private, max-age=0']
+      connection: [keep-alive]
+      content-length: ['1187']
+      content-type: [application/json; charset=utf-8]
+      date: ['Thu, 03 Mar 2016 21:28:30 GMT']
+      etag: ['"44538102d64580b3e96f24025d1d7908"']
+      pragma: [no-cache]
+      server: [openresty/1.5.8.1]
+      set-cookie: ['demo="6941fb8484874663bf28ce8338df72595ae08811:{\"_city_region\":
+          \"Frankfort\054NY\"\054 \"bf\": 0\054 \"dma\": 526}"; Domain=onion.sodahead.com;
+          expires=Fri, 03-Mar-2017 21:28:30 GMT; Max-Age=31536000; Path=/', 'anonymousUserId="dda70eef99c92832d05889c93c48242e5ba00cd5:";
+          Domain=onion.sodahead.com; expires=Thu, 01-Jan-1970 00:00:00 GMT; Max-Age=0;
+          Path=/', 'session="d751580928f9b48c059f91a75a650e3692d0cb28:{\"country\":
+          \"US\"\054 \"state\": \"NY\"\054 \"postal_code\": \"13340\"}"; Domain=onion.sodahead.com;
+          Path=/; secure', '_crmUserId="b60e3d4b8e8f1668d1ffd185b357eb6ca6b5e3ac:80";
+          Domain=onion.sodahead.com; Path=/']
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      User-Agent: [python-requests/2.9.1]
+    method: GET
+    uri: https://onion.sodahead.com/api/polls/4862112/
+  response:
+    body: {string: !!python/unicode '{"vote": null, "poll": {"endDate": null, "demo":
+        {}, "image": null, "video": null, "numComments": 0, "category": {"url": "http:\/\/www.sodahead.com\/entertainment\/",
+        "id": 5, "title": "Entertainment"}, "title": "is it powerful?", "range": {},
+        "id": 4862112, "closed": false, "hideResults": false, "description": "", "tags":
+        [], "answers": [{"title": "yes", "color": null, "image": null, "video": null,
+        "meta_text": null, "totalVotes": 0, "percentage": 0, "id": 12073810}, {"title":
+        "no", "color": null, "image": null, "video": null, "meta_text": null, "totalVotes":
+        0, "percentage": 0, "id": 12073812}, {"title": "maybe", "color": null, "image":
+        null, "video": null, "meta_text": null, "totalVotes": 0, "percentage": 0,
+        "id": 12073814}], "slider": null, "sponsored": false, "modifiedDate": "2016-03-03
+        21:28:30", "creationDate": "2016-03-03 21:28:29", "geo": {}, "name": "UXKMBTTNGG",
+        "url": "http:\/\/www.sodahead.com\/entertainment\/is-it-powerful\/question-4862112\/",
+        "author": {"url": "http:\/\/www.sodahead.com\/user\/profile\/4172828\/test\/",
+        "nickName": "TEST", "id": 4172828, "avatar": "http:\/\/images.sodahead.com\/profiles\/000000001\/profiles_1202SHAvatarFred_1028_226520_small.jpeg"},
+        "hideResults_content": "", "editDate": "2016-03-03 21:28:30", "activationDate":
+        "2016-03-03 21:28:00", "totalVotes": 0}}'}
+    headers:
+      access-control-allow-headers: ['Authorization,Content-Type']
+      access-control-allow-methods: ['POST, GET, PUT, DELETE, HEAD, OPTIONS']
+      access-control-allow-origin: ['*']
+      cache-control: ['no-cache, private, max-age=0']
+      connection: [keep-alive]
+      content-length: ['1321']
+      content-type: [application/json; charset=utf-8]
+      date: ['Thu, 03 Mar 2016 21:28:31 GMT']
+      etag: ['"b24c08075d42e8516cf861f2dc1b44d4"']
+      pragma: [no-cache]
+      server: [openresty/1.5.8.1]
+      set-cookie: ['demo="6941fb8484874663bf28ce8338df72595ae08811:{\"_city_region\":
+          \"Frankfort\054NY\"\054 \"bf\": 0\054 \"dma\": 526}"; Domain=onion.sodahead.com;
+          expires=Fri, 03-Mar-2017 21:28:31 GMT; Max-Age=31536000; Path=/', 'anonymousUserId="c2ff2f6c04ad2937398a67fae0505a607252abd9:75e5442c862641dc8b292919b44a37dd";
+          Domain=onion.sodahead.com; Path=/', 'session="d751580928f9b48c059f91a75a650e3692d0cb28:{\"country\":
+          \"US\"\054 \"state\": \"NY\"\054 \"postal_code\": \"13340\"}"; Domain=onion.sodahead.com;
+          Path=/']
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      User-Agent: [python-requests/2.9.1]
+    method: GET
+    uri: https://onion.sodahead.com/api/polls/4862112/
+  response:
+    body: {string: !!python/unicode '{"vote": null, "poll": {"endDate": null, "demo":
+        {}, "image": null, "video": null, "numComments": 0, "category": {"url": "http:\/\/www.sodahead.com\/entertainment\/",
+        "id": 5, "title": "Entertainment"}, "title": "is it powerful?", "range": {},
+        "id": 4862112, "closed": false, "hideResults": false, "description": "", "tags":
+        [], "answers": [{"title": "yes", "color": null, "image": null, "video": null,
+        "meta_text": null, "totalVotes": 0, "percentage": 0, "id": 12073810}, {"title":
+        "no", "color": null, "image": null, "video": null, "meta_text": null, "totalVotes":
+        0, "percentage": 0, "id": 12073812}, {"title": "maybe", "color": null, "image":
+        null, "video": null, "meta_text": null, "totalVotes": 0, "percentage": 0,
+        "id": 12073814}], "slider": null, "sponsored": false, "modifiedDate": "2016-03-03
+        21:28:30", "creationDate": "2016-03-03 21:28:29", "geo": {}, "name": "UXKMBTTNGG",
+        "url": "http:\/\/www.sodahead.com\/entertainment\/is-it-powerful\/question-4862112\/",
+        "author": {"url": "http:\/\/www.sodahead.com\/user\/profile\/4172828\/test\/",
+        "nickName": "TEST", "id": 4172828, "avatar": "http:\/\/images.sodahead.com\/profiles\/000000001\/profiles_1202SHAvatarFred_1028_226520_small.jpeg"},
+        "hideResults_content": "", "editDate": "2016-03-03 21:28:30", "activationDate":
+        "2016-03-03 21:28:00", "totalVotes": 0}}'}
+    headers:
+      access-control-allow-headers: ['Authorization,Content-Type']
+      access-control-allow-methods: ['POST, GET, PUT, DELETE, HEAD, OPTIONS']
+      access-control-allow-origin: ['*']
+      cache-control: ['no-cache, private, max-age=0']
+      connection: [keep-alive]
+      content-length: ['1321']
+      content-type: [application/json; charset=utf-8]
+      date: ['Thu, 03 Mar 2016 21:28:31 GMT']
+      etag: ['"b24c08075d42e8516cf861f2dc1b44d4"']
+      pragma: [no-cache]
+      server: [openresty/1.5.8.1]
+      set-cookie: ['demo="6941fb8484874663bf28ce8338df72595ae08811:{\"_city_region\":
+          \"Frankfort\054NY\"\054 \"bf\": 0\054 \"dma\": 526}"; Domain=onion.sodahead.com;
+          expires=Fri, 03-Mar-2017 21:28:31 GMT; Max-Age=31536000; Path=/', 'anonymousUserId="f165cf1addf8285e354993ae829b6e12a416ba72:c67e163afd194b96bf3961fbba284fa2";
+          Domain=onion.sodahead.com; Path=/', 'session="d751580928f9b48c059f91a75a650e3692d0cb28:{\"country\":
+          \"US\"\054 \"state\": \"NY\"\054 \"postal_code\": \"13340\"}"; Domain=onion.sodahead.com;
+          Path=/']
+    status: {code: 200, message: OK}
+version: 1

@@ -69,7 +69,11 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
     serializer_class = PolymorphicContentSerializer
     include_base_doctype = False
     paginate_by = 20
-    filter_fields = ("search", "before", "after", "status", "feature_types", "published", "tags", "authors", "types")
+    filter_fields = (
+        "search", "before", "after", "status",
+        "feature_types", "published", "tags",
+        "authors", "types"
+    )
     permission_classes = [IsAdminUser, CanEditContent]
     metadata_class = ContentViewMetaData
 
@@ -190,9 +194,9 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
 
         try:
             self.model.search_objects.client.delete(
-                    index=index,
-                    doc_type=doc_type,
-                    id=content.id)
+                index=index,
+                doc_type=doc_type,
+                id=content.id)
             LogEntry.objects.log(request.user, content, "Trashed")
             return Response({"status": "Trashed"})
         except elasticsearch.exceptions.NotFoundError:
@@ -230,13 +234,13 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
             return Response([], status=status.HTTP_404_NOT_FOUND)
 
         queryset = Contribution.search_objects.search().filter(
-                es_filter.Term(**{'content.id': content_pk})
-                )
+            es_filter.Term(**{'content.id': content_pk})
+        )
         if request.method == "POST":
             serializer = ContributionSerializer(
-                    queryset[:queryset.count()].sort('id')[:25],
-                    data=get_request_data(request),
-                    many=True)
+                queryset[:queryset.count()].sort('id')[:25],
+                data=get_request_data(request),
+                many=True)
             if not serializer.is_valid():
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             serializer.save()
@@ -255,13 +259,17 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         """
 
         data = {
-                "content": self.get_object().id,
-                "create_date": get_request_data(request)["create_date"],
-                "expire_date": get_request_data(request)["expire_date"]
-                }
+            "content": self.get_object().id,
+            "create_date": get_request_data(request)["create_date"],
+            "expire_date": get_request_data(request)["expire_date"]
+        }
         serializer = ObfuscatedUrlInfoSerializer(data=data)
         if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST, content_type="application/json")
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST,
+                content_type="application/json",
+            )
         serializer.save()
 
         return Response(serializer.data, status=status.HTTP_200_OK, content_type="application/json")
@@ -278,7 +286,7 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         # no date checking is done here to make it more obvious if there's an issue with the
         # number of records. Date filtering will be done on the frontend.
         infos = [ObfuscatedUrlInfoSerializer(info).data
-                for info in ObfuscatedUrlInfo.objects.filter(content=self.get_object())]
+                 for info in ObfuscatedUrlInfo.objects.filter(content=self.get_object())]
         return Response(infos, status=status.HTTP_200_OK, content_type="application/json")
 
 
@@ -295,7 +303,9 @@ class TagViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
         queryset = Tag.search_objects.search()
         if "search" in self.request.REQUEST:
             query_string = self.request.REQUEST["search"].lower()
-            queryset = queryset.query(Q("match", name=query_string) | Q("match", **{"name.raw": query_string}))
+            queryset = queryset.query(
+                Q("match", name=query_string) | Q("match", **{"name.raw": query_string})
+            )
 
         types = get_query_params(self.request).getlist("types", None)
         if types:
@@ -355,8 +365,11 @@ class LogEntryViewSet(UncachedResponse, viewsets.ModelViewSet):
             self.object = serializer.save(force_insert=True)
             self.post_save(self.object, created=True)
             headers = self.get_success_headers(serializer.data)
-            return Response(serializer.data, status=status.HTTP_201_CREATED,
-                    headers=headers)
+            return Response(
+                serializer.data,
+                status=status.HTTP_201_CREATED,
+                headers=headers
+            )
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -395,7 +408,9 @@ class FeatureTypeViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
         queryset = FeatureType.search_objects.search()
         if "search" in self.request.REQUEST:
             query_string = self.request.REQUEST["search"].lower()
-            queryset = queryset.query(Q("match", name=query_string) | Q("match", **{"name.raw": query_string}))
+            queryset = queryset.query(
+                Q("match", name=query_string) | Q("match", **{"name.raw": query_string})
+            )
         return queryset
 
 
@@ -520,7 +535,6 @@ class SpecialCoverageResolveViewSet(viewsets.ReadOnlyModelViewSet):
                 return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             raise Http404('Must specify "content_id" param')
-
 
 
 class CustomSearchContentViewSet(viewsets.GenericViewSet):
