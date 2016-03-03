@@ -188,8 +188,6 @@ class Poll(Content):
                 vault.read('sodahead/token')['value'],
             )
          )
-        if response.ok:
-            pass
         if response.status_code > 499:
             raise SodaheadResponseError(response.text)
         elif response.status_code > 399:
@@ -202,9 +200,7 @@ class Poll(Content):
             self.sodahead_payload()
         )
 
-        if response.ok:
-            pass
-        elif response.status_code > 499:
+        if response.status_code > 499:
             raise SodaheadResponseError(response.json())
         elif response.status_code > 399:
             raise SodaheadResponseFailure(response.json())
