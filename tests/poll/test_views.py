@@ -12,10 +12,10 @@ from bulbs.content.models import Content
 from bulbs.poll.models import Poll, Answer
 from bulbs.utils.test import (
     random_title,
-    mock_vault,
     BaseAPITestCase,
 )
-from bulbs.utils.test.vcr import make_vcr
+from bulbs.utils.test.make_vcr import make_vcr
+from bulbs.utils.test.mock_vault import mock_vault
 from .common import SECRETS
 
 vcr = make_vcr(__file__)  # Define vcr file path
