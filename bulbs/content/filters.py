@@ -4,7 +4,7 @@ import datetime
 import dateutil.parser
 import dateutil.tz
 from django.utils import timezone
-from elasticsearch_dsl.filter import Term, Terms, Range, MatchAll, Nested
+from elasticsearch_dsl.filter import Exists, MatchAll, Nested, Range, Term, Terms
 from six import string_types, text_type, binary_type
 
 
@@ -52,6 +52,11 @@ def Status(status):  # noqa
         return Term(status=status)
     else:
         return MatchAll()
+
+
+def AllSponsored():  # noqa
+    """Filter for any content that has a campaign."""
+    return Nested(path="campaign", filter=Exists(field="campaign.id"))
 
 
 def Authors(usernames):  # noqa
