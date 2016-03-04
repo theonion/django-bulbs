@@ -11,11 +11,11 @@ from django.utils import timezone
 from bulbs.content.models import Content
 from bulbs.poll.models import Poll, Answer
 from bulbs.utils.test import (
-    make_vcr,
     random_title,
     mock_vault,
     BaseAPITestCase,
 )
+from bulbs.utils.test.vcr import make_vcr
 from .common import SECRETS
 
 vcr = make_vcr(__file__)  # Define vcr file path
@@ -316,7 +316,7 @@ class GetPollDataTestCase(BaseAPITestCase):
         if PY2:
             data = json.loads(response.content)
         else:
-            data = json.loads(response.read().decode('utf-8'))
+            data = json.loads(response.content.decode('utf-8'))
 
         self.assertEqual(data['id'], poll.id)
         self.assertEqual(data['total_votes'], 0)

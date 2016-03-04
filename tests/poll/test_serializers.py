@@ -10,10 +10,10 @@ from bulbs.poll.serializers import (
 )
 from bulbs.utils.test import (
     BaseIndexableTestCase,
-    make_vcr,
     mock_vault,
     random_title,
 )
+from bulbs.utils.test.vcr import make_vcr
 from .common import SECRETS
 
 vcr = make_vcr(__file__)  # Define vcr file path
