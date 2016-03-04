@@ -1,12 +1,15 @@
 from django.db import models
 
-from bulbs.content.models import Content, Tag, ElasticsearchImageField
 from djbetty.fields import ImageField
+
+from bulbs.campaigns.models import Campaign
+from bulbs.content.models import Content, Tag, ElasticsearchImageField
 
 
 class TestContentObj(Content):
     """Fake content here"""
     foo = models.CharField(max_length=255)
+    campaign = models.ForeignKey(Campaign, null=True)
 
     def get_absolute_url(self):
         return '/detail/%s/' % self.pk

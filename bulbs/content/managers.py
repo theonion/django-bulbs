@@ -1,7 +1,12 @@
+from django.conf import settings
+from django.utils import timezone
+
 from djes.models import IndexableManager
+from elasticsearch_dsl import filter as es_filter
 from polymorphic import PolymorphicManager
 
-from .filters import Authors, Published, Status, Tags, FeatureTypes
+
+from .filters import AllSponsored, Authors, Published, Status, Tags, FeatureTypes
 
 
 class ContentManager(PolymorphicManager, IndexableManager):
@@ -10,8 +15,22 @@ class ContentManager(PolymorphicManager, IndexableManager):
     a specialized version of `djes.models.SearchManager` for `bulbs.content.Content`
     """
 
-    def recent(self):
-        pass
+    def sponsored(self, **kwargs):
+        """
+        Search containing any sponsored pieces of Content.
+        """
+        eqs = self.search(**kwargs)
+        eqs = eqs.filter(AllSponsored())
+        published_offset = getattr(settings, "RECENT_SPONSORED_OFFSET_HOURS", None)
+        if published_offset:
+            now = timezone.now()
+            eqs = eqs.filter(
+                Published(
+                    after=now - timezone.timedelta(hours=published_offset),
+                    before=now
+                )
+            )
+        return eqs
 
     def search(self, **kwargs):
         """
@@ -44,6 +63,10 @@ class ContentManager(PolymorphicManager, IndexableManager):
 
         if "status" in kwargs:
             search_query = search_query.filter(Status(kwargs["status"]))
+
+        if "excluded_ids" in kwargs:
+            exclusion_filter = ~es_filter.Ids(values=kwargs.get("excluded_ids", []))
+            search_query = search_query.filter(exclusion_filter)
 
         tag_filter = Tags(kwargs.get("tags", []))
         search_query = search_query.filter(tag_filter)
