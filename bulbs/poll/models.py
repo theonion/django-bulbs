@@ -167,7 +167,6 @@ class Poll(Content):
         if 'answer_02' not in payload:
             payload['answer_02'] = DEFAULT_ANSWER_2
 
-        print(payload)
         return payload
 
     def save(self, *args, **kwargs):

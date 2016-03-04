@@ -316,7 +316,7 @@ class GetPollDataTestCase(BaseAPITestCase):
         if PY2:
             data = json.loads(response.content)
         else:
-            data = json.loads(response.read().decode('utf-8'))
+            data = json.loads(response.content.decode('utf-8'))
 
         self.assertEqual(data['id'], poll.id)
         self.assertEqual(data['total_votes'], 0)
