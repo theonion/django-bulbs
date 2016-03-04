@@ -13,7 +13,7 @@ from bulbs.utils.test import (
     mock_vault,
     random_title,
 )
-from bulbs.utils.test.vcr import make_vcr
+from bulbs.utils.test.make_vcr import make_vcr
 from .common import SECRETS
 
 vcr = make_vcr(__file__)  # Define vcr file path
