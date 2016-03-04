@@ -11,11 +11,11 @@ from django.utils import timezone
 from bulbs.content.models import Content
 from bulbs.poll.models import Poll, Answer
 from bulbs.utils.test import (
-    make_vcr,
     random_title,
     mock_vault,
     BaseAPITestCase,
 )
+from bulbs.utils.test.vcr import make_vcr
 from .common import SECRETS
 
 vcr = make_vcr(__file__)  # Define vcr file path
