@@ -35,7 +35,7 @@ Vault is a credentials storage server:
     as a prefix to the passed in path and reads it from Vault.
 
 - Adds vault test mocking at: `bulbs.utils.test.mock_vault`
-  See the implementation for documentation on mocking the vault in testse:
+  See the implementation for documentation on mocking the vault in tests:
   <a href="https://github.com/theonion/django-bulbs/blob/master/bulbs/utils/test/__init__.py#L131-L144">
     https://github.com/theonion/django-bulbs/blob/master/bulbs/utils/test/__init__.py#L131-L144
   </a>
