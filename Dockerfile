@@ -1,3 +1,6 @@
+# This Dockerfile is used for CI testing.
+# It is NOT production-worthy.
+
 FROM buildpack-deps:wily
 
 ARG PYTHON_VERSION='python2.7'
