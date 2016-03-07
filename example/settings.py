@@ -78,6 +78,11 @@ REST_FRAMEWORK = {
     )
 }
 
+DIGEST_ENDPOINT = "popular"
+DIGEST_HOSTNAME = "homie"
+DIGEST_OFFSET = 10
+DIGEST_SITE = "bulbs"
+
 SECRET_KEY = "no-op"
 
 ES_DISABLED = False
