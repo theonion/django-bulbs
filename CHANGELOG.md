@@ -1,5 +1,42 @@
 # django-bulbs Change Log
 
+## Version 0.8.0
+
+### Polls
+
+- Adds `bulbs/poll` application
+  Adding `"bulbs.poll"` to `INSTALLED_APPS` will
+    automatically add poll api routes to the `bulbs.api` routes
+
+- Added `bulbs.poll.urls`
+  Adding `url(r'^', include('bulbs.poll.urls')),` creates a read-only
+    endpoint that exposes merged data from sodahead and our database.
+
+    It is accessible at `/poll/:poll_id/merged.json`
+
+- Added `SODAHEAD_BASE_URL` to settings.
+  Most likely value is: `'https://onion.sodahead.com'`
+
+- Added `SODAHEAD_TOKEN_VAULT_PATH` to settings.
+  In local/testing environments, this should be: `'sodahead/token'`
+  In production environments, this should be: `:property/sodahead/token`
+    ie: `starwipe/sodahead/token`.
+
+  In production, each app has it's own sodahead token, and all test
+    enviromnents share a sodahead token.
+
+### Vault
+
+- Added `VAULT_BASE_URL` to settings.
+  The base url of our Vault credentials store.
+    ie: 'http://hostname:8200/v1/'
+
+- Added `VAULT_BASE_SECRET_PATH` to settings.
+    ie: `secrets/example`
+
+- Added `VAULT_ACCESS_TOKEN` to settings.
+    ie: `very-secret-token`
+
 ## Version 0.7.11
 
 - Remove redundant ES_URLS setting, just use ES_CONNECTIONS. Eventually all client projects can stop using ES_URLS too. 
