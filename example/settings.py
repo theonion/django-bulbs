@@ -1,6 +1,9 @@
 import os
 
 MODULE_ROOT = os.path.dirname(os.path.realpath(__file__))
+VAULT_BASE_URL = 'http://192.168.220.222:8200/v1/'
+VAULT_BASE_SECRET_PATH = 'secrets/example'
+VAULT_ACCESS_TOKEN = 'beepborp'
 
 DATABASES = {
     'default': {
@@ -29,6 +32,8 @@ INSTALLED_APPS = (
     "rest_framework",
     "rest_framework.authtoken",
     "polymorphic",
+    # bulbs content types
+    "bulbs.poll",
     # local apps
     "bulbs.api",
     "bulbs.campaigns",
@@ -41,6 +46,7 @@ INSTALLED_APPS = (
     "bulbs.sections",
     # local testing apps
     "example.testcontent",
+    "example.example_api",
     "bulbs.contributions",
 )
 
@@ -84,7 +90,8 @@ ES_DISABLED = False
 
 ES_CONNECTIONS = {
     "default": {
-        "hosts": [os.environ.get('ELASTICSEARCH_HOST', 'localhost')]
+        "hosts": [os.environ.get('ELASTICSEARCH_HOST', 'localhost')],
+        "timeout": 30,
     }
 }
 
@@ -115,3 +122,6 @@ ES_INDEX_SETTINGS = {
         }
     }
 }
+
+SODAHEAD_BASE_URL = 'https://onion.sodahead.com'
+SODAHEAD_TOKEN_VAULT_PATH = 'sodahead/token'

@@ -40,3 +40,8 @@ if "bulbs.sections" in settings.INSTALLED_APPS:
     urlpatterns += (
         url(r"^", include("bulbs.sections.urls")),
     )
+
+if "bulbs.poll" in settings.INSTALLED_APPS:
+    urlpatterns += (
+        url(r"^", include("bulbs.poll.api")),
+    )
