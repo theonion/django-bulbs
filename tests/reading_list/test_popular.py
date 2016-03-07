@@ -3,8 +3,7 @@ import mock
 from django.utils import timezone
 
 from bulbs.content.models import Content
-from bulbs.reading_list.popular import get_popular_ids
-from bulbs.reading_list.queries import popular_content, recent_content
+from bulbs.reading_list.popular import get_popular_ids, popular_content
 from bulbs.utils.test import make_content, BaseIndexableTestCase
 
 
@@ -40,10 +39,10 @@ class PopularContentTestCase(BaseIndexableTestCase):
                 get_popular_ids()
             )
 
-    def test_get_popular_content(self):
+    def test_get_popular_content_fallback(self):
         """Test recent fallback for popular content."""
         popular = popular_content()
-        recent = recent_content()
+        recent = Content.search_objects.search()
         for obj in popular.extra(size=popular.count()):
             self.assertIn(obj, recent.extra(size=recent.count()))
 
@@ -56,3 +55,9 @@ class PopularContentTestCase(BaseIndexableTestCase):
                 sorted([obj.id for obj in eqs.extra(size=eqs.count())]),
                 get_popular_ids()
             )
+
+
+class SpecialCoverageTestCase(BaseIndexableTestCase):
+
+    def setUp(self):
+        super(SpecialCoverageTestCase, self).setUp()
