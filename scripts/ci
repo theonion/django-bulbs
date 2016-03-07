@@ -1,0 +1,49 @@
+#!/usr/bin/env ruby
+pythons = [
+  '2.7',
+  '3.4',
+  '3.5',
+]
+
+elastics = [
+  '1.4.4',
+  '1.4.5',
+  '1.7.5',
+]
+
+docker_tags = []
+failures = []
+
+pythons.each do |python|
+  elastics.each do |elastic|
+    docker_tag = "py_#{python}-es_#{elastic}"
+    docker_tags.push(docker_tag)
+    docker_cmd = "
+      docker build \
+        --tag #{docker_tag} \
+        --build-arg PYTHON_VERSION=python#{python} \
+        --build-arg EKS_PACKAGE_NAME=elasticsearch-#{elastic} \
+        .
+    "
+    puts docker_cmd
+    system(docker_cmd)
+  end
+end
+
+docker_tags.each do |docker_tag|
+  puts; puts
+  puts " ================ RUNNING TESTS FOR #{docker_tag} ======================"
+  puts; puts
+  # system returns false on exit code 0
+  unless system("docker run #{docker_tag}")
+    failures.push(docker_tag)
+  end
+end
+
+if failures.any?
+  abort("
+    Some Tests Failed:
+
+    #{failures.join("\n")}
+   ")
+end
