@@ -27,6 +27,19 @@
 
 ### Vault
 
+Vault is a credentials storage server:
+<a href="https://www.vaultproject.io/">https://www.vaultproject.io/</a>
+
+- Adds a vault client at: `bulbs.utils.vault`
+  `bulbs.utils.vault.read(path)` combines `VAULT_BASE_SECRET_PATH`
+    as a prefix to the passed in path and reads it from Vault.
+
+- Adds vault test mocking at: `bulbs.utils.test.mock_vault`
+  See the implementation for documentation on mocking the vault in testse:
+  <a href="https://github.com/theonion/django-bulbs/blob/master/bulbs/utils/test/__init__.py#L131-L144">
+    https://github.com/theonion/django-bulbs/blob/master/bulbs/utils/test/__init__.py#L131-L144
+  </a>
+
 - Added `VAULT_BASE_URL` to settings.
   The base url of our Vault credentials store.
     ie: 'http://hostname:8200/v1/'
