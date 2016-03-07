@@ -1,5 +1,55 @@
 # django-bulbs Change Log
 
+## Version 0.8.0
+
+### Polls
+
+- Adds `bulbs/poll` application
+  Adding `"bulbs.poll"` to `INSTALLED_APPS` will
+    automatically add poll api routes to the `bulbs.api` routes
+
+- Added `bulbs.poll.urls`
+  Adding `url(r'^', include('bulbs.poll.urls')),` creates a read-only
+    endpoint that exposes merged data from sodahead and our database.
+
+    It is accessible at `/poll/:poll_id/merged.json`
+
+- Added `SODAHEAD_BASE_URL` to settings.
+  Most likely value is: `'https://onion.sodahead.com'`
+
+- Added `SODAHEAD_TOKEN_VAULT_PATH` to settings.
+  In local/testing environments, this should be: `'sodahead/token'`
+  In production environments, this should be: `:property/sodahead/token`
+    ie: `starwipe/sodahead/token`.
+
+  In production, each app has it's own sodahead token, and all test
+    enviromnents share a sodahead token.
+
+### Vault
+
+Vault is a credentials storage server:
+<a href="https://www.vaultproject.io/">https://www.vaultproject.io/</a>
+
+- Adds a vault client at: `bulbs.utils.vault`
+  `bulbs.utils.vault.read(path)` combines `VAULT_BASE_SECRET_PATH`
+    as a prefix to the passed in path and reads it from Vault.
+
+- Adds vault test mocking at: `bulbs.utils.test.mock_vault`
+  See the implementation for documentation on mocking the vault in tests:
+  <a href="https://github.com/theonion/django-bulbs/blob/master/bulbs/utils/test/__init__.py#L131-L144">
+    https://github.com/theonion/django-bulbs/blob/master/bulbs/utils/test/__init__.py#L131-L144
+  </a>
+
+- Added `VAULT_BASE_URL` to settings.
+  The base url of our Vault credentials store.
+    ie: 'http://hostname:8200/v1/'
+
+- Added `VAULT_BASE_SECRET_PATH` to settings.
+    ie: `secrets/example`
+
+- Added `VAULT_ACCESS_TOKEN` to settings.
+    ie: `very-secret-token`
+
 ## Version 0.7.11
 
 - Remove redundant ES_URLS setting, just use ES_CONNECTIONS. Eventually all client projects can stop using ES_URLS too. 
