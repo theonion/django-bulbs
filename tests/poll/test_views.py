@@ -236,9 +236,9 @@ class AnswerAPITestCase(BaseAPITestCase):
     @mock_vault(SECRETS)
     def test_router_registered(self):
         list_url = reverse('answer-list')
-        self.assertEqual(list_url, '/api/v1/answer/')
+        self.assertEqual(list_url, '/api/v1/poll-answer/')
         detail_url = reverse('answer-detail', kwargs={'pk': 1})
-        self.assertEqual(detail_url, '/api/v1/answer/1/')
+        self.assertEqual(detail_url, '/api/v1/poll-answer/1/')
 
     @vcr.use_cassette()
     @mock_vault(SECRETS)
