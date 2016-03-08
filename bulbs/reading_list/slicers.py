@@ -53,7 +53,7 @@ class SearchSlicer(object):
             )
 
 
-def FistSlotSlicer(primary_query, secondary_query, limit=30):  # noqa
+def FirstSlotSlicer(primary_query, secondary_query, limit=30):  # noqa
     """
     Inject the first object from a queryset into the first position of a reading list.
 

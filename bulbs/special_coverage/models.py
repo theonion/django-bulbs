@@ -174,6 +174,10 @@ class SpecialCoverage(DetailImageMixin, models.Model):
         return self._content
 
     @property
+    def identifier(self):
+        return "specialcoverage.{}".format(self.id)
+
+    @property
     def has_pinned_content(self):
         """determines if the there is a pinned object in the search
         """

@@ -2,7 +2,7 @@
 from django.conf import settings
 from django.core.cache import cache
 
-from elasticsearch_dsl import TransportError
+from elasticsearch import TransportError
 from elasticsearch_dsl import filter as es_filter
 
 from bulbs.content.filters import NegateQueryFilter, SponsoredBoost
@@ -157,7 +157,7 @@ class ReadingListMixin(object):
 
     @property
     def reading_list_identifier(self):
-        if not self._reading_list_identifier:
-            self._reading_list_identifier = self.get_reading_list_identifier()
+        _reading_list_identifier = getattr(self, "_reading_list_identifier", None)
+        if not _reading_list_identifier:
+            setattr(self, "_reading_list_identifier", self.get_reading_list_identifier())
         return self._reading_list_identifier
-
