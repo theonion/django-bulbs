@@ -69,7 +69,11 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
     serializer_class = PolymorphicContentSerializer
     include_base_doctype = False
     paginate_by = 20
-    filter_fields = ("search", "before", "after", "status", "feature_types", "published", "tags", "authors", "types")
+    filter_fields = (
+        "search", "before", "after", "status",
+        "feature_types", "published", "tags",
+        "authors", "types"
+    )
     permission_classes = [IsAdminUser, CanEditContent]
     metadata_class = ContentViewMetaData
 
@@ -130,7 +134,7 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         if "search" in get_query_params(self.request):
             search_kwargs["query"] = get_query_params(self.request).get("search")
 
-        queryset = Content.search_objects.search(**search_kwargs)
+        queryset = self.model.search_objects.search(**search_kwargs)
 
         if "authors" in get_query_params(self.request):
             authors = get_query_params(self.request).getlist("authors")
@@ -189,7 +193,7 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         doc_type = content.__class__.search_objects.mapping.doc_type
 
         try:
-            Content.search_objects.client.delete(
+            self.model.search_objects.client.delete(
                 index=index,
                 doc_type=doc_type,
                 id=content.id)
@@ -261,7 +265,11 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         }
         serializer = ObfuscatedUrlInfoSerializer(data=data)
         if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST, content_type="application/json")
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST,
+                content_type="application/json",
+            )
         serializer.save()
 
         return Response(serializer.data, status=status.HTTP_200_OK, content_type="application/json")
@@ -295,7 +303,9 @@ class TagViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
         queryset = Tag.search_objects.search()
         if "search" in self.request.REQUEST:
             query_string = self.request.REQUEST["search"].lower()
-            queryset = queryset.query(Q("match", name=query_string) | Q("match", **{"name.raw": query_string}))
+            queryset = queryset.query(
+                Q("match", name=query_string) | Q("match", **{"name.raw": query_string})
+            )
 
         types = get_query_params(self.request).getlist("types", None)
         if types:
@@ -355,8 +365,11 @@ class LogEntryViewSet(UncachedResponse, viewsets.ModelViewSet):
             self.object = serializer.save(force_insert=True)
             self.post_save(self.object, created=True)
             headers = self.get_success_headers(serializer.data)
-            return Response(serializer.data, status=status.HTTP_201_CREATED,
-                            headers=headers)
+            return Response(
+                serializer.data,
+                status=status.HTTP_201_CREATED,
+                headers=headers
+            )
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -395,7 +408,9 @@ class FeatureTypeViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
         queryset = FeatureType.search_objects.search()
         if "search" in self.request.REQUEST:
             query_string = self.request.REQUEST["search"].lower()
-            queryset = queryset.query(Q("match", name=query_string) | Q("match", **{"name.raw": query_string}))
+            queryset = queryset.query(
+                Q("match", name=query_string) | Q("match", **{"name.raw": query_string})
+            )
         return queryset
 
 
@@ -424,11 +439,11 @@ class MeViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
         if secret:
             # use firebase auth to provide auth variables to firebase security api
             firebase_auth_payload = {
-                'id': request.user.pk,
-                'username': request.user.username,
-                'email': request.user.email,
-                'is_staff': request.user.is_staff
-            }
+                    'id': request.user.pk,
+                    'username': request.user.username,
+                    'email': request.user.email,
+                    'is_staff': request.user.is_staff
+                    }
             data['firebase_token'] = create_token(secret, firebase_auth_payload)
 
         return Response(data)
@@ -450,8 +465,8 @@ class ContentTypeViewSet(viewsets.ViewSet):
                 results.append(dict(
                     name=name,
                     doctype=doctype
-                ))
-        results.sort(key=lambda x: x["name"])
+                    ))
+                results.sort(key=lambda x: x["name"])
         return Response(dict(results=results))
 
 
@@ -520,7 +535,6 @@ class SpecialCoverageResolveViewSet(viewsets.ReadOnlyModelViewSet):
                 return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             raise Http404('Must specify "content_id" param')
-
 
 
 class CustomSearchContentViewSet(viewsets.GenericViewSet):

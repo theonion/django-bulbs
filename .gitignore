@@ -16,5 +16,7 @@ docs/_build/
 coverage_html_report
 reports
 .idea/
-.cache/
 *.sublime-project
+.venv/
+venv/
+.cache/
