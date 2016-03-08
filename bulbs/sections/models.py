@@ -11,7 +11,7 @@ from json_field import JSONField
 
 from bulbs.content.custom_search import custom_search_model
 from bulbs.content.models import Content, ElasticsearchImageField
-from .managers import SectionManager
+from .managers import SectionIndexableManager, SectionManager
 
 
 es = Elasticsearch(settings.ES_CONNECTIONS["default"]["hosts"])
@@ -28,7 +28,8 @@ class Section(Indexable):
     promoted = models.BooleanField(default=False)
     query = JSONField(default={}, blank=True)
 
-    search_objects = SectionManager()
+    objects = SectionManager()
+    search_objects = SectionIndexableManager()
 
     class Mapping:
         name = field.String(analyzer="autocomplete", fields={"raw": field.String(index="not_analyzed")})

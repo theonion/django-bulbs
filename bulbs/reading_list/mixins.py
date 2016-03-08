@@ -90,22 +90,24 @@ class ReadingListMixin(object):
 
         # remove the current piece of content from the query.
         reading_list = reading_list.filter(
-            es_filter.Ids(values=[self.id])
+            ~es_filter.Ids(values=[self.id])
         )
 
         # remove excluded document types from the query.
         excluded_doc_types = READING_LIST_CONFIG.get("excluded_doc_types", [])
-        reading_list = reading_list.filter(
-            ~es_filter.Types(values=excluded_doc_types)
-        )
+        for obj in excluded_doc_types:
+            reading_list = reading_list.filter(
+                ~es_filter.Type(values=excluded_doc_types)
+            )
 
         return reading_list
 
     def get_reading_list_context(self):
         """Returns the context dictionary for a given reading list."""
+        reading_list = None
         context = {
             "name": "",
-            "content": None,
+            "content": reading_list,
             "targeting": {},
             "videos": []
         }
@@ -119,7 +121,7 @@ class ReadingListMixin(object):
                 self.reading_list_identifier
             )
             reading_list = special_coverage.get_content().query(
-                SponsoredBoost
+                SponsoredBoost(field_name="campaign")
             ).sort("_score", "-published")
             context.update({
                 "name": special_coverage.name,
@@ -136,7 +138,7 @@ class ReadingListMixin(object):
                 })
 
         if self.reading_list_identifier.startswith("section"):
-            section = Section.search_objects.get_by_identifier(self.reading_list_identifier)
+            section = Section.objects.get_by_identifier(self.reading_list_identifier)
             reading_list = section.get_content()
             context.update({"name": section.name})
 
