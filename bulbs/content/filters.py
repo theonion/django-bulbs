@@ -4,7 +4,10 @@ import datetime
 import dateutil.parser
 import dateutil.tz
 from django.utils import timezone
-from elasticsearch_dsl.filter import Exists, MatchAll, Nested, Range, Term, Terms
+
+from elasticsearch_dsl.filter import Exists, MatchAll, Nested, Prefix, Range, Term, Terms
+from elasticsearch_dsl.query import FunctionScore
+
 from six import string_types, text_type, binary_type
 
 
@@ -109,3 +112,13 @@ def FeatureTypes(slugs):  # noqa
         f &= ~Nested(path="feature_type", filter=Terms(**{"feature_type.slug": excluded}))
 
     return f
+
+
+def SponsoredBoost(field_name, boost_mode="multiply", weight=5):
+    return FunctionScore(
+        boost_mode=boost_mode,
+        functions=[{
+            "filter": Exists(field=field_name),
+            "weight": weight
+        }]
+    )
