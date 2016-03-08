@@ -40,6 +40,7 @@ class TestReadingListObj(Content, ReadingListMixin):
     """Fake content with reading lists here."""
 
     foo = models.CharField(max_length=255)
+    campaign = models.ForeignKey(Campaign, null=True)
 
     def get_absolute_url(self):
         return "/detail/%s/" % self.pk

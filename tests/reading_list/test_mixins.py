@@ -271,3 +271,81 @@ class ReadingListIdentifierTestCase(BaseReadingListTestCase):
                 self.assertEqual(
                     obj.reading_list_identifier, self.sponsored_special_coverage.identifier
                 )
+
+
+class AugmentedReadingListTestCase(BaseReadingListTestCase):
+
+    def setUp(self):
+        super(AugmentedReadingListTestCase, self).setUp()
+        # Fill up recent with more content
+        make_content(TestReadingListObj, published=self.now, _quantity=50)
+        self.another_campaign = Campaign.objects.create(
+            sponsor_name="Fellas",
+            start_date=self.now - timezone.timedelta(days=30),
+            end_date=self.now + timezone.timedelta(days=30)
+        )
+        self.sponsored_content = make_content(
+            TestReadingListObj,
+            published=self.now - timezone.timedelta(hours=9),
+            campaign=self.another_campaign,
+            _quantity=20
+        )
+        Content.search_objects.refresh()
+
+    def test_recent_augmented(self):
+        example = Content.objects.last()
+        self.assertEqual(example.reading_list_identifier, "recent")
+        context = example.get_reading_list_context()
+        self.assertEqual(context["name"], "Recent News")
+        content = context["content"]
+        res = [res for res in content]
+        self.assertTrue(res[0].campaign)
+
+    def test_section_augmented(self):
+        self.add_section_identifiers()
+        example = self.query_content[0]
+        self.assertEqual(example.reading_list_identifier, self.section.es_id)
+        context = example.get_reading_list_context()
+        self.assertEqual(context["name"], self.section.name)
+        content = context["content"]
+        res = [res for res in content]
+        self.assertTrue(res[0].campaign)
+
+    def test_unsponsored_augmented(self):
+        self.add_section_identifiers()
+        self.add_unsponsored_special_coverage_identifiers()
+        example = self.query_content[0]
+        self.assertEqual(
+            example.reading_list_identifier, self.unsponsored_special_coverage.identifier
+        )
+        context = example.get_reading_list_context()
+        self.assertEqual(context["name"], self.unsponsored_special_coverage.name)
+        content = context["content"]
+        res = [res for res in content]
+        self.assertTrue(res[0].campaign)
+
+    def test_popular_augmented(self):
+        self.add_section_identifiers()
+        example = self.query_content[0]
+        with mock.patch("pageview_client.clients.TrendingClient.get") as mock_get:
+            mock_get.return_value = [obj.id for obj in self.query_content]
+            self.assertEqual(example.reading_list_identifier, "popular")
+            context = example.get_reading_list_context()
+            self.assertEqual(context["name"], "popular")
+            content = context["content"]
+            res = [res for res in content]
+            self.assertTrue(res[0].campaign)
+
+    def test_sponsored_not_augmented(self):
+        self.add_section_identifiers()
+        self.add_unsponsored_special_coverage_identifiers()
+        self.add_sponsored_special_coverage_identifiers()
+        example = self.query_content[0]
+        self.assertEqual(
+            example.reading_list_identifier, self.sponsored_special_coverage.identifier
+        )
+        context = example.get_reading_list_context()
+        self.assertEqual(context["name"], self.sponsored_special_coverage.name)
+        content = context["content"]
+        res = [res for res in content]
+        self.assertFalse(res[0].campaign)

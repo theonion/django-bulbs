@@ -55,12 +55,19 @@ class ReadingListMixin(object):
 
         return "recent"
 
-    def augment_reading_list(self, primary_query):
+    def augment_reading_list(self, primary_query, reverse_negate=False):
         """Apply injected logic for slicing reading lists with additional content."""
         primary_query = self.update_reading_list(primary_query)
         augment_query = self.update_reading_list(Content.search_objects.sponsored(
             excluded_ids=[self.id]
-        ).filter(NegateQueryFilter(primary_query)))
+        ))
+
+        # We use this for cases like recent where queries are vague.
+        if reverse_negate:
+            primary_query = primary_query.filter(NegateQueryFilter(augment_query))
+        else:
+            augment_query = augment_query.filter(NegateQueryFilter(primary_query))
+
         try:
             if not augment_query:
                 return primary_query
@@ -116,6 +123,11 @@ class ReadingListMixin(object):
             reading_list = popular_content()
             context.update({"name": self.reading_list_identifier})
 
+            # Popular is augmented.
+            reading_list = self.augment_reading_list(reading_list)
+            context.update({"content": reading_list})
+            return context
+
         if self.reading_list_identifier.startswith("specialcoverage"):
             special_coverage = SpecialCoverage.objects.get_by_identifier(
                 self.reading_list_identifier
@@ -123,31 +135,40 @@ class ReadingListMixin(object):
             reading_list = special_coverage.get_content().query(
                 SponsoredBoost(field_name="campaign")
             ).sort("_score", "-published")
-            context.update({
-                "name": special_coverage.name,
-                "videos": special_coverage.videos,
-                "targeting": {
-                    "dfp_specialcoverage": special_coverage.slug
-                },
-            })
+            context["targeting"]["dfp_specialcoverage"] = special_coverage.slug
             if special_coverage.campaign:
                 context["campaign"] = special_coverage.campaign
                 context["targeting"].update({
                     "dfp_campaign": special_coverage.campaign.campaign_label,
                     "dfp_campaign_id": special_coverage.campaign.id
                 })
+                # We do not augment sponsored special coverage lists.
+                reading_list = self.update_reading_list(reading_list)
+            else:
+                reading_list = self.augment_reading_list(reading_list)
+            context.update({
+                "name": special_coverage.name,
+                "videos": special_coverage.videos,
+                "content": reading_list
+            })
+            return context
 
         if self.reading_list_identifier.startswith("section"):
             section = Section.objects.get_by_identifier(self.reading_list_identifier)
             reading_list = section.get_content()
-            context.update({"name": section.name})
+            reading_list = self.augment_reading_list(reading_list)
+            context.update({
+                "name": section.name,
+                "content": reading_list
+            })
+            return context
 
-        if not reading_list:
-            reading_list = Content.search_objects.search()
-            context.update({"name": "Recent News"})
-
-        reading_list = self.augment_reading_list(reading_list)
-        context.update({"content": reading_list})
+        reading_list = Content.search_objects.search()
+        reading_list = self.augment_reading_list(reading_list, reverse_negate=True)
+        context.update({
+            "name": "Recent News",
+            "content": reading_list
+        })
         return context
 
     def get_reading_list(self, published=True):
