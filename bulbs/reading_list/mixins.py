@@ -5,11 +5,13 @@ from django.core.cache import cache
 from elasticsearch_dsl import TransportError
 from elasticsearch_dsl import filter as es_filter
 
-from bulbs.content.filters import SponsoredBoost
+from bulbs.content.filters import NegateQueryFilter, SponsoredBoost
 from bulbs.content.models import Content
+from bulbs.content.search import randomize_es
 from bulbs.sections.models import Section
 from bulbs.special_coverage.models import SpecialCoverage
 from .popular import get_popular_ids, popular_content
+from .slicers import FirstSlotSlicer
 
 
 READING_LIST_CONFIG = getattr(settings, "READING_LIST_CONFIG", {})
@@ -53,6 +55,20 @@ class ReadingListMixin(object):
 
         return "recent"
 
+    def augment_reading_list(self, primary_query):
+        """Apply injected logic for slicing reading lists with additional content."""
+        primary_query = self.update_reading_list(primary_query)
+        augment_query = self.update_reading_list(Content.search_objects.sponsored(
+            excluded_ids=[self.id]
+        ).filter(NegateQueryFilter(primary_query)))
+        try:
+            if not augment_query:
+                return primary_query
+            augment_query = randomize_es(augment_query)
+            return FirstSlotSlicer(primary_query, augment_query)
+        except TransportError:
+            return primary_query
+
     def get_special_coverage_identifiers(self):
         cache_key = "special-coverage-identifiers-{}".format(self.id)
         identifiers = cache.get(cache_key)
@@ -86,6 +102,7 @@ class ReadingListMixin(object):
         return reading_list
 
     def get_reading_list_context(self):
+        """Returns the context dictionary for a given reading list."""
         context = {
             "name": "",
             "content": None,
@@ -127,7 +144,8 @@ class ReadingListMixin(object):
             reading_list = Content.search_objects.search()
             context.update({"name": "Recent News"})
 
-        context.update({"content": self.update_reading_list(reading_list)})
+        reading_list = self.augment_reading_list(reading_list)
+        context.update({"content": reading_list})
         return context
 
     def get_reading_list(self, published=True):
