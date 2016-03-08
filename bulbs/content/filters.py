@@ -5,7 +5,7 @@ import dateutil.parser
 import dateutil.tz
 from django.utils import timezone
 
-from elasticsearch_dsl.filter import Exists, MatchAll, Nested, Prefix, Range, Term, Terms
+from elasticsearch_dsl.filter import Exists, MatchAll, Nested, Not, Range, Term, Terms
 from elasticsearch_dsl.query import FunctionScore
 
 from six import string_types, text_type, binary_type
@@ -76,6 +76,16 @@ def Authors(usernames):  # noqa
     if excluded:
         f &= Terms(**{"authors.username": excluded})
     return f
+
+
+def NegateQueryFilter(es_query):  # noqa
+    """
+    Return a filter removing the contents of the provided query.
+    """
+    query = es_query.to_dict().get("query", {})
+    filtered = query.get("filtered", {})
+    negated_filter = filtered.get("filter", {})
+    return Not(**negated_filter)
 
 
 def Tags(slugs):  # noqa
