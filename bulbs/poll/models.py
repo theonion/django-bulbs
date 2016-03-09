@@ -126,7 +126,12 @@ class Poll(Content):
         response = requests.get(SODAHEAD_POLL_ENDPOINT.format(self.sodahead_id))
 
         if not response.ok:
-            raise SodaheadResponseError(response.text)
+            return {
+                'poll': {
+                    'totalVotes': 0,
+                    'answers': [],
+                },
+            }
         else:
             return response.json()
 
