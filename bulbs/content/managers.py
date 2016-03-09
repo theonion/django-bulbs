@@ -14,7 +14,7 @@ from .filters import (
 class ContentManager(PolymorphicManager, IndexableManager):
     """a specialized version of `djes.models.SearchManager` for `bulbs.content.Content`."""
 
-    def evergreen(self, included_channel_ids=[], excluded_channel_ids=[], **kwargs):
+    def evergreen(self, included_channel_ids=None, excluded_channel_ids=None, **kwargs):
         """
         Search containing any evergreen piece of Content.
 

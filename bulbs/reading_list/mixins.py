@@ -14,9 +14,6 @@ from .popular import get_popular_ids, popular_content
 from .slicers import FirstSlotSlicer
 
 
-# READING_LIST_CONFIG = getattr(settings, "READING_LIST_CONFIG", {})
-
-
 class ReadingListMixin(object):
     """Mixin for Content-based objects to manage reading lists."""
 
