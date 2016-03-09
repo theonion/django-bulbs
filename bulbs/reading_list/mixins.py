@@ -14,7 +14,7 @@ from .popular import get_popular_ids, popular_content
 from .slicers import FirstSlotSlicer
 
 
-READING_LIST_CONFIG = getattr(settings, "READING_LIST_CONFIG", {})
+# READING_LIST_CONFIG = getattr(settings, "READING_LIST_CONFIG", {})
 
 
 class ReadingListMixin(object):
@@ -62,7 +62,7 @@ class ReadingListMixin(object):
         query = self.update_reading_list(query)
         return query
 
-    def get_augment_query(self, augment_query=None):
+    def get_validated_augment_query(self, augment_query=None):
         """
         Common rules for reading list augmentation hierarchy.
 
@@ -84,11 +84,12 @@ class ReadingListMixin(object):
     def augment_reading_list(self, primary_query, augment_query=None, reverse_negate=False):
         """Apply injected logic for slicing reading lists with additional content."""
         primary_query = self.validate_query(primary_query)
-        augment_query = self.get_augment_query(augment_query=augment_query)
+        augment_query = self.get_validated_augment_query(augment_query=augment_query)
 
         try:
             if not augment_query:
                 return primary_query
+
             # We use this for cases like recent where queries are vague.
             if reverse_negate:
                 primary_query = primary_query.filter(NegateQueryFilter(augment_query))
@@ -124,11 +125,10 @@ class ReadingListMixin(object):
         )
 
         # remove excluded document types from the query.
-        excluded_doc_types = READING_LIST_CONFIG.get("excluded_doc_types", [])
+        reading_list_config = getattr(settings, "READING_LIST_CONFIG", {})
+        excluded_doc_types = reading_list_config.get("excluded_doc_types", [])
         for obj in excluded_doc_types:
-            reading_list = reading_list.filter(
-                ~es_filter.Type(values=excluded_doc_types)
-            )
+            reading_list = reading_list.filter(~es_filter.Type(value=obj))
 
         return reading_list
 

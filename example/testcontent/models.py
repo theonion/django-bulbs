@@ -46,6 +46,14 @@ class TestReadingListObj(Content, ReadingListMixin):
         return "/detail/%s/" % self.pk
 
 
+class AnotherTestReadingListObj(Content, ReadingListMixin):
+
+    haa = models.CharField(max_length=255)
+
+    def get_absolute_url(self):
+        return "/detail/%s/" % self.pk
+
+
 class TestCategory(Tag):
 
     baz = models.CharField(max_length=255)

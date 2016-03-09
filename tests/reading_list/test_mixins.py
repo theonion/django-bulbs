@@ -1,5 +1,6 @@
 import mock
 
+from django.test import override_settings
 from django.utils import timezone
 
 from bulbs.campaigns.models import Campaign
@@ -8,7 +9,7 @@ from bulbs.sections.models import Section
 from bulbs.special_coverage.models import SpecialCoverage
 from bulbs.utils.test import make_content, BaseIndexableTestCase
 
-from example.testcontent.models import TestReadingListObj
+from example.testcontent.models import TestReadingListObj, AnotherTestReadingListObj
 
 
 class BaseReadingListTestCase(BaseIndexableTestCase):
@@ -57,6 +58,24 @@ class BaseReadingListTestCase(BaseIndexableTestCase):
 
 
 class ReadingListContextTestCase(BaseReadingListTestCase):
+
+    def test_excluded_doc_types_unconfigured(self):
+        make_content(AnotherTestReadingListObj, published=self.now, _quantity=50)
+        Content.search_objects.refresh()
+        self.assertEqual(Content.search_objects.count(), 55)
+        reading_list = self.query_content[0].get_reading_list_context()["content"]
+        self.assertEqual(reading_list.count(), 54)
+
+    @override_settings(
+        READING_LIST_CONFIG={
+            "excluded_doc_types": [AnotherTestReadingListObj.search_objects.mapping.doc_type]}
+    )
+    def test_excluded_doc_types_configured(self):
+        make_content(AnotherTestReadingListObj, published=self.now, _quantity=50)
+        Content.search_objects.refresh()
+        self.assertEqual(Content.search_objects.count(), 55)
+        reading_list = self.query_content[0].get_reading_list_context()["content"]
+        self.assertEqual(reading_list.count(), 4)
 
     def test_recent(self):
         example = Content.objects.first()

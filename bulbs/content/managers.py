@@ -14,7 +14,7 @@ from .filters import (
 class ContentManager(PolymorphicManager, IndexableManager):
     """a specialized version of `djes.models.SearchManager` for `bulbs.content.Content`."""
 
-    def evergreen(self, **kwargs):
+    def evergreen(self, included_channel_ids=[], excluded_channel_ids=[], **kwargs):
         """
         Search containing any evergreen piece of Content.
 
@@ -23,9 +23,6 @@ class ContentManager(PolymorphicManager, IndexableManager):
         """
         eqs = self.search(**kwargs)
         eqs = eqs.filter(Evergreen())
-        included_channel_ids = kwargs.get("included_channel_ids", [])
-        excluded_channel_ids = kwargs.get("exncluded_channel_ids", [])
-
         if included_channel_ids:
             eqs = eqs.filter(VideohubChannel(included_ids=included_channel_ids))
         if excluded_channel_ids:
@@ -36,7 +33,8 @@ class ContentManager(PolymorphicManager, IndexableManager):
         """Filter evergreen content to exclusively video content."""
         eqs = self.evergreen(**kwargs)
         video_doc_type = getattr(settings, "VIDEO_DOC_TYPE", "")
-        eqs = eqs.filter(es_filter.Type(values=[video_doc_type]))
+        eqs = eqs.filter(es_filter.Type(value=video_doc_type))
+        return eqs
 
     def sponsored(self, **kwargs):
         """Search containing any sponsored pieces of Content."""
