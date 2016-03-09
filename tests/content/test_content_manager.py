@@ -31,7 +31,7 @@ class ContentManagerTestCase(BaseIndexableTestCase):
 
     def test_evergreen(self):
         evergreen = Content.search_objects.evergreen().extra(from_=0, size=50)
-        qs = TestContentObj.objects.filter(evergreen=True)
+        qs = Content.objects.filter(evergreen=True)
         self.assertEqual(qs.count(), evergreen.count())
         self.assertEqual(
             sorted([obj.id for obj in qs]),

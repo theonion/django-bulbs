@@ -76,8 +76,8 @@ class ReadingListMixin(object):
             augment_query = self.validate_query(Content.search_objects.sponsored())
 
         # Given an invalid Sponsored query, reach for a Video query.
-        # if not augment_query:
-        #     augment_query = self.validate_augment_query()
+        if not augment_query:
+            augment_query = self.validate_query(Content.search_objects.evergreen_video())
 
         return augment_query
 

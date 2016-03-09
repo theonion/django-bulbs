@@ -25,10 +25,18 @@ class ContentManager(PolymorphicManager, IndexableManager):
         eqs = eqs.filter(Evergreen())
         included_channel_ids = kwargs.get("included_channel_ids", [])
         excluded_channel_ids = kwargs.get("exncluded_channel_ids", [])
-        eqs = eqs.filter(VideohubChannel(
-            included_ids=included_channel_ids, excluded_ids=excluded_channel_ids)
-        )
+
+        if included_channel_ids:
+            eqs = eqs.filter(VideohubChannel(included_ids=included_channel_ids))
+        if excluded_channel_ids:
+            eqs = eqs.filter(VideohubChannel(excluded_ids=excluded_channel_ids))
         return eqs
+
+    def evergreen_video(self, **kwargs):
+        """Filter evergreen content to exclusively video content."""
+        eqs = self.evergreen(**kwargs)
+        video_doc_type = getattr(settings, "VIDEO_DOC_TYPE", "")
+        eqs = eqs.filter(es_filter.Type(values=[video_doc_type]))
 
     def sponsored(self, **kwargs):
         """Search containing any sponsored pieces of Content."""
