@@ -55,22 +55,24 @@ class ReadingListMixin(object):
 
         return "recent"
 
-    def augment_reading_list(self, primary_query, reverse_negate=False):
+    def augment_reading_list(self, primary_query, augment_query=None, reverse_negate=False):
         """Apply injected logic for slicing reading lists with additional content."""
         primary_query = self.update_reading_list(primary_query)
-        augment_query = self.update_reading_list(Content.search_objects.sponsored(
-            excluded_ids=[self.id]
-        ))
 
-        # We use this for cases like recent where queries are vague.
-        if reverse_negate:
-            primary_query = primary_query.filter(NegateQueryFilter(augment_query))
-        else:
-            augment_query = augment_query.filter(NegateQueryFilter(primary_query))
+        if augment_query is None:
+            augment_query = Content.search_objects.sponsored()
+        augment_query = self.update_reading_list(augment_query)
 
         try:
             if not augment_query:
                 return primary_query
+
+            # We use this for cases like recent where queries are vague.
+            if reverse_negate:
+                primary_query = primary_query.filter(NegateQueryFilter(augment_query))
+            else:
+                augment_query = augment_query.filter(NegateQueryFilter(primary_query))
+
             augment_query = randomize_es(augment_query)
             return FirstSlotSlicer(primary_query, augment_query)
         except TransportError:
