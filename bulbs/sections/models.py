@@ -3,13 +3,15 @@ from django.db import models
 from django.db.models.signals import pre_delete
 from django.template.defaultfilters import slugify
 
-from bulbs.content.custom_search import custom_search_model
-from bulbs.content.models import Content, ElasticsearchImageField
 from djes.models import Indexable
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import field
 from djbetty import ImageField
 from json_field import JSONField
+
+from bulbs.content.custom_search import custom_search_model
+from bulbs.content.models import Content, ElasticsearchImageField
+from .managers import SectionIndexableManager, SectionManager
 
 
 es = Elasticsearch(settings.ES_CONNECTIONS["default"]["hosts"])
@@ -25,6 +27,9 @@ class Section(Indexable):
     twitter_handle = models.CharField(max_length=255, blank=True)
     promoted = models.BooleanField(default=False)
     query = JSONField(default={}, blank=True)
+
+    objects = SectionManager()
+    search_objects = SectionIndexableManager()
 
     class Mapping:
         name = field.String(analyzer="autocomplete", fields={"raw": field.String(index="not_analyzed")})

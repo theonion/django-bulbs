@@ -13,6 +13,8 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
 from django.test import TestCase
+from django.utils import timezone
+
 from djes.apps import indexable_registry
 from djes.management.commands.sync_es import get_indexes, sync_index
 
@@ -87,6 +89,8 @@ class BaseIndexableTestCase(TestCase):
         self.elasticsearchLogger.setLevel(logging.ERROR)
         self.es = connections.get_connection("default")
         self.indexes = get_indexes()
+
+        self.now = timezone.now()
 
         for index in list(self.indexes):
             self.es.indices.delete_alias("{}*".format(index), "_all", ignore=[404])

@@ -23,6 +23,7 @@ requires = [
     "django-json-field==0.5.5",
     "django-polymorphic==0.7.1",
     "djangorestframework-csv==1.3.3",
+    "pageview_client==1.0.4",
     "djangorestframework==3.1.1",
     "djes>=0.1.108",
     "drf-nested-routers==0.11.1",
