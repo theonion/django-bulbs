@@ -132,3 +132,11 @@ def SponsoredBoost(field_name, boost_mode="multiply", weight=5):
             "weight": weight
         }]
     )
+
+
+def VideohubChannel(included_ids=None, excluded_ids=None):
+    f = MatchAll()
+    if included_ids:
+        f &= Nested(path="video", filter=Terms(**{"video.channel_id": included_ids}))
+    if excluded_ids:
+        f &= ~Nested(path="video", filter=Terms(**{"video.channel_id": excluded_ids}))

@@ -1,3 +1,4 @@
+"""Generic manager for all indexable content and common queries."""
 from django.conf import settings
 from django.utils import timezone
 
@@ -5,20 +6,32 @@ from djes.models import IndexableManager
 from elasticsearch_dsl import filter as es_filter
 from polymorphic import PolymorphicManager
 
-
-from .filters import AllSponsored, Authors, Published, Status, Tags, FeatureTypes
+from .filters import (
+    AllSponsored, Authors, Evergreen, FeatureTypes, Published, Status, Tags, VideohubChannel
+)
 
 
 class ContentManager(PolymorphicManager, IndexableManager):
+    """a specialized version of `djes.models.SearchManager` for `bulbs.content.Content`."""
 
-    """
-    a specialized version of `djes.models.SearchManager` for `bulbs.content.Content`
-    """
+    def evergreen(self, **kwargs):
+        """
+        Search containing any evergreen piece of Content.
+
+        :included_channel_ids list: Contains ids for channel ids relevant to the query.
+        :excluded_channel_ids list: Contains ids for channel ids excluded from the query.
+        """
+        eqs = self.search(**kwargs)
+        eqs = eqs.filter(Evergreen())
+        included_channel_ids = kwargs.get("included_channel_ids", [])
+        excluded_channel_ids = kwargs.get("exncluded_channel_ids", [])
+        eqs = eqs.filter(VideohubChannel(
+            included_ids=included_channel_ids, excluded_ids=excluded_channel_ids)
+        )
+        return eqs
 
     def sponsored(self, **kwargs):
-        """
-        Search containing any sponsored pieces of Content.
-        """
+        """Search containing any sponsored pieces of Content."""
         eqs = self.search(**kwargs)
         eqs = eqs.filter(AllSponsored())
         published_offset = getattr(settings, "RECENT_SPONSORED_OFFSET_HOURS", None)
@@ -34,7 +47,7 @@ class ContentManager(PolymorphicManager, IndexableManager):
 
     def search(self, **kwargs):
         """
-        Queries using ElasticSearch, returning an elasticsearch queryset.
+        Query using ElasticSearch, returning an elasticsearch queryset.
 
         :param kwargs: keyword arguments (optional)
          * query : ES Query spec

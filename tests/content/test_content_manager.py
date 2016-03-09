@@ -16,7 +16,7 @@ class ContentManagerTestCase(BaseIndexableTestCase):
             start_date=timezone.now() - timezone.timedelta(days=5),
             end_date=timezone.now() + timezone.timedelta(days=5)
         )
-        make_content(published=timezone.now(), _quantity=50)
+        make_content(evergreen=True, published=timezone.now(), _quantity=50)
         make_content(TestContentObj, campaign=campaign, published=timezone.now(), _quantity=50)
         Content.search_objects.refresh()
 
@@ -27,4 +27,13 @@ class ContentManagerTestCase(BaseIndexableTestCase):
         self.assertEqual(
             sorted([obj.id for obj in qs]),
             sorted([obj.id for obj in sponsored])
+        )
+
+    def test_evergreen(self):
+        evergreen = Content.search_objects.evergreen().extra(from_=0, size=50)
+        qs = TestContentObj.objects.filter(evergreen=True)
+        self.assertEqual(qs.count(), evergreen.count())
+        self.assertEqual(
+            sorted([obj.id for obj in qs]),
+            sorted([obj.id for obj in evergreen])
         )
