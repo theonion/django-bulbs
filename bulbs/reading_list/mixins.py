@@ -55,24 +55,45 @@ class ReadingListMixin(object):
 
         return "recent"
 
+    def validate_query(self, query):
+        """Confirm query exists given common filters."""
+        if query is None:
+            return query
+        query = self.update_reading_list(query)
+        return query
+
+    def get_augment_query(self, augment_query=None):
+        """
+        Common rules for reading list augmentation hierarchy.
+
+        1. Sponsored Content.
+        2. Video Content.
+        """
+        augment_query = self.validate_query(augment_query)
+
+        # Given an invalid query, reach for a Sponsored query.
+        if not augment_query:
+            augment_query = self.validate_query(Content.search_objects.sponsored())
+
+        # Given an invalid Sponsored query, reach for a Video query.
+        # if not augment_query:
+        #     augment_query = self.validate_augment_query()
+
+        return augment_query
+
     def augment_reading_list(self, primary_query, augment_query=None, reverse_negate=False):
         """Apply injected logic for slicing reading lists with additional content."""
-        primary_query = self.update_reading_list(primary_query)
-
-        if augment_query is None:
-            augment_query = Content.search_objects.sponsored()
-        augment_query = self.update_reading_list(augment_query)
+        primary_query = self.validate_query(primary_query)
+        augment_query = self.get_augment_query(augment_query=augment_query)
 
         try:
             if not augment_query:
                 return primary_query
-
             # We use this for cases like recent where queries are vague.
             if reverse_negate:
                 primary_query = primary_query.filter(NegateQueryFilter(augment_query))
             else:
                 augment_query = augment_query.filter(NegateQueryFilter(primary_query))
-
             augment_query = randomize_es(augment_query)
             return FirstSlotSlicer(primary_query, augment_query)
         except TransportError:
