@@ -3,6 +3,7 @@ from elasticsearch_dsl import filter as es_filter
 
 from bulbs.content.custom_search import get_condition_filter
 from bulbs.content.models import Content
+from bulbs.reading_list.slicers import SearchSlicer  # NOQA
 
 
 class SearchParty(object):
