@@ -77,7 +77,11 @@ class ReadingListMixin(object):
 
         # Given an invalid Sponsored query, reach for a Video query.
         if not augment_query:
-            augment_query = self.validate_query(Content.search_objects.evergreen_video())
+            reading_list_config = getattr(settings, "READING_LIST_CONFIG", {})
+            excluded_channel_ids = reading_list_config.get("excluded_channel_ids", [])
+            augment_query = self.validate_query(Content.search_objects.evergreen_video(
+                excluded_channel_ids=excluded_channel_ids
+            ))
 
         return augment_query
 
@@ -87,9 +91,6 @@ class ReadingListMixin(object):
         augment_query = self.get_validated_augment_query(augment_query=augment_query)
 
         try:
-            if not augment_query:
-                return primary_query
-
             # We use this for cases like recent where queries are vague.
             if reverse_negate:
                 primary_query = primary_query.filter(NegateQueryFilter(augment_query))

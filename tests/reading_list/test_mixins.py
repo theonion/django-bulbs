@@ -64,7 +64,7 @@ class ReadingListContextTestCase(BaseReadingListTestCase):
         Content.search_objects.refresh()
         self.assertEqual(Content.search_objects.count(), 55)
         reading_list = self.query_content[0].get_reading_list_context()["content"]
-        self.assertEqual(reading_list.count(), 54)
+        self.assertEqual(reading_list.default_queryset.count(), 54)
 
     @override_settings(
         READING_LIST_CONFIG={
@@ -75,7 +75,7 @@ class ReadingListContextTestCase(BaseReadingListTestCase):
         Content.search_objects.refresh()
         self.assertEqual(Content.search_objects.count(), 55)
         reading_list = self.query_content[0].get_reading_list_context()["content"]
-        self.assertEqual(reading_list.count(), 4)
+        self.assertEqual(reading_list.default_queryset.count(), 4)
 
     def test_recent(self):
         example = Content.objects.first()
@@ -85,7 +85,7 @@ class ReadingListContextTestCase(BaseReadingListTestCase):
         self.assertEqual(context["name"], "Recent News")
         self.assertEqual(context["targeting"], {})
         self.assertEqual(context["videos"], [])
-        content = context["content"]
+        content = context["content"].default_queryset
         self.assertIsNotNone(content)
         body = content.to_dict()
 
@@ -117,7 +117,7 @@ class ReadingListContextTestCase(BaseReadingListTestCase):
         self.assertEqual(context["name"], self.section.name)
         self.assertEqual(context["targeting"], {})
         self.assertEqual(context["videos"], [])
-        content = context["content"]
+        content = context["content"].default_queryset
         self.assertIsNotNone(content)
         body = content.to_dict()
 
@@ -153,7 +153,8 @@ class ReadingListContextTestCase(BaseReadingListTestCase):
         self.assertEqual(context["videos"], self.unsponsored_special_coverage.videos)
         content = context["content"]
         self.assertIsNotNone(content)
-        body = content.to_dict()
+        primary_queryset = content.default_queryset
+        body = primary_queryset.to_dict()
 
         # Sorted by descending publish date.
         self.assertEqual(body["sort"], ["_score", {"published": {"order": "desc"}}])
@@ -183,7 +184,7 @@ class ReadingListContextTestCase(BaseReadingListTestCase):
             self.assertEqual(context["name"], "popular")
             self.assertEqual(context["targeting"], {})
             self.assertEqual(context["videos"], [])
-            content = context["content"]
+            content = context["content"].default_queryset
             self.assertIsNotNone(content)
             body = content.to_dict()
 
