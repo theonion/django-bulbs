@@ -16,7 +16,7 @@ class RSSView(ContentListView):
     def get_template_names(self):
         return ["feeds/rss.xml", "feeds/_rss.xml"]
 
-    @cache_control(max_age=600)
+    @cache_control(max_age=300)
     def get(self, request, *args, **kwargs):
         response = super(RSSView, self).get(request, *args, **kwargs)
         response["Content-Type"] = "application/rss+xml"
