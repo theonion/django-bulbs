@@ -130,10 +130,11 @@ class Poll(Content):
 
         if not response.ok:
             logger.error(
-                'Poll(id: %, sodahead_id: %).get_sodahead_data error: %',
+                'Poll(id: %s, sodahead_id: %s).get_sodahead_data status_code: %s error: %s',
                 self.id,
                 self.sodahead_id,
-                response.text
+                response.text,
+                response.status_code,
             )
             return {
                 'poll': {
