@@ -1,5 +1,11 @@
 # django-bulbs Change Log
 
+## Version 0.8.2
+
+- Fixed bugs with reading poll data for unpublished polls.
+  We were returning an error when sodahead reads failed.
+  We now return partial data.
+
 ## Version 0.8.1
 
 - Add `bulbs/reading_list` application
