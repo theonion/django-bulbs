@@ -1,5 +1,9 @@
 # django-bulbs Change Log
 
+## Version 0.8.3
+
+- Reduce RSS view caching from 10 to 5 min (per social squad)
+
 ## Version 0.8.2
 
 - Fixed bugs with reading poll data for unpublished polls.
