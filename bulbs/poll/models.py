@@ -1,3 +1,4 @@
+import logging
 import pytz
 import requests
 
@@ -13,6 +14,8 @@ from djes.models import Indexable
 from bulbs.content.filters import Published
 from bulbs.content.models import Content, ContentManager
 from bulbs.utils import vault
+
+logger = logging.getLogger(__name__)
 
 SODAHEAD_DATE_FORMAT = '%m/%d/%y %I:%M %p'
 
@@ -126,7 +129,19 @@ class Poll(Content):
         response = requests.get(SODAHEAD_POLL_ENDPOINT.format(self.sodahead_id))
 
         if not response.ok:
-            raise SodaheadResponseError(response.text)
+            logger.error(
+                'Poll(id: %s, sodahead_id: %s).get_sodahead_data status_code: %s error: %s',
+                self.id,
+                self.sodahead_id,
+                response.text,
+                response.status_code,
+            )
+            return {
+                'poll': {
+                    'totalVotes': 0,
+                    'answers': [],
+                },
+            }
         else:
             return response.json()
 
