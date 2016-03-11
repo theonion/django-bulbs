@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 import elasticsearch
 from django.contrib.auth import get_user_model
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from django.core.urlresolvers import reverse
 from django.template.defaultfilters import slugify
 from django.test.client import Client
@@ -61,7 +61,6 @@ class TestContentListingAPI(BaseAPITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["count"], 79)
         self.assertEqual(len(response.data["results"]), 20)
-
 
 
 class TestContentStatusAPI(BaseAPITestCase):
@@ -142,8 +141,9 @@ class TestPublishContentAPI(BaseAPITestCase):
 
     def test_publish_now(self):
         content = make_content(
+            TestContentObj,
             title="Django Unchained: How a framework tried to run using async IO",
-            description="Spoiler alert: it didn't go great, unless you measure by the number of HN articles about it",
+            description="Spoiler alert: it didn't go great, unless you measure by # of HN articles",
             foo="SUCK IT, NERDS.",
             published=None
         )
@@ -410,7 +410,6 @@ class TestImageAPI(BaseAPITestCase):
         self.assertEqual(data["thumbnail"], None)
         self.assertEqual(data["detail_image"], None)
 
-
         # self.assertTrue("caption" in data["detail_image"])
 
 
@@ -425,7 +424,9 @@ class TestMeApi(BaseAPITestCase):
         self.assertEqual(response.data.get("username"), "admin")
 
     def test_me_has_firebase_token(self):
-        """Test that firebase token is put into me view if settings contains a FIREBASE_SECRET variable."""
+        """Test that firebase token is put into me view if settings contains a FIREBASE_SECRET
+        variable.
+        """
 
         # login user
         client = Client()
@@ -611,12 +612,12 @@ class TestContentResolveAPI(BaseAPITestCase):
 
     def test_resolve_redirect_url(self):
         make_content(id=123)
-        for url in ('http://test.local/r/123',
-                    '/r/123tsd',
-                    '/r/123?one=two&three=four',
-                    'http://test.local/r/123',
-                    'http://test.local/r/123?one=two'):
-            r = self.resolve(url=url)
+        for test_url in ('http://test.local/r/123',
+                         '/r/123tsd',
+                         '/r/123?one=two&three=four',
+                         'http://test.local/r/123',
+                         'http://test.local/r/123?one=two'):
+            r = self.resolve(url=test_url)
             self.assertEqual(r.status_code, 200)
             self.assertEqual(123, r.data['id'])
 
