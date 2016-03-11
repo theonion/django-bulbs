@@ -5,7 +5,7 @@ from bulbs.campaigns.models import Campaign
 from bulbs.content.models import Content
 from bulbs.utils.test import make_content, BaseIndexableTestCase
 
-from example.testcontent.models import TestContentObj, TestContentObjTwo
+from example.testcontent.models import TestContentObj, TestContentObjTwo, TestReadingListObj
 
 
 class ContentManagerTestCase(BaseIndexableTestCase):
