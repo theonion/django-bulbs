@@ -17,7 +17,7 @@ class ContentManagerTestCase(BaseIndexableTestCase):
             start_date=timezone.now() - timezone.timedelta(days=5),
             end_date=timezone.now() + timezone.timedelta(days=5)
         )
-        make_content(evergreen=True, published=timezone.now(), _quantity=50)
+        make_content(TestReadingListObj, evergreen=True, published=timezone.now(), _quantity=50)
         make_content(TestContentObj, campaign=campaign, published=timezone.now(), _quantity=50)
         Content.search_objects.refresh()
 
