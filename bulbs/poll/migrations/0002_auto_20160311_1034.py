@@ -19,6 +19,11 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='poll',
+            name='answer_type',
+            field=models.TextField(default=b'text', blank=True),
+        ),
+        migrations.AddField(
+            model_name='poll',
             name='poll_image',
             field=djbetty.fields.ImageField(default=None, null=True, blank=True),
         ),

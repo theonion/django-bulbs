@@ -9,7 +9,7 @@ from .models import Poll, Answer
 
 
 class AnswerSerializer(serializers.ModelSerializer):
-    answer_image = ImageFieldSerializer(required=False)
+    answer_image = ImageFieldSerializer(required=False, allow_null=True,)
     poll = serializers.PrimaryKeyRelatedField(
         queryset=Poll.objects.all(),
         required=False

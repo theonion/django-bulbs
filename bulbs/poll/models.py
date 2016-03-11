@@ -118,6 +118,7 @@ class Poll(Content):
     last_answer_index = models.IntegerField(default=0)
     end_date = models.DateTimeField(null=True, default=None)
     poll_image = ImageField(null=True, blank=True)
+    answer_type = models.TextField(blank=True, default="text")
 
     # This keeps Poll out of Content.search_objects
     class Mapping(Content.Mapping):
