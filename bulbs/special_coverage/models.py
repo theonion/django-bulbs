@@ -14,9 +14,10 @@ from bulbs.content.mixins import DetailImageMixin
 from bulbs.utils.methods import (datetime_to_epoch_seconds,
                                  today_as_utc_datetime,
                                  is_valid_digit)
+from .managers import SpecialCoverageManager
 
 
-es = Elasticsearch(settings.ES_URLS)
+es = Elasticsearch(settings.ES_CONNECTIONS["default"]["hosts"])
 
 
 class SpecialCoverage(DetailImageMixin, models.Model):
@@ -37,6 +38,8 @@ class SpecialCoverage(DetailImageMixin, models.Model):
     tunic_campaign_id = models.IntegerField(blank=True, null=True, default=None)
     # Property-specific custom configuration
     config = JSONField(default={}, blank=True)
+
+    objects = SpecialCoverageManager()
 
     def __unicode__(self):
         return self.name
@@ -169,6 +172,10 @@ class SpecialCoverage(DetailImageMixin, models.Model):
         if not hasattr(self, "_content"):
             self._content = self.get_content()
         return self._content
+
+    @property
+    def identifier(self):
+        return "specialcoverage.{}".format(self.id)
 
     @property
     def has_pinned_content(self):

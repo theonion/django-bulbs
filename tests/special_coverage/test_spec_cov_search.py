@@ -7,7 +7,8 @@ from elasticsearch_dsl import filter as es_filter
 from bulbs.campaigns.models import Campaign
 from bulbs.content.models import Content, FeatureType, Tag
 from bulbs.special_coverage.models import SpecialCoverage
-from bulbs.special_coverage.search import SearchSlicer, SearchParty
+from bulbs.special_coverage.search import SearchParty
+from bulbs.reading_list.slicers import SearchSlicer
 from bulbs.utils.test import BaseIndexableTestCase, make_content
 
 

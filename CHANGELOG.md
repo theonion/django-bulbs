@@ -1,5 +1,99 @@
 # django-bulbs Change Log
 
+## Version 0.8.3
+
+- Reduce RSS view caching from 10 to 5 min (per social squad)
+
+## Version 0.8.2
+
+- Fixed bugs with reading poll data for unpublished polls.
+  We were returning an error when sodahead reads failed.
+  We now return partial data.
+
+## Version 0.8.1
+
+- Add `bulbs/reading_list` application
+  Adding `bulbs.reading_list.mixins.ReadingListMixin` adds the reading list methods and properties
+    to a given object.
+
+- Relocate `bulbs.content.models.ContentManager` to `bulbs.content.managers.ContentManager`
+
+- Add common query methods to the `bulbs.content.models.ContentManager`
+  - evergreen: returning all Content with evergreen=True.
+  - evergreen_video: returning all Content with the configured VIDEO_DOC_TYPE document type.
+  - sponsored: returning all Content associated with a campaign.
+
+- Add `pageview_client.clients.TrendingClient` popular logic to retrieve popular Content ids from
+    the service.
+
+- Relocate `bulbs.special_coverage.search.SearchSlicer` to
+    `bulbs.reading_list.slicers.SearchSlicer`
+
+- Add `bulbs.sections.managers.SectionIndexableManager` to retrieve sections by their percolator
+    identifier via elasticsearch
+
+- Add `bulbs.sections.managers.SectionManager` to retrieve sections by their percolator
+    identifier via django
+
+- Add `bulbs.special_coverage.managers.SpecialCoverage` to retrieve sections by their percolator
+    identifier via django
+
+
+## Version 0.8.0
+
+### Polls
+
+- Adds `bulbs/poll` application
+  Adding `"bulbs.poll"` to `INSTALLED_APPS` will
+    automatically add poll api routes to the `bulbs.api` routes
+
+- Added `bulbs.poll.urls`
+  Adding `url(r'^', include('bulbs.poll.urls')),` creates a read-only
+    endpoint that exposes merged data from sodahead and our database.
+
+    It is accessible at `/poll/:poll_id/merged.json`
+
+- Added `SODAHEAD_BASE_URL` to settings.
+  Most likely value is: `'https://onion.sodahead.com'`
+
+- Added `SODAHEAD_TOKEN_VAULT_PATH` to settings.
+  In local/testing environments, this should be: `'sodahead/token'`
+  In production environments, this should be: `:property/sodahead/token`
+    ie: `starwipe/sodahead/token`.
+
+  In production, each app has it's own sodahead token, and all test
+    enviromnents share a sodahead token.
+
+### Vault
+
+Vault is a credentials storage server:
+<a href="https://www.vaultproject.io/">https://www.vaultproject.io/</a>
+
+- Adds a vault client at: `bulbs.utils.vault`
+  `bulbs.utils.vault.read(path)` combines `VAULT_BASE_SECRET_PATH`
+    as a prefix to the passed in path and reads it from Vault.
+
+- Adds vault test mocking at: `bulbs.utils.test.mock_vault`
+  See the implementation for documentation on mocking the vault in tests:
+  <a href="https://github.com/theonion/django-bulbs/blob/master/bulbs/utils/test/__init__.py#L131-L144">
+    https://github.com/theonion/django-bulbs/blob/master/bulbs/utils/test/__init__.py#L131-L144
+  </a>
+
+- Added `VAULT_BASE_URL` to settings.
+  The base url of our Vault credentials store.
+    ie: 'http://hostname:8200/v1/'
+
+- Added `VAULT_BASE_SECRET_PATH` to settings.
+    ie: `secrets/example`
+
+- Added `VAULT_ACCESS_TOKEN` to settings.
+    ie: `very-secret-token`
+
+## Version 0.7.11
+
+- Remove redundant ES_URLS setting, just use ES_CONNECTIONS. Eventually all client projects can stop using ES_URLS too.
+- Example app checks ELASTICSEARCH_HOST env variable (useful for using docker-based ES served inside VM)
+
 ## Version 0.7.10
 
 - Added `special_coverage` object to SpecialCoverageView context
