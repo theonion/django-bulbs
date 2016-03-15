@@ -1,92 +1,33 @@
 language: python
 
-sudo: false
+sudo: required
 
+python:
+  - '2.7'
+  - '3.4'
+  - '3.5'
 cache:
   directories:
     - $HOME/.cache/pip
-
-# hand-crafted matrix of
-# python: 2.7, 3.4, 3.5
-# elasticsearch: 1.4.4 (prod), 1.4.5 (next), 1.7.5 (future)
-matrix:
-  include:
-    - python: '2.7'
-      addons:
-        apt:
-          sources:
-            - elasticsearch-1.4.4
-          packages:
-            - elasticsearch
-    - python: '2.7'
-      addons:
-        apt:
-          sources:
-            - elasticsearch-1.4.5
-          packages:
-            - elasticsearch
-    - python: '2.7'
-      addons:
-        apt:
-          sources:
-            - elasticsearch-1.7.5
-          packages:
-            - elasticsearch
-    - python: '3.4'
-      addons:
-        apt:
-          sources:
-            - elasticsearch-1.4.4
-          packages:
-            - elasticsearch
-    - python: '3.4'
-      addons:
-        apt:
-          sources:
-            - elasticsearch-1.4.5
-          packages:
-            - elasticsearch
-    - python: '3.4'
-      addons:
-        apt:
-          sources:
-            - elasticsearch-1.7.5
-          packages:
-            - elasticsearch
-    - python: '3.5'
-      addons:
-        apt:
-          sources:
-            - elasticsearch-1.4.4
-          packages:
-            - elasticsearch
-    - python: '3.5'
-      addons:
-        apt:
-          sources:
-            - elasticsearch-1.4.5
-          packages:
-            - elasticsearch
-    - python: '3.5'
-      addons:
-        apt:
-          sources:
-            - elasticsearch-1.7.5
-          packages:
-            - elasticsearch
+env:
+    # Current production
+    - ELASTICSEARCH_VERSION=1.4.4
+    # Future production point release
+    - ELASTICSEARCH_VERSION=1.4.5
+    # Latest in 1.X line (as of 2016-02-10)
+    - ELASTICSEARCH_VERSION=1.7.5
 services:
   - postgresql
-  - elasticsearch
-
 before_install:
-  - sleep 10
+  # Use same ES version as in production (also the Travis "elasticsearch" service setting fails to start)
+  - travis_retry curl -OL https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-$ELASTICSEARCH_VERSION.deb
+  - sudo dpkg -i --force-confnew elasticsearch-$ELASTICSEARCH_VERSION.deb
+  - sudo service elasticsearch start
 install:
   - travis_retry pip install -e .
   - travis_retry pip install "file://$(pwd)#egg=django-bulbs[dev]"
 before_script:
   - psql -c 'create database bulbs;' -U postgres
-  # Travis/ES troubleshooting
-  - elasticsearch -v
   # Wait for ES startup
   - until curl http://localhost:9200/; do sleep 1; done
 script:
