@@ -101,12 +101,17 @@ class BaseIndexableTestCase(TestCase):
         self._wait_for_allocation()
 
     def _wait_for_allocation(self):
-        MAX_WAIT_SECONDS = 30
+        """Wait for shards to be ready, to avoid flaky test errors when ES searches triggered before
+        cluster is initialized.
+        This is especially important for tests that do not trigger any sort of ES refresh.
+        """
+        MAX_WAIT_SEC = 30
         start = time.time()
-        while (time.time() - start) < MAX_WAIT_SECONDS:
+        while (time.time() - start) < MAX_WAIT_SEC:
             if all(shard[0]['state'] == 'STARTED'
                    for shard in self.es.search_shards()['shards']):
                 return
+        self.fail('One or more ES shards failed to startup with {} seconds'.format(MAX_WAIT_SEC))
 
     def tearDown(self):
         for index in list(self.indexes):
