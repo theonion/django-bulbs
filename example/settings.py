@@ -44,6 +44,7 @@ INSTALLED_APPS = (
     "bulbs.promotion",
     "bulbs.special_coverage",
     "bulbs.sections",
+    "bulbs.videos",
     # local testing apps
     "example.testcontent",
     "example.example_api",
@@ -83,6 +84,11 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication'
     )
 }
+
+DIGEST_ENDPOINT = "popular"
+DIGEST_HOSTNAME = "homie"
+DIGEST_OFFSET = 10
+DIGEST_SITE = "bulbs"
 
 SECRET_KEY = "no-op"
 
@@ -125,3 +131,5 @@ ES_INDEX_SETTINGS = {
 
 SODAHEAD_BASE_URL = 'https://onion.sodahead.com'
 SODAHEAD_TOKEN_VAULT_PATH = 'sodahead/token'
+
+VIDEOHUB_BASE_URL = 'http://www.onionstudios.com'

@@ -4,7 +4,10 @@ import datetime
 import dateutil.parser
 import dateutil.tz
 from django.utils import timezone
-from elasticsearch_dsl.filter import Term, Terms, Range, MatchAll, Nested
+
+from elasticsearch_dsl.filter import Exists, MatchAll, Nested, Not, Range, Term, Terms
+from elasticsearch_dsl.query import FunctionScore
+
 from six import string_types, text_type, binary_type
 
 
@@ -54,6 +57,11 @@ def Status(status):  # noqa
         return MatchAll()
 
 
+def AllSponsored():  # noqa
+    """Filter for any content that has a campaign."""
+    return Nested(path="campaign", filter=Exists(field="campaign.id"))
+
+
 def Authors(usernames):  # noqa
     included = []
     excluded = []
@@ -68,6 +76,16 @@ def Authors(usernames):  # noqa
     if excluded:
         f &= Terms(**{"authors.username": excluded})
     return f
+
+
+def NegateQueryFilter(es_query):  # noqa
+    """
+    Return a filter removing the contents of the provided query.
+    """
+    query = es_query.to_dict().get("query", {})
+    filtered = query.get("filtered", {})
+    negated_filter = filtered.get("filter", {})
+    return Not(**negated_filter)
 
 
 def Tags(slugs):  # noqa
@@ -104,3 +122,21 @@ def FeatureTypes(slugs):  # noqa
         f &= ~Nested(path="feature_type", filter=Terms(**{"feature_type.slug": excluded}))
 
     return f
+
+
+def SponsoredBoost(field_name, boost_mode="multiply", weight=5):
+    return FunctionScore(
+        boost_mode=boost_mode,
+        functions=[{
+            "filter": Exists(field=field_name),
+            "weight": weight
+        }]
+    )
+
+
+def VideohubChannel(included_ids=None, excluded_ids=None):
+    f = MatchAll()
+    if included_ids:
+        f &= Nested(path="video", filter=Terms(**{"video.channel_id": included_ids}))
+    if excluded_ids:
+        f &= ~Nested(path="video", filter=Terms(**{"video.channel_id": excluded_ids}))

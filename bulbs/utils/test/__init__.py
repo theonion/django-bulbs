@@ -1,22 +1,23 @@
 import contextdecorator
 import json
 import logging
-import os
 import random
 import string
+import time
 
 from elasticsearch_dsl.connections import connections
 
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
 from django.test import TestCase
+from django.utils import timezone
+
 from djes.apps import indexable_registry
 from djes.management.commands.sync_es import get_indexes, sync_index
 
 from model_mommy import mommy
 from rest_framework.test import APIClient
-from six import PY3
+from six import PY2
 
 from bulbs.content.models import Content
 
@@ -31,7 +32,7 @@ def make_content(*args, **kwargs):
         models = indexable_registry.families[Content]
         model_keys = []
         for key in models.keys():
-            if not key in ['content_content', 'poll_poll']:
+            if key not in ['content_content', 'poll_poll']:
                 model_keys.append(key)
         key = random.choice(model_keys)
         klass = indexable_registry.all_models[key]
@@ -50,7 +51,7 @@ class JsonEncoder(json.JSONEncoder):
         iso = _iso_datetime(value)
         if iso:
             return iso
-        if not PY3 and isinstance(value, str):
+        if PY2 and isinstance(value, str):
             return unicode(value, errors='replace')  # TODO: Be stricter.
         if isinstance(value, set):
             return list(value)
@@ -86,12 +87,29 @@ class BaseIndexableTestCase(TestCase):
         self.es = connections.get_connection("default")
         self.indexes = get_indexes()
 
+        self.now = timezone.now()
+
         for index in list(self.indexes):
             self.es.indices.delete_alias("{}*".format(index), "_all", ignore=[404])
             self.es.indices.delete("{}*".format(index), ignore=[404])
 
         for index, body in self.indexes.items():
             sync_index(index, body)
+
+        self._wait_for_allocation()
+
+    def _wait_for_allocation(self):
+        """Wait for shards to be ready, to avoid flaky test errors when ES searches triggered before
+        cluster is initialized.
+        This is especially important for tests that do not trigger any sort of ES refresh.
+        """
+        MAX_WAIT_SEC = 30
+        start = time.time()
+        while (time.time() - start) < MAX_WAIT_SEC:
+            if all(len(shard) and shard[0]['state'] == 'STARTED'
+                   for shard in self.es.search_shards()['shards']):
+                return
+        self.fail('One or more ES shards failed to startup within {} seconds'.format(MAX_WAIT_SEC))
 
     def tearDown(self):
         for index in list(self.indexes):

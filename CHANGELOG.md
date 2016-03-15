@@ -1,5 +1,53 @@
 # django-bulbs Change Log
 
+## Development
+
+- `utils.test.BaseIndexableTestCase` now waits for ES shard startup, to reduce flaky tests querying ES before it's ready.
+
+## Version 0.8.4
+
+- Started `videos` app
+- Added `SeriesDetailView` to `videos/views`
+
+## Version 0.8.3
+
+- Reduce RSS view caching from 10 to 5 min (per social squad)
+
+## Version 0.8.2
+
+- Fixed bugs with reading poll data for unpublished polls.
+  We were returning an error when sodahead reads failed.
+  We now return partial data.
+
+## Version 0.8.1
+
+- Add `bulbs/reading_list` application
+  Adding `bulbs.reading_list.mixins.ReadingListMixin` adds the reading list methods and properties
+    to a given object.
+
+- Relocate `bulbs.content.models.ContentManager` to `bulbs.content.managers.ContentManager`
+
+- Add common query methods to the `bulbs.content.models.ContentManager`
+  - evergreen: returning all Content with evergreen=True.
+  - evergreen_video: returning all Content with the configured VIDEO_DOC_TYPE document type.
+  - sponsored: returning all Content associated with a campaign.
+
+- Add `pageview_client.clients.TrendingClient` popular logic to retrieve popular Content ids from
+    the service.
+
+- Relocate `bulbs.special_coverage.search.SearchSlicer` to
+    `bulbs.reading_list.slicers.SearchSlicer`
+
+- Add `bulbs.sections.managers.SectionIndexableManager` to retrieve sections by their percolator
+    identifier via elasticsearch
+
+- Add `bulbs.sections.managers.SectionManager` to retrieve sections by their percolator
+    identifier via django
+
+- Add `bulbs.special_coverage.managers.SpecialCoverage` to retrieve sections by their percolator
+    identifier via django
+
+
 ## Version 0.8.0
 
 ### Polls
@@ -52,7 +100,7 @@ Vault is a credentials storage server:
 
 ## Version 0.7.11
 
-- Remove redundant ES_URLS setting, just use ES_CONNECTIONS. Eventually all client projects can stop using ES_URLS too. 
+- Remove redundant ES_URLS setting, just use ES_CONNECTIONS. Eventually all client projects can stop using ES_URLS too.
 - Example app checks ELASTICSEARCH_HOST env variable (useful for using docker-based ES served inside VM)
 
 ## Version 0.7.10

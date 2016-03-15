@@ -75,6 +75,37 @@ class PollPublicSerializerTestCase(BaseIndexableTestCase):
 
     @vcr.use_cassette()
     @mock_vault(SECRETS)
+    def test_serializing_unpublished_poll_does_serialize(self):
+        poll = Poll.objects.create(
+            question_text='it is not published yet',
+            title=random_title(),
+        )
+
+        serializer = PollPublicSerializer(Poll.objects.get(id=poll.id))
+        data = serializer.data
+
+        self.assertEqual(data['answers'], [])
+        self.assertIsNone(data.get('published'))
+
+    @vcr.use_cassette()
+    @mock_vault(SECRETS)
+    def test_serializing_poll_published_in_the_future_does_serialize(self):
+        poll = Poll.objects.create(
+            question_text='it is not published yet',
+            title=random_title(),
+        )
+
+        poll.published = timezone.now() + timedelta(1)
+        poll.save()
+
+        serializer = PollPublicSerializer(Poll.objects.get(id=poll.id))
+        data = serializer.data
+
+        self.assertEqual(data['answers'], [])
+        self.assertIsNotNone(data.get('published'))
+
+    @vcr.use_cassette()
+    @mock_vault(SECRETS)
     def test_serialization_includes_sodahead_data(self):
         poll = Poll.objects.create(
             question_text='is it powerful?',
