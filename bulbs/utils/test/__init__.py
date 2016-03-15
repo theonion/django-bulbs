@@ -108,7 +108,7 @@ class BaseIndexableTestCase(TestCase):
         MAX_WAIT_SEC = 30
         start = time.time()
         while (time.time() - start) < MAX_WAIT_SEC:
-            if all(shard[0]['state'] == 'STARTED'
+            if all(len(shard) and shard[0]['state'] == 'STARTED'
                    for shard in self.es.search_shards()['shards']):
                 return
         self.fail('One or more ES shards failed to startup with {} seconds'.format(MAX_WAIT_SEC))
