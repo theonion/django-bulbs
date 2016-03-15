@@ -1,11 +1,12 @@
+from django.conf import settings
+from django.http import Http404
+from django.views.generic import DetailView
 from django.views.decorators.cache import cache_control
 
 import requests
 
-from bulbs.content.views import BaseContentDetailView
 
-
-class SeriesDetailView(BaseContentDetailView):
+class SeriesDetailView(DetailView):
     redirect_correct_path = False
 
     def get_template_names(self):
@@ -13,30 +14,30 @@ class SeriesDetailView(BaseContentDetailView):
         return template_names
 
     def get(self, request, *args, **kwargs):
-        parser_context = self.request.parser_context.get("kwargs", {})
-        slug = parser_context.get("slug", None)
+        slug = kwargs.get("slug", None)
 
-        # make request to studios
-        r = requests.get(slug)
+        if not slug:
+            raise Http404
 
-        self.data = r.json()
+        response = requests.get(settings.VIDEOHUB_BASE_URL+"/series/"+slug+".json")
 
-    # :(
-    # def get_queryset(self):
-    #     """Return all videos associated with a given series."""
-    #     parser_context = self.request.parser_context.get("kwargs", {})
-    #     series_slug = parser_context.get("series_slug", None)
-    #     series = get_object_or_404(Series, slug=series_slug)
-    #     return series.get_all_videos()
+        if not response.ok:
+            raise Http404
+
+        self.object = response.json()
+        context = self.get_context_data()
+        response = self.render_to_response(context)
+
+        return response
 
     def get_context_data(self, *args, **kwargs):
         context = super(SeriesDetailView, self).get_context_data()
 
-        context["channel_name"] = self.data['channel_name']
-        context["series_name"] = self.data['series_name']
-        context["series_description"] = self.data['series_description']
-        context["total_seasons"] = self.data['total_seasons']
-        context["total_episdoes"] = self.data['total_episdoes']
+        context["channel_name"] = self.object['channel_name']
+        context["series_name"] = self.object['series_name']
+        context["series_description"] = self.object['series_description']
+        context["total_seasons"] = self.object['total_seasons']
+        context["total_episodes"] = self.object['total_episodes']
 
         return context
 
