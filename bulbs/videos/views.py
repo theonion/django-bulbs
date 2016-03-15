@@ -7,7 +7,6 @@ import requests
 
 
 class SeriesDetailView(DetailView):
-    redirect_correct_path = False
 
     def get_template_names(self):
         template_names = ["videos/series-detail.html"]
