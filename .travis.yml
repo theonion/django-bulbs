@@ -85,6 +85,8 @@ install:
   - travis_retry pip install "file://$(pwd)#egg=django-bulbs[dev]"
 before_script:
   - psql -c 'create database bulbs;' -U postgres
+  # Travis/ES troubleshooting
+  - elasticsearch -v
   # Wait for ES startup
   - until curl http://localhost:9200/; do sleep 1; done
 script:
