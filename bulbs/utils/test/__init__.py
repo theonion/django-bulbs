@@ -111,7 +111,7 @@ class BaseIndexableTestCase(TestCase):
             if all(len(shard) and shard[0]['state'] == 'STARTED'
                    for shard in self.es.search_shards()['shards']):
                 return
-        self.fail('One or more ES shards failed to startup with {} seconds'.format(MAX_WAIT_SEC))
+        self.fail('One or more ES shards failed to startup within {} seconds'.format(MAX_WAIT_SEC))
 
     def tearDown(self):
         for index in list(self.indexes):
