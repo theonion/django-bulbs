@@ -40,6 +40,8 @@ class PollPublicSerializer(PollSerializer):
             sodahead_answer = sodahead_data['poll']['answers'][sodahead_index]
             representation['answers'][index]['sodahead_id'] = sodahead_answer['id']
             representation['answers'][index]['total_votes'] = sodahead_answer['totalVotes']
+            if answer.answer_image:
+                representation['answers'][index]['answer_image_url'] = answer.answer_image.get_crop_url(ratio='1x1')
             index += 1
 
         return representation
