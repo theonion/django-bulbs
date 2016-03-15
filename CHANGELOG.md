@@ -1,5 +1,10 @@
 # django-bulbs Change Log
 
+## Version 0.8.4
+
+- Started `videos` app
+- Added `SeriesDetailView` to `videos/views`
+
 ## Version 0.8.3
 
 - Reduce RSS view caching from 10 to 5 min (per social squad)
