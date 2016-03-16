@@ -44,6 +44,7 @@ INSTALLED_APPS = (
     "bulbs.promotion",
     "bulbs.special_coverage",
     "bulbs.sections",
+    "bulbs.videos",
     # local testing apps
     "example.testcontent",
     "example.example_api",
@@ -130,3 +131,5 @@ ES_INDEX_SETTINGS = {
 
 SODAHEAD_BASE_URL = 'https://onion.sodahead.com'
 SODAHEAD_TOKEN_VAULT_PATH = 'sodahead/token'
+
+VIDEOHUB_BASE_URL = 'http://www.onionstudios.com'

@@ -1,0 +1,24 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      User-Agent: [python-requests/2.9.1]
+    method: GET
+    uri: http://www.onionstudios.com/series/non-existant-show.json
+  response:
+    body: {string: !!python/unicode '{"detail":"Not found."}'}
+    headers:
+      age: ['0']
+      cache-control: [max-age=300]
+      connection: [keep-alive]
+      content-length: ['23']
+      content-type: [application/json]
+      date: ['Tue, 15 Mar 2016 16:25:34 GMT']
+      expires: ['Tue, 15 Mar 2016 16:30:34 GMT']
+      server: [PWS/8.1.20.25]
+      x-px: ['ms h0-s1102.p6-ord ( h0-s1090.p6-ord), ms h0-s1090.p6-ord ( origin>CONN)']
+    status: {code: 404, message: Not Found}
+version: 1

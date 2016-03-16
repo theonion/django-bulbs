@@ -8,9 +8,10 @@ from bulbs.poll.models import Poll, Answer, SodaheadResponseError
 from bulbs.utils.test import (
     BaseIndexableTestCase,
     random_title,
-    mock_vault,
 )
 from bulbs.utils.test.make_vcr import make_vcr
+from bulbs.utils.test.mock_vault import mock_vault
+
 from .common import SECRETS
 
 vcr = make_vcr(__file__)  # Define vcr file path

@@ -10,10 +10,11 @@ from bulbs.poll.serializers import (
 )
 from bulbs.utils.test import (
     BaseIndexableTestCase,
-    mock_vault,
     random_title,
 )
 from bulbs.utils.test.make_vcr import make_vcr
+from bulbs.utils.test.mock_vault import mock_vault
+
 from .common import SECRETS
 
 vcr = make_vcr(__file__)  # Define vcr file path
@@ -37,6 +38,17 @@ class PollSerializerTestCase(BaseIndexableTestCase):
         self.assertEqual(serializer.data['question_text'], poll.question_text)
         self.assertEqual(serializer.data['title'], poll.title)
         self.assertIsNotNone(serializer.data['end_date'])
+
+    @vcr.use_cassette()
+    @mock_vault(SECRETS)
+    def test_poll_image_serialization(self):
+        poll = Poll.objects.create(
+                question_text='Where are we?',
+                title=random_title(),
+                end_date=timezone.now() + timedelta(hours=9),
+                )
+        serializer = PollSerializer(poll)
+        self.assertTrue(serializer['poll_image'])
 
     @vcr.use_cassette()
     @mock_vault(SECRETS)
@@ -159,6 +171,18 @@ class AnswerSerializerTestCase(BaseIndexableTestCase):
         answer = Answer.objects.create(poll=poll, answer_text='this is some text')
         serializer = AnswerSerializer(answer)
         self.assertEqual(serializer.data['answer_text'], answer.answer_text)
+
+    @vcr.use_cassette()
+    @mock_vault(SECRETS)
+    def test_answer_image_serialization(self):
+        poll = Poll.objects.create(
+                question_text='Where are we?',
+                title=random_title(),
+                end_date=timezone.now() + timedelta(hours=9),
+                )
+        answer = Answer.objects.create(poll=poll, answer_text='woop')
+        serializer = AnswerSerializer(answer)
+        self.assertTrue(serializer['answer_image'])
 
     @vcr.use_cassette()
     @mock_vault(SECRETS)

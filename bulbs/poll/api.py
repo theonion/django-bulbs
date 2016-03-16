@@ -11,7 +11,7 @@ api_v1_router.register(
     base_name="poll")
 
 api_v1_router.register(
-    r"answer",
+    r"poll-answer",
     AnswerViewSet,
     base_name="answer")
 

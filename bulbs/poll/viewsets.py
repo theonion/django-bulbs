@@ -25,9 +25,9 @@ class PollViewSet(viewsets.ModelViewSet):
             "title",
             "published",
             "end_date",)
-    search_fields = (
+    search_fields = [
             "answers",
-            "title",)
+            "title",]
 
     class Meta:
         exclude = ('thumbnail_override',)
