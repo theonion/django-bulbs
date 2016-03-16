@@ -1,45 +1,46 @@
 interactions:
 - request:
-    body: endDate=&answer_01=default+answer+1&answer_02=default+answer+2&title=good+text&name=CZYFZJEWNB
+    body: endDate=03%2F04%2F16+06%3A28+AM&answer_01=default+answer+1&answer_02=default+answer+2&title=Where+are+we%3F&name=ZYGTBKKXFS
     headers:
       Accept: ['*/*']
       Accept-Encoding: ['gzip, deflate']
       Connection: [keep-alive]
-      Content-Length: ['184']
+      Content-Length: ['213']
       Content-Type: [application/x-www-form-urlencoded]
       User-Agent: [python-requests/2.9.1]
     method: POST
     uri: https://onion.sodahead.com/api/polls/
   response:
-    body: {string: !!python/unicode '{"vote": null, "poll": {"endDate": null, "demo":
-        {}, "image": null, "video": null, "numComments": 0, "category": {"url": "http:\/\/www.sodahead.com\/entertainment\/",
-        "id": 5, "title": "Entertainment"}, "title": "good text", "range": {}, "id":
-        4862106, "closed": false, "hideResults": false, "description": "", "tags":
-        [], "answers": [{"title": "default answer 1", "color": null, "image": null,
-        "video": null, "meta_text": null, "totalVotes": 0, "percentage": 0, "id":
-        12073798}, {"title": "default answer 2", "color": null, "image": null, "video":
-        null, "meta_text": null, "totalVotes": 0, "percentage": 0, "id": 12073800}],
-        "slider": null, "sponsored": false, "modifiedDate": null, "creationDate":
-        "2016-03-03 21:28:25", "geo": {}, "name": "CZYFZJEWNB", "url": "http:\/\/www.sodahead.com\/entertainment\/good-text\/question-4862106\/",
+    body: {string: !!python/unicode '{"vote": null, "poll": {"endDate": "2016-03-04
+        06:28:00", "demo": {}, "image": null, "video": null, "numComments": 0, "category":
+        {"url": "http:\/\/www.sodahead.com\/entertainment\/", "id": 5, "title": "Entertainment"},
+        "title": "Where are we?", "range": {}, "id": 4862110, "closed": false, "hideResults":
+        false, "description": "", "tags": [], "answers": [{"title": "default answer
+        1", "color": null, "image": null, "video": null, "meta_text": null, "totalVotes":
+        0, "percentage": 0, "id": 12073806}, {"title": "default answer 2", "color":
+        null, "image": null, "video": null, "meta_text": null, "totalVotes": 0, "percentage":
+        0, "id": 12073808}], "slider": null, "sponsored": false, "modifiedDate": null,
+        "creationDate": "2016-03-03 21:28:28", "geo": {}, "name": "ZYGTBKKXFS", "url":
+        "http:\/\/www.sodahead.com\/entertainment\/where-are-we\/question-4862110\/",
         "author": {"url": "http:\/\/www.sodahead.com\/user\/profile\/4172828\/test\/",
         "nickName": "TEST", "id": 4172828, "avatar": "http:\/\/images.sodahead.com\/profiles\/000000001\/profiles_1202SHAvatarFred_1028_226520_small.jpeg"},
         "hideResults_content": "", "editDate": null, "activationDate": "2016-03-03
-        21:28:25", "totalVotes": 0}}'}
+        21:28:28", "totalVotes": 0}}'}
     headers:
       access-control-allow-headers: ['Authorization,Content-Type']
       access-control-allow-methods: ['POST, GET, PUT, DELETE, HEAD, OPTIONS']
       access-control-allow-origin: ['*']
       cache-control: ['no-cache, private, max-age=0']
       connection: [keep-alive]
-      content-length: ['1169']
+      content-length: ['1193']
       content-type: [application/json; charset=utf-8]
-      date: ['Thu, 03 Mar 2016 21:28:25 GMT']
-      etag: ['"bdbaddfab6b70f407829610c23014d80"']
+      date: ['Thu, 03 Mar 2016 21:28:28 GMT']
+      etag: ['"77616115e2600c3396325956c8d4a1f4"']
       pragma: [no-cache]
       server: [openresty/1.5.8.1]
       set-cookie: ['demo="6941fb8484874663bf28ce8338df72595ae08811:{\"_city_region\":
           \"Frankfort\054NY\"\054 \"bf\": 0\054 \"dma\": 526}"; Domain=onion.sodahead.com;
-          expires=Fri, 03-Mar-2017 21:28:25 GMT; Max-Age=31536000; Path=/', 'anonymousUserId="dda70eef99c92832d05889c93c48242e5ba00cd5:";
+          expires=Fri, 03-Mar-2017 21:28:28 GMT; Max-Age=31536000; Path=/', 'anonymousUserId="dda70eef99c92832d05889c93c48242e5ba00cd5:";
           Domain=onion.sodahead.com; expires=Thu, 01-Jan-1970 00:00:00 GMT; Max-Age=0;
           Path=/', 'session="d751580928f9b48c059f91a75a650e3692d0cb28:{\"country\":
           \"US\"\054 \"state\": \"NY\"\054 \"postal_code\": \"13340\"}"; Domain=onion.sodahead.com;

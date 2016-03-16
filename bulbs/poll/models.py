@@ -9,10 +9,11 @@ from django.conf import settings
 from elasticsearch_dsl.filter import Range
 from rest_framework.exceptions import APIException
 
+from djbetty import ImageField
 from djes.models import Indexable
 
 from bulbs.content.filters import Published
-from bulbs.content.models import Content, ContentManager
+from bulbs.content.models import Content, ContentManager, ElasticsearchImageField
 from bulbs.utils import vault
 
 logger = logging.getLogger(__name__)
@@ -119,9 +120,12 @@ class Poll(Content):
     sodahead_id = models.CharField(max_length=20, blank=True, default="")
     last_answer_index = models.IntegerField(default=0)
     end_date = models.DateTimeField(null=True, default=None)
+    poll_image = ImageField(null=True, blank=True)
+    answer_type = models.TextField(blank=True, default="text")
 
     # This keeps Poll out of Content.search_objects
     class Mapping(Content.Mapping):
+        poll_image = ElasticsearchImageField()
         class Meta():
             orphaned = True
 
@@ -184,6 +188,7 @@ class Poll(Content):
 
         return payload
 
+
     def save(self, *args, **kwargs):
         if not self.sodahead_id:
             response = requests.post(SODAHEAD_POLLS_ENDPOINT, self.sodahead_payload())
@@ -232,6 +237,10 @@ class Answer(Indexable):
     )
     sodahead_answer_id = models.CharField(max_length=20, blank=True, default="")
     answer_text = models.TextField(blank=True, default="")
+    answer_image = ImageField(null=True, blank=True)
+
+    class Mapping:
+        answer_image = ElasticsearchImageField()
 
     def save(self, *args, **kwargs):
         # using transaction/select_for_update here because we don't want to
