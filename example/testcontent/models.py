@@ -6,6 +6,7 @@ from djbetty.fields import ImageField
 from bulbs.campaigns.models import Campaign
 from bulbs.content.models import Content, Tag, ElasticsearchImageField
 from bulbs.reading_list.mixins import ReadingListMixin
+from bulbs.recirc.mixins import BaseQueryMixin
 
 
 class TestContentObj(Content):
@@ -79,3 +80,9 @@ class TestContentDetailImage(TestContentObj):
     def get_serializer_class(cls):
         from .serializers import TestContentDetailImageSerializer
         return TestContentDetailImageSerializer
+
+
+class TestRecircContentObject(Content, BaseQueryMixin):
+
+    foo = models.CharField(max_length=255)
+    bar = models.CharField(max_length=255)
