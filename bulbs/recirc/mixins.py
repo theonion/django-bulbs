@@ -68,3 +68,7 @@ class BaseQueryMixin(object):
         if "pinned_ids" in q:
             return bool(len(q.get("pinned_ids", [])))
         return False
+
+
+class RecircMixin(BaseQueryMixin):
+    pass
