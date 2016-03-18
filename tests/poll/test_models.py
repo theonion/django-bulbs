@@ -5,7 +5,7 @@ import requests
 import requests_mock
 
 from bulbs.poll.models import Poll, Answer
-from bulbs.poll.sodahead import SodaheadResponseError
+from bulbs.poll.mixins import SodaheadResponseError
 from bulbs.utils.test import (
     BaseIndexableTestCase,
     random_title,
