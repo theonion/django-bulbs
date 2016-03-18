@@ -7,14 +7,15 @@ from django.utils import timezone
 from django.conf import settings
 
 from elasticsearch_dsl.filter import Range
-from rest_framework.exceptions import APIException
-
 from djbetty import ImageField
 from djes.models import Indexable
+from rest_framework.exceptions import APIException
 
 from bulbs.content.filters import Published
 from bulbs.content.models import Content, ContentManager, ElasticsearchImageField
 from bulbs.utils import vault
+from .mixins import PollMixin
+
 
 logger = logging.getLogger(__name__)
 
@@ -92,36 +93,7 @@ class SodaheadResponseFailure(APIException):
         self.detail = detail
 
 
-def Closed():  # noqa
-    end_date_params = {
-        "lte": timezone.now(),
-    }
-
-    return Range(end_date=end_date_params)
-
-
-class PollManager(ContentManager):
-    def search(self, **kwargs):
-        search_query = super(PollManager, self).search(**kwargs)
-
-        if "active" in kwargs:
-            search_query = search_query.filter(Published(before=timezone.now()))
-
-        if "closed" in kwargs:
-            search_query = search_query.filter(Closed())
-
-        return search_query
-
-
-class Poll(Content):
-    search_objects = PollManager()
-
-    question_text = models.TextField(blank=True, default="")
-    sodahead_id = models.CharField(max_length=20, blank=True, default="")
-    last_answer_index = models.IntegerField(default=0)
-    end_date = models.DateTimeField(null=True, default=None)
-    poll_image = ImageField(null=True, blank=True)
-    answer_type = models.TextField(blank=True, default="text")
+class Poll(Content, PollMixin):
 
     # This keeps Poll out of Content.search_objects
     class Mapping(Content.Mapping):
