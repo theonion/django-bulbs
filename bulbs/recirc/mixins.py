@@ -18,7 +18,7 @@ class BaseQueryMixin(object):
         abstract = True
 
     def clean(self):
-        super(InlineRecircMixin, self).clean()
+        super(BaseQueryMixin, self).clean()
         self.clean_query()
 
     def clean_query(self):

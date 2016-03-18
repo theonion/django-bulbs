@@ -37,3 +37,6 @@ class TestRericMixins(BaseIndexableTestCase):
         self.assertEqual(objects[0].query, {
             "included_ids": [objects[i].id for i in range(1, len(objects))]
         })
+
+    def test_query_recirc_url(self):
+        pass
