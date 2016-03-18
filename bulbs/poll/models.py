@@ -14,22 +14,12 @@ from rest_framework.exceptions import APIException
 from bulbs.content.filters import Published
 from bulbs.content.models import Content, ContentManager, ElasticsearchImageField
 from bulbs.utils import vault
+
 from .mixins import PollMixin
+import sodahead
 
 
 logger = logging.getLogger(__name__)
-
-SODAHEAD_DATE_FORMAT = '%m/%d/%y %I:%M %p'
-
-SODAHEAD_POLL_ENDPOINT = '{}/api/polls/{{}}/'.format(settings.SODAHEAD_BASE_URL)
-SODAHEAD_POLLS_ENDPOINT = '{}/api/polls/'.format(settings.SODAHEAD_BASE_URL)
-SODAHEAD_DELETE_POLL_ENDPOINT = '{}/api/polls/{{}}/?access_token={{}}'.format(
-    settings.SODAHEAD_BASE_URL
-)
-
-BLANK_ANSWER = 'Intentionally blank'
-DEFAULT_ANSWER_1 = 'default answer 1'
-DEFAULT_ANSWER_2 = 'default answer 2'
 
 
 """
@@ -77,22 +67,6 @@ It is incremented by 1 every time an Answer is saved.
 """
 
 
-class SodaheadResponseError(APIException):
-    status_code = 503
-    default_detail = "Third-party poll provider temporarily unavailable."
-
-    def __init__(self, detail):
-        self.detail = detail
-
-
-class SodaheadResponseFailure(APIException):
-    status_code = 400
-    default_detail = "Error from third-party poll provider"
-
-    def __init__(self, detail):
-        self.detail = detail
-
-
 class Poll(Content, PollMixin):
 
     # This keeps Poll out of Content.search_objects
@@ -103,7 +77,7 @@ class Poll(Content, PollMixin):
             orphaned = True
 
     def get_sodahead_data(self):
-        response = requests.get(SODAHEAD_POLL_ENDPOINT.format(self.sodahead_id))
+        response = requests.get(sodahead.SODAHEAD_POLL_ENDPOINT.format(self.sodahead_id))
 
         if not response.ok:
             logger.error(
@@ -137,13 +111,13 @@ class Poll(Content, PollMixin):
 
         if self.published:
             activation_date = self.published.astimezone(pytz.utc)
-            payload['activationDate'] = activation_date.strftime(SODAHEAD_DATE_FORMAT)
+            payload['activationDate'] = activation_date.strftime(sodahead.SODAHEAD_DATE_FORMAT)
         else:
             payload['activationDate'] = None
 
         if self.end_date:
             end_date = self.end_date.astimezone(pytz.utc)
-            payload['endDate'] = end_date.strftime(SODAHEAD_DATE_FORMAT)
+            payload['endDate'] = end_date.strftime(sodahead.SODAHEAD_DATE_FORMAT)
         else:
             payload['endDate'] = ''
 
@@ -151,27 +125,26 @@ class Poll(Content, PollMixin):
             if answer.answer_text and answer.answer_text is not u'':
                 payload[answer.sodahead_answer_id] = answer.answer_text
             else:
-                payload[answer.sodahead_answer_id] = BLANK_ANSWER
+                payload[answer.sodahead_answer_id] = sodahead.BLANK_ANSWER
 
         if 'answer_01' not in payload:
-            payload['answer_01'] = DEFAULT_ANSWER_1
+            payload['answer_01'] = sodahead.DEFAULT_ANSWER_1
 
         if 'answer_02' not in payload:
-            payload['answer_02'] = DEFAULT_ANSWER_2
+            payload['answer_02'] = sodahead.DEFAULT_ANSWER_2
 
         return payload
 
-
     def save(self, *args, **kwargs):
         if not self.sodahead_id:
-            response = requests.post(SODAHEAD_POLLS_ENDPOINT, self.sodahead_payload())
+            response = requests.post(sodahead.SODAHEAD_POLLS_ENDPOINT, self.sodahead_payload())
 
             if response.ok:
                 self.sodahead_id = response.json()['poll']['id']
             elif response.status_code > 499:
-                raise SodaheadResponseError(response.text)
+                raise sodahead.SodaheadResponseError(response.text)
             else:
-                raise SodaheadResponseFailure(response.text)
+                raise sodahead.SodaheadResponseFailure(response.text)
         else:
             self.sync_sodahead()
 
@@ -179,27 +152,27 @@ class Poll(Content, PollMixin):
 
     def delete(self, *args, **kwargs):
         response = requests.delete(
-            SODAHEAD_DELETE_POLL_ENDPOINT.format(
+            sodahead.SODAHEAD_DELETE_POLL_ENDPOINT.format(
                 self.sodahead_id,
                 self.get_sodahead_token(),
             )
-         )
+        )
         if response.status_code > 499:
-            raise SodaheadResponseError(response.text)
+            raise sodahead.SodaheadResponseError(response.text)
         elif response.status_code > 399:
-            raise SodaheadResponseFailure(response.text)
+            raise sodahead.SodaheadResponseFailure(response.text)
         super(Poll, self).delete(*args, **kwargs)
 
     def sync_sodahead(self):
         response = requests.post(
-            SODAHEAD_POLL_ENDPOINT.format(self.sodahead_id),
+            sodahead.SODAHEAD_POLL_ENDPOINT.format(self.sodahead_id),
             self.sodahead_payload()
         )
 
         if response.status_code > 499:
-            raise SodaheadResponseError(response.json())
+            raise sodahead.SodaheadResponseError(response.json())
         elif response.status_code > 399:
-            raise SodaheadResponseFailure(response.json())
+            raise sodahead.SodaheadResponseFailure(response.json())
 
 
 class Answer(Indexable):
