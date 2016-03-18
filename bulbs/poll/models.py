@@ -98,6 +98,7 @@ class Poll(Content, PollMixin):
     # This keeps Poll out of Content.search_objects
     class Mapping(Content.Mapping):
         poll_image = ElasticsearchImageField()
+
         class Meta():
             orphaned = True
 

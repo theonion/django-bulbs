@@ -2,6 +2,8 @@ from django.db import models
 
 from djbetty import ImageField
 
+from bulbs.content.models import Content, ElasticsearchImageField
+
 from .managers import PollManager
 
 
@@ -18,3 +20,11 @@ class PollMixin(models.Model):
 
     class Meta:
         abstract = True
+
+        # This keeps Poll out of Content.search_objects
+    class Mapping(Content.Mapping):
+        poll_image = ElasticsearchImageField()
+
+        class Meta():
+            orphaned = True
+
