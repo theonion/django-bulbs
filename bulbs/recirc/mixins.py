@@ -36,6 +36,7 @@ class BaseQueryMixin(object):
             q = self.query["query"]
         else:
             q = self.query
+
         search = custom_search_model(Content, q, published=published, field_map={
             "feature_type": "feature_type.slug",
             "tag": "tags.slug",

@@ -35,6 +35,8 @@ class TestRecircMixins(BaseIndexableTestCase):
         )
         self.objects[0].save()
 
+        TestRecircContentObject.search_objects.refresh()
+
         self.assertEqual(self.objects[0].query, {
             "included_ids": [self.objects[i].id for i in range(1, len(self.objects))]
         })
@@ -50,4 +52,12 @@ class TestRecircMixins(BaseIndexableTestCase):
         self.assertEqual(obj.query, {"included_ids": [1]})
 
     def test_query_get_content(self):
-        pass
+        obj = self.objects[0]
+        count = obj.get_content().full().count()
+
+        self.assertEqual(count, 0)
+
+        # since the TestRecircContentObjects are not yet published
+        count = obj.get_content(published=False).full().count()
+
+        self.assertEqual(len(obj.query['included_ids']), count)
