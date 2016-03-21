@@ -23,6 +23,6 @@ class Migration(migrations.Migration):
             options={
                 'abstract': False,
             },
-            bases=('content.content', bulbs.recirc.mixins.RecircMixin),
+            bases=('content.content', bulbs.recirc.mixins.BaseQueryMixin),
         ),
     ]

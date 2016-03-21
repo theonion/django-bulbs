@@ -16,12 +16,9 @@ class BaseQueryMixin(object):
 
     class Meta:
         abstract = True
-
-    def clean(self):
-        super(BaseQueryMixin, self).clean()
-        self.clean_query()
-
+        
     def clean_query(self):
+        print("clean_query called")
         """
         Removes any `None` value from an elasticsearch query.
         """
@@ -30,10 +27,9 @@ class BaseQueryMixin(object):
                 if isinstance(value, list) and None in value:
                     self.query[key] = [v for v in value if v is not None]
 
-    def save(self, *args, **kwargs):
-        self.clean()
-
-        super(BaseQueryMixin, self).save(*args, **kwargs)
+    def save_query(self, *args, **kwargs):
+        print("save called")
+        self.clean_query()
 
     def get_content(self, published=True):
         """performs es search and gets content objects
@@ -68,7 +64,3 @@ class BaseQueryMixin(object):
         if "pinned_ids" in q:
             return bool(len(q.get("pinned_ids", [])))
         return False
-
-
-class RecircMixin(BaseQueryMixin):
-    pass

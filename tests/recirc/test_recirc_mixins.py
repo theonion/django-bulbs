@@ -1,16 +1,17 @@
 from django.utils import timezone
 
 from bulbs.utils.test import BaseIndexableTestCase
-from bulbs.content.models import Content, Tag
+from bulbs.content.models import Content, Tag, FeatureType
 
 from example.testcontent.models import TestRecircContentObject
 
 
-class TestRericMixins(BaseIndexableTestCase):
+class TestRecircMixins(BaseIndexableTestCase):
 
     def setUp(self):
-        super(TestRericMixins, self).setUp()
+        super(TestRecircMixins, self).setUp()
 
+        self.ft = FeatureType.objects.create(name="Article")
         tag_names = (
             "Cool", "Funny", "Wow", "Amazings"
         )
@@ -18,25 +19,35 @@ class TestRericMixins(BaseIndexableTestCase):
         for name in tag_names:
             self.tags.append(Tag.objects.create(name=name))
 
-    def test_mixin_query_creation(self):
-        objects = []
+        self.objects = []
         for tag in self.tags:
             t = TestRecircContentObject.objects.create(
                 foo="foo",
-                bar="bar"
+                bar="bar",
+                feature_type=self.ft
             )
             t.tags.add(tag)
             t.save()
-            objects.append(t)
+            self.objects.append(t)
 
-        objects[0].query = dict(
-            included_ids=[objects[i].id for i in range(1, len(objects))]
+        self.objects[0].query = dict(
+            included_ids=[self.objects[i].id for i in range(1, len(self.objects))]
         )
-        objects[0].save()
+        self.objects[0].save()
 
-        self.assertEqual(objects[0].query, {
-            "included_ids": [objects[i].id for i in range(1, len(objects))]
+        self.assertEqual(self.objects[0].query, {
+            "included_ids": [self.objects[i].id for i in range(1, len(self.objects))]
         })
 
-    def test_query_recirc_url(self):
+    def test_query_clean(self):
+        obj = self.objects[1]
+        obj.query = dict(
+            included_ids=[1, None]
+        )
+        obj.save_query()
+
+        self.assertTrue(None not in obj.query)
+        self.assertEqual(obj.query, {"included_ids": [1]})
+
+    def test_query_get_content(self):
         pass
