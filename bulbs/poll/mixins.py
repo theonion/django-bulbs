@@ -157,3 +157,13 @@ class PollMixin(models.Model):
             raise SodaheadResponseError(response.json())
         elif response.status_code > 399:
             raise SodaheadResponseFailure(response.json())
+
+
+class AnswerMixin(models.Model):
+    """Generic answer fields. Excludes the Poll relationship."""
+    sodahead_answer_id = models.CharField(max_length=20, blank=True, default="")
+    answer_text = models.TextField(blank=True, default="")
+    answer_image = ImageField(null=True, blank=True)
+
+    class Meta:
+        abstract = True

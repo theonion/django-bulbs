@@ -2,12 +2,11 @@ import logging
 
 from django.db import models, transaction
 
-from djbetty import ImageField
 from djes.models import Indexable
 
 from bulbs.content.models import Content, ElasticsearchImageField
 
-from .mixins import PollMixin
+from .mixins import AnswerMixin, PollMixin
 
 
 logger = logging.getLogger(__name__)
@@ -68,15 +67,12 @@ class Poll(Content, PollMixin):
             orphaned = True
 
 
-class Answer(Indexable):
+class Answer(Indexable, AnswerMixin):
     poll = models.ForeignKey(
         Poll,
         on_delete=models.CASCADE,
         related_name='answers'
     )
-    sodahead_answer_id = models.CharField(max_length=20, blank=True, default="")
-    answer_text = models.TextField(blank=True, default="")
-    answer_image = ImageField(null=True, blank=True)
 
     class Mapping:
         answer_image = ElasticsearchImageField()
