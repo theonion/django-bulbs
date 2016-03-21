@@ -16,9 +16,8 @@ class BaseQueryMixin(object):
 
     class Meta:
         abstract = True
-        
+
     def clean_query(self):
-        print("clean_query called")
         """
         Removes any `None` value from an elasticsearch query.
         """
@@ -28,7 +27,6 @@ class BaseQueryMixin(object):
                     self.query[key] = [v for v in value if v is not None]
 
     def save_query(self, *args, **kwargs):
-        print("save called")
         self.clean_query()
 
     def get_content(self, published=True):
