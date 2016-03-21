@@ -51,11 +51,11 @@ class TestRecircMixins(BaseIndexableTestCase):
 
     def test_query_get_content(self):
         obj = self.objects[0]
-        count = obj.get_content().full().count()
+        count = obj.get_full_recirc_content().full().count()
 
         self.assertEqual(count, 0)
 
         # since the TestRecircContentObjects are not yet published
-        count = obj.get_content(published=False).full().count()
+        count = obj.get_full_recirc_content(published=False).full().count()
 
         self.assertEqual(len(obj.query['included_ids']), count)

@@ -29,7 +29,22 @@ class BaseQueryMixin(object):
     def save_query(self, *args, **kwargs):
         self.clean_query()
 
-    def get_content(self, published=True):
+    def get_recirc_content(self, published=True):
+        """gets the first 3 content objects in the `included_ids`
+        """
+        if "query" in self.query:
+            q = self.query["query"]
+        else:
+            q = self.query
+
+        search = custom_search_model(Content, q, published=published, field_map={
+            "feature_type": "feature_type.slug",
+            "tag": "tags.slug",
+            "content-type": "_type"
+        })
+        return search[:2]
+
+    def get_full_recirc_content(self, published=True):
         """performs es search and gets content objects
         """
         if "query" in self.query:

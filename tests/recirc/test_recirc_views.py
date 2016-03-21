@@ -1,6 +1,7 @@
 from django.core.urlresolvers import reverse
+from django.utils import timezone
 
-from bulbs.content.models import Tag, FeatureType
+from bulbs.content.models import Content, Tag, FeatureType
 from bulbs.utils.test import BaseAPITestCase
 
 from example.testcontent.models import TestRecircContentObject
@@ -26,7 +27,8 @@ class TestRecircViews(BaseAPITestCase):
             t = TestRecircContentObject.objects.create(
                 foo="foo",
                 bar="bar",
-                feature_type=self.ft
+                feature_type=self.ft,
+                published=timezone.now() - timezone.timedelta(days=1)
             )
             t.tags.add(tag)
             objects.append(t)
@@ -34,7 +36,8 @@ class TestRecircViews(BaseAPITestCase):
         content = TestRecircContentObject.objects.create(
             foo="whatever",
             bar="who cares",
-            feature_type=self.ft
+            feature_type=self.ft,
+            published=timezone.now() - timezone.timedelta(days=1)
         )
 
         # set query in content object
@@ -46,19 +49,21 @@ class TestRecircViews(BaseAPITestCase):
         content.save()
 
         # refresh search objects
+        Content.search_objects.refresh()
         TestRecircContentObject.search_objects.refresh()
 
-        import pdb; pdb.set_trace()
-
-        # call endpoint
-        recirc_url = reverse('content_recirc', kwargs={'pk': 1})
+        # call endpoint w/ content id
+        recirc_url = reverse('content_recirc', kwargs={'pk': content.id})
         response = self.api_client.get(recirc_url)
+        import pdb; pdb.set_trace()
         self.assertEqual(response.status_code, 200)
 
         # assert first three things are returned from dumb endpoint
 
     def test_recirc_content_not_found(self):
-        pass
+        recirc_url = reverse('content_recirc', kwargs={'pk': 300})
+        response = self.api_client.get(recirc_url)
+        self.assertEqual(response.status_code, 404)
 
     def test_recirc_unpublished(self):
         pass
