@@ -1,7 +1,5 @@
-from django.utils import timezone
-
 from bulbs.utils.test import BaseIndexableTestCase
-from bulbs.content.models import Content, Tag, FeatureType
+from bulbs.content.models import Tag, FeatureType
 
 from example.testcontent.models import TestRecircContentObject
 
