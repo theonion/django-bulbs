@@ -48,7 +48,7 @@ class BaseQueryMixin(models.Model):
             "tag": "tags.slug",
             "content-type": "_type"
         })
-        return search[:2]
+        return search[:3]
 
     def get_full_recirc_content(self, published=True):
         """performs es search and gets all content objects

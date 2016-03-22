@@ -49,13 +49,11 @@ class TestRecircViews(BaseAPITestCase):
         content.save()
 
         # refresh search objects
-        Content.search_objects.refresh()
         TestRecircContentObject.search_objects.refresh()
 
         # call endpoint w/ content id
         recirc_url = reverse('content_recirc', kwargs={'pk': content.id})
         response = self.api_client.get(recirc_url)
-        import pdb; pdb.set_trace()
         self.assertEqual(response.status_code, 200)
 
         # assert first three things are returned from dumb endpoint
