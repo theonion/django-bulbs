@@ -44,7 +44,7 @@ class TestRecircMixins(BaseIndexableTestCase):
         obj.query = dict(
             included_ids=[1, None]
         )
-        obj.save_query()
+        obj.save()
 
         self.assertTrue(None not in obj.query)
         self.assertEqual(obj.query, {"included_ids": [1]})

@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.db import models
 
 from elasticsearch import Elasticsearch
 from json_field import JSONField
@@ -10,12 +11,16 @@ from bulbs.content.models import Content
 es = Elasticsearch(settings.ES_CONNECTIONS["default"]["hosts"])
 
 
-class BaseQueryMixin(object):
+class BaseQueryMixin(models.Model):
 
     query = JSONField(default={}, blank=True)
 
     class Meta:
         abstract = True
+
+    def clean(self):
+        super(BaseQueryMixin, self).clean()
+        self.clean_query()
 
     def clean_query(self):
         """
@@ -26,8 +31,9 @@ class BaseQueryMixin(object):
                 if isinstance(value, list) and None in value:
                     self.query[key] = [v for v in value if v is not None]
 
-    def save_query(self, *args, **kwargs):
-        self.clean_query()
+    def save(self, *args, **kwargs):
+        self.clean()
+        super(BaseQueryMixin, self).save()
 
     def get_recirc_content(self, published=True):
         """gets the first 3 content objects in the `included_ids`
@@ -45,7 +51,7 @@ class BaseQueryMixin(object):
         return search[:2]
 
     def get_full_recirc_content(self, published=True):
-        """performs es search and gets content objects
+        """performs es search and gets all content objects
         """
         if "query" in self.query:
             q = self.query["query"]
