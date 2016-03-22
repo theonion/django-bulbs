@@ -1,6 +1,8 @@
 """Models for testing an example Django App."""
 from django.db import models
 
+from elasticsearch_dsl import field
+
 from djbetty.fields import ImageField
 
 from bulbs.campaigns.models import Campaign
@@ -86,3 +88,6 @@ class TestRecircContentObject(Content, BaseQueryMixin):
 
     foo = models.CharField(max_length=255)
     bar = models.CharField(max_length=255)
+
+    class Mapping(Content.Mapping):
+        query = field.Object(enabled=False)
