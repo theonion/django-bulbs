@@ -3,7 +3,7 @@ from django.utils import timezone
 
 import json
 
-from bulbs.content.models import Content, Tag, FeatureType
+from bulbs.content.models import Tag, FeatureType
 from bulbs.utils.test import BaseAPITestCase
 
 from example.testcontent.models import TestRecircContentObject
