@@ -41,12 +41,8 @@ class BaseQueryMixin(models.Model):
 
         # NOTE: set included_ids to just be the first 3 ids,
         # otherwise search will return last 3 items
-        if self.has_query:
-            q = self.query["query"]
-            q['query']['included_ids'] = q['query']['included_ids'][:3]
-        else:
-            q = self.query
-            q['included_ids'] = q['included_ids'][:3]
+        q = self.get_query()
+        q['included_ids'] = q['included_ids'][:3]
 
         search = custom_search_model(Content, q, published=published, field_map={
             "feature_type": "feature_type.slug",
@@ -58,11 +54,7 @@ class BaseQueryMixin(models.Model):
     def get_full_recirc_content(self, published=True):
         """performs es search and gets all content objects
         """
-        if self.has_query:
-            q = self.query["query"]
-        else:
-            q = self.query
-
+        q = self.get_query()
         search = custom_search_model(Content, q, published=published, field_map={
             "feature_type": "feature_type.slug",
             "tag": "tags.slug",
@@ -70,9 +62,12 @@ class BaseQueryMixin(models.Model):
         })
         return search
 
-    @property
-    def has_query(self):
-        return "query" in self.query
+    def get_query(self):
+        if "query" in self.query:
+            q = self.query["query"]
+        else:
+            q = self.query
+        return q
 
     @property
     def contents(self):
@@ -86,10 +81,7 @@ class BaseQueryMixin(models.Model):
     def has_pinned_content(self):
         """determines if the there is a pinned object in the search
         """
-        if self.has_query:
-            q = self.query["query"]
-        else:
-            q = self.query
+        q = self.get_query()
         if "pinned_ids" in q:
             return bool(len(q.get("pinned_ids", [])))
         return False
