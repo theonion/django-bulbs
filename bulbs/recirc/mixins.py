@@ -38,17 +38,22 @@ class BaseQueryMixin(models.Model):
     def get_recirc_content(self, published=True):
         """gets the first 3 content objects in the `included_ids`
         """
+
+        # NOTE: set included_ids to just be the first 3 ids,
+        # otherwise search will return last 3 items
         if "query" in self.query:
             q = self.query["query"]
+            q['query']['included_ids'] = q['query']['included_ids'][:3]
         else:
             q = self.query
+            q['included_ids'] = q['included_ids'][:3]
 
         search = custom_search_model(Content, q, published=published, field_map={
             "feature_type": "feature_type.slug",
             "tag": "tags.slug",
             "content-type": "_type"
         })
-        return search[:3]
+        return search
 
     def get_full_recirc_content(self, published=True):
         """performs es search and gets all content objects

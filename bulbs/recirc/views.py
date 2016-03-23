@@ -17,7 +17,7 @@ class RecircViewSet(views.APIView):
         content = get_object_or_404(Content, id=pk)
 
         if not content.is_published:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
         serializer = RecircContentSerializer(
             content.get_recirc_content().execute(),
