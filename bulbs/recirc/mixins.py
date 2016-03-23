@@ -41,7 +41,7 @@ class BaseQueryMixin(models.Model):
 
         # NOTE: set included_ids to just be the first 3 ids,
         # otherwise search will return last 3 items
-        if "query" in self.query:
+        if self.has_query:
             q = self.query["query"]
             q['query']['included_ids'] = q['query']['included_ids'][:3]
         else:
@@ -58,7 +58,7 @@ class BaseQueryMixin(models.Model):
     def get_full_recirc_content(self, published=True):
         """performs es search and gets all content objects
         """
-        if "query" in self.query:
+        if self.has_query:
             q = self.query["query"]
         else:
             q = self.query
@@ -69,6 +69,10 @@ class BaseQueryMixin(models.Model):
             "content-type": "_type"
         })
         return search
+
+    @property
+    def has_query(self):
+        return "query" in self.query
 
     @property
     def contents(self):
@@ -82,7 +86,7 @@ class BaseQueryMixin(models.Model):
     def has_pinned_content(self):
         """determines if the there is a pinned object in the search
         """
-        if "query" in self.query:
+        if self.has_query:
             q = self.query["query"]
         else:
             q = self.query
