@@ -88,6 +88,13 @@ class TestRecircViews(BaseAPITestCase):
         self.assertEqual(data[2]['title'], 'Test 1')
         self.assertEqual(data[2]['feature_type'], 'Article')
 
+        # assert that the query wasn't changed
+        self.assertEqual(len(content.query['included_ids']), 4)
+        self.assertEqual(content.query['included_ids'][0], 1)
+        self.assertEqual(content.query['included_ids'][1], 2)
+        self.assertEqual(content.query['included_ids'][2], 3)
+        self.assertEqual(content.query['included_ids'][3], 4)
+
     def test_recirc_content_not_found(self):
         recirc_url = reverse('content_recirc', kwargs={'pk': 300})
         response = self.api_client.get(recirc_url)

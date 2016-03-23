@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from django.conf import settings
 from django.db import models
 
@@ -67,7 +69,7 @@ class BaseQueryMixin(models.Model):
             q = self.query["query"]
         else:
             q = self.query
-        return q
+        return deepcopy(q)
 
     @property
     def contents(self):
