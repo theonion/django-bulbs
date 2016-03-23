@@ -111,3 +111,8 @@ class TestRecircViews(BaseAPITestCase):
         recirc_url = reverse('content_recirc', kwargs={'pk': content.id})
         response = self.api_client.get(recirc_url)
         self.assertEqual(response.status_code, 404)
+
+    def test_inline_recirc_url(self):
+        recirc_url = reverse('content_inline_recirc', kwargs={'pk': 300})
+        response = self.api_client.get(recirc_url)
+        self.assertEqual(response.status_code, 200)

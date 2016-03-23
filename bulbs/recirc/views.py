@@ -15,7 +15,6 @@ class RecircViewSet(views.APIView):
 
     def get(self, request, pk):
         content = get_object_or_404(Content, id=pk)
-
         if not content.is_published:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -26,4 +25,21 @@ class RecircViewSet(views.APIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+class InlineRecircViewSet(views.APIView):
+
+    permission_classes = (AllowAny,)
+
+    def get(self, request, pk):
+        content = get_object_or_404(Content, id=pk)
+        if not content.is_published:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        # return 3 items based on a dynamic ElasticSeach query boosted by
+        # Tags of the content id requested
+        # The feature type video
+        return Response(status=status.HTTP_200_OK)
+
+
+inline_recirc = cache_control(max_age=600)(InlineRecircViewSet.as_view())
 recirc = cache_control(max_age=600)(RecircViewSet.as_view())
