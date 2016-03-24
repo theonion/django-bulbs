@@ -60,7 +60,7 @@ class TestContentViews(BaseIndexableTestCase):
         # create test content and token
         create_date = timezone.now()
         expire_date = create_date + timedelta(days=3)
-        content = make_content(published=None)
+        content = make_content(TestContentObj, published=None)
         obfuscated_url_info = ObfuscatedUrlInfo.objects.create(
             content=content,
             create_date=create_date.isoformat(),
