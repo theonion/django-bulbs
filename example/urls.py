@@ -2,7 +2,8 @@ from django.conf.urls import patterns, url, include
 
 urlpatterns = patterns("",
     url(r"^api/v1/", include("bulbs.api.urls")),  # noqa
-    url(r"^", include("bulbs.poll.urls")), # noqa
+    url(r"^", include("bulbs.poll.urls")),  # noqa
+    url(r"^(?P<pk>\d+)/recirc", "bulbs.recirc.views.recirc", name="content_recirc"),
     url(r"^content_list_one\.html", "example.testcontent.views.test_all_content_list"),
     url(r"^content_list_two\.html", "example.testcontent.views.test_content_two_list"),
     url(r"^published_custom_search/$", "example.testcontent.views.test_published_content_custom_search_list"),

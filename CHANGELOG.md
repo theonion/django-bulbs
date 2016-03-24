@@ -4,6 +4,11 @@
 
 - `utils.test.BaseIndexableTestCase` now waits for ES shard startup, to reduce flaky tests querying ES before it's ready.
 
+## Version 0.8.6
+
+- Added `recirc` app
+- Added `BaseQueryMixin` to `recirc/mixins`, which provides a `query` json field and some utility functions
+
 ## Version 0.8.5
 
 - Added poll image field to polls
