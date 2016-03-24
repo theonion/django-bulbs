@@ -64,6 +64,15 @@ class BaseQueryMixin(models.Model):
         })
         return search
 
+    def get_inline_recirc_content(self, published=True):
+        '''return 3 items based on a dynamic ElasticSeach query
+        boosted by the following
+        Tags of the content id requested
+        The feature type video'''
+
+        self.tags
+        return
+
     def get_query(self):
         if "query" in self.query:
             q = self.query["query"]

@@ -35,10 +35,12 @@ class InlineRecircViewSet(views.APIView):
         if not content.is_published:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-        # return 3 items based on a dynamic ElasticSeach query boosted by
-        # Tags of the content id requested
-        # The feature type video
-        return Response(status=status.HTTP_200_OK)
+        serializer = RecircContentSerializer(
+            content.get_inline_recirc_content().execute(),
+            many=True
+        )
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 inline_recirc = cache_control(max_age=600)(InlineRecircViewSet.as_view())
