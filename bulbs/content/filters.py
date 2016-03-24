@@ -140,3 +140,11 @@ def VideohubChannel(included_ids=None, excluded_ids=None):
         f &= Nested(path="video", filter=Terms(**{"video.channel_id": included_ids}))
     if excluded_ids:
         f &= ~Nested(path="video", filter=Terms(**{"video.channel_id": excluded_ids}))
+
+
+def TagBoost(tags, boost_mode="multiply", weight=5):
+    return FunctionScore()
+
+
+def VideoBoost(boost_mode="multiply", weight=5):
+    return FunctionScore()

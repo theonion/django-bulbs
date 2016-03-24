@@ -65,11 +65,14 @@ class BaseQueryMixin(models.Model):
         return search
 
     def get_inline_recirc_content(self, published=True):
-        '''return 3 items based on a dynamic ElasticSeach query
-        boosted by the following
-        Tags of the content id requested
-        The feature type video'''
-
+        # return 3 items based on a dynamic ElasticSeach query
+        # boosted by the following
+        # Tags of the content id requested
+        # The feature type video
+        
+        # special_coverage.get_content().query(
+        #     SponsoredBoost(field_name="campaign")
+        # )
         self.tags
         return
 
