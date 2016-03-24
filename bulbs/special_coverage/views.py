@@ -1,7 +1,7 @@
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.views.decorators.cache import cache_control
-
+from elasticsearch_dsl import filter as es_filters
 
 from bulbs.special_coverage.models import SpecialCoverage
 from bulbs.content.views import BaseContentDetailView
@@ -31,6 +31,18 @@ class SpecialCoverageView(BaseContentDetailView):
         context["content_list"] = self.special_coverage.get_content()
         context["special_coverage"] = self.special_coverage
 
+        # TODO: Move this stuff up to django-bulbs
+        context["recirc"] = self.special_coverage.get_content(
+            published=self.show_published_only()
+        ).filter(
+            ~es_filters.Ids(values=[self.object.id])
+        )
+
+        context["targeting"] = {}
+        if special_coverage:
+            context["targeting"]["dfp_specialcoverage"] = self.special_coverage.slug
+            if self.special_coverage.campaign:
+                context["targeting"]["dfp_campaign_id"] = self.special_coverage.campaign.id
         return context
 
 
