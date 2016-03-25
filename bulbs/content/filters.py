@@ -142,9 +142,10 @@ def TagBoost(slugs, boost_mode="multiply", weight=5):
 
     return FunctionScore(
         boost_mode=boost_mode,
-        functions=[
-
-        ]
+        functions=[{
+            "filter": Terms(**{"tags.slug": included}),
+            "weight": weight
+        }]
     )
 
 
@@ -153,7 +154,8 @@ def FeatureTypeBoost(slugs, boost_mode="multiply", weight=5):
 
     return FunctionScore(
         boost_mode=boost_mode,
-        functions=[
-
-        ]
+        functions=[{
+            "filter": Terms(**{"feature_type.slug": included}),
+            "weight": weight
+        }]
     )

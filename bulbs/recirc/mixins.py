@@ -7,6 +7,7 @@ from elasticsearch import Elasticsearch
 from json_field import JSONField
 
 from bulbs.content.custom_search import custom_search_model
+from bulbs.content.filters import FeatureTypeBoost, TagBoost
 from bulbs.content.models import Content
 
 
@@ -65,16 +66,11 @@ class BaseQueryMixin(models.Model):
         return search
 
     def get_inline_recirc_content(self, published=True):
-        # return 3 items based on a dynamic ElasticSeach query
-        # boosted by the following
-        # Tags of the content id requested
-        # The feature type video
-        
-        # special_coverage.get_content().query(
-        #     SponsoredBoost(field_name="campaign")
-        # )
-        self.tags
-        return
+        qs = Content.search_objects.search()
+        qs = qs.query(FeatureTypeBoost(slugs=["video"]))
+        qs = qs.query(TagBoost(slugs=self.tags.values_list("slug", flat=True)))
+
+        return qs[:3]
 
     def get_query(self):
         if "query" in self.query:

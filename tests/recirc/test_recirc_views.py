@@ -16,7 +16,7 @@ class TestRecircViews(BaseAPITestCase):
 
         self.ft = FeatureType.objects.create(name="Article")
         tag_names = (
-            "Cool", "Funny", "Wow", "Amazings"
+            "Cool", "Funny", "Wow", "Amazing"
         )
         self.tags = []
         for name in tag_names:
@@ -113,6 +113,31 @@ class TestRecircViews(BaseAPITestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_inline_recirc_url(self):
-        recirc_url = reverse('content_inline_recirc', kwargs={'pk': self.content.id})
+        # create test articles with the same tag
+        tag = Tag.objects.create(name="Politics")
+        for i in range(3):
+            t = TestRecircContentObject.objects.create(
+                title="{}".format(i+1),
+                foo="{}".format(i+1),
+                bar="{}".format(i+1),
+                feature_type=self.ft,
+                published=timezone.now() - timezone.timedelta(days=1)
+            )
+            t.tags.add(tag)
+
+        # create master content article to test against
+        content = TestRecircContentObject.objects.create(
+            title="{}".format(i),
+            foo="{}".format(i),
+            bar="{}".format(i),
+            feature_type=self.ft,
+            published=timezone.now() - timezone.timedelta(days=1)
+        )
+        content.tags.add(tag)
+
+        # check that they are returned in the response
+        recirc_url = reverse('content_inline_recirc', kwargs={'pk': content.id})
         response = self.api_client.get(recirc_url)
         self.assertEqual(response.status_code, 200)
+
+        import pdb; pdb.set_trace()
