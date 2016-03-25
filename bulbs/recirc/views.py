@@ -19,7 +19,7 @@ class RecircViewSet(views.APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         serializer = RecircContentSerializer(
-            content.get_recirc_content().execute(),
+            content.get_recirc_content(count=3).execute(),
             many=True
         )
 
@@ -36,7 +36,7 @@ class InlineRecircViewSet(views.APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         serializer = RecircContentSerializer(
-            content.get_inline_recirc_content().execute(),
+            content.get_inline_recirc_content(count=3).execute(),
             many=True
         )
 
