@@ -30,16 +30,8 @@ class SpecialCoverageView(BaseContentDetailView):
         context = super(SpecialCoverageView, self).get_context_data()
         context["content_list"] = self.special_coverage.get_content()
         context["special_coverage"] = self.special_coverage
-
-        # TODO: Move this stuff up to django-bulbs
-        context["recirc"] = self.special_coverage.get_content(
-            published=self.show_published_only()
-        ).filter(
-            ~es_filters.Ids(values=[self.object.id])
-        )
-
         context["targeting"] = {}
-        if special_coverage:
+        if self.special_coverage:
             context["targeting"]["dfp_specialcoverage"] = self.special_coverage.slug
             if self.special_coverage.campaign:
                 context["targeting"]["dfp_campaign_id"] = self.special_coverage.campaign.id

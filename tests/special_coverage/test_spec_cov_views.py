@@ -45,7 +45,6 @@ class TestSpecialCoverageViews(BaseIndexableTestCase):
         self.assertEqual(response.context['special_coverage'], sc)
         self.assertEqual(response.context['content_list'].count(), sc.get_content().count())
         self.assertEqual(response.context['content_list'][0].id, content.id)
-        self.assertEqual(response.context['recirc'], None)
         self.assertEqual(response.context['targeting'], {
             'dfp_specialcoverage': 'test-coverage',
             'dfp_campaign_id': self.campaign.id,
