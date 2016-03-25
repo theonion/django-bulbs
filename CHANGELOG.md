@@ -2,6 +2,11 @@
 
 ## Development
 
+## Version 0.8.8
+- `bulbs.special_coverage.views.SpecialCoverageView` sets dfp tracking values in context
+
+## Version 0.8.7
+
 - `utils.test.BaseIndexableTestCase` now waits for ES shard startup, to reduce flaky tests querying ES before it's ready.
 
 ## Version 0.8.6
