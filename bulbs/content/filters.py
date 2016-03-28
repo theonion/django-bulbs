@@ -139,11 +139,10 @@ def VideohubChannel(included_ids=None, excluded_ids=None):
 
 def TagBoost(slugs, boost_mode="multiply", weight=5):
     included, excluded = _parse_slugs(slugs)
-
     return FunctionScore(
         boost_mode=boost_mode,
         functions=[{
-            "filter": Terms(**{"tags.slug": included}),
+            "filter": Nested(path="tags", filter=Terms(**{"tags.slug": included})),
             "weight": weight
         }]
     )
@@ -151,11 +150,10 @@ def TagBoost(slugs, boost_mode="multiply", weight=5):
 
 def FeatureTypeBoost(slugs, boost_mode="multiply", weight=5):
     included, excluded = _parse_slugs(slugs)
-
     return FunctionScore(
         boost_mode=boost_mode,
         functions=[{
-            "filter": Terms(**{"feature_type.slug": included}),
+            "filter": Nested(path="feature_type", filter=Terms(**{"feature_type.slug": included})),
             "weight": weight
         }]
     )

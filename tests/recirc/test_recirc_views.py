@@ -4,12 +4,12 @@ from django.utils import timezone
 import json
 
 from bulbs.content.models import Tag, FeatureType
-from bulbs.utils.test import BaseAPITestCase
+from bulbs.utils.test import BaseIndexableTestCase
 
 from example.testcontent.models import TestRecircContentObject
 
 
-class TestRecircViews(BaseAPITestCase):
+class TestRecircViews(BaseIndexableTestCase):
 
     def setUp(self):
         super(TestRecircViews, self).setUp()
@@ -50,6 +50,12 @@ class TestRecircViews(BaseAPITestCase):
         )
         self.content.save()
 
+    def tearDown(self):
+        super(TestRecircViews, self).tearDown()
+
+        TestRecircContentObject.objects.all().delete()
+        TestRecircContentObject.search_objects.refresh()
+
     def test_recirc_url(self):
         # assert that there are more than 3 items in the response
         # & that the first three are as expected
@@ -63,7 +69,7 @@ class TestRecircViews(BaseAPITestCase):
 
         # call endpoint w/ content id
         recirc_url = reverse('content_recirc', kwargs={'pk': self.content.id})
-        response = self.api_client.get(recirc_url)
+        response = self.client.get(recirc_url)
         data = json.loads(json.dumps(response.data))
 
         self.assertEqual(response.status_code, 200)
@@ -97,7 +103,7 @@ class TestRecircViews(BaseAPITestCase):
 
     def test_recirc_content_not_found(self):
         recirc_url = reverse('content_recirc', kwargs={'pk': 300})
-        response = self.api_client.get(recirc_url)
+        response = self.client.get(recirc_url)
         self.assertEqual(response.status_code, 404)
 
     def test_recirc_unpublished(self):
@@ -109,13 +115,13 @@ class TestRecircViews(BaseAPITestCase):
         )
 
         recirc_url = reverse('content_recirc', kwargs={'pk': content.id})
-        response = self.api_client.get(recirc_url)
+        response = self.client.get(recirc_url)
         self.assertEqual(response.status_code, 404)
 
     def test_inline_recirc_url(self):
-        # create test articles with the same tag
+        # create test articles w/ another tag
         tag = Tag.objects.create(name="Politics")
-        for i in range(3):
+        for i in range(5):
             t = TestRecircContentObject.objects.create(
                 title="{}".format(i+1),
                 foo="{}".format(i+1),
@@ -124,20 +130,37 @@ class TestRecircViews(BaseAPITestCase):
                 published=timezone.now() - timezone.timedelta(days=1)
             )
             t.tags.add(tag)
+            t.save()
+
+        # create test articles w/ 1 tag
+        exclude = Tag.objects.create(name="Music")
+        for i in range(5):
+            t = TestRecircContentObject.objects.create(
+                title="EXCLUDE",
+                foo="WHATEVER",
+                bar="MAN",
+                feature_type=self.ft,
+                published=timezone.now() - timezone.timedelta(days=1)
+            )
+            t.tags.add(exclude)
+            t.save()
 
         # create master content article to test against
         content = TestRecircContentObject.objects.create(
-            title="{}".format(i),
-            foo="{}".format(i),
-            bar="{}".format(i),
+            title="Master object",
+            foo="foo",
+            bar="bar",
             feature_type=self.ft,
             published=timezone.now() - timezone.timedelta(days=1)
         )
         content.tags.add(tag)
 
+        # refresh search objects
+        TestRecircContentObject.search_objects.refresh()
+
         # check that they are returned in the response
         recirc_url = reverse('content_inline_recirc', kwargs={'pk': content.id})
-        response = self.api_client.get(recirc_url)
+        response = self.client.get(recirc_url)
         self.assertEqual(response.status_code, 200)
 
         import pdb; pdb.set_trace()

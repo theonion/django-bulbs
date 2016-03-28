@@ -67,8 +67,12 @@ class BaseQueryMixin(models.Model):
 
     def get_inline_recirc_content(self, published=True, count=3):
         qs = Content.search_objects.search()
-        qs = qs.query(FeatureTypeBoost(slugs=["video"]))
-        qs = qs.query(TagBoost(slugs=self.tags.values_list("slug", flat=True)))
+        import pdb; pdb.set_trace()
+        qs = qs.query(
+                TagBoost(slugs=self.tags.values_list("slug", flat=True))
+            ).query(
+                FeatureTypeBoost(slugs=["video"])
+            )
 
         return qs[:count]
 
