@@ -2,7 +2,6 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.views.decorators.cache import cache_control
 
-
 from bulbs.special_coverage.models import SpecialCoverage
 from bulbs.content.views import BaseContentDetailView
 
@@ -30,7 +29,11 @@ class SpecialCoverageView(BaseContentDetailView):
         context = super(SpecialCoverageView, self).get_context_data()
         context["content_list"] = self.special_coverage.get_content()
         context["special_coverage"] = self.special_coverage
-
+        context["targeting"] = {}
+        if self.special_coverage:
+            context["targeting"]["dfp_specialcoverage"] = self.special_coverage.slug
+            if self.special_coverage.campaign:
+                context["targeting"]["dfp_campaign_id"] = self.special_coverage.campaign.id
         return context
 
 
