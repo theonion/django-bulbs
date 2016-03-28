@@ -123,9 +123,9 @@ class TestRecircViews(BaseIndexableTestCase):
         tag = Tag.objects.create(name="Politics")
         for i in range(5):
             t = TestRecircContentObject.objects.create(
-                title="{}".format(i+1),
-                foo="{}".format(i+1),
-                bar="{}".format(i+1),
+                title="{}".format(i),
+                foo="{}".format(i),
+                bar="{}".format(i),
                 feature_type=self.ft,
                 published=timezone.now() - timezone.timedelta(days=1)
             )
@@ -161,6 +161,14 @@ class TestRecircViews(BaseIndexableTestCase):
         # check that they are returned in the response
         recirc_url = reverse('content_inline_recirc', kwargs={'pk': content.id})
         response = self.client.get(recirc_url)
-        self.assertEqual(response.status_code, 200)
+        data = json.loads(json.dumps(response.data))
 
-        import pdb; pdb.set_trace()
+        # assert that 3 items are returned & they are all of the correct type
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(data), 3)
+        self.assertTrue(data[0]['title'].isdigit())
+        self.assertTrue(data[0]['feature_type'], 'Article')
+        self.assertTrue(data[1]['title'].isdigit())
+        self.assertTrue(data[1]['feature_type'], 'Article')
+        self.assertTrue(data[2]['title'].isdigit())
+        self.assertTrue(data[2]['feature_type'], 'Article')
