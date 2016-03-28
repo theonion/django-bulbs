@@ -67,7 +67,9 @@ class TestContentViews(BaseIndexableTestCase):
             expire_date=expire_date.isoformat()
         )
         uuid = obfuscated_url_info.url_uuid
+
         Content.search_objects.refresh()
+        ObfuscatedUrlInfo.search_objects.refresh()
 
         # attempt to get article via token
         response = self.client.get(reverse("unpublished", kwargs={"token": uuid}))
