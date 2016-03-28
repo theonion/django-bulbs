@@ -1,3 +1,4 @@
+import time
 from datetime import timedelta
 
 from django.contrib.auth import get_user_model
@@ -68,8 +69,8 @@ class TestContentViews(BaseIndexableTestCase):
         )
         uuid = obfuscated_url_info.url_uuid
 
+        time.sleep(1)
         Content.search_objects.refresh()
-        ObfuscatedUrlInfo.search_objects.refresh()
 
         # attempt to get article via token
         response = self.client.get(reverse("unpublished", kwargs={"token": uuid}))
