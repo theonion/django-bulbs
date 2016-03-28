@@ -119,7 +119,7 @@ class TestRecircViews(BaseIndexableTestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_inline_recirc_url(self):
-        # create test articles w/ another tag
+        # create test articles w/ matching tag
         tag = Tag.objects.create(name="Politics")
         for i in range(5):
             t = TestRecircContentObject.objects.create(
@@ -132,7 +132,7 @@ class TestRecircViews(BaseIndexableTestCase):
             t.tags.add(tag)
             t.save()
 
-        # create test articles w/ 1 tag
+        # create test articles w/ not matching tag
         exclude = Tag.objects.create(name="Music")
         for i in range(5):
             t = TestRecircContentObject.objects.create(
