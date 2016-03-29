@@ -4,6 +4,7 @@ from django.conf import settings
 from django.db import models
 
 from elasticsearch import Elasticsearch
+from elasticsearch_dsl.filter import Ids
 from json_field import JSONField
 
 from bulbs.content.custom_search import custom_search_model
@@ -41,13 +42,25 @@ class BaseQueryMixin(models.Model):
     def get_recirc_content(self, published=True, count=3):
         """gets the first 3 content objects in the `included_ids`
         """
+        query = self.get_query()
+
+        # check if query has included_ids & if there are any ids in it,
+        # in case the ids have been removed from the array
+        if not query.get('included_ids'):
+            qs = Content.search_objects.search()
+            qs = qs.query(
+                    TagBoost(slugs=self.tags.values_list("slug", flat=True))
+                ).filter(
+                    ~Ids(values=[self.id])
+                ).sort(
+                    "_score"
+                )
+            return qs[:count]
 
         # NOTE: set included_ids to just be the first 3 ids,
         # otherwise search will return last 3 items
-        q = self.get_query()
-        q['included_ids'] = q['included_ids'][:count]
-
-        search = custom_search_model(Content, q, published=published, field_map={
+        query['included_ids'] = query['included_ids'][:count]
+        search = custom_search_model(Content, query, published=published, field_map={
             "feature_type": "feature_type.slug",
             "tag": "tags.slug",
             "content-type": "_type"
@@ -71,6 +84,8 @@ class BaseQueryMixin(models.Model):
                 TagBoost(slugs=self.tags.values_list("slug", flat=True))
             ).query(
                 FeatureTypeBoost(slugs=["video"])
+            ).filter(
+                ~Ids(values=[self.id])
             ).sort(
                 "_score"
             )

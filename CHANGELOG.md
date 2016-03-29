@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 0.8.10
+
+- Adds tag-based recirc fallback to `RecircViewSet` `GET` request
+
 ## Version 0.8.9
 
 - Adds `get_inline_recirc_content()` to `BaseQueryMixin`

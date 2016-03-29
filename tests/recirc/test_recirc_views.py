@@ -50,12 +50,6 @@ class TestRecircViews(BaseIndexableTestCase):
         )
         self.content.save()
 
-    def tearDown(self):
-        super(TestRecircViews, self).tearDown()
-
-        TestRecircContentObject.objects.all().delete()
-        TestRecircContentObject.search_objects.refresh()
-
     def test_recirc_url(self):
         # assert that there are more than 3 items in the response
         # & that the first three are as expected
@@ -117,6 +111,64 @@ class TestRecircViews(BaseIndexableTestCase):
         recirc_url = reverse('content_recirc', kwargs={'pk': content.id})
         response = self.client.get(recirc_url)
         self.assertEqual(response.status_code, 404)
+
+    def test_recirc_tag_fallback(self):
+        # create test articles w/ matching tag
+        tag = Tag.objects.create(name="Politics")
+        for i in range(5):
+            t = TestRecircContentObject.objects.create(
+                title="{}".format(i),
+                foo="{}".format(i),
+                bar="{}".format(i),
+                feature_type=self.ft,
+                published=timezone.now() - timezone.timedelta(days=1)
+            )
+            t.tags.add(tag)
+            t.save()
+
+        # create test articles w/ not matching tag
+        exclude = Tag.objects.create(name="Music")
+        for i in range(5):
+            t = TestRecircContentObject.objects.create(
+                title="EXCLUDE",
+                foo="WHATEVER",
+                bar="MAN",
+                feature_type=self.ft,
+                published=timezone.now() - timezone.timedelta(days=1)
+            )
+            t.tags.add(exclude)
+            t.save()
+
+        # create master content article to test against
+        content = TestRecircContentObject.objects.create(
+            title="Master object",
+            foo="foo",
+            bar="bar",
+            feature_type=self.ft,
+            published=timezone.now() - timezone.timedelta(days=1)
+        )
+        content.tags.add(tag)
+        content.query = dict(
+            included_ids=[]
+        )
+        content.save()
+
+        # refresh search objects
+        TestRecircContentObject.search_objects.refresh()
+
+        recirc_url = reverse('content_recirc', kwargs={'pk': content.id})
+        response = self.client.get(recirc_url)
+        data = json.loads(json.dumps(response.data))
+
+        # assert that 3 items are returned & they are all of the correct type
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(data), 3)
+        self.assertTrue(data[0]['title'].isdigit())
+        self.assertTrue(data[0]['feature_type'], 'Article')
+        self.assertTrue(data[1]['title'].isdigit())
+        self.assertTrue(data[1]['feature_type'], 'Article')
+        self.assertTrue(data[2]['title'].isdigit())
+        self.assertTrue(data[2]['feature_type'], 'Article')
 
     def test_inline_recirc_url(self):
         # create test articles w/ matching tag
