@@ -4,6 +4,7 @@ from django.conf import settings
 from django.db import models
 
 from elasticsearch import Elasticsearch
+from elasticsearch_dsl.filter import Ids
 from json_field import JSONField
 
 from bulbs.content.custom_search import custom_search_model
@@ -45,10 +46,12 @@ class BaseQueryMixin(models.Model):
 
         # check if query has included_ids & if there are any ids in it,
         # in case the ids have been removed from the array
-        if not query.get('included_ids') or len(query.get('included_ids')) == 0:
+        if not query.get('included_ids'):
             qs = Content.search_objects.search()
             qs = qs.query(
                     TagBoost(slugs=self.tags.values_list("slug", flat=True))
+                ).filter(
+                    ~Ids(values=[self.id])
                 ).sort(
                     "_score"
                 )
@@ -81,6 +84,8 @@ class BaseQueryMixin(models.Model):
                 TagBoost(slugs=self.tags.values_list("slug", flat=True))
             ).query(
                 FeatureTypeBoost(slugs=["video"])
+            ).filter(
+                ~Ids(values=[self.id])
             ).sort(
                 "_score"
             )

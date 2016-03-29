@@ -148,6 +148,10 @@ class TestRecircViews(BaseIndexableTestCase):
             published=timezone.now() - timezone.timedelta(days=1)
         )
         content.tags.add(tag)
+        content.query = dict(
+            included_ids=[]
+        )
+        content.save()
 
         # refresh search objects
         TestRecircContentObject.search_objects.refresh()
