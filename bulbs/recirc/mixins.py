@@ -7,6 +7,7 @@ from elasticsearch import Elasticsearch
 from json_field import JSONField
 
 from bulbs.content.custom_search import custom_search_model
+from bulbs.content.filters import FeatureTypeBoost, TagBoost
 from bulbs.content.models import Content
 
 
@@ -37,14 +38,14 @@ class BaseQueryMixin(models.Model):
         self.clean()
         super(BaseQueryMixin, self).save()
 
-    def get_recirc_content(self, published=True):
+    def get_recirc_content(self, published=True, count=3):
         """gets the first 3 content objects in the `included_ids`
         """
 
         # NOTE: set included_ids to just be the first 3 ids,
         # otherwise search will return last 3 items
         q = self.get_query()
-        q['included_ids'] = q['included_ids'][:3]
+        q['included_ids'] = q['included_ids'][:count]
 
         search = custom_search_model(Content, q, published=published, field_map={
             "feature_type": "feature_type.slug",
@@ -63,6 +64,18 @@ class BaseQueryMixin(models.Model):
             "content-type": "_type"
         })
         return search
+
+    def get_inline_recirc_content(self, published=True, count=3):
+        qs = Content.search_objects.search()
+        qs = qs.query(
+                TagBoost(slugs=self.tags.values_list("slug", flat=True))
+            ).query(
+                FeatureTypeBoost(slugs=["video"])
+            ).sort(
+                "_score"
+            )
+
+        return qs[:count]
 
     def get_query(self):
         if "query" in self.query:

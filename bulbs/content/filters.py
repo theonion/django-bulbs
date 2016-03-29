@@ -36,6 +36,18 @@ def parse_datetime(value):
         raise ValueError('Value must be parsable to datetime object. Got `{}`'.format(type(value)))
 
 
+def _parse_slugs(slugs):
+    included = []
+    excluded = []
+    for slug in slugs:
+        if slug.startswith("-"):
+            excluded.append(slug[1:])
+        else:
+            included.append(slug)
+
+    return (included, excluded)
+
+
 def Published(before=None, after=None):  # noqa
     published_params = {}
     if after is not None:
@@ -63,13 +75,8 @@ def AllSponsored():  # noqa
 
 
 def Authors(usernames):  # noqa
-    included = []
-    excluded = []
-    for username in usernames:
-        if username.startswith("-"):
-            excluded.append(username[1:])
-        else:
-            included.append(username)
+    included, excluded = _parse_slugs(usernames)
+
     f = MatchAll()
     if included:
         f &= Terms(**{"authors.username": included})
@@ -89,13 +96,7 @@ def NegateQueryFilter(es_query):  # noqa
 
 
 def Tags(slugs):  # noqa
-    included = []
-    excluded = []
-    for slug in slugs:
-        if slug.startswith("-"):
-            excluded.append(slug[1:])
-        else:
-            included.append(slug)
+    included, excluded = _parse_slugs(slugs)
 
     f = MatchAll()
     if included:
@@ -107,13 +108,7 @@ def Tags(slugs):  # noqa
 
 
 def FeatureTypes(slugs):  # noqa
-    included = []
-    excluded = []
-    for slug in slugs:
-        if slug.startswith("-"):
-            excluded.append(slug[1:])
-        else:
-            included.append(slug)
+    included, excluded = _parse_slugs(slugs)
 
     f = MatchAll()
     if included:
@@ -140,3 +135,25 @@ def VideohubChannel(included_ids=None, excluded_ids=None):
         f &= Nested(path="video", filter=Terms(**{"video.channel_id": included_ids}))
     if excluded_ids:
         f &= ~Nested(path="video", filter=Terms(**{"video.channel_id": excluded_ids}))
+
+
+def TagBoost(slugs, boost_mode="multiply", weight=5):
+    included, excluded = _parse_slugs(slugs)
+    return FunctionScore(
+        boost_mode=boost_mode,
+        functions=[{
+            "filter": Nested(path="tags", filter=Terms(**{"tags.slug": included})),
+            "weight": weight
+        }]
+    )
+
+
+def FeatureTypeBoost(slugs, boost_mode="multiply", weight=5):
+    included, excluded = _parse_slugs(slugs)
+    return FunctionScore(
+        boost_mode=boost_mode,
+        functions=[{
+            "filter": Nested(path="feature_type", filter=Terms(**{"feature_type.slug": included})),
+            "weight": weight
+        }]
+    )

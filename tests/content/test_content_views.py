@@ -1,3 +1,4 @@
+import time
 from datetime import timedelta
 
 from django.contrib.auth import get_user_model
@@ -67,6 +68,8 @@ class TestContentViews(BaseIndexableTestCase):
             expire_date=expire_date.isoformat()
         )
         uuid = obfuscated_url_info.url_uuid
+
+        time.sleep(1)
         Content.search_objects.refresh()
 
         # attempt to get article via token

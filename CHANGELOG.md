@@ -2,6 +2,11 @@
 
 ## Development
 
+## Version 0.8.9
+
+- Adds `get_inline_recirc_content()` to `BaseQueryMixin`
+- Added `InlineRecircViewSet` to `recirc/views` which provides a `GET` request to get an objects inline recirc content
+
 ## Version 0.8.8
 - `bulbs.special_coverage.views.SpecialCoverageView` sets dfp tracking values in context
 
@@ -13,6 +18,7 @@
 
 - Added `recirc` app
 - Added `BaseQueryMixin` to `recirc/mixins`, which provides a `query` json field and some utility functions
+- Added `RecircViewSet` to `recirc/views` which provides a `GET` request to get an objects recirc content
 
 ## Version 0.8.5
 
