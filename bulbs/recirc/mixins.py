@@ -43,11 +43,9 @@ class BaseQueryMixin(models.Model):
         """
         query = self.get_query()
 
-        # check if query has included_ids & if there are any ids in it
-        try:
-            if len(query['included_ids']) == 0:
-                raise KeyError
-        except KeyError:
+        # check if query has included_ids & if there are any ids in it,
+        # in case the ids have been removed from the array
+        if not query.get('included_ids') or len(query.get('included_ids')) == 0:
             qs = Content.search_objects.search()
             qs = qs.query(
                     TagBoost(slugs=self.tags.values_list("slug", flat=True))
