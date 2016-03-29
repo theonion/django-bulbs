@@ -44,10 +44,23 @@ class BaseQueryMixin(models.Model):
 
         # NOTE: set included_ids to just be the first 3 ids,
         # otherwise search will return last 3 items
-        q = self.get_query()
-        q['included_ids'] = q['included_ids'][:count]
+        query = self.get_query()
 
-        search = custom_search_model(Content, q, published=published, field_map={
+        # check if query has included_ids & if there are any ids in it
+        try:
+            if len(query['included_ids']) == 0:
+                raise KeyError
+        except KeyError:
+            qs = Content.search_objects.search()
+            qs = qs.query(
+                    TagBoost(slugs=self.tags.values_list("slug", flat=True))
+                ).sort(
+                    "_score"
+                )
+            return qs[:count]
+
+        query['included_ids'] = query['included_ids'][:count]
+        search = custom_search_model(Content, query, published=published, field_map={
             "feature_type": "feature_type.slug",
             "tag": "tags.slug",
             "content-type": "_type"
