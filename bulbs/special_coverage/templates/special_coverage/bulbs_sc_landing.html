@@ -1,33 +1,47 @@
 {% load betty humanize ads static %}
 
 <div class="sc-hero">
-  <figure class="thumb">
+  <figure class="hero-img">
     {% cropped content.thumbnail %}
   </figure>
-  <div class="sc-label">Special Coverage {{ context }}</div>
+  <div class="sc-label">Special Coverage</div>
   <div class="billboard">
     <h1>{{ special_coverage.name }}</h1>
-    <p>{{ special_coverage.description }}</p>
-    <div class="presented-by">
-      {% if special_coverage.campaign.sponsor_logo %}
-        <span class="sponsor-name">Presented by</span>
-        {% if special_coverage.campaign.sponsor_url %}
-          <a href="{{ special_coverage.campaign.sponsor_url }}"
-             data-track-category="{{ tracking_category }}"
-             data-track-action="Sponsor Logo" 
-             data-track-label="{{ special_coverage.campaign.sponsor_url }}">
-            <figure class="thumb">
-              <img src="{% cropped_url special_coverage.campaign.sponsor_logo ratio="original" format="png" %}" alt="{{ special_coverage.campaign.sponsor_name }}" />
-            </figure>
+    {% if special_coverage.description %}
+      <p>{{ special_coverage.description }}</p>
+    {% endif %}
+    <div class="sponsor">
+      <div class="presented-by">
+        <span>Presented by</span>
+        {% if content.campaign.sponsor_url %}
+          <a
+            href="{{ content.campaign.sponsor_url }}"
+            data-track-action="Sponsor Name"
+            data-track-label="{{ content.campaign.sponsor_url }}">
+            {{ content.campaign.sponsor_name }}
           </a>
         {% else %}
-          <figure class="thumb">
-            <img src="{% cropped_url special_coverage.campaign.sponsor_logo ratio="original" format="png" %}" alt="{{ special_coverage.campaign.sponsor_name }}" />
+          <strong>{{ content.campaign.sponsor_name }}</strong>
+        {% endif %}
+        {% if special_coverage.campaign.sponsor_logo %}
+          <figure>
+            {% if special_coverage.campaign.sponsor_url %}
+              <a href="{{ special_coverage.campaign.sponsor_url }}"
+                 data-track-category="Special Coverage Landing"
+                 data-track-action="Sponsor Logo"
+                 data-track-label="{{ special_coverage.campaign.sponsor_url }}">
+                <img
+                  src="{% cropped_url special_coverage.campaign.sponsor_logo ratio="original" format="png" %}"
+                  alt="{{ content.campaign.sponsor_name }}" />
+              </a>
+            {% else %}
+              <img
+                src="{% cropped_url special_coverage.campaign.sponsor_logo ratio="original" format="png" %}"
+                alt="{{ special_coverage.campaign.sponsor_name }}" />
+            {% endif %}
           </figure>
         {% endif %}
-      {% else %}
-        <span class="sponsor-name">Presented by {{ special_coverage.campaign.sponsor_name }}</span>
-      {% endif %}
+      </div>
     </div>
   </div>
 </div>

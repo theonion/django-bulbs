@@ -6,6 +6,8 @@
 @import "figures";
 @import "breakpoints";
 
+
+
 .sc-hero {
   @include flexbox;
   @include flex-direction(column);
@@ -14,16 +16,16 @@
   margin-bottom: 3em;
   position: relative;
   width: 100%;
-  .thumb {
+  .hero-img {
     width: 100%;
     .image { 
-      @include crop-16x9;  
+      @include crop-16x9; 
     }
   }
   .sc-label {
     background: rgba(33, 33, 33, .8);
     color: white;
-    display: inline-block;
+    display: none;
     left: 0;
     padding: 10px 20px;
     position: absolute;
@@ -35,24 +37,11 @@
     @include flex-direction(column);
     @include align-items(center);
     @include justify-content(center);
-    margin: 1em;
+    padding: 1em;
     text-align: center;
-    h1 {
-      font-size: 4em;
-      margin: 0;
-    }
-  }
-  .presented-by {
-    @include flexbox;
-    @include flex-direction(column);
-    width: 100%;
-    .sponsor-name {
-      margin-bottom: 1em;
-    }
   }
   .sponsor {
-    @include flex;
-    @include flex-direction(column-reverse);
+    @include flexbox;
     text-transform: uppercase;
     figure {
       margin: auto;
@@ -99,22 +88,27 @@
   @include flexbox;
   @include flex-direction(column);
   @include align-items(center);
+  background: #eaeaea;
   margin-bottom: 3em;
   text-align: center;
   .thumb {
     width: 100%;
     .image { 
-      @include crop-16x9; 
+      @include crop-16x9;
     }
   }
   .meta {
     padding: 10%;
     h2 {
-      font-size: 1.75em;
+      font-size: 1.3em;
     }
     .feature-type {
       color: black;
       text-transform: uppercase;
+    }
+    .pub {
+      color: rgb(122, 135, 129);
+      font-size: .75em;
     }
   }
   a {
@@ -140,13 +134,10 @@
       @include flex-direction(column);
       @include align-items(center);
       @include justify-content(center);
-      background: rgba(0,0,0,.8);
-      color: white;
+      background: #eaeaea;
+      color: black;
       position: relative;
       width: 100%;
-      .feature-type {
-        color: white;
-      }
     }
   }
 }
@@ -181,6 +172,7 @@
         @include justify-content(center);
         background: rgba(0,0,0,.8);
         bottom: 15%;
+        color: white;
         max-width: 400px;
         padding: 5%;
         position: absolute;
@@ -189,16 +181,21 @@
       }
     }
   }
+  .sc-hero {
+    .sc-label {
+      display: inline-block;
+    }
+  }
 }
 
 @media all and (min-width: $screen-xlg) {
   .sc-hero {
     @include flex-direction(row);
-    .thumb {
+    .hero-img {
       width: 65%;
     }
     .billboard {
-      margin: 3em;
+      padding: 1.5em;
       width: 35%;
     }
   }
