@@ -34,7 +34,9 @@
   flex-direction: column;
   background: #212121;
   color: white;
+  margin: auto;
   margin-bottom: 3em;
+  max-width: 1400px;
   position: relative;
   width: 100%; }
   .sc-hero .hero-img {
@@ -45,11 +47,12 @@
     background: rgba(33, 33, 33, 0.8);
     color: white;
     display: none;
+    font-size: 1.15em;
     left: 0;
-    padding: 10px 20px;
+    padding: 10px 30px;
     position: absolute;
     text-transform: uppercase;
-    top: 1em; }
+    top: 60px; }
   .sc-hero .billboard {
     display: -webkit-box;
     display: -webkit-flex;
