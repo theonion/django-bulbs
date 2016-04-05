@@ -49,7 +49,7 @@ class TestSpecialCoverageViews(BaseIndexableTestCase):
             'dfp_specialcoverage': 'test-coverage',
             'dfp_campaign_id': self.campaign.id,
         })
-        self.assertEqual(response.template_name[0], 'special_coverage/landing.html')
+        self.assertEqual(response.template_name[0], 'special_coverage/bulbs_sc_landing.html')
 
     def test_inactive_special_coverage_view(self):
         content = make_content(published=timezone.now())

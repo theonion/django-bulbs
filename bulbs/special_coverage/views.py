@@ -10,7 +10,7 @@ class SpecialCoverageView(BaseContentDetailView):
     redirect_correct_path = False
 
     def get_template_names(self):
-        template_names = ["special_coverage/landing.html"]
+        template_names = ["special_coverage/bulbs_sc_landing.html"]
         return template_names
 
     def get_object(self, *args, **kwargs):
