@@ -84,9 +84,12 @@
     .sc-hero .sponsor figure {
       margin: auto;
       max-width: 100px;
-      padding-top: 20px; }
-    .sc-hero .sponsor .presented-by a {
-      display: none; }
+      padding-top: 20px;
+      width: 100%; }
+      .sc-hero .sponsor figure img {
+        display: block;
+        position: relative;
+        width: 100%; }
 
 .sc-grid {
   display: -webkit-box;

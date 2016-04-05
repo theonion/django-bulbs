@@ -47,10 +47,11 @@
       margin: auto;
       max-width: 100px;
       padding-top: 20px;
-    }
-    .presented-by {
-      a {
-        display: none;
+      width: 100%;
+      img {
+        display: block;
+        position: relative;
+        width: 100%;
       }
     }
   }
