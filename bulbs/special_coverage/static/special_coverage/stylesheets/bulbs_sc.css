@@ -36,7 +36,7 @@
   color: white;
   margin: auto;
   margin-bottom: 3em;
-  max-width: 1400px;
+  max-width: 1425px;
   position: relative;
   width: 100%; }
   .sc-hero .hero-img {
@@ -93,6 +93,8 @@
         display: block;
         position: relative;
         width: 100%; }
+  .sc-hero.full-bleed .billboard {
+    width: 100%; }
 
 .sc-grid {
   display: -webkit-box;
@@ -122,7 +124,8 @@
     -moz-transition: width 0.5s, height 0.5s, transform 0.5s;
     -ms-transition: width 0.5s, height 0.5s, transform 0.5s;
     -o-transition: width 0.5s, height 0.5s, transform 0.5s;
-    margin: 3em auto;
+    margin: auto;
+    padding-bottom: 3em;
     display: table;
     position: relative;
     z-index: 1; }
