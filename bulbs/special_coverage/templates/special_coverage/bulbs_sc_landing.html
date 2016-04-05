@@ -1,10 +1,10 @@
-{% load betty humanize %}
+{% load betty humanize ads static %}
 
 <div class="sc-hero">
   <figure class="thumb">
     {% cropped content.thumbnail %}
   </figure>
-  <div class="sc-label">Special Coverage</div>
+  <div class="sc-label">Special Coverage {{ context }}</div>
   <div class="billboard">
     <h1>{{ special_coverage.name }}</h1>
     <p>{{ special_coverage.description }}</p>

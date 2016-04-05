@@ -20,3 +20,5 @@ reports
 .venv/
 venv/
 .cache/
+.sass-cache/
+.map

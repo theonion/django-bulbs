@@ -4,6 +4,6 @@ from django.template.loader import render_to_string
 register = template.Library()
 
 
-@register.simple_tag(takes_context=True)
+@register.inclusion_tag('special_coverage/bulbs_sc_landing.html', takes_context=True)
 def special_coverage_landing_partial(context):
-    return render_to_string("special_coverage/bulbs_landing.html")
+    return context
