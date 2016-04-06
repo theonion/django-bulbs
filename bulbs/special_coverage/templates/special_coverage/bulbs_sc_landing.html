@@ -1,0 +1,66 @@
+{% load betty humanize ads static %}
+
+<div class="sc-hero">
+  <figure class="hero-img">
+    {% cropped content.thumbnail %}
+  </figure>
+  <div class="sc-label">Special Coverage</div>
+  <div class="billboard">
+    <h1>{{ special_coverage.name }}</h1>
+    {% if special_coverage.description %}
+      <p>{{ special_coverage.description }}</p>
+    {% endif %}
+    <div class="sponsor">
+      <div class="presented-by">
+        <span>Presented by</span>
+        {% if special_coverage.campaign.sponsor_logo %}
+          <figure>
+            {% if special_coverage.campaign.sponsor_url %}
+              <a href="{{ special_coverage.campaign.sponsor_url }}"
+                 data-track-category="Special Coverage Landing"
+                 data-track-action="Sponsor Logo"
+                 data-track-label="{{ special_coverage.campaign.sponsor_url }}">
+                <img
+                  src="{% cropped_url special_coverage.campaign.sponsor_logo ratio="original" format="png" %}"
+                  alt="{{ special_coverage.campaign.sponsor_name }}" />
+              </a>
+            {% else %}
+              <img
+                src="{% cropped_url special_coverage.campaign.sponsor_logo ratio="original" format="png" %}"
+                alt="{{ special_coverage.campaign.sponsor_name }}" />
+            {% endif %}
+          </figure>
+        {% elif special_coverage.campaign.sponsor_url %}
+          <a
+            href="{{ special_coverage.campaign.sponsor_url }}"
+            data-track-action="Sponsor Name"
+            data-track-label="{{ special_coverage.campaign.sponsor_url }}">
+            {{ special_coverage.campaign.sponsor_name }}
+          </a>
+        {% else %}
+          <strong>{{ special_coverage.campaign.sponsor_name }}</strong>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<ul class="sc-grid two-up">
+  {% for content in content_list  %}
+    <li class="sc-item {% if forloop.counter|divisibleby:"5" %}large{% endif %}">
+      <a href="{{ content.get_absolute_url }}">
+        <figure class="thumb">
+          {% cropped content.thumbnail %}
+        </figure>
+        <div class="meta">
+          <span class="feature-type">{{ content.feature_type }}</span>
+          <h2>{{ content.title }}</h2>
+          <span class="pub">{{ content.published|naturalday|capfirst }}</span>
+        </div>
+      </a>
+    </li>
+    {% if forloop.counter == 4 %}
+      {% dfp_ad "special-coverage-square" %}
+    {% endif %}
+  {% endfor %}
+</ul>
