@@ -12,22 +12,25 @@ from django.db.models import Model
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django.utils.html import strip_tags
-from bulbs.utils.methods import datetime_to_epoch_seconds
+
+from djbetty import ImageField
 from djes.models import Indexable, IndexableManager
 from elasticsearch import TransportError
 from elasticsearch_dsl import field
 from polymorphic import PolymorphicModel, PolymorphicManager
-from djbetty import ImageField
 
 from bulbs.content import TagCache
-from bulbs.content.tasks import (index_content_contributions,
-                                 index_content_report_content_proxy)
-from .filters import Authors, Published, Status, Tags, FeatureTypes
+from bulbs.content.tasks import (
+    index_content_contributions, index_content_report_content_proxy
+)
+from bulbs.utils.methods import datetime_to_epoch_seconds, get_template_choices
 from .managers import ContentManager
 
 
-
 logger = logging.getLogger(__name__)
+
+
+TEMPLATE_CHOICES = get_template_choices()
 
 
 class ElasticsearchImageField(field.Integer):
@@ -176,13 +179,16 @@ class Content(PolymorphicModel, Indexable):
     evergreen = models.BooleanField(default=False)
     # Is this a read only model? (i.e. from elasticsearch)
     _readonly = False
-    # custom ES manager
-    search_objects = ContentManager()
     instant_article = models.BooleanField(default=False)
     # Tunic Campaign ID
     # NOTE: Don't want to accidentally overwrite derived model campaign_id fields during migration
     # Will rename to "campaign_id" after migration
     tunic_campaign_id = models.IntegerField(blank=True, null=True, default=None)
+    # Custom template choice. Configured via BULBS_TEMPLATE_CHOICE
+    template_choice = models.IntegerField(default=0, choices=TEMPLATE_CHOICES)
+
+    # custom ES manager
+    search_objects = ContentManager()
 
     class Meta:
         permissions = (
@@ -315,6 +321,9 @@ class Content(PolymorphicModel, Indexable):
         """
         from .serializers import ContentSerializer
         return ContentSerializer
+
+    def get_template_name(self):
+        return dict(TEMPLATE_CHOICES).get(self.template_choice)
 
     def percolate_special_coverage(self, max_size=10, sponsored_only=False):
 
