@@ -19,6 +19,10 @@ CACHES = {
     }
 }
 
+BULBS_TEMPLATE_CHOICES = (
+    (1, "special_coverage/landing.html"),
+)
+
 TEMPLATE_DIRS = (os.path.join(MODULE_ROOT, 'templates'),)
 
 INSTALLED_APPS = (
