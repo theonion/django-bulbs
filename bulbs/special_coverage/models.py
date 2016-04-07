@@ -107,15 +107,12 @@ class SpecialCoverage(DetailImageMixin, models.Model):
             return
 
         # We'll need this data, to decide which special coverage section to use
-        q["sponsored"] = bool(self.campaign)
+        q["sponsored"] = bool(self.tunic_campaign_id)
         # Elasticsearch v1.4 percolator "field_value_factor" does not
         # support missing fields, so always need to include
-        if self.campaign:
-            q["start_date"] = self.campaign.start_date
-            q["end_date"] = self.campaign.end_date
-        else:
-            q["start_date"] = self.start_date
-            q["end_date"] = self.end_date
+
+        q["start_date"] = self.start_date
+        q["end_date"] = self.end_date
 
         # Elasticsearch v1.4 percolator range query does not support DateTime range queries
         # (PercolateContext.nowInMillisImpl is not implemented).

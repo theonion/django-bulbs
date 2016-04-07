@@ -154,14 +154,13 @@ class ReadingListMixin(object):
                 self.reading_list_identifier
             )
             reading_list = special_coverage.get_content().query(
-                SponsoredBoost(field_name="campaign")
+                SponsoredBoost(field_name="tunic_campaign_id")
             ).sort("_score", "-published")
             context["targeting"]["dfp_specialcoverage"] = special_coverage.slug
-            if special_coverage.campaign:
-                context["campaign"] = special_coverage.campaign
+            if special_coverage.tunic_campaign_id:
+                context["tunic_campaign_id"] = special_coverage.tunic_campaign_id
                 context["targeting"].update({
-                    "dfp_campaign": special_coverage.campaign.campaign_label,
-                    "dfp_campaign_id": special_coverage.campaign.id
+                    "dfp_campaign_id": special_coverage.tunic_campaign_id
                 })
                 # We do not augment sponsored special coverage lists.
                 reading_list = self.update_reading_list(reading_list)

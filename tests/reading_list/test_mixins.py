@@ -31,7 +31,7 @@ class BaseReadingListTestCase(BaseIndexableTestCase):
         )
         self.sponsored_special_coverage = SpecialCoverage.objects.create(
             name="Sponsored",
-            campaign=self.campaign,
+            tunic_campaign_id=1,
             start_date=self.now - timezone.timedelta(days=7),
             end_date=self.now + timezone.timedelta(days=7),
         )
@@ -221,8 +221,10 @@ class ReadingListContextTestCase(BaseReadingListTestCase):
         self.assertEqual(
             context["targeting"]["dfp_specialcoverage"], self.sponsored_special_coverage.slug
         )
-        self.assertEqual(context["targeting"]["dfp_campaign"], self.campaign.campaign_label)
-        self.assertEqual(context["targeting"]["dfp_campaign_id"], self.campaign.id)
+        self.assertEqual(
+            context["targeting"]["dfp_campaign_id"],
+            self.sponsored_special_coverage.tunic_campaign_id
+        )
         self.assertEqual(context["videos"], self.sponsored_special_coverage.videos)
         content = context["content"]
         self.assertIsNotNone(content)
@@ -299,15 +301,10 @@ class AugmentedReadingListTestCase(BaseReadingListTestCase):
         super(AugmentedReadingListTestCase, self).setUp()
         # Fill up recent with more content
         make_content(TestReadingListObj, published=self.now, _quantity=50)
-        self.another_campaign = Campaign.objects.create(
-            sponsor_name="Fellas",
-            start_date=self.now - timezone.timedelta(days=30),
-            end_date=self.now + timezone.timedelta(days=30)
-        )
         self.sponsored_content = make_content(
             TestReadingListObj,
             published=self.now - timezone.timedelta(hours=9),
-            campaign=self.another_campaign,
+            tunic_campaign_id=1,
             _quantity=20
         )
         Content.search_objects.refresh()
@@ -319,7 +316,7 @@ class AugmentedReadingListTestCase(BaseReadingListTestCase):
         self.assertEqual(context["name"], "Recent News")
         content = context["content"]
         res = [res for res in content]
-        self.assertTrue(res[0].campaign)
+        self.assertTrue(res[0].tunic_campaign_id)
 
     def test_section_augmented(self):
         self.add_section_identifiers()
@@ -329,7 +326,7 @@ class AugmentedReadingListTestCase(BaseReadingListTestCase):
         self.assertEqual(context["name"], self.section.name)
         content = context["content"]
         res = [res for res in content]
-        self.assertTrue(res[0].campaign)
+        self.assertTrue(res[0].tunic_campaign_id)
 
     def test_unsponsored_augmented(self):
         self.add_section_identifiers()
@@ -342,7 +339,7 @@ class AugmentedReadingListTestCase(BaseReadingListTestCase):
         self.assertEqual(context["name"], self.unsponsored_special_coverage.name)
         content = context["content"]
         res = [res for res in content]
-        self.assertTrue(res[0].campaign)
+        self.assertTrue(res[0].tunic_campaign_id)
 
     def test_popular_augmented(self):
         self.add_section_identifiers()
@@ -354,7 +351,7 @@ class AugmentedReadingListTestCase(BaseReadingListTestCase):
             self.assertEqual(context["name"], "popular")
             content = context["content"]
             res = [res for res in content]
-            self.assertTrue(res[0].campaign)
+            self.assertTrue(res[0].tunic_campaign_id)
 
     def test_sponsored_not_augmented(self):
         self.add_section_identifiers()
