@@ -10,9 +10,6 @@ TEST_TUNIC_API_PATH = "/api/path/"
 
 class ContentTemplateTagsTestCase(BaseIndexableTestCase):
 
-    def setUp(self):
-        super(ContentTemplateTagsTestCase, self).setUp()
-
     @override_settings(
         TUNIC_BACKEND_ROOT=TEST_TUNIC_BACKEND_ROOT,
         TUNIC_API_PATH=TEST_TUNIC_API_PATH,
