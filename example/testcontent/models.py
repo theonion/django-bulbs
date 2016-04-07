@@ -5,7 +5,6 @@ from elasticsearch_dsl import field
 
 from djbetty.fields import ImageField
 
-from bulbs.campaigns.models import Campaign
 from bulbs.content.models import Content, Tag, ElasticsearchImageField
 from bulbs.reading_list.mixins import ReadingListMixin
 from bulbs.recirc.mixins import BaseQueryMixin
@@ -15,7 +14,6 @@ class TestContentObj(Content):
     """Fake content here."""
 
     foo = models.CharField(max_length=255)
-    campaign = models.ForeignKey(Campaign, null=True)
 
     def get_absolute_url(self):
         return '/detail/%s/' % self.pk
@@ -43,7 +41,6 @@ class TestReadingListObj(Content, ReadingListMixin):
     """Fake content with reading lists here."""
 
     foo = models.CharField(max_length=255)
-    campaign = models.ForeignKey(Campaign, null=True)
 
     def get_absolute_url(self):
         return "/detail/%s/" % self.pk
