@@ -23,7 +23,7 @@ class ContentManagerTestCase(BaseIndexableTestCase):
 
     def test_sponsored(self):
         sponsored = Content.search_objects.sponsored().extra(from_=0, size=50)
-        qs = TestContentObj.objects.filter(campaign__isnull=False)
+        qs = TestContentObj.objects.filter(tunic_campaign_id__isnull=False)
         self.assertEqual(qs.count(), sponsored.count())
         self.assertEqual(
             sorted([obj.id for obj in qs]),

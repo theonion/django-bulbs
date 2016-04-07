@@ -143,14 +143,15 @@ class SpecialCoverageQueryTests(BaseIndexableTestCase):
 
         yesterday = timezone.now() - timedelta(days=1)
         tomorrow = timezone.now() + timedelta(days=1)
-        campaign = mommy.make("campaigns.Campaign", start_date=yesterday, end_date=tomorrow)
 
         sc = SpecialCoverage(
             id=93,
             name="Uncle Joe",
             description="Classic Joeseph Biden",
             query=query,
-            campaign=campaign,
+            start_date=yesterday,
+            end_date=tomorrow,
+            tunic_campaign_id=1
         )
         sc._save_percolator()
 
