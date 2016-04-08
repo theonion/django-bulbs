@@ -2,7 +2,27 @@
 
 ## Development
 
+## Version 0.8.10
+
+- Adds tag-based recirc fallback to `RecircViewSet` `GET` request
+
+## Version 0.8.9
+
+- Adds `get_inline_recirc_content()` to `BaseQueryMixin`
+- Added `InlineRecircViewSet` to `recirc/views` which provides a `GET` request to get an objects inline recirc content
+
+## Version 0.8.8
+- `bulbs.special_coverage.views.SpecialCoverageView` sets dfp tracking values in context
+
+## Version 0.8.7
+
 - `utils.test.BaseIndexableTestCase` now waits for ES shard startup, to reduce flaky tests querying ES before it's ready.
+
+## Version 0.8.6
+
+- Added `recirc` app
+- Added `BaseQueryMixin` to `recirc/mixins`, which provides a `query` json field and some utility functions
+- Added `RecircViewSet` to `recirc/views` which provides a `GET` request to get an objects recirc content
 
 ## Version 0.8.5
 

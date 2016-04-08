@@ -1,10 +1,12 @@
 from datetime import date, datetime
 from dateutil import tz
 from six import string_types, text_type, binary_type
-import time
 
 from django.conf import settings
 from django.utils import timezone
+
+
+INVALID_TEMPLATE_CHOICE = """Choices for template values must be non-zero integers."""
 
 
 def get_central_now():
@@ -58,3 +60,13 @@ def is_valid_digit(value):
 def datetime_to_epoch_seconds(value):
     epoch = datetime.utcfromtimestamp(0).replace(tzinfo=timezone.utc)
     return (value - epoch).total_seconds()
+
+
+def get_template_choices():
+    configured_templates = getattr(settings, "BULBS_TEMPLATE_CHOICES", ())
+    for choice in configured_templates:
+        if choice[0] == 0:
+            raise ValueError(INVALID_TEMPLATE_CHOICE.format(choice))
+        elif type(choice[0]) != int:
+            raise ValueError(INVALID_TEMPLATE_CHOICE.format(choice))
+    return ((0, None),) + configured_templates
