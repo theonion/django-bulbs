@@ -44,18 +44,18 @@ class Campaign(Indexable):
         return data
 
 
-class CampaignPixel(models.Model):
-    """Right now, there are two types of pixels, "Listing" and "Detail". The
-    intention here is that the "Listing" pixel is fired anywhere a sponsor's
-    logo shows up on a listing page, or a sidebar. The "Detail" pixel is to
-    be fired only when viewing a piece of content connected to that campaign"""
+# class CampaignPixel(models.Model):
+#     """Right now, there are two types of pixels, "Listing" and "Detail". The
+#     intention here is that the "Listing" pixel is fired anywhere a sponsor's
+#     logo shows up on a listing page, or a sidebar. The "Detail" pixel is to
+#     be fired only when viewing a piece of content connected to that campaign"""
 
-    LISTING = 0
-    DETAIL = 1
-    PIXEL_TYPES = (
-        (LISTING, 'Listing'),
-        (DETAIL, 'Detail'),
-    )
+#     LISTING = 0
+#     DETAIL = 1
+#     PIXEL_TYPES = (
+#         (LISTING, 'Listing'),
+#         (DETAIL, 'Detail'),
+#     )
 
-    url = models.URLField()
-    pixel_type = models.IntegerField(choices=PIXEL_TYPES, default=LISTING)
+#     url = models.URLField()
+#     pixel_type = models.IntegerField(choices=PIXEL_TYPES, default=LISTING)
