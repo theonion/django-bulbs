@@ -57,6 +57,5 @@ class CampaignPixel(models.Model):
         (DETAIL, 'Detail'),
     )
 
-    campaign = models.ForeignKey(Campaign, related_name='pixels')
     url = models.URLField()
     pixel_type = models.IntegerField(choices=PIXEL_TYPES, default=LISTING)

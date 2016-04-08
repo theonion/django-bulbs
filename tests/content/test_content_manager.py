@@ -1,7 +1,6 @@
 from django.test import override_settings
 from django.utils import timezone
 
-from bulbs.campaigns.models import Campaign
 from bulbs.content.models import Content
 from bulbs.utils.test import make_content, BaseIndexableTestCase
 
@@ -12,13 +11,8 @@ class ContentManagerTestCase(BaseIndexableTestCase):
 
     def setUp(self):
         super(ContentManagerTestCase, self).setUp()
-        campaign = Campaign.objects.create(
-            sponsor_name="TheCobbler",
-            start_date=timezone.now() - timezone.timedelta(days=5),
-            end_date=timezone.now() + timezone.timedelta(days=5)
-        )
         make_content(TestReadingListObj, evergreen=True, published=timezone.now(), _quantity=50)
-        make_content(TestContentObj, campaign=campaign, published=timezone.now(), _quantity=50)
+        make_content(TestContentObj, published=timezone.now(), _quantity=50)
         Content.search_objects.refresh()
 
     def test_sponsored(self):

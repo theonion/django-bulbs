@@ -3,7 +3,6 @@ import mock
 from django.test import override_settings
 from django.utils import timezone
 
-from bulbs.campaigns.models import Campaign
 from bulbs.content.models import Content
 from bulbs.sections.models import Section
 from bulbs.special_coverage.models import SpecialCoverage
@@ -23,11 +22,6 @@ class BaseReadingListTestCase(BaseIndexableTestCase):
             name="soSpesh",
             start_date=self.now - timezone.timedelta(days=5),
             end_date=self.now + timezone.timedelta(days=5)
-        )
-        self.campaign = Campaign.objects.create(
-            sponsor_name="Garbage",
-            start_date=self.now - timezone.timedelta(days=10),
-            end_date=self.now + timezone.timedelta(days=10),
         )
         self.sponsored_special_coverage = SpecialCoverage.objects.create(
             name="Sponsored",
@@ -365,4 +359,4 @@ class AugmentedReadingListTestCase(BaseReadingListTestCase):
         self.assertEqual(context["name"], self.sponsored_special_coverage.name)
         content = context["content"]
         res = [res for res in content]
-        self.assertFalse(res[0].campaign)
+        self.assertFalse(res[0].tunic_campaign_id)

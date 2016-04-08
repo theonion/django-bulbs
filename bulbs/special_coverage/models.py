@@ -7,7 +7,6 @@ from django.template.defaultfilters import slugify
 from elasticsearch import Elasticsearch
 from json_field import JSONField
 
-from bulbs.campaigns.models import Campaign
 from bulbs.content.custom_search import custom_search_model
 from bulbs.content.models import Content
 from bulbs.content.mixins import DetailImageMixin
@@ -30,8 +29,6 @@ class SpecialCoverage(DetailImageMixin, models.Model):
     promoted = models.BooleanField(default=False)
     start_date = models.DateTimeField(blank=True, null=True)
     end_date = models.DateTimeField(blank=True, null=True)
-    campaign = models.ForeignKey(
-        Campaign, null=True, default=None, blank=True, on_delete=models.SET_NULL)
     # Tunic Campaign ID
     # NOTE: Don't want to accidentally overwrite derived model campaign_id fields during migration
     # Will rename to "campaign_id" (and drop "campaign" field) after migration

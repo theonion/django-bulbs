@@ -4,7 +4,6 @@ from django.utils import timezone
 
 from elasticsearch_dsl import filter as es_filter
 
-from bulbs.campaigns.models import Campaign
 from bulbs.content.models import Content, FeatureType, Tag
 from bulbs.special_coverage.models import SpecialCoverage
 from bulbs.special_coverage.search import SearchParty
@@ -153,16 +152,10 @@ class SpecialCoverageSearchTests(BaseIndexableTestCase):
         self.feature_types = feature_types
         self.tags = tags
 
-        campaign = Campaign.objects.create(
-            sponsor_name="big",
-            start_date=self.now - timezone.timedelta(days=5),
-            end_date=self.now + timezone.timedelta(days=5)
-        )
-
         self.special_coverages = [
             SpecialCoverage.objects.create(
                 name="Slime Season",
-                campaign=campaign,
+                tunic_campaign_id=1,
                 start_date=self.now - timezone.timedelta(days=10),
                 end_date=self.now + timezone.timedelta(days=10),
                 query={
