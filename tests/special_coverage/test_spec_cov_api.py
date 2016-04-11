@@ -6,7 +6,6 @@ from django.template.defaultfilters import slugify
 from django.test.client import Client
 from django.utils import timezone
 
-from bulbs.campaigns.models import Campaign
 from bulbs.special_coverage.models import SpecialCoverage
 from bulbs.utils.methods import today
 from bulbs.utils.test import BaseAPITestCase, JsonEncoder
@@ -155,7 +154,6 @@ class SpecialCoverageApiTestCase(BaseAPITestCase):
 
         # non-matching
         SpecialCoverage.objects.create(name="Joe Biden")
-
         response = self.client.get(reverse("special-coverage-list"), data={"search": "name"})
 
         self.assertEqual(response.status_code, 200)
@@ -171,86 +169,6 @@ class SpecialCoverageApiTestCase(BaseAPITestCase):
 
         response = self.client.get(reverse("special-coverage-list"),
                                    data={"search": "abc", "ordering": "name"})
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data["results"][0]["id"], special_coverage_1.pk)
-        self.assertEqual(response.data["results"][1]["id"], special_coverage_2.pk)
-        self.assertEqual(response.data["results"][2]["id"], special_coverage_3.pk)
-
-    def test_special_coverage_search_by_campaign_sponsor_name(self):
-        """Test that special coverages can be searched by their campaign's sponsor name."""
-
-        # matching
-        sponsor_name = "Hondaz"
-        campaign = Campaign.objects.create(sponsor_name=sponsor_name)
-        special_coverage = SpecialCoverage.objects.create(name="some special coverage",
-                                                          campaign=campaign)
-
-        # non-matching
-        SpecialCoverage.objects.create(name="Joe Biden",
-                                       campaign=Campaign.objects.create(sponsor_name="Hagendaz"))
-
-        response = self.client.get(reverse("special-coverage-list"),
-                                   data={"search": sponsor_name})
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data["results"]), 1)
-        self.assertEqual(response.data["results"][0]["id"], special_coverage.pk)
-
-    def test_special_coverage_ordering_by_campaign_sponsor_name(self):
-        """Test that special coverage search results can be ordered by campaign's sponsor name."""
-
-        special_coverage_3 = SpecialCoverage.objects.create(name="something something",
-                                                            campaign=Campaign.objects.create(
-                                                                sponsor_name="abc3"))
-        special_coverage_1 = SpecialCoverage.objects.create(name="whateve3r",
-                                                            campaign=Campaign.objects.create(
-                                                                sponsor_name="abc1"))
-        special_coverage_2 = SpecialCoverage.objects.create(name="this and that",
-                                                            campaign=Campaign.objects.create(
-                                                                sponsor_name="abc2"))
-
-        response = self.client.get(reverse("special-coverage-list"),
-                                   data={"search": "abc", "ordering": "campaign__sponsor_name"})
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data["results"][0]["id"], special_coverage_1.pk)
-        self.assertEqual(response.data["results"][1]["id"], special_coverage_2.pk)
-        self.assertEqual(response.data["results"][2]["id"], special_coverage_3.pk)
-
-    def test_special_coverage_search_by_campaign_label(self):
-        """Test that special coverages can be searched by their campaign's label."""
-
-        # matching
-        campaign_label = "0-1337"
-        campaign = Campaign.objects.create(campaign_label=campaign_label)
-        special_coverage = SpecialCoverage.objects.create(name="some special coverage",
-                                                          campaign=campaign)
-
-        # non-matching
-        SpecialCoverage.objects.create(name="Joe Biden",
-                                       campaign=Campaign.objects.create(campaign_label="1-123"))
-
-        response = self.client.get(reverse("special-coverage-list"),
-                                   data={"search": campaign_label})
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data["results"]), 1)
-        self.assertEqual(response.data["results"][0]["id"], special_coverage.pk)
-
-    def test_special_coverage_ordering_by_campaign_label(self):
-        """Test that special coverage search results can be ordered by campaign's label."""
-
-        special_coverage_3 = SpecialCoverage.objects.create(name="something something",
-                                                            campaign=Campaign.objects.create(
-                                                                campaign_label="abc3"))
-        special_coverage_1 = SpecialCoverage.objects.create(name="whateve3r",
-                                                            campaign=Campaign.objects.create(
-                                                                campaign_label="abc1"))
-        special_coverage_2 = SpecialCoverage.objects.create(name="this and that",
-                                                            campaign=Campaign.objects.create(
-                                                                campaign_label="abc2"))
-
-        response = self.client.get(reverse("special-coverage-list"),
-                                   data={"search": "abc", "ordering": "campaign__campaign_label"})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["results"][0]["id"], special_coverage_1.pk)
         self.assertEqual(response.data["results"][1]["id"], special_coverage_2.pk)
@@ -332,50 +250,6 @@ class SpecialCoverageApiTestCase(BaseAPITestCase):
         self.assertEqual(response.data["results"][1]["id"], special_coverage_2.pk)
         self.assertEqual(response.data["results"][2]["id"], special_coverage_3.pk)
         self.assertEqual(response.data["results"][3]["id"], special_coverage_4.pk)
-
-    def test_special_coverage_persists_after_campaign_deletion(self):
-        """Tests to make sure that a special coverage deletion does not delete a Campaign."""
-
-        # Create campaign
-        campaign = Campaign.objects.create(campaign_label="Birdman Stunna")
-
-        # Create a special coverage object
-        special_coverage = SpecialCoverage.objects.create(
-            name="Jack Links is Covered",
-            slug="jack-links-covered",
-            description="jerky jokes",
-            campaign=campaign
-        )
-
-        # Ensure campaign exists
-        resp = self.client.get(reverse("campaign-detail", kwargs={"pk": campaign.id}))
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.data["campaign_label"], campaign.campaign_label)
-
-        # Ensure special coverage exists
-        resp = self.client.get(
-            reverse("special-coverage-detail", kwargs={'pk': special_coverage.id}))
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.data['name'], special_coverage.name)
-        self.assertEqual(resp.data['campaign'], campaign.id)
-
-        # Delete Campaign
-        resp = self.client.delete(reverse("campaign-detail", kwargs={"pk": campaign.id}))
-        self.assertEqual(resp.status_code, 204)
-        self.assertIsNone(resp.data)
-
-        # Check GET Campaign 404s
-        resp = self.client.delete(reverse("campaign-detail", kwargs={"pk": campaign.id}))
-        self.assertEqual(resp.status_code, 404)
-
-        # Check GET SpecialCoverage 200
-        resp = self.client.get(
-            reverse("special-coverage-detail", kwargs={"pk": special_coverage.id}))
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.data["name"], special_coverage.name)
-        self.assertEqual(resp.data["slug"], special_coverage.slug)
-        self.assertEqual(resp.data["description"], special_coverage.description)
-        self.assertIsNone(resp.data["campaign"])
 
     def test_active_and_promoted_lowercase_boolean(self):
         """Tests that filter backend can correctly evaluate 'true' and 'false'."""

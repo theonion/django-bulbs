@@ -31,11 +31,6 @@ if "bulbs.contributions" in settings.INSTALLED_APPS:
         url(r"^contributions/", include("bulbs.contributions.urls")),
     )
 
-if "bulbs.campaigns" in settings.INSTALLED_APPS:
-    urlpatterns += (
-        url(r"^", include("bulbs.campaigns.urls")),
-    )
-
 if "bulbs.sections" in settings.INSTALLED_APPS:
     urlpatterns += (
         url(r"^", include("bulbs.sections.urls")),

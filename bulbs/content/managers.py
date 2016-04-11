@@ -7,7 +7,7 @@ from elasticsearch_dsl import filter as es_filter
 from polymorphic import PolymorphicManager
 
 from .filters import (
-    AllSponsored, Authors, Evergreen, FeatureTypes, Published, Status, Tags, VideohubChannel
+    Authors, Evergreen, FeatureTypes, Published, Status, Tags, VideohubChannel
 )
 
 
@@ -39,7 +39,7 @@ class ContentManager(PolymorphicManager, IndexableManager):
     def sponsored(self, **kwargs):
         """Search containing any sponsored pieces of Content."""
         eqs = self.search(**kwargs)
-        eqs = eqs.filter(AllSponsored())
+        eqs = eqs.filter(es_filter.Exists(field="tunic_campaign_id"))
         published_offset = getattr(settings, "RECENT_SPONSORED_OFFSET_HOURS", None)
         if published_offset:
             now = timezone.now()
