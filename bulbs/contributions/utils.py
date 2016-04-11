@@ -1,5 +1,7 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
 
 from .models import Contribution, ContributorRole, FreelanceProfile, FEATURETYPE
 
@@ -114,3 +116,17 @@ def import_payroll_names(lookup_string):
                 else:
                     profile.payroll_name = payroll_name.strip()
                     profile.save()
+
+
+def get_contributor_contributions(contributor_id, **kwargs):
+    """Return a list of all contributions associated with a contributor for a given month."""
+    now = timezone.now()
+    month = kwargs.get("month", now.month)
+    year = kwargs.get("year", now.year)
+    start = timezone.datetime(day=1, month=month, year=year)
+    next_month = (month + 1) % 12
+    end = timezone.datetime(day=1, month=next_month, year=year)
+
+    User = get_user_model()  # NOQA
+    contributor = get_object_or_404(User, id=contributor_id)
+    return contributor.contributions.filter(content__published__gte=start, content__published__lt=end)

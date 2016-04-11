@@ -1,12 +1,69 @@
+import random
+
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 from bulbs.content.models import Content, FeatureType
 from bulbs.contributions.models import (
     Contribution, ContributorRole, FeatureTypeRate, FeatureTypeOverride, FlatRate,
     FlatRateOverride, HourlyRate, HourlyOverride, OverrideProfile
 )
-from bulbs.contributions.utils import merge_roles
-from bulbs.utils.test import BaseIndexableTestCase
+from bulbs.contributions.utils import merge_roles, get_contributor_contributions
+from bulbs.utils.test import make_content, BaseIndexableTestCase
+
+from example.testcontent.models import TestContentObj
+
+
+class UtilTestCase(BaseIndexableTestCase):
+
+    def setUp(self):
+        super(UtilTestCase, self).setUp()
+        User = get_user_model()  # NOQA
+        self.tony_sarpino = User.objects.create(first_name="Tony", last_name="Sarpino")
+        self.draft_writer = ContributorRole.objects.create(name="Draft Writer", payment_type=0)
+        self.draft_writer.flat_rates.create(rate=60)
+
+        make_content(
+            TestContentObj,
+            published=timezone.datetime(
+                day=random.randrange(1, 28), month=self.now.month, year=self.now.year
+            ),
+            _quantity=25
+        )
+        last_month = (self.now.month - 1) % 12
+        next_month = (self.now.month + 1) % 12
+        make_content(
+            TestContentObj,
+            published=timezone.datetime(
+                day=random.randrange(1, 28), month=last_month, year=self.now.year
+            ),
+            _quantity=25
+        )
+        make_content(
+            TestContentObj,
+            published=timezone.datetime(
+                day=random.randrange(1, 28), month=next_month, year=self.now.year
+            ),
+            _quantity=25
+        )
+
+        for content in TestContentObj.objects.all():
+            content.authors.add(self.tony_sarpino)
+            content.save()
+        Content.search_objects.refresh()
+
+    def test_get_contributor_contributions_default(self):
+        contributions = get_contributor_contributions(self.tony_sarpino.id)
+        self.assertEqual(contributions.count(), 25)
+        for obj in contributions.all():
+            self.assertEqual(obj.content.published.month, self.now.month)
+
+    def test_get_contributor_contributions_next_month(self):
+        next_month = (self.now.month + 1) % 12
+        contributions = get_contributor_contributions(self.tony_sarpino.id, month=next_month)
+        self.assertEqual(contributions.count(), 25)
+        for obj in contributions.all():
+            self.assertEqual(obj.content.published.month, next_month)
 
 
 class MergeRoleTestCase(BaseIndexableTestCase):
@@ -111,3 +168,5 @@ class MergeRoleTestCase(BaseIndexableTestCase):
         )
         self.assertTrue(self.dominant.overrides.first().override_flatrate.exists())
         self.assertTrue(self.dominant.overrides.first().override_hourly.exists())
+
+
