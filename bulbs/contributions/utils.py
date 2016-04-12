@@ -118,15 +118,32 @@ def import_payroll_names(lookup_string):
                     profile.save()
 
 
-def get_contributor_contributions(contributor_id, **kwargs):
-    """Return a list of all contributions associated with a contributor for a given month."""
+def get_start_and_end_dates(**kwargs):
     now = timezone.now()
     month = kwargs.get("month", now.month)
     year = kwargs.get("year", now.year)
     start = timezone.datetime(day=1, month=month, year=year)
     next_month = (month + 1) % 12
+    if next_month == 1:
+        year += 1
     end = timezone.datetime(day=1, month=next_month, year=year)
+    return start, end
 
+
+def get_contributors_by_month(**kwargs):
+    start, end = get_start_and_end_dates(**kwargs)
+    User = get_user_model()  # NOQA
+    return User.objects.filter(
+        contributions__content__published__gte=start,
+        contributions__content__published__lt=end
+    ).distinct()
+
+
+def get_contributor_contributions_by_month(contributor_id, **kwargs):
+    """Return a list of all contributions associated with a contributor for a given month."""
+    start, end = get_start_and_end_dates(**kwargs)
     User = get_user_model()  # NOQA
     contributor = get_object_or_404(User, id=contributor_id)
-    return contributor.contributions.filter(content__published__gte=start, content__published__lt=end)
+    return contributor.contributions.filter(
+        content__published__gte=start, content__published__lt=end
+    )
