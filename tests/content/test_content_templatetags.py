@@ -21,7 +21,7 @@ class ContentTemplateTagsTestCase(BaseIndexableTestCase):
 
         t = Template("{{% load content %}}{{% content_tunic_campaign_url {} %}}".format(campaign_id))
         c = Context({})
-        self.assertEquals(t.render(c), "{}{}/{}/public".format(
+        self.assertEquals(t.render(c), "{}{}campaign/{}/public".format(
             TEST_TUNIC_BACKEND_ROOT,
             TEST_TUNIC_API_PATH,
             campaign_id
