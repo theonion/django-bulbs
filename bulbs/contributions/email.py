@@ -1,9 +1,19 @@
 """Module to generate and send a report to contributors containing a log of their contributions."""
 from django.contrib.auth import get_user_model
+from django.core.mail import EmailMessage
+from django.template import loader
 from django.utils import timezone
 
 
 User = get_user_model()  # NOQA
+
+
+# Define constants.
+FROM_EMAIL = "webtech@theonion.com"
+TO_EMAIL = FROM_EMAIL
+REPLY_TO_EMAIL = ""
+SUBJECT = "Contribution Report."
+TEMPLATE = "cms/__contribution_report.html"
 
 
 class EmailReport(object):
@@ -29,6 +39,26 @@ class EmailReport(object):
             year += 1
         end = timezone.datetime(day=1, month=next_month, year=year)
         return start, end
+
+    def send_contributor_email(self, contributor):
+        """Send an EmailMessage object for a given contributor."""
+        contributions = self.get_contributions_by_contributor(contributor)
+        total = sum([contribution.pay for contribution in contributions])
+        context = {
+            "contributor": contributor,
+            "contributions": contributions,
+            "next_day": timezone.now() + timezone.timedelta(days=1),
+            "total": total
+        }
+        body = loader.render_to_string(TEMPLATE, context)
+        mail = EmailMessage(
+            subject=SUBJECT,
+            body=body,
+            from_email=FROM_EMAIL,
+            headers={"Reply-To": REPLY_TO_EMAIL}
+        )
+        mail.to = [TO_EMAIL]
+        mail.send()
 
     def get_contributors(self):
         """Return a list of contributors with contributions between the start/end dates."""

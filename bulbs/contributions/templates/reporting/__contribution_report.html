@@ -1,0 +1,27 @@
+{% autoescape off %}
+  Hey, {{ contributor.get_full_name }}
+
+  Please check the amount below and make sure it matches your records.
+  The total is {{ total }} If you have any question about it, please hit reply-all and let us know by 24 hours from send time CST tomorrow, {{ next_day }}
+
+  {% if contributions.count %}
+    <table>
+      <tr>
+        <th>Content Type</th>
+        <th>Freelancer Name</th>
+        <th>Date</th>
+        <th>Amount Paid</th>
+        <th>Article Title</th>
+      </tr>
+      {% for contribution in contributions %}
+        <tr>
+          <td>{{ contribution.content._meta.concrete_model.__name__}}</td>
+          <td>{{ contribution.contributor.get_full_name }}</td>
+          <td>{{ contribution.content.published }}</td>
+          <td>{{ contribution.pay }}</td>
+          <td>{{ contribution.content.title }}</td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% endif %}
+{% end autoescape %}
