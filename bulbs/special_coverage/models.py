@@ -7,7 +7,6 @@ from django.template.defaultfilters import slugify
 from elasticsearch import Elasticsearch
 from json_field import JSONField
 
-from bulbs.campaigns.models import Campaign
 from bulbs.content.custom_search import custom_search_model
 from bulbs.content.models import Content
 from bulbs.content.mixins import DetailImageMixin
@@ -30,8 +29,6 @@ class SpecialCoverage(DetailImageMixin, models.Model):
     promoted = models.BooleanField(default=False)
     start_date = models.DateTimeField(blank=True, null=True)
     end_date = models.DateTimeField(blank=True, null=True)
-    campaign = models.ForeignKey(
-        Campaign, null=True, default=None, blank=True, on_delete=models.SET_NULL)
     # Tunic Campaign ID
     # NOTE: Don't want to accidentally overwrite derived model campaign_id fields during migration
     # Will rename to "campaign_id" (and drop "campaign" field) after migration
@@ -107,15 +104,12 @@ class SpecialCoverage(DetailImageMixin, models.Model):
             return
 
         # We'll need this data, to decide which special coverage section to use
-        q["sponsored"] = bool(self.campaign)
+        q["sponsored"] = bool(self.tunic_campaign_id)
         # Elasticsearch v1.4 percolator "field_value_factor" does not
         # support missing fields, so always need to include
-        if self.campaign:
-            q["start_date"] = self.campaign.start_date
-            q["end_date"] = self.campaign.end_date
-        else:
-            q["start_date"] = self.start_date
-            q["end_date"] = self.end_date
+
+        q["start_date"] = self.start_date
+        q["end_date"] = self.end_date
 
         # Elasticsearch v1.4 percolator range query does not support DateTime range queries
         # (PercolateContext.nowInMillisImpl is not implemented).

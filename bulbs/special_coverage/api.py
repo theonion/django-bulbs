@@ -16,16 +16,12 @@ class SpecialCoverageViewSet(viewsets.ModelViewSet):
     boolean_fields = ("promoted",)
     search_fields = (
         "name",
-        "description",
-        "campaign__campaign_label",
-        "campaign__sponsor_name"
+        "description"
     )
     ordering_fields = (
         "name",
         "active",
-        "promoted",
-        "campaign__campaign_label",
-        "campaign__sponsor_name"
+        "promoted"
     )
     paginate_by = 10
     permission_classes = [IsAdminUser]

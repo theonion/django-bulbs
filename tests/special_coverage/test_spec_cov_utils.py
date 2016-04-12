@@ -1,7 +1,6 @@
 from django.test import override_settings
 from django.utils import timezone
 
-from bulbs.campaigns.models import Campaign
 from bulbs.content.models import Content
 from bulbs.special_coverage.models import SpecialCoverage
 from bulbs.special_coverage.utils import (
@@ -27,23 +26,6 @@ class SponsoredSpecialCoverageUtilsTestCase(BaseIndexableTestCase):
             _quantity=12
         )
 
-        self.campaigns = (
-            Campaign.objects.create(
-                sponsor_name="Government",
-                start_date=self.now - timezone.timedelta(days=5),
-                end_date=self.now + timezone.timedelta(days=5)
-            ),
-            Campaign.objects.create(
-                sponsor_name="MoneyDogs",
-                start_date=self.now - timezone.timedelta(days=10),
-                end_date=self.now + timezone.timedelta(days=10)
-            ),
-            Campaign.objects.create(
-                sponsor_name="CashGuys",
-                start_date=self.now + timezone.timedelta(days=10),
-                end_date=self.now + timezone.timedelta(days=10)
-            ),
-        )
         self.special_coverages = (
             # Active Special Coverage, No Campaign.
             SpecialCoverage.objects.create(
@@ -64,7 +46,7 @@ class SponsoredSpecialCoverageUtilsTestCase(BaseIndexableTestCase):
             # Active Special Coverage, Active Campaign
             SpecialCoverage.objects.create(
                 name="guvna",
-                campaign=self.campaigns[0],
+                tunic_campaign_id=1,
                 start_date=self.now - timezone.timedelta(days=1),
                 end_date=self.now + timezone.timedelta(days=1),
                 query={
@@ -81,7 +63,7 @@ class SponsoredSpecialCoverageUtilsTestCase(BaseIndexableTestCase):
             # Active Special Coverage, Active Campaign
             SpecialCoverage.objects.create(
                 name="mawny",
-                campaign=self.campaigns[1],
+                tunic_campaign_id=1,
                 start_date=self.now - timezone.timedelta(days=1),
                 end_date=self.now + timezone.timedelta(days=1),
                 query={
@@ -98,7 +80,7 @@ class SponsoredSpecialCoverageUtilsTestCase(BaseIndexableTestCase):
             # Inactive Special Coverage, Active Campaign
             SpecialCoverage.objects.create(
                 name="mawnydogs",
-                campaign=self.campaigns[1],
+                tunic_campaign_id=1,
                 start_date=self.now + timezone.timedelta(days=1),
                 end_date=self.now + timezone.timedelta(days=2),
                 query={
@@ -115,14 +97,12 @@ class SponsoredSpecialCoverageUtilsTestCase(BaseIndexableTestCase):
             # Active Special Coverage, Inactive Campaign
             SpecialCoverage.objects.create(
                 name="cashyboys",
-                campaign=self.campaigns[2],
                 start_date=self.now - timezone.timedelta(days=1),
                 end_date=self.now + timezone.timedelta(days=1)
             ),
             # Inactive Special Coverage, Inactive Campaign
             SpecialCoverage.objects.create(
                 name="nada",
-                campaign=self.campaigns[2],
                 start_date=self.now + timezone.timedelta(days=1),
                 end_date=self.now + timezone.timedelta(days=3)
             )

@@ -69,11 +69,6 @@ def Status(status):  # noqa
         return MatchAll()
 
 
-def AllSponsored():  # noqa
-    """Filter for any content that has a campaign."""
-    return Nested(path="campaign", filter=Exists(field="campaign.id"))
-
-
 def Authors(usernames):  # noqa
     included, excluded = _parse_slugs(usernames)
 
