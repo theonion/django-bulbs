@@ -1,3 +1,4 @@
+"""celery tasks for contributions."""
 from celery import shared_task
 
 from .email import EmailReport
@@ -5,10 +6,12 @@ from .models import Contribution
 
 
 @shared_task(default_retry_delay=5)
-def update_role_rates(contributor_role_pk):
+def update_role_rates(contributor_role_pk):  # NOQA
     for contribution in Contribution.objects.filter(contributor__pk=contributor_role_pk):
         contribution.index()
 
 
-def run_contributor_email_report():
+@shared_task(default_retry_delay=5)
+def run_contributor_email_report():  # NOQA
     report = EmailReport()
+    report.send_mass_contributor_emails()

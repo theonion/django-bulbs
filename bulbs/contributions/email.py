@@ -52,6 +52,10 @@ class EmailReport(object):
         mail.to = [TO_EMAIL]
         mail.send()
 
+    def send_mass_contributor_emails(self):
+        for contributor in self.contributors:
+            self.send_contributor_email(contributor)
+
     def get_email_body(self, contributor):  # NOQA
         contributions = self.get_contributions_by_contributor(contributor)
         total = sum([contribution.pay for contribution in contributions if contribution.pay])
