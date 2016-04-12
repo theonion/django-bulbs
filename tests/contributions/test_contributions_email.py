@@ -2,6 +2,7 @@
 import random
 
 from django.contrib.auth import get_user_model
+from django.template import loader
 from django.utils import timezone
 
 from bulbs.contributions.email import EmailReport
@@ -85,3 +86,8 @@ class EmailReportTestCase(BaseIndexableTestCase):
         report = EmailReport(month=self.next_month)
         contributions = report.get_contributions_by_contributor(self.tony_sarpino)
         self.assertEqual(contributions.count(), 25)
+
+    def test_email_body(self):
+        report = EmailReport(month=self.next_month)
+        body = report.get_email_body(self.tony_sarpino)
+        self.assertTrue(body)

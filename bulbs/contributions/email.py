@@ -13,7 +13,7 @@ FROM_EMAIL = "webtech@theonion.com"
 TO_EMAIL = FROM_EMAIL
 REPLY_TO_EMAIL = ""
 SUBJECT = "Contribution Report."
-TEMPLATE = "cms/__contribution_report.html"
+TEMPLATE = "reporting/__contribution_report.html"
 
 
 class EmailReport(object):
@@ -42,15 +42,7 @@ class EmailReport(object):
 
     def send_contributor_email(self, contributor):
         """Send an EmailMessage object for a given contributor."""
-        contributions = self.get_contributions_by_contributor(contributor)
-        total = sum([contribution.pay for contribution in contributions])
-        context = {
-            "contributor": contributor,
-            "contributions": contributions,
-            "next_day": timezone.now() + timezone.timedelta(days=1),
-            "total": total
-        }
-        body = loader.render_to_string(TEMPLATE, context)
+        body = self.get_email_body(contributor)
         mail = EmailMessage(
             subject=SUBJECT,
             body=body,
@@ -59,6 +51,21 @@ class EmailReport(object):
         )
         mail.to = [TO_EMAIL]
         mail.send()
+
+    def get_email_body(self, contributor):  # NOQA
+        contributions = self.get_contributions_by_contributor(contributor)
+        total = sum([contribution.pay for contribution in contributions if contribution.pay])
+        contribution_types = {}
+        for contribution in contributions:
+            contribution_types[contribution] = contribution.content._meta.concrete_model.__name__
+        context = {
+            "content_type": contribution.content._meta.concrete_model.__name__,
+            "contributor": contributor,
+            "contributions": contribution_types,
+            "next_day": timezone.now() + timezone.timedelta(days=1),
+            "total": total
+        }
+        return loader.render_to_string(TEMPLATE, context)
 
     def get_contributors(self):
         """Return a list of contributors with contributions between the start/end dates."""
