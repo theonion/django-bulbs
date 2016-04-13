@@ -133,10 +133,9 @@ ES_INDEX_SETTINGS = {
     }
 }
 
-CONTRIBUTION_SETTINGS = {
+CONTRIBUTIONS = {
     "EMAIL": {
         "FROM": "",
-        "TO": "",
         "REPLY_TO": "",
         "SUBJECT": ""
     }

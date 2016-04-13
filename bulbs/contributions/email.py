@@ -10,7 +10,7 @@ User = get_user_model()  # NOQA
 
 
 # Define constants.
-CONTRIBUTION_SETTINGS = getattr(settings, "CONTRIBUTION_SETTINGS", {})
+CONTRIBUTION_SETTINGS = getattr(settings, "", {})
 EMAIL_SETTINGS = CONTRIBUTION_SETTINGS.get("EMAIL", {})
 DEFAULT_SUBJECT = "Contribution Report."
 TEMPLATE = "reporting/__contribution_report.html"
@@ -49,10 +49,13 @@ class EmailReport(object):
         mail = EmailMessage(
             subject=EMAIL_SETTINGS.get("SUBJECT", DEFAULT_SUBJECT),
             body=body,
-            from_email=EMAIL_SETTINGS.get("FROM", ""),
-            headers={"Reply-To": EMAIL_SETTINGS.get("REPLY_TO", "")}
+            from_email=EMAIL_SETTINGS.get("FROM"),
+            headers={"Reply-To": EMAIL_SETTINGS.get("REPLY_TO")}
         )
-        mail.to = [CONTRIBUTION_SETTINGS.get("TO", "")]
+        if EMAIL_SETTINGS.get("ACTIVE", False):
+            mail.to = [contributor.email]
+        else:
+            mail.to = [CONTRIBUTION_SETTINGS.get("TO")]
         mail.send()
 
     def send_mass_contributor_emails(self):
