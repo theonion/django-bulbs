@@ -1,4 +1,5 @@
 """Module to generate and send a report to contributors containing a log of their contributions."""
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.mail import EmailMessage
 from django.template import loader
@@ -9,10 +10,9 @@ User = get_user_model()  # NOQA
 
 
 # Define constants.
-FROM_EMAIL = "webtech@theonion.com"
-TO_EMAIL = FROM_EMAIL
-REPLY_TO_EMAIL = ""
-SUBJECT = "Contribution Report."
+CONTRIBUTION_SETTINGS = getattr(settings, "CONTRIBUTION_SETTINGS", {})
+EMAIL_SETTINGS = CONTRIBUTION_SETTINGS.get("EMAIL", {})
+DEFAULT_SUBJECT = "Contribution Report."
 TEMPLATE = "reporting/__contribution_report.html"
 
 
@@ -35,8 +35,11 @@ class EmailReport(object):
         year = kwargs.get("year", now.year)
         start = timezone.datetime(day=1, month=month, year=year)
         next_month = (month + 1) % 12
+
+        # If we incremented at the end of the year. It's a new year!!!!!
         if next_month == 1:
             year += 1
+
         end = timezone.datetime(day=1, month=next_month, year=year)
         return start, end
 
@@ -44,12 +47,12 @@ class EmailReport(object):
         """Send an EmailMessage object for a given contributor."""
         body = self.get_email_body(contributor)
         mail = EmailMessage(
-            subject=SUBJECT,
+            subject=EMAIL_SETTINGS.get("SUBJECT", DEFAULT_SUBJECT),
             body=body,
-            from_email=FROM_EMAIL,
-            headers={"Reply-To": REPLY_TO_EMAIL}
+            from_email=EMAIL_SETTINGS.get("FROM", ""),
+            headers={"Reply-To": EMAIL_SETTINGS.get("REPLY_TO", "")}
         )
-        mail.to = [TO_EMAIL]
+        mail.to = [CONTRIBUTION_SETTINGS.get("TO", "")]
         mail.send()
 
     def send_mass_contributor_emails(self):
