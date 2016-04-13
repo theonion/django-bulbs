@@ -1,7 +1,7 @@
 """Module to generate and send a report to contributors containing a log of their contributions."""
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.mail import EmailMessage
+from django.core.mail import EmailMultiAlternatives
 from django.template import loader
 from django.utils import timezone
 
@@ -10,7 +10,7 @@ User = get_user_model()  # NOQA
 
 
 # Define constants.
-CONTRIBUTION_SETTINGS = getattr(settings, "", {})
+CONTRIBUTION_SETTINGS = getattr(settings, "CONTRIBUTIONS", {})
 EMAIL_SETTINGS = CONTRIBUTION_SETTINGS.get("EMAIL", {})
 DEFAULT_SUBJECT = "Contribution Report."
 TEMPLATE = "reporting/__contribution_report.html"
@@ -46,16 +46,16 @@ class EmailReport(object):
     def send_contributor_email(self, contributor):
         """Send an EmailMessage object for a given contributor."""
         body = self.get_email_body(contributor)
-        mail = EmailMessage(
+        mail = EmailMultiAlternatives(
             subject=EMAIL_SETTINGS.get("SUBJECT", DEFAULT_SUBJECT),
-            body=body,
             from_email=EMAIL_SETTINGS.get("FROM"),
             headers={"Reply-To": EMAIL_SETTINGS.get("REPLY_TO")}
         )
+        mail.attach_alternative(body, "text/html")
         if EMAIL_SETTINGS.get("ACTIVE", False):
             mail.to = [contributor.email]
         else:
-            mail.to = [CONTRIBUTION_SETTINGS.get("TO")]
+            mail.to = EMAIL_SETTINGS.get("TO")
         mail.send()
 
     def send_mass_contributor_emails(self):
