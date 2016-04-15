@@ -20,28 +20,15 @@ class EmailReport(object):
     """Generate an email report for contributors."""
 
     def __init__(self, **kwargs):  # NOQA
-        self.start, self.end = self.get_start_and_end_dates(**kwargs)
+        # if "start" in kwargs:
+        self.now = timezone.now()
+        self.month = kwargs.get("month", self.now.month)
+        self.year = kwargs.get("year", self.now.year)
 
         self._contributors = []
-
-    def get_start_and_end_dates(self, **kwargs):
-        """
-        Return start and end date for the given report.
-
-        Uses the beginning of the current month by default.
-        """
-        now = timezone.now()
-        month = kwargs.get("month", now.month)
-        year = kwargs.get("year", now.year)
-        start = timezone.datetime(day=1, month=month, year=year)
-        next_month = (month + 1) % 12
-
-        # If we incremented at the end of the year. It's a new year!!!!!
-        if next_month == 1:
-            year += 1
-
-        end = timezone.datetime(day=1, month=next_month, year=year)
-        return start, end
+        self._deadline = kwargs.get("deadline")
+        self._start = kwargs.get("start")
+        self._end = kwargs.get("end")
 
     def send_contributor_email(self, contributor):
         """Send an EmailMessage object for a given contributor."""
@@ -56,7 +43,7 @@ class EmailReport(object):
             mail.to = [contributor.email]
         else:
             mail.to = EMAIL_SETTINGS.get("TO")
-        resp = mail.send()
+        mail.send()
 
     def send_mass_contributor_emails(self):
         """Send report email to all relevant contributors."""
@@ -78,7 +65,7 @@ class EmailReport(object):
             "content_type": contribution.content._meta.concrete_model.__name__,
             "contributor": contributor,
             "contributions": contribution_types,
-            "next_day": timezone.now() + timezone.timedelta(days=1),
+            "deadline": self.deadline,
             "total": total
         }
         return loader.render_to_string(TEMPLATE, context)
@@ -102,3 +89,26 @@ class EmailReport(object):
         if not self._contributors:
             self._contributors = self.get_contributors()
         return self._contributors
+
+    @property
+    def deadline(self):
+        """Set deadline to next day if no deadline provided."""
+        if not self._deadline:
+            self.now + timezone.timedelta(days=1)
+        return self._deadline
+
+    @property
+    def start(self):  # NOQA
+        if not self._start:
+            self._start = timezone.datetime(day=1, month=self.month, year=self.year)
+        return self._start
+
+    @property
+    def end(self):  # NOQA
+        if not self._end:
+            next_month = (self.start.month + 1) % 12
+            year = self.start.year
+            if next_month == 1:
+                year += 1
+            self._end = timezone.datetime(day=1, month=next_month, year=year)
+        return self._end
