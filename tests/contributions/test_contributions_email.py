@@ -14,14 +14,14 @@ from bulbs.utils.test import make_content, BaseAPITestCase
 from example.testcontent.models import TestContentObj
 
 
-User = get_user_model()  # NOQA
+User = get_user_model()
 
 
 # class EmailReportTestCase(BaseIndexableTestCase):
 class EmailReportTestCase(BaseAPITestCase):
     """TestCase for bulbs.contributions.email.EmailReport."""
 
-    def setUp(self):  # NOQA
+    def setUp(self):
         super(EmailReportTestCase, self).setUp()
         # Define relevant variables.
         self.endpoint = reverse("contributor-email-list")
@@ -74,33 +74,33 @@ class EmailReportTestCase(BaseAPITestCase):
         # Refresh the index.
         TestContentObj.search_objects.refresh()
 
-    def test_get_contributors_default(self):  # NOQA
+    def test_get_contributors_default(self):
         report = EmailReport()
         contributors = report.get_contributors()
         self.assertEqual(contributors.count(), 1)
 
-    def test_get_contributors_last_month(self):  # NOQA
+    def test_get_contributors_last_month(self):
         report = EmailReport(month=self.last_month)
         contributors = report.get_contributors()
         self.assertEqual(contributors.count(), 2)
 
-    def test_get_contributor_contributions_default(self):  # NOQA
+    def test_get_contributor_contributions_default(self):
         report = EmailReport()
         contributions = report.get_contributions_by_contributor(self.tony_sarpino)
         self.assertEqual(contributions.count(), 25)
 
-    def test_get_contributor_contributions_next_month(self):  # NOQA
+    def test_get_contributor_contributions_next_month(self):
         report = EmailReport(month=self.next_month)
         contributions = report.get_contributions_by_contributor(self.tony_sarpino)
         self.assertEqual(contributions.count(), 25)
 
-    def test_email_body(self):  # NOQA
+    def test_email_body(self):
         report = EmailReport(month=self.next_month)
         body = report.get_email_body(self.tony_sarpino)
         self.assertTrue(body)
 
     @override_settings(EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend')
-    def test_email_api(self):  # NOQA
+    def test_email_api(self):
         with mock.patch("django.core.mail.EmailMultiAlternatives.send") as mock_send:
             mock_send.return_value = None
             data = {

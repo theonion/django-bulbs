@@ -606,7 +606,7 @@ class SendContributorReport(viewsets.GenericViewSet):
     serializer_class = ContributorReportSerializer
     permission_classes = [IsAdminUser, CanEditContent]
 
-    def create(self, request, *args, **kwargs):  # NOQA
+    def create(self, request, *args, **kwargs):
         data = ContributorReportSerializer().to_internal_value(self.request.DATA)
         run_contributor_email_report.delay(**data)
         return Response(status=status.HTTP_200_OK)

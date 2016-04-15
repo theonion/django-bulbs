@@ -6,7 +6,7 @@ from django.template import loader
 from django.utils import timezone
 
 
-User = get_user_model()  # NOQA
+User = get_user_model()
 
 
 # Define constants.
@@ -19,7 +19,7 @@ TEMPLATE = "reporting/__contribution_report.html"
 class EmailReport(object):
     """Generate an email report for contributors."""
 
-    def __init__(self, **kwargs):  # NOQA
+    def __init__(self, **kwargs):
         # if "start" in kwargs:
         self.now = timezone.now()
         self.month = kwargs.get("month", self.now.month)
@@ -55,7 +55,7 @@ class EmailReport(object):
             for email in EMAIL_SETTINGS.get("TO", []):
                 self.send_contributor_email(User.objects.get(email=email))
 
-    def get_email_body(self, contributor):  # NOQA
+    def get_email_body(self, contributor):
         contributions = self.get_contributions_by_contributor(contributor)
         total = sum([contribution.pay for contribution in contributions if contribution.pay])
         contribution_types = {}
@@ -98,13 +98,13 @@ class EmailReport(object):
         return self._deadline
 
     @property
-    def start(self):  # NOQA
+    def start(self):
         if not self._start:
             self._start = timezone.datetime(day=1, month=self.month, year=self.year)
         return self._start
 
     @property
-    def end(self):  # NOQA
+    def end(self):
         if not self._end:
             next_month = (self.start.month + 1) % 12
             year = self.start.year
