@@ -12,6 +12,6 @@ def update_role_rates(contributor_role_pk):  # NOQA
 
 
 @shared_task(default_retry_delay=5)
-def run_contributor_email_report():  # NOQA
-    report = EmailReport()
+def run_contributor_email_report(**kwargs):  # NOQA
+    report = EmailReport(**kwargs)
     report.send_mass_contributor_emails()

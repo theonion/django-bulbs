@@ -56,11 +56,17 @@ class EmailReport(object):
             mail.to = [contributor.email]
         else:
             mail.to = EMAIL_SETTINGS.get("TO")
-        mail.send()
+        resp = mail.send()
 
     def send_mass_contributor_emails(self):
-        for contributor in self.contributors:
-            self.send_contributor_email(contributor)
+        """Send report email to all relevant contributors."""
+        # If the report configuration is not active we only send to the debugging user.
+        if EMAIL_SETTINGS.get("ACTIVE", False):
+            for contributor in self.contributors:
+                self.send_contributor_email(contributor)
+        else:
+            for email in EMAIL_SETTINGS.get("TO", []):
+                self.send_contributor_email(User.objects.get(email=email))
 
     def get_email_body(self, contributor):  # NOQA
         contributions = self.get_contributions_by_contributor(contributor)

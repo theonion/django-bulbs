@@ -137,7 +137,8 @@ CONTRIBUTIONS = {
     "EMAIL": {
         "FROM": "",
         "REPLY_TO": "",
-        "SUBJECT": ""
+        "SUBJECT": "",
+        "TO": ["admin@theonion.com"]
     }
 }
 
