@@ -110,5 +110,7 @@ class EmailReport(object):
             year = self.start.year
             if next_month == 1:
                 year += 1
+            elif next_month == 0:
+                next_month = 12
             self._end = timezone.datetime(day=1, month=next_month, year=year)
         return self._end
