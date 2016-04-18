@@ -6,6 +6,7 @@ from bulbs.contributions.models import (
     FlatRateOverride, HourlyRate, HourlyOverride, OverrideProfile
 )
 from bulbs.contributions.utils import merge_roles
+
 from bulbs.utils.test import BaseIndexableTestCase
 
 
