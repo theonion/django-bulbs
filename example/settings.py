@@ -133,6 +133,15 @@ ES_INDEX_SETTINGS = {
     }
 }
 
+CONTRIBUTIONS = {
+    "EMAIL": {
+        "FROM": "",
+        "REPLY_TO": "",
+        "SUBJECT": "",
+        "TO": ["admin@theonion.com"]
+    }
+}
+
 SODAHEAD_BASE_URL = 'https://onion.sodahead.com'
 SODAHEAD_TOKEN_VAULT_PATH = 'sodahead/token'
 

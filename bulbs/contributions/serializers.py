@@ -585,3 +585,10 @@ class ContentReportingSerializer(serializers.ModelSerializer):
 
     def get_authors(self, obj):
         return ",".join([author.get_full_name() for author in obj.authors.all()])
+
+
+
+class ContributorReportSerializer(serializers.Serializer):
+
+    deadline = serializers.DateTimeField()
+    start = serializers.DateTimeField()
