@@ -151,7 +151,7 @@ class PZoneOperationsTestCase(BaseIndexableTestCase):
 
         # call function with mock task method, so we can see if it was called
         with patch.object(update_pzone, 'delay') as mock_method:
-            PZone.objects.applied(pk=1)
+            PZone.objects.applied(pk=self.pzone.id)
 
             # check that mock method was called
             self.assertTrue(mock_method.called)
