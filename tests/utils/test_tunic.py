@@ -24,7 +24,7 @@ class GetActiveCampaignsTests(TestCase):
                               2: {'id': 2,
                                   'name': 'Another Campaign'}})
 
-    def test_connection_error(self):
+    def test_backend_error(self):
         with self.assertRaises(RequestFailure):
             with requests_mock.mock() as mocker:
                 mocker.get('http://onion.local/api/v1/campaign/?active=true',
