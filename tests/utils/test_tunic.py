@@ -5,7 +5,8 @@ from django.test import override_settings, TestCase
 from bulbs.utils.tunic import TunicClient, RequestFailure
 
 
-@override_settings(TUNIC_BACKEND_ROOT='http://onion.local/api/v1/',
+@override_settings(TUNIC_STAFF_BACKEND_ROOT='http://onion.local/',
+                   TUNIC_API_PATH="/api/v1/",
                    TUNIC_REQUEST_TOKEN='12345')
 class GetActiveCampaignsTests(TestCase):
 

@@ -19,12 +19,14 @@ class TunicClient(object):
             'Authorization': 'Token {}'.format(settings.TUNIC_REQUEST_TOKEN),
         }
 
-        url_base = settings.TUNIC_BACKEND_ROOT
+        url_base = settings.TUNIC_STAFF_BACKEND_ROOT
         # Handle protocol-relative root paths
         if url_base.startswith('//'):
             url_base = 'http:' + url_base
 
-        url = urljoin(url_base, path.lstrip('/'))
+        url = urljoin(url_base,
+                      settings.TUNIC_API_PATH.rstrip('/') + '/' + path.lstrip('/'))
+
         resp = requests.get(url, headers=headers)
         if not resp.ok:
             raise RequestFailure(response=resp)

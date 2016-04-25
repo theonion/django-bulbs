@@ -5,8 +5,9 @@
 ## Version 0.10.2
 
 - Added `TunicClient` with initial support for a single method `get_active_campaigns`. Requires these settings:
-    - TUNIC_BACKEND_ROOT (ex: "http://onion.local/api/v1/")
+    - TUNIC_STAFF_BACKEND_ROOT (ex: "http://onion.local/api/v1/")
     - TUNIC_REQUEST_TOKEN (ex: "12345")
+    - TUNIC_API_PATH (ex: "/api/v1/")
 
 ## Version 0.8.10
 
