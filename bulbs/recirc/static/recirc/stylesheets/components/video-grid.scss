@@ -11,10 +11,6 @@
 @import '../global/breakpoints';
 @import '../extends/vertical-center-flex';
 
-body {
-  background: red!important;
-}
-
 .video-grid {
   .video-list {
     @include _fg(2, 24, 0);
