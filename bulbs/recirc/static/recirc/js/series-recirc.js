@@ -13,9 +13,9 @@ VideoRecircList.prototype.init = function() {
 VideoRecircList.prototype.loadVideoRecirc = function() {
   $.getJSON($seriesSource, function(data) {
     console.log(data);
-    $.each(data.results.slice(1,9), function(index, video) {
+    $.each(data.results.slice(0,8), function(index, video) {
       $videoTitle = video.title;
-      $videoHref = '/r/' + video.id;
+      $videoHref = '/v/' + video.id;
       $posterSource = $bettyUrl + '/' + video.poster.id
       $('<a>',{
         'class' : $videoItem,

@@ -2,7 +2,7 @@
 
 <section class="video-grid">
   <header>
-    <h2>More From Foo {{ content.feature_type.name }}</h2>
+    <h2>More From {{ content.feature_type.name }}</h2>
   </header>
   <div class="video-list" id="video-list" data-betty-url="{{ BETTY_IMAGE_URL }}" data-series-source="{{ VIDEOHUB_BASE_URL }}/api/series/{{ content.feature_type.slug }}/videos/"></div>
 </section>
