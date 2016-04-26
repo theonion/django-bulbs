@@ -1,0 +1,16 @@
+///////////////////////////////
+// ************************* //
+//    VERTICAL CENTER FLEX   //
+// ************************* //
+///////////////////////////////
+
+// USEAGE:
+// @extends .vertical-center-flex;
+
+@import '../mixins/flexbox';
+
+.vertical-center-flex {
+  @include flexbox;
+  @include justify-content(center);
+  @include align-items(center);
+}
