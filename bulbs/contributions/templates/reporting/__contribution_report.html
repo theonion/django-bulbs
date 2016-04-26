@@ -37,6 +37,7 @@
           <th>Content Type</th>
           <th>Freelancer Name</th>
           <th>Date</th>
+          <th>Amount Paid</th>
           <th>Article Title</th>
         </tr>
         {% for contribution, content_type in contributions.items %}
@@ -44,6 +45,7 @@
             <td>{{ content_type }}</td>
             <td>{{ contribution.contributor.get_full_name }}</td>
             <td>{{ contribution.content.published }}</td>
+            <td>{{ contribution.pay }}</td>
             <td><a href="{{ contribution.content.get_absolute_url }}">{{ contribution.content.title }}</a></td>
           </tr>
         {% endfor %}
