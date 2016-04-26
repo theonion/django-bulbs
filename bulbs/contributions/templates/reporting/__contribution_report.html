@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>A Simple Responsive HTML Email</title>
+    <style type="text/css">
+      body {margin: 0; padding: 0; min-width: 100%!important;}
+      p {
+        margin-bottom: 10px;
+      }
+      table {
+        margin: 5px;
+      }
+      td, th {
+        text-align: left;
+        border: 1px solid #999;
+        padding: 3px;
+      }
+    .content {width: 100%; max-width: 600px;}
+    </style>
+  </head>
+  <body>
+    {% autoescape on %}
+      <p>Hey, <b>{{ contributor.get_full_name }}</b></p>
+
+      <p>
+      Please check the amount below and make sure it matches your records.
+      </p>
+
+      <p>The total is <b>${{ total }}</b></p>
+
+      <p>
+      If you have any question about it, please hit reply-all and let us know by <b>{{ deadline }}</b>
+      </p>
+      <table>
+        <tr>
+          <th>Content Type</th>
+          <th>Freelancer Name</th>
+          <th>Date</th>
+          <th>Amount Paid</th>
+          <th>Article Title</th>
+        </tr>
+        {% for contribution, content_type in contributions.items %}
+          <tr>
+            <td>{{ content_type }}</td>
+            <td>{{ contribution.contributor.get_full_name }}</td>
+            <td>{{ contribution.content.published }}</td>
+            <td>{{ contribution.pay }}</td>
+            <td><a href="{{ contribution.content.get_absolute_url }}">{{ contribution.content.title }}</a></td>
+          </tr>
+        {% endfor %}
+      </table>
+    {% endautoescape %}
+  </body>
+</html>
