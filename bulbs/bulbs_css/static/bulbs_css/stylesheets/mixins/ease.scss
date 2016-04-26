@@ -1,0 +1,14 @@
+///////////////////////////////
+// ************************* //
+//         EASE MIXIN        //
+// ************************* //
+///////////////////////////////
+
+
+@mixin ease($property: all, $time: 200ms) {
+-webkit-transition: $property $time cubic-bezier(0.250, 0.250, 0.840, 0.325);
+   -moz-transition: $property $time cubic-bezier(0.250, 0.250, 0.840, 0.325);
+    -ms-transition: $property $time cubic-bezier(0.250, 0.250, 0.840, 0.325);
+     -o-transition: $property $time cubic-bezier(0.250, 0.250, 0.840, 0.325);
+        transition: $property $time cubic-bezier(0.250, 0.250, 0.840, 0.325);
+}

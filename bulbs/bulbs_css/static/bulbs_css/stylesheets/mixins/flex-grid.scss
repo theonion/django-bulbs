@@ -1,0 +1,38 @@
+///////////////////////////////
+// ************************* //
+//         FLEX GRID         //
+// ************************* //
+///////////////////////////////
+
+@import 'flexbox';
+
+// taken from https://ajy.co/the-simplest-sass-flexbox-grid-ever
+
+// Unitless, interpreted as pixels
+
+$_fg_gutter: 24 !default; // gutter between columns. Set as desired.
+$_fg_padding: 12 !default; // padding for column boxes. Set as desired, can override for individual columns.
+
+@mixin _fg($_fg_cols: 0, $_fg_conf_gutter: $_fg_gutter, $_fg_conf_padding: $_fg_padding) {
+    box-sizing: border-box;
+    @include flexbox;
+    @include flex-wrap(wrap);
+    margin-left: (-1 * $_fg_conf_gutter) * 1px;
+
+  > * { padding: $_fg_conf_padding * 1px;
+      margin-left: $_fg_conf_gutter * 1px;
+      box-sizing: border-box; }
+
+  $_fg_calc_percent: (1/$_fg_cols) * 100%;
+  $_fg_calc_gutter_allowance: $_fg_conf_gutter * 1px;
+
+  > * { width: calc(#{$_fg_calc_percent} - #{$_fg_calc_gutter_allowance}); }
+}
+
+// width override for a column in wrap scenario:
+
+@mixin _fg_width($_fg_ratio, $_fg_conf_gutter: $_fg_gutter) {
+  $_fg_calc_percent: $_fg_ratio * 100%;
+  $_fg_calc_gutter: $_fg_conf_gutter * 1px;
+  width: calc(#{$_fg_calc_percent} - #{$_fg_calc_gutter});
+};
