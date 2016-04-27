@@ -2,7 +2,7 @@ var VideoRecircList = function() {
   $videoItem = 'video-item';
   $videoRecircList = $('#video-list');
   $bettyUrl = $videoRecircList.data('betty-url');
-  $seriesSource = $videoRecircList.data('series-source');
+  $source = $videoRecircList.data('source');
   this.init();
 };
 
@@ -11,7 +11,7 @@ VideoRecircList.prototype.init = function() {
 };
 
 VideoRecircList.prototype.loadVideoRecirc = function() {
-  $.getJSON($seriesSource, function(data) {
+  $.getJSON($source, function(data) {
     console.log(data);
     $.each(data.results.slice(0,8), function(index, video) {
       $videoTitle = video.title;
