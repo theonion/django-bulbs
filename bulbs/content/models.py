@@ -98,6 +98,7 @@ class FeatureType(Indexable):
 
     name = models.CharField(max_length=255)
     slug = models.SlugField(unique=True)
+    instant_article = models.BooleanField(default=False)
 
     class Mapping:
         name = field.String(
