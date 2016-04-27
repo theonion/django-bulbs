@@ -3,6 +3,7 @@ var VideoRecircList = function() {
   $videoRecircList = $('#video-list');
   $bettyUrl = $videoRecircList.data('betty-url');
   $source = $videoRecircList.data('source');
+  $recircCount = $videoRecircList.data('count');
   this.init();
 };
 
@@ -13,7 +14,7 @@ VideoRecircList.prototype.init = function() {
 VideoRecircList.prototype.loadVideoRecirc = function() {
   $.getJSON($source, function(data) {
     console.log(data);
-    $.each(data.results.slice(0,8), function(index, video) {
+    $.each(data.results.slice(0,$recircCount), function(index, video) {
       $videoTitle = video.title;
       $videoHref = '/v/' + video.id;
       $posterSource = $bettyUrl + '/' + video.poster.id
