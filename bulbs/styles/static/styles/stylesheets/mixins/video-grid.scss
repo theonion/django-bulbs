@@ -23,12 +23,13 @@
     .image:after {
       @include ease(opacity, 50ms);
       @extend .vertical-center-flex;
+      background: black;
       bottom: 0;
       color: white;
       content: '\f01d';
       cursor: pointer;
       font-family: FontAwesome;
-      font-size: 3em;
+      font-size: 4em;
       left: 0;
       opacity: 0;
       position: absolute;
@@ -37,7 +38,7 @@
     }
     &:hover {
       .image:after {
-        opacity: .8;
+        opacity: .6;
       }
     }
   }
