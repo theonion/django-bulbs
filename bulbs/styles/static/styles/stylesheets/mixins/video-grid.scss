@@ -12,6 +12,9 @@
 @import '../extends/vertical-center-flex';
 
 .video-grid {
+  h2 {
+    margin-bottom: 1em;
+  }
   .video-list {
     @include _fg(2, 24, 0);
     list-style: none;    
@@ -23,22 +26,21 @@
     .image:after {
       @include ease(opacity, 50ms);
       @extend .vertical-center-flex;
-      background: black;
-      bottom: 0;
+      bottom: 10px;
       color: white;
       content: '\f01d';
       cursor: pointer;
       font-family: FontAwesome;
-      font-size: 4em;
-      left: 0;
-      opacity: 0;
+      font-size: 40px;
+      height: 40px;
+      left: 10px;
+      opacity: .7;
       position: absolute;
-      right: 0;
-      top: 0;
+      width: 40px;
     }
     &:hover {
       .image:after {
-        opacity: .6;
+        opacity: 1;
       }
     }
   }
