@@ -4,33 +4,21 @@ from bulbs.content.views import BaseContentDetailView
 from bulbs.feeds.views import RSSView
 
 from django.template import RequestContext, loader
-from django.utils import timezone
+from django.template.base import TemplateDoesNotExist
 from django.views.decorators.cache import cache_control
 from django.views.generic import TemplateView
-from elasticsearch_dsl.filter import Nested, Term, Range
+
 
 class InstantArticleRSSView(RSSView):
     paginate_by = 100
     template_name = "feeds/instant_article_rss.xml"
     feed_title = "Instant Articles RSS Feed"
-    supported_feature_types = ["news-in-brief", "news", "sports-news-in-brief", "article"]
+
+    def get_queryset(self):
+        return Content.search_objects.instant_articles()
 
     def get_template_names(self):
         return ["feeds/instant_article_rss.xml"]
-
-    def get_queryset(self):
-        queryset = super(InstantArticleRSSView, self).get_queryset()
-
-        queryset = queryset.filter("term", instant_article=True)
-        # Filter by relevant feature types
-        queryset = queryset.filter(
-            FeatureTypes(self.supported_feature_types)
-        )
-
-        # Sort by last_modified & published
-        queryset = queryset.sort('-last_modified', '-published')
-
-        return queryset
 
     def get_context_data(self, *args, **kwargs):
         context = super(InstantArticleRSSView, self).get_context_data(*args, **kwargs)
@@ -43,14 +31,20 @@ class InstantArticleRSSView(RSSView):
                 "content": content,
                 "absolute_uri": self.request.META.get('HTTP_HOST', None)
             }
-            content.instant_article_body = loader.render_to_string(
-                "instant_article/{}_instant_article.html".format(content.type), content_ctx
-            )
+            try:
+                content.instant_article_body = loader.render_to_string(
+                    "instant_article/{}_instant_article.html".format(content.es_type), content_ctx
+                )
+            except TemplateDoesNotExist:
+                content.instant_article_body = loader.render_to_string(
+                    "instant_article/_instant_article.html", content_ctx
+                )
 
         return RequestContext(self.request, context)
 
 
 class InstantArticleContentView(BaseContentDetailView):
+
     redirect_correct_path = False
 
     def get_template_names(self):
@@ -61,13 +55,13 @@ class InstantArticleContentView(BaseContentDetailView):
 
     def get_context_data(self, *args, **kwargs):
         context = super(InstantArticleContentView, self).get_context_data(*args, **kwargs)
-
         context["absolute_uri"] = self.request.META.get("HTTP_HOST", None)
         return context
 
 
 class InstantArticleAdView(TemplateView):
     template_name = "instant_article/_instant_article_ad.html"
+
 
 class InstantArticleAnalyticsView(TemplateView):
     template_name = "core/_analytics.html"
@@ -77,9 +71,7 @@ class InstantArticleAnalyticsView(TemplateView):
             "fire_pageview": True,
             "platform": "Instant Articles"
         }
-
         context["path"] = self.request.GET.get("path", "")
-
         return context
 
 instant_article_rss = cache_control(max_age=600)(InstantArticleRSSView.as_view())

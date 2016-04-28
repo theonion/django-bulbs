@@ -211,6 +211,17 @@ class Content(PolymorphicModel, Indexable):
         return '%s: %s' % (self.__class__.__name__, self.title)
 
     @property
+    def es_type(self):
+        return "{}_{}".format(
+            self._meta.app_label, self._meta.model_name.replace("_elasticsearchresult", "")
+        )
+
+    @property
+    def type(self):
+        # TODO: This is to be removed, but some sites rely on it's existence currently.
+        return self.es_type
+
+    @property
     def thumbnail(self):
         """Read-only attribute that provides the value of the thumbnail to display.
         """
