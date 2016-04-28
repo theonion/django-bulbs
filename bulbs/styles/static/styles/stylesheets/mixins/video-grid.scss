@@ -22,6 +22,7 @@
   .video-item {
     @include aspect-ratio(16, 9);
     margin-bottom: 24px;
+    outline: none;
     position: relative;
     .image:after {
       @include ease(opacity, 50ms);
