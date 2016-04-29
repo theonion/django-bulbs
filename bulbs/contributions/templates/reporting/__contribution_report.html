@@ -4,24 +4,6 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>A Simple Responsive HTML Email</title>
     <style type="text/css">
-      body {
-        background: #f2f2f2;
-        font-family: Helvetica, Arial, sans-serif;
-        font-size: 18px;
-        line-height: 1.3;
-        margin: 0;
-        min-width: 100% !important;
-        padding: 0;
-        text-align: center;
-      }
-      body > div {
-        background: #fff;
-        display: block;
-        margin: 1em;
-        max-width: 650px;
-        text-align: left;
-        width: 100%; 
-      }
       header {
         background:#191f2c;
         padding: 1.3em;
@@ -33,12 +15,6 @@
       }
       main {
         padding: 2em 3em;
-      }
-      p.total {
-        background: #90a6ba;
-        color: #fff;
-        display: inline-block;
-        padding: 0.75em 1em;
       }
       p {
         margin-bottom: 10px;
@@ -73,18 +49,14 @@
       tbody td:last-child {
         border-right: 0;
       }
-      tbody td.amount, tbody td.date {
-        max-width: 100px;
-        text-align: center;
-      }
-      tbody td.title a {
+      tbody td a {
         color: inherit;
         text-decoration: none;
       }
-      tbody td.title a:hover {
+      tbody td a:hover {
         text-decoration: underline;
       }
-      tbody td.title span {
+      tbody td span {
         color: #333;
         display: inline-block;
         font-size: 0.8em;
@@ -95,53 +67,54 @@
     </style>
   </head>
   <body>
-    <div>
-      <header>
-        <img src="https://s3.amazonaws.com/onionstatic/avclub/static/core/img/av-logo-compact_2x_invert.png" alt="The A.V. Club" />
-      </header>
-      <main>
-      {% autoescape on %}
-        <p>Hey <b>{{ contributor.get_full_name }}</b>,</p>
-
-        <p>
-        Please check the amount below and make sure it matches your records. The total is <b>${{ total }}</b>. 
-        If you have any question about it, please hit reply-all and let us know by <b>{{ deadline }}</b>.
-        </p>
-        <p class="total">
-          Total: ${{ total }}
-        </p>
-        <table>
-          <thead>
-          <tr>
-            <th>Amount</th>
-            <th>Date</th>
-            <th>Title / Feature Type</th>
-          </tr>
-          </thead>
-          <tbody>
-          {% for contribution, content_type in contributions.items %}
+    <div style="background: #f2f2f2;font-family: Helvetica, Arial, sans-serif;font-size: 18px;line-height: 1.3;margin: 0;min-width: 100% !important;padding: 1em 0;text-align: center;">
+      <div style="background: #fff;display: block;margin: 1em;max-width: 650px;text-align: left;width: 100%;">
+        <header>
+          <img src="https://s3.amazonaws.com/onionstatic/avclub/static/core/img/av-logo-compact_2x_invert.png" alt="The A.V. Club" />
+        </header>
+        <main>
+        {% autoescape on %}
+          <p>Hey <b>{{ contributor.get_full_name }}</b>,</p>
+          <p>
+          Please check the amount below and make sure it matches your records. The total is <b>${{ total }}</b>. 
+          If you have any question about it, please hit reply-all and let us know by <b>{{ deadline }}</b>.
+          </p>
+          <p style="background: #90a6ba; color: #fff; display: inline-block; padding: 0.75em 1em;">
+            Total: ${{ total }}
+          </p>
+          <table>
+            <thead>
             <tr>
-              <td class="amount">
-                {{ contribution.pay }}
-              </td>
-              <td class="date">
-                {{ contribution.content.published|date:"m/d/y" }}
-              </td>
-              <td class="title">
-                <a href="{{ contribution.content.get_absolute_url }}">
-                  {{ contribution.content.title }}
-                </a>
-                <br>
-                <span>
-                  {{ content_type }}
-                </span>
-              </td>
+              <th>Amount</th>
+              <th>Date</th>
+              <th>Title / Feature Type</th>
             </tr>
-          {% endfor %}
-          </tbody>
-        </table>
-      {% endautoescape %}
-      </main>
+            </thead>
+            <tbody>
+            {% for contribution, content_type in contributions.items %}
+              <tr>
+                <td style="text-align: center; max-width: 100px;">
+                  ${{ contribution.pay }}
+                </td>
+                <td style="text-align: center; max-width: 100px;">
+                  {{ contribution.content.published|date:"m/d/y" }}
+                </td>
+                <td>
+                  <a href="{{ contribution.content.get_absolute_url }}">
+                    {{ contribution.content.title|safe }}
+                  </a>
+                  <br>
+                  <span>
+                    {{ content_type }}
+                  </span>
+                </td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        {% endautoescape %}
+        </main>
+      </div>
     </div>
   </body>
 </html>
