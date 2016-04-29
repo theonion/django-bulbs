@@ -1,5 +1,5 @@
 var VideoRecircList = function() {
-  $videoItem = 'video-item';
+  this.videoItem = 'video-item';
   $videoRecircList = $('#video-list');
   $bettyUrl = $videoRecircList.data('betty-url');
   $source = $videoRecircList.data('source');
@@ -18,7 +18,7 @@ VideoRecircList.prototype.loadVideoRecirc = function() {
       $videoHref = '/v/' + video.id;
       $posterSource = $bettyUrl + '/' + video.poster.id;
       $('<a>',{
-        'class' : $videoItem,
+        'class' : this.videoItem,
         'href' : $videoHref,
         'data-track-action' : 'Video: Recirc',
         'data-track-label' : $videoHref,
