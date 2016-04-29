@@ -1,9 +1,9 @@
 var VideoRecircList = function() {
   this.videoItem = 'video-item';
-  $videoRecircList = $('#video-list');
-  $bettyUrl = $videoRecircList.data('betty-url');
-  $source = $videoRecircList.data('source');
-  $recircCount = $videoRecircList.data('count');
+  this.$videoRecircList = $('#video-list');
+  this.bettyUrl = this.$videoRecircList.data('bettyUrl');
+  this.source = this.$videoRecircList.data('source');
+  this.recircCount = this.$videoRecircList.data('count');
   this.init();
 };
 
@@ -12,24 +12,28 @@ VideoRecircList.prototype.init = function() {
 };
 
 VideoRecircList.prototype.loadVideoRecirc = function() {
-  $.getJSON($source, function(data) {
-    $.each(data.results.slice(0,$recircCount), function(index, video) {
-      $videoTitle = video.title;
-      $videoHref = '/v/' + video.id;
-      $posterSource = $bettyUrl + '/' + video.poster.id;
-      $('<a>',{
-        'class' : this.videoItem,
-        'href' : $videoHref,
-        'data-track-action' : 'Video: Recirc',
-        'data-track-label' : $videoHref,
-        'html': $('<figure>',{
-          'class' : 'content',
-          'html' : '<div class="image"><img src="' + $posterSource + '/16x9/480.jpg"></div>'
-        }).add($('<p>',{
-          'html' : $videoTitle
-        }))
-      }).appendTo($videoRecircList);
-    });
+  $.getJSON(this.source, this.videoRecircFetched.bind(this));
+};
+
+VideoRecircList.prototype.videoRecircFetched = function(data) {
+  var that = this;
+
+  $.each(data.results.slice(0,this.recircCount), function(index, video) {
+    var videoTitle = video.title;
+    var videoHref = '/v/' + video.id;
+    var posterSource = that.bettyUrl + '/' + video.poster.id;
+    $('<a>',{
+      'class' : that.videoItem,
+      'href' : videoHref,
+      'data-track-action' : 'Video: Recirc',
+      'data-track-label' : videoHref,
+      'html': $('<figure>',{
+        'class' : 'content',
+        'html' : '<div class="image"><img src="' + posterSource + '/16x9/480.jpg"></div>'
+      }).add($('<p>',{
+        'html' : videoTitle
+      }))
+    }).appendTo(that.$videoRecircList);
   });
 };
 
