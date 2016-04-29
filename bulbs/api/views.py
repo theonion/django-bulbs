@@ -188,6 +188,7 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         content.indexed = False
         content.save()
 
+        LogEntry.objects.log(request.user, content, "Trashed")
         return Response({"status": "Trashed"})
 
     @detail_route(methods=["get"])
