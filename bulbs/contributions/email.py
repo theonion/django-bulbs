@@ -94,7 +94,7 @@ class EmailReport(object):
     def deadline(self):
         """Set deadline to next day if no deadline provided."""
         if not self._deadline:
-            self.now + timezone.timedelta(days=1)
+            self._deadline = self.now + timezone.timedelta(days=1)
         return self._deadline
 
     @property
