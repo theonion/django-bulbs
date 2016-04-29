@@ -1,7 +1,7 @@
 var VideoRecircList = function() {
   this.videoItem = 'video-item';
   this.$videoRecircList = $('#video-list');
-  this.bettyUrl = this.$videoRecircList.data('bettyUrl');
+  this.bettyUrl = this.$videoRecircList.data('betty-url');
   this.source = this.$videoRecircList.data('source');
   this.recircCount = this.$videoRecircList.data('count');
   this.init();
