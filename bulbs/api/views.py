@@ -175,30 +175,20 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
 
     @detail_route(permission_classes=[CanPublishContent], methods=['post'])
     def trash(self, request, **kwargs):
-        """destroys a `Content` instance and removes it from the ElasticSearch index
+        """Psuedo-deletes a `Content` instance and removes it from the ElasticSearch index
+
+        Content is not actually deleted, merely hidden by deleted from ES index.import
 
         :param request: a WSGI request object
         :param kwargs: keyword arguments (optional)
         :return: `rest_framework.response.Response`
-        :raise: 404
         """
         content = self.get_object()
 
         content.indexed = False
         content.save()
 
-        index = content.__class__.search_objects.mapping.index
-        doc_type = content.__class__.search_objects.mapping.doc_type
-
-        try:
-            self.model.search_objects.client.delete(
-                index=index,
-                doc_type=doc_type,
-                id=content.id)
-            LogEntry.objects.log(request.user, content, "Trashed")
-            return Response({"status": "Trashed"})
-        except elasticsearch.exceptions.NotFoundError:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response({"status": "Trashed"})
 
     @detail_route(methods=["get"])
     def status(self, request, **kwargs):
