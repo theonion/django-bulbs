@@ -16,7 +16,7 @@
     margin-bottom: 1em;
   }
   .video-list {
-    @include _fg(2, 24, 0);
+    @include flexgrid($columns: 4, $gutter: 24, $padding: 0);
     list-style: none;    
   }
   .video-item {
@@ -47,7 +47,7 @@
   }
   @media (min-width: $screen-md) {
     .video-list {
-      @include _fg(4, 24, 0);
+      @include flexgrid($columns: 4, $gutter: 24, $padding: 0);
       list-style: none;    
     }
   }
