@@ -8,21 +8,16 @@
 
 // taken from https://ajy.co/the-simplest-sass-flexbox-grid-ever
 
-// Unitless, interpreted as pixels
-
-$flexgrid_gutter: 24 !default; // gutter between columns. Set as desired.
-$flexgrid_padding: 12 !default; // padding for column boxes. Set as desired, can override for individual columns.
-
-@mixin flexgrid($columns: 0, $gutter: $flexgrid_gutter, $padding: $flexgrid_padding) {
-    box-sizing: border-box;
+@mixin flexgrid($columns: 0, $gutter: 24, $padding: 0) {
     @include flexbox;
     @include flex-wrap(wrap);
+    box-sizing: border-box;
     margin-left: (-1 * $gutter) * 1px;
 
   > * { 
-    padding: $padding * 1px;
-    margin-left: $gutter * 1px;
     box-sizing: border-box; 
+    margin-left: $gutter * 1px;
+    padding: $padding * 1px;
   }
 
   $flexgrid_calc_percent: (1/$columns) * 100%;
@@ -35,7 +30,7 @@ $flexgrid_padding: 12 !default; // padding for column boxes. Set as desired, can
 
 // width override for a column in wrap scenario:
 
-@mixin flexgrid_width($flexgrid_ratio, $gutter: $flexgrid_gutter) {
+@mixin flexgrid_width($flexgrid_ratio, $gutter: 24) {
   $flexgrid_calc_percent: $flexgrid_ratio * 100%;
   $flexgrid_calc_gutter: $gutter * 1px;
   width: calc(#{$flexgrid_calc_percent} - #{$flexgrid_calc_gutter});
