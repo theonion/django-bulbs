@@ -36,6 +36,7 @@ class EmailReport(object):
         mail = EmailMultiAlternatives(
             subject=EMAIL_SETTINGS.get("SUBJECT", DEFAULT_SUBJECT),
             from_email=EMAIL_SETTINGS.get("FROM"),
+            bcc=EMAIL_SETTINGS.get("BCC"),
             headers={"Reply-To": EMAIL_SETTINGS.get("REPLY_TO")}
         )
         mail.attach_alternative(body, "text/html")
@@ -94,7 +95,7 @@ class EmailReport(object):
     def deadline(self):
         """Set deadline to next day if no deadline provided."""
         if not self._deadline:
-            self.now + timezone.timedelta(days=1)
+            self._deadline = self.now + timezone.timedelta(days=1)
         return self._deadline
 
     @property
