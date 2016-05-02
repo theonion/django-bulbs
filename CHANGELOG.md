@@ -2,6 +2,8 @@
 
 ## Development
 
+## Version 0.11.1
+
 - Fix content API "Trash" to ignore ES 404 error by using new DJES "delete from index on save" functionality
 
 ## Version 0.10.2
