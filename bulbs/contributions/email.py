@@ -36,6 +36,7 @@ class EmailReport(object):
         mail = EmailMultiAlternatives(
             subject=EMAIL_SETTINGS.get("SUBJECT", DEFAULT_SUBJECT),
             from_email=EMAIL_SETTINGS.get("FROM"),
+            bcc=EMAIL_SETTINGS.get("BCC"),
             headers={"Reply-To": EMAIL_SETTINGS.get("REPLY_TO")}
         )
         mail.attach_alternative(body, "text/html")
