@@ -19,6 +19,10 @@ CACHES = {
     }
 }
 
+BULBS_TEMPLATE_CHOICES = (
+    (1, "special_coverage/landing.html"),
+)
+
 TEMPLATE_DIRS = (os.path.join(MODULE_ROOT, 'templates'),)
 
 INSTALLED_APPS = (
@@ -126,6 +130,15 @@ ES_INDEX_SETTINGS = {
                 }
             }
         }
+    }
+}
+
+CONTRIBUTIONS = {
+    "EMAIL": {
+        "FROM": "",
+        "REPLY_TO": "",
+        "SUBJECT": "",
+        "TO": ["admin@theonion.com"]
     }
 }
 

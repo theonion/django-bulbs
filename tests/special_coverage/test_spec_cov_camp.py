@@ -4,9 +4,7 @@ from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.test.client import Client
 
-from bulbs.campaigns.models import Campaign
 from bulbs.special_coverage.models import SpecialCoverage
-
 from bulbs.utils.test import BaseAPITestCase, JsonEncoder
 
 
@@ -21,16 +19,12 @@ class SpecialCoverageApiTestCase(BaseAPITestCase):
         self.client.login(username="admin", password="secret")
 
         # set up a test special coverage
-        self.campaign = Campaign.objects.create(
-            sponsor_name="Jack Links"
-        )
         self.special_coverage = SpecialCoverage.objects.create(
             name="Jackz Linkz Coveragez",
             slug="jackz-linkz-coveragez",
             description="Stuff about jerky.",
             query={},
             videos=[],
-            campaign=self.campaign
         )
 
         self.special_coverage.save()

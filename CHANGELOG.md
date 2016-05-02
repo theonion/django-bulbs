@@ -2,6 +2,17 @@
 
 ## Development
 
+## Version 0.11.1
+
+- Fix content API "Trash" to ignore ES 404 error by using new DJES "delete from index on save" functionality
+
+## Version 0.10.2
+
+- Added `TunicClient` with initial support for a single method `get_active_campaigns`. Requires these settings:
+    - TUNIC_STAFF_BACKEND_ROOT (ex: "http://onion.local/api/v1/")
+    - TUNIC_REQUEST_TOKEN (ex: "12345")
+    - TUNIC_API_PATH (ex: "/api/v1/")
+
 ## Version 0.8.10
 
 - Adds tag-based recirc fallback to `RecircViewSet` `GET` request

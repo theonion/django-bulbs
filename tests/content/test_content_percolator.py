@@ -1,20 +1,18 @@
 from datetime import timedelta
-
-from freezegun import freeze_time
-from model_mommy import mommy
-
-from django.utils import timezone
-
-from bulbs.sections.models import Section
-from bulbs.special_coverage.models import SpecialCoverage
-from bulbs.utils.test import BaseIndexableTestCase
-
-from bulbs.content.models import Content, Tag
-
 try:
     from unittest.mock import patch
 except ImportError:
     from mock import patch
+
+from django.utils import timezone
+
+from freezegun import freeze_time
+
+from bulbs.content.models import Content, Tag
+from bulbs.sections.models import Section
+from bulbs.special_coverage.models import SpecialCoverage
+from bulbs.utils.test import BaseIndexableTestCase
+
 
 
 def days(count):
@@ -28,15 +26,12 @@ def make_special_coverage(start=None, end=None, tag='test', included=None, spons
     if end is not None and isinstance(end, int):
         end = days(end)
 
-    if sponsored:
-        campaign = mommy.make("campaigns.Campaign", start_date=start, end_date=end)
-    else:
-        campaign = None
+    tunic_campaign_id = 1 if sponsored else 0
 
     return SpecialCoverage.objects.create(
         id=(SpecialCoverage.objects.count() + 1),  # Fixed ID ordering for easier asserts
         name="Test Coverage {}".format(SpecialCoverage.objects.count()),
-        campaign=campaign,
+        tunic_campaign_id=tunic_campaign_id,
         start_date=start,
         end_date=end,
         query={
@@ -102,8 +97,10 @@ class PercolateSpecialCoverageTestCase(BaseIndexableTestCase):
 
     def check_special_coverages(self, expected_ids, sponsored_only=False):
         Content.search_objects.refresh()
-        self.assertEqual(self.content.percolate_special_coverage(sponsored_only=sponsored_only),
-                         ['specialcoverage.{}'.format(i) for i in expected_ids])
+        self.assertEqual(
+            self.content.percolate_special_coverage(sponsored_only=sponsored_only),
+            ['specialcoverage.{}'.format(i) for i in expected_ids]
+        )
 
     def test_empty(self):
         self.check_special_coverages([], sponsored_only=True)
@@ -221,8 +218,6 @@ class PercolateSpecialCoverageTestCase(BaseIndexableTestCase):
         # Verify Campaign save updates percolator
         special = make_special_coverage(tag='white', start=-2, end=-1, sponsored=True)
         self.check_special_coverages([])
-
-        special.campaign.end_date = days(1)
-        special.campaign.save()
-
+        special.end_date = days(1)
+        special.save()
         self.check_special_coverages([1])

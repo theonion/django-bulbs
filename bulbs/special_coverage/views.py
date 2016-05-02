@@ -32,8 +32,8 @@ class SpecialCoverageView(BaseContentDetailView):
         context["targeting"] = {}
         if self.special_coverage:
             context["targeting"]["dfp_specialcoverage"] = self.special_coverage.slug
-            if self.special_coverage.campaign:
-                context["targeting"]["dfp_campaign_id"] = self.special_coverage.campaign.id
+            if self.special_coverage.tunic_campaign_id:
+                context["targeting"]["dfp_campaign_id"] = self.special_coverage.tunic_campaign_id
         return context
 
 

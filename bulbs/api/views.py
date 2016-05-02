@@ -13,24 +13,23 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
-from djes.apps import indexable_registry
 
+from djes.apps import indexable_registry
 import elasticsearch
 from elasticsearch_dsl.query import Q
 from elasticsearch_dsl import filter as es_filter
-
+from firebase_token_generator import create_token
 from rest_framework import (
     filters,
     status,
     viewsets,
     routers
 )
-from firebase_token_generator import create_token
-
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.metadata import BaseMetadata
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from bulbs.content.custom_search import custom_search_model
 from bulbs.content.filters import Authors
@@ -40,12 +39,11 @@ from bulbs.content.serializers import (
     TagSerializer, UserSerializer, FeatureTypeSerializer,
     ObfuscatedUrlInfoSerializer
 )
-
-from bulbs.contributions.serializers import ContributionSerializer
+from bulbs.contributions.tasks import run_contributor_email_report
 from bulbs.contributions.models import Contribution
+from bulbs.contributions.serializers import ContributionSerializer, ContributorReportSerializer
 from bulbs.special_coverage.models import SpecialCoverage
 from bulbs.special_coverage.serializers import SpecialCoverageSerializer
-
 from bulbs.utils.methods import get_query_params, get_request_data
 
 from .mixins import UncachedResponse
@@ -177,30 +175,21 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
 
     @detail_route(permission_classes=[CanPublishContent], methods=['post'])
     def trash(self, request, **kwargs):
-        """destroys a `Content` instance and removes it from the ElasticSearch index
+        """Psuedo-deletes a `Content` instance and removes it from the ElasticSearch index
+
+        Content is not actually deleted, merely hidden by deleted from ES index.import
 
         :param request: a WSGI request object
         :param kwargs: keyword arguments (optional)
         :return: `rest_framework.response.Response`
-        :raise: 404
         """
         content = self.get_object()
 
         content.indexed = False
         content.save()
 
-        index = content.__class__.search_objects.mapping.index
-        doc_type = content.__class__.search_objects.mapping.doc_type
-
-        try:
-            self.model.search_objects.client.delete(
-                index=index,
-                doc_type=doc_type,
-                id=content.id)
-            LogEntry.objects.log(request.user, content, "Trashed")
-            return Response({"status": "Trashed"})
-        except elasticsearch.exceptions.NotFoundError:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+        LogEntry.objects.log(request.user, content, "Trashed")
+        return Response({"status": "Trashed"})
 
     @detail_route(methods=["get"])
     def status(self, request, **kwargs):
@@ -602,6 +591,18 @@ class CustomSearchContentViewSet(viewsets.GenericViewSet):
         return Response(dict(count=qs.count()))
 
 
+class SendContributorReport(viewsets.GenericViewSet):
+    """Send contribution report email to all relevant ."""
+
+    serializer_class = ContributorReportSerializer
+    permission_classes = [IsAdminUser, CanEditContent]
+
+    def create(self, request, *args, **kwargs):
+        data = ContributorReportSerializer().to_internal_value(self.request.DATA)
+        run_contributor_email_report.delay(**data)
+        return Response(status=status.HTTP_200_OK)
+
+
 # api router for aforementioned/defined viewsets
 # note: me view is registered in urls.py
 api_v1_router = routers.DefaultRouter()
@@ -615,3 +616,4 @@ api_v1_router.register(r"log", LogEntryViewSet, base_name="logentry")
 api_v1_router.register(r"author", AuthorViewSet, base_name="author")
 api_v1_router.register(r"feature-type", FeatureTypeViewSet, base_name="feature-type")
 api_v1_router.register(r"user", UserViewSet, base_name="user")
+api_v1_router.register(r"contributor-email", SendContributorReport, base_name="contributor-email")

@@ -12,8 +12,8 @@ cache:
 env:
     # Current production
     - ELASTICSEARCH_VERSION=1.4.4
-    # Future production point release
-    - ELASTICSEARCH_VERSION=1.4.5
+    # Future production point release. Disabled 2016-04-07 to speed up Travis builds
+    #- ELASTICSEARCH_VERSION=1.4.5
     # Latest in 1.X line (as of 2016-02-10)
     - ELASTICSEARCH_VERSION=1.7.5
 services:
