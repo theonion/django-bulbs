@@ -25,7 +25,7 @@ requires = [
     "djangorestframework-csv==1.3.3",
     "pageview_client==1.0.4",
     "djangorestframework==3.1.1",
-    "djes>=0.1.108",
+    "djes>=0.1.109",
     "drf-nested-routers==0.11.1",
     "firebase-token-generator==1.3.2",
     "python-dateutil==2.1",
