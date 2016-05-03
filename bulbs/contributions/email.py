@@ -51,7 +51,8 @@ class EmailReport(object):
         # If the report configuration is not active we only send to the debugging user.
         if EMAIL_SETTINGS.get("ACTIVE", False):
             for contributor in self.contributors:
-                self.send_contributor_email(contributor)
+                if contributor.email not in EMAIL_SETTINGS.get("EXCLUDED", []):
+                    self.send_contributor_email(contributor)
         else:
             for email in EMAIL_SETTINGS.get("TO", []):
                 self.send_contributor_email(User.objects.get(email=email))
