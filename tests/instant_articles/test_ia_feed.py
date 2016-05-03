@@ -1,8 +1,8 @@
-from bulbs.content.models import FeatureType
-from bulbs.utils.test import BaseIndexableTestCase
-
 from django.core.urlresolvers import reverse
 from django.utils import timezone
+
+from bulbs.content.models import FeatureType
+from bulbs.utils.test import BaseIndexableTestCase
 
 from example.testcontent.models import TestContentObj
 
@@ -36,7 +36,6 @@ class InstantArticleTestCase(BaseIndexableTestCase):
                 published=timezone.now() - timezone.timedelta(days=i)
             )
         TestContentObj.search_objects.refresh()
-
         url = reverse("instant_articles")
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)

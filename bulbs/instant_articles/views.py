@@ -1,12 +1,11 @@
-from bulbs.content.filters import FeatureTypes
-from bulbs.content.models import Content
-from bulbs.content.views import BaseContentDetailView
-from bulbs.feeds.views import RSSView
-
 from django.template import RequestContext, loader
 from django.template.base import TemplateDoesNotExist
 from django.views.decorators.cache import cache_control
 from django.views.generic import TemplateView
+
+from bulbs.content.models import Content
+from bulbs.content.views import BaseContentDetailView
+from bulbs.feeds.views import RSSView
 
 
 class InstantArticleRSSView(RSSView):
