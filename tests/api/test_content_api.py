@@ -502,20 +502,16 @@ class TestTrashContentAPI(BaseAPITestCase):
                 doc_type=doc_type,
                 id=content.id)
 
-    def test_trash_404(self):
+    def test_repeat_trashes_no_404(self):
         client = Client()
         client.login(username="admin", password="secret")
         content = make_content()
         content_rest_url = reverse("content-trash", kwargs={"pk": content.id})
-        response = client.post(content_rest_url, content_type="application/json")
-        # no permissions, no trashing
-        self.assertEqual(response.status_code, 403)
         self.give_permissions()
-        # now you can trash
-        response = client.post(content_rest_url, content_type="application/json")
-        self.assertEqual(response.status_code, 200)
-        response = client.post(content_rest_url, content_type="application/json")
-        self.assertEqual(response.status_code, 404)
+        # Repeat trashes should not 404 (ES index delete 404s are ignored)
+        for _ in range(2):
+            response = client.post(content_rest_url, content_type="application/json")
+            self.assertEqual(response.status_code, 200)
 
 
 class TestTokenAPI(BaseAPITestCase):
@@ -594,7 +590,8 @@ class TestContentTypeSearchAPI(BaseAPITestCase):
         r = self.api_client.get(url, dict(search="two"), format="json")
         self.assertEqual(r.status_code, 200)
         self.assertEqual(len(r.data["results"]), 1)
-        # Content, TestContentObj, TestContentObjTwo, TestContentDetailImage, TestRecircContentObject
+        # Content, TestContentObj, TestContentObjTwo, TestContentDetailImage,
+        # TestRecircContentObject
         r = self.api_client.get(url, dict(search="conte"), format="json")
         self.assertEqual(r.status_code, 200)
         self.assertEqual(len(r.data["results"]), 5)
