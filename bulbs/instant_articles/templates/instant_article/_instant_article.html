@@ -36,11 +36,11 @@
       {% block article_content %}{% endblock article_content %}
 
       <figure class="op-ad">
-        <iframe src="http://{{ absolute_uri }}{% url 'instant_article_ad' %}" height="250" width="300"></iframe>
+        <iframe src="http://{{ absolute_uri }}{% url 'instant_article_ad' content.pk %}" height="250" width="300"></iframe>
       </figure>
 
       <figure class="op-tracker">
-         <iframe src="http://{{ absolute_uri }}{% url 'instant_article_analytics' %}?platform=ia&path={{ content.get_absolute_url }}"></iframe>
+         <iframe src="http://{{ absolute_uri }}{% url 'instant_article_analytics' content.pk %}?platform=ia&path={{ content.get_absolute_url }}&{{ targeting_params }}"></iframe>
       </figure>
 
       <footer>

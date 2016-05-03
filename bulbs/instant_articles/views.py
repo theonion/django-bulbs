@@ -55,6 +55,11 @@ class InstantArticleContentView(BaseContentDetailView):
 
     def get_context_data(self, *args, **kwargs):
         context = super(InstantArticleContentView, self).get_context_data(*args, **kwargs)
+        targeting = self.objects.get_targeting()
+        context["targeting"] = targeting
+        context["targeting_params"] = "&".join(
+            ["{}={}".format(key, value) for key, value in targeting.items()]
+        )
         context["absolute_uri"] = self.request.META.get("HTTP_HOST", None)
         return context
 
@@ -72,7 +77,15 @@ class InstantArticleAnalyticsView(TemplateView):
             "platform": "Instant Articles"
         }
         context["path"] = self.request.GET.get("path", "")
+        context["targeting"] = {
+            "dfp_site": self.request.GET.get("dfp_site", ""),
+            "dfp_feature": self.request.GET.get("dfp_feature", ""),
+            "dfp_contentid": self.request.GET.get("dfp_contentid", ""),
+            "dfp_pagetype": self.request.GET.get("dfp_pagetype", ""),
+            "dfp_slug": self.request.GET.get("dfp_slug", "")
+        }
         return context
+
 
 instant_article_rss = cache_control(max_age=600)(InstantArticleRSSView.as_view())
 instant_article = cache_control(max_age=600)(InstantArticleContentView.as_view())

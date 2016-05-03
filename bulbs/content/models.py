@@ -276,6 +276,19 @@ class Content(PolymorphicModel, Indexable):
         return "draft"  # No published time has been set
     status = property(get_status)
 
+    def get_targeting(self):
+        data = {
+            "dfp_site": settings.DFP_SITE,
+            "dfp_feature": slugify(self.feature_type),
+            "dfp_contentid": self.pk,
+            "dfp_pagetype": self.__class__.__name__.lower(),
+            "dfp_slug": self.slug
+        }
+        data["dfp_campaign"] = getattr(self, "campaign", None)
+        tags = self.ordered_tags()
+        data["dfp_section"] = tags[0].slug if tags else None
+        return data
+
     @property
     def is_published(self):
         """determines if the content is/should be live
