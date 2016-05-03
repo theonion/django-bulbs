@@ -33,13 +33,12 @@ class InstantArticleRSSView(RSSView):
             }
             try:
                 content.instant_article_body = loader.render_to_string(
-                    "instant_article/{}_instant_article.html".format(content.es_type), content_ctx
+                    "instant_article/_instant_article.html".format(content.es_type), content_ctx
                 )
             except TemplateDoesNotExist:
                 content.instant_article_body = loader.render_to_string(
-                    "instant_article/_instant_article.html", content_ctx
+                    "instant_article/base_instant_article.html", content_ctx
                 )
-
         return RequestContext(self.request, context)
 
 

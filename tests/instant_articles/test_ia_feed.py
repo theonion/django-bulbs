@@ -25,9 +25,23 @@ class InstantArticleTestCase(BaseIndexableTestCase):
         endpoint = reverse('instant_articles')
         resp = self.client.get(endpoint)
         self.assertEqual(resp.status_code, 200)
-
         content_list = resp.context_data['content_list']
         self.assertEqual(len(content_list), 100)
+
+    def test_project_not_base_template(self):
+        for i in range(100):
+            TestContentObj.objects.create(
+                title='TestContentObj #{}'.format(i),
+                feature_type=self.news_in_brief,
+                published=timezone.now() - timezone.timedelta(days=i)
+            )
+        TestContentObj.search_objects.refresh()
+
+        url = reverse("instant_articles")
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        content_list = resp.context_data["content_list"]
+        self.assertEqual(content_list[0].instant_article_body, "<h1>HI!</h1>")
 
     def test_invalid_feature_types(self):
         news = FeatureType.objects.create(name='News', instant_article=True)
