@@ -20,5 +20,6 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         featuretype_slug = kwargs.get("featuretype_slug")
         featuretype = get_object_or_404(FeatureType, slug=featuretype_slug)
-        featuretype.instant_article = True
-        featuretype.save()
+        if not featuretype.instant_article:
+            featuretype.instant_article = True
+            featuretype.save()
