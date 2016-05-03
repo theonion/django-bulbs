@@ -48,7 +48,6 @@ class InstantArticleContentView(BaseContentDetailView):
     def get_template_names(self):
         template_names = []
         template_names.append("default_instant_article.html")
-        template_names.append("{}_instant_article.html".format(feature_type))
         return ["instant_article/{}_instant_article.html".format(self.object.type)]
 
     def get_context_data(self, *args, **kwargs):
