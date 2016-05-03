@@ -21,7 +21,8 @@ from polymorphic import PolymorphicModel, PolymorphicManager
 
 from bulbs.content import TagCache
 from bulbs.content.tasks import (
-    index_content_contributions, index_content_report_content_proxy
+    index_content_contributions, index_content_report_content_proxy,
+    index_feature_type_content
 )
 from bulbs.utils.methods import datetime_to_epoch_seconds, get_template_choices
 from .managers import ContentManager
@@ -100,6 +101,11 @@ class FeatureType(Indexable):
     slug = models.SlugField(unique=True)
     instant_article = models.BooleanField(default=False)
 
+    def __init__(self, *args, **kwargs):
+        super(FeatureType, self).__init__(*args, **kwargs)
+        # Reference for state change on save.
+        self._db_instant_article = self.instant_article
+
     class Mapping:
         name = field.String(
             analyzer="autocomplete", fields={"raw": field.String(index="not_analyzed")}
@@ -120,7 +126,15 @@ class FeatureType(Indexable):
         """
         if self.slug is None or self.slug == "":
             self.slug = slugify(self.name)
-        return super(FeatureType, self).save(*args, **kwargs)
+        feature_type = super(FeatureType, self).save(*args, **kwargs)
+        if self.instant_article_is_dirty:
+            index_feature_type_content.delay(self.pk)
+        self._db_instant_article = self.instant_article
+        return feature_type
+
+    @property
+    def instant_article_is_dirty(self):
+        return bool(self.instant_article != self._db_instant_article)
 
 
 class TemplateType(models.Model):
