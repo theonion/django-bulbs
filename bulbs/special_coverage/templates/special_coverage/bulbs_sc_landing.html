@@ -1,4 +1,4 @@
-{% load betty humanize ads static %}
+{% load betty humanize ads static content %}
 
 <div class="sc-hero">
   <figure class="hero-img">
@@ -10,38 +10,19 @@
     {% if special_coverage.description %}
       <p>{{ special_coverage.description }}</p>
     {% endif %}
-    <div class="sponsor">
-      <div class="presented-by">
-        <span>Presented by</span>
-        {% if special_coverage.campaign.sponsor_logo %}
-          <figure>
-            {% if special_coverage.campaign.sponsor_url %}
-              <a href="{{ special_coverage.campaign.sponsor_url }}"
-                 data-track-category="Special Coverage Landing"
-                 data-track-action="Sponsor Logo"
-                 data-track-label="{{ special_coverage.campaign.sponsor_url }}">
-                <img
-                  src="{% cropped_url special_coverage.campaign.sponsor_logo ratio="original" format="png" %}"
-                  alt="{{ special_coverage.campaign.sponsor_name }}" />
-              </a>
-            {% else %}
-              <img
-                src="{% cropped_url special_coverage.campaign.sponsor_logo ratio="original" format="png" %}"
-                alt="{{ special_coverage.campaign.sponsor_name }}" />
-            {% endif %}
-          </figure>
-        {% elif special_coverage.campaign.sponsor_url %}
-          <a
-            href="{{ special_coverage.campaign.sponsor_url }}"
-            data-track-action="Sponsor Name"
-            data-track-label="{{ special_coverage.campaign.sponsor_url }}">
-            {{ special_coverage.campaign.sponsor_name }}
-          </a>
-        {% else %}
-          <strong>{{ special_coverage.campaign.sponsor_name }}</strong>
-        {% endif %}
-      </div>
-    </div>
+    {% if special_coverage.tunic_campaign_id %}
+      {% comment %}
+        TODO bulbs-elements dependency should be explicitly set by this repo.
+        At this point, we are pushing this responsibility downstream.
+      {% endcomment %}
+      <campaign-display
+        data-track-category="Special Coverage Landing"
+        data-track-action="Sponsor Logo"
+        placement="detail"
+        preamble-text="Presented by"
+        src="{% content_tunic_campaign_url special_coverage.tunic_campaign_id %}">
+      </campaign-display>
+    {% endif %}
   </div>
 </div>
 
