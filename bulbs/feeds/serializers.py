@@ -41,8 +41,9 @@ class GlanceContentSerializer(serializers.Serializer):
             "slug": obj.slug,
             "featured_media": GlanceFeaturedMediaSerializer(obj).data,
             'link': self.context['request'].build_absolute_uri(obj.get_absolute_url()),
-            'authors': ["America's Finest News Source"],  # TODO
+            # mparent(2016-05-04) TODO: Optional author support
+            'authors': ["America's Finest News Source"],
             'tags': {
-                'section': [tag.name for tag in obj.tags.all()],  # TODO: Ordered
+                'section': [tag.name for tag in obj.ordered_tags()],
             },
         }
