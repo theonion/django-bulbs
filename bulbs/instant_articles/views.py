@@ -17,7 +17,10 @@ class InstantArticleRSSView(RSSView):
         return Content.search_objects.instant_articles()
 
     def get_template_names(self):
-        return ["feeds/instant_article_rss.xml"]
+        return [
+            "feeds/instant_article_rss.xml",
+            "instant_article/base_instant_article_rss.xml"
+        ]
 
     def get_context_data(self, *args, **kwargs):
         context = super(InstantArticleRSSView, self).get_context_data(*args, **kwargs)
@@ -32,7 +35,7 @@ class InstantArticleRSSView(RSSView):
             }
             try:
                 content.instant_article_body = loader.render_to_string(
-                    "instant_article/_instant_article.html".format(content.es_type), content_ctx
+                    "instant_article/_instant_article.html", content_ctx
                 )
             except TemplateDoesNotExist:
                 content.instant_article_body = loader.render_to_string(
@@ -46,13 +49,14 @@ class InstantArticleContentView(BaseContentDetailView):
     redirect_correct_path = False
 
     def get_template_names(self):
-        template_names = []
-        template_names.append("default_instant_article.html")
-        return ["instant_article/{}_instant_article.html".format(self.object.type)]
+        return [
+            "instant_article/_instant_article.html",
+            "instant_article/base_instant_article.html"
+        ]
 
     def get_context_data(self, *args, **kwargs):
         context = super(InstantArticleContentView, self).get_context_data(*args, **kwargs)
-        targeting = self.objects.get_targeting()
+        targeting = self.object.get_targeting()
         context["targeting"] = targeting
         context["targeting_params"] = "&".join(
             ["{}={}".format(key, value) for key, value in targeting.items()]

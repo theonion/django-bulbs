@@ -23,3 +23,6 @@ class Command(BaseCommand):
         if not featuretype.instant_article:
             featuretype.instant_article = True
             featuretype.save()
+            # celery is not configured during commands.
+            for content in featuretype.content_set.all():
+                content.index()
