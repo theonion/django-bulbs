@@ -37,7 +37,6 @@ class GlanceContentSerializer(serializers.Serializer):
             "id": obj.id,
             "title": obj.title,
             "modified": obj.last_modified.isoformat(),
-            # TODO: What if not published?
             "published": obj.published.isoformat(),
             "slug": obj.slug,
             "featured_media": GlanceFeaturedMediaSerializer(obj).data,

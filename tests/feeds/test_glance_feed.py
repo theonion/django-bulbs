@@ -17,7 +17,7 @@ from example.testcontent.models import TestContentObj
 @override_settings(BETTY_IMAGE_URL='http://images.onionstatic.com/onion')
 class GlanceFeedTestCase(BaseIndexableTestCase):
 
-    maxDiff = None  # TEMP DEBUG
+    maxDiff = None  # Show full diffs on error
 
     def get_feed(self, status_code=200, *args, **kwargs):
         TestContentObj.search_objects.refresh()
@@ -57,7 +57,6 @@ class GlanceFeedTestCase(BaseIndexableTestCase):
                     'id': 52852,
                     'title': 'The Pros And Cons Of Taking A Gap Year',
                     'link': 'http://www.theonion.com/detail/52852/',
-                    # 'link': '/detail/52852/',  # TODO
                     'modified': '2016-05-03T10:11:12+00:00',
                     'published': '2016-05-02T14:43:00+00:00',
                     'slug': 'the-pros-and-cons-of-taking-a-gap-year',

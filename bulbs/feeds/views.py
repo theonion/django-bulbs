@@ -70,7 +70,6 @@ class GlanceFeedViewSet(viewsets.ReadOnlyModelViewSet):
 
     model = Content
     serializer_class = GlanceContentSerializer
-    # queryset = Content.search_objects.order_by('-last_modified').filter(Published())
 
     queryset = Content.search_objects.search().sort('-last_modified').filter(Published())
 
