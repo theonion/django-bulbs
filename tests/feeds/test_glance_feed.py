@@ -95,7 +95,9 @@ class GlanceFeedTestCase(BaseIndexableTestCase):
 
     def test_sort_last_modified(self):
         now = timezone.now()
-        content = make_content(TestContentObj, published=now, _quantity=5)
+        content = make_content(TestContentObj,
+                               published=now - timezone.timedelta(hours=1),
+                               _quantity=5)
         # Stagger "last_modified" (an "auto_now" field)
         for c, offset in zip(content, [0, 4, 1, 3, 2]):
             with freeze_time(now - timezone.timedelta(hours=offset)):
