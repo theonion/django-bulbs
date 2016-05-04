@@ -14,44 +14,50 @@ from bulbs.utils.test import BaseIndexableTestCase, make_content
 from example.testcontent.models import TestContentObj
 
 
+@override_settings(BETTY_IMAGE_URL='http://images.onionstatic.com/onion')
 class GlanceFeedTestCase(BaseIndexableTestCase):
 
     maxDiff = None  # TEMP DEBUG
 
-    def test_empty(self):
-        resp = Client().get(reverse('glance-feed'))
-        self.assertEqual(200, resp.status_code)
-        self.assertEqual('application/json', resp['content-type'])
-        self.assertEqual(json.loads(resp.content.decode('utf-8')), {'items': []})
+    def get_feed(self, status_code=200, *args, **kwargs):
+        TestContentObj.search_objects.refresh()
+        resp = Client().get(reverse('glance-feed'), kwargs, SERVER_NAME='www.theonion.com')
+        self.assertEqual(status_code, resp.status_code)
+        if resp.status_code == 200:
+            self.assertEqual('application/json', resp['content-type'])
+            return json.loads(resp.content.decode('utf-8'))
 
-    @override_settings(BETTY_IMAGE_URL='http://images.onionstatic.com/onion')
+    def test_empty(self):
+        resp = self.get_feed()
+        self.assertEqual(resp, {'count': 0,
+                                'next': None,
+                                'previous': None,
+                                'results': []})
+
     @freeze_time('2016-5-3 10:11:12')
     def test_single_item(self):
-
-        content = make_content(
-            TestContentObj,
-            id=52852,
-            title='The Pros And Cons Of Taking A Gap Year',
-            published=datetime(2016, 5, 2, 14, 43, 0, tzinfo=timezone.utc),
-            thumbnail_override=53338,
-            _quantity=1)[0]
+        content = make_content(TestContentObj,
+                               id=52852,
+                               title='The Pros And Cons Of Taking A Gap Year',
+                               published=datetime(2016, 5, 2, 14, 43, 0, tzinfo=timezone.utc),
+                               thumbnail_override=53338)
         for name in ['College', 'Technology']:
             content.tags.add(Tag.objects.create(name=name))
         content.save()
 
-        TestContentObj.search_objects.refresh()
-
-        resp = Client().get(reverse('glance-feed'), SERVER_NAME='www.theonion.com')
-        self.assertEqual(200, resp.status_code)
-        self.assertEqual('application/json', resp['content-type'])
+        resp = self.get_feed()
         self.assertEqual(
-            json.loads(resp.content.decode('utf-8')),
+            resp,
             {
-                'items': [{
+                'count': 1,
+                'next': None,
+                'previous': None,
+                'results': [{
                     'type': 'post',
                     'id': 52852,
                     'title': 'The Pros And Cons Of Taking A Gap Year',
                     'link': 'http://www.theonion.com/detail/52852/',
+                    # 'link': '/detail/52852/',  # TODO
                     'modified': '2016-05-03T10:11:12+00:00',
                     'published': '2016-05-02T14:43:00+00:00',
                     'slug': 'the-pros-and-cons-of-taking-a-gap-year',
@@ -68,4 +74,41 @@ class GlanceFeedTestCase(BaseIndexableTestCase):
             })
 
     def test_pagination(self):
-        pass
+        make_content(TestContentObj,
+                     published=datetime(2016, 5, 2, 14, 43, 0, tzinfo=timezone.utc),
+                     _quantity=11)
+
+        resp = self.get_feed(page=1, page_size=5)
+        self.assertEqual(11, resp['count'])
+        self.assertEqual(5, len(resp['results']))
+
+        resp = self.get_feed(page=2, page_size=5)
+        self.assertEqual(5, len(resp['results']))
+
+        resp = self.get_feed(page=3, page_size=5)
+        self.assertEqual(1, len(resp['results']))
+
+    def test_pagination_bounds_404(self):
+        # One page past last should trigger 404
+        make_content(TestContentObj,
+                     published=datetime(2016, 5, 2, 14, 43, 0, tzinfo=timezone.utc))
+        self.get_feed(page=2, page_size=1, status_code=404)
+
+    def test_sort_last_modified(self):
+        now = timezone.now()
+        content = make_content(TestContentObj, published=now, _quantity=5)
+        # Stagger "last_modified" (an "auto_now" field)
+        for c, offset in zip(content, [0, 4, 1, 3, 2]):
+            with freeze_time(now - timezone.timedelta(hours=offset)):
+                c.save()
+
+        resp = self.get_feed()
+        self.assertEqual([content[i].id for i in [0, 2, 4, 3, 1]],
+                         [c['id'] for c in resp['results']])
+
+    def test_filter_published(self):
+        content = make_content(TestContentObj, published=None)
+        self.assertEqual(0, self.get_feed()['count'])
+        content.published = timezone.now() - timezone.timedelta(hours=1)
+        content.save()
+        self.assertEqual(1, self.get_feed()['count'])

@@ -1,10 +1,17 @@
-from django.http import JsonResponse
+from rest_framework import viewsets
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import AllowAny
+
 from django.template import RequestContext
 from django.utils.timezone import now
 from django.views.decorators.cache import cache_control
 
+from bulbs.content.filters import Published
+from bulbs.content.models import Content
 from bulbs.content.views import ContentListView
 from bulbs.special_coverage.models import SpecialCoverage
+
+from .serializers import GlanceContentSerializer
 
 
 class RSSView(ContentListView):
@@ -59,31 +66,19 @@ class SpecialCoverageRSSView(RSSView):
         return sc.get_content()[:self.paginate_by]
 
 
-class GlanceFeedView(ContentListView):
+class GlanceFeedViewSet(viewsets.ReadOnlyModelViewSet):
 
-    @cache_control(max_age=300)
-    def get(self, request, *args, **kwargs):
-        # TODO: resp is ignored... should I still inherit?
-        super(GlanceFeedView, self).get(request, *args, **kwargs)
-        items = []
-        for content in self.object_list:
-            items.append({
-                'type': 'post',
-                'id': content.id,
-                'title': content.title,
-                'slug': content.slug,
-                'authors': ["America's Finest News Source"],  # TODO
-                'published': content.published.isoformat(),
-                # TODO: This needs to trip if Tag/Section changes
-                'modified': content.last_modified.isoformat(),
-                "featured_media": {
-                    "type": "image",
-                    "image": content.thumbnail.get_crop_url(ratio='1x1'),
-                    "markup": ""
-                },
-                'tags': {
-                    'section': [tag.name for tag in content.tags.all()],
-                },
-                'link': request.build_absolute_uri(content.get_absolute_url()),
-            })
-        return JsonResponse({'items': items})
+    model = Content
+    serializer_class = GlanceContentSerializer
+    # queryset = Content.search_objects.order_by('-last_modified').filter(Published())
+
+    queryset = Content.search_objects.search().sort('-last_modified').filter(Published())
+
+    permission_classes = [AllowAny]
+
+    class GlancePageNumberPagination(PageNumberPagination):
+        page_size = 100  # mparent(2016-05-04): Per Michael Patek @ Fusion
+        page_size_query_param = 'page_size'
+        max_page_size = 500
+
+    pagination_class = GlancePageNumberPagination
