@@ -20,7 +20,7 @@
             </description>
             <content:encoded>
                 <![CDATA[
-                {{ content.instant_article_body|safe }}
+                {{ content.instant_article_html|safe }}
                 ]]>
             </content:encoded>
         </item>{% endfor%}

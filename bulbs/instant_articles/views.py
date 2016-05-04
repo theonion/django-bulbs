@@ -34,11 +34,11 @@ class InstantArticleRSSView(RSSView):
                 "absolute_uri": self.request.META.get('HTTP_HOST', None)
             }
             try:
-                content.instant_article_body = loader.render_to_string(
+                content.instant_article_html = loader.render_to_string(
                     "instant_article/_instant_article.html", content_ctx
                 )
             except TemplateDoesNotExist:
-                content.instant_article_body = loader.render_to_string(
+                content.instant_article_html = loader.render_to_string(
                     "instant_article/base_instant_article.html", content_ctx
                 )
         return RequestContext(self.request, context)
