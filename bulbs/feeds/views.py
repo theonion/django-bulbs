@@ -73,7 +73,7 @@ class GlanceFeedViewSet(viewsets.ReadOnlyModelViewSet):
 
     queryset = Content.search_objects.search().sort('-last_modified').filter(Published())
 
-    permission_classes = [AllowAny]
+    permission_classes = (AllowAny,)
 
     class GlancePageNumberPagination(PageNumberPagination):
         page_size = 100  # mparent(2016-05-04): Per Michael Patek @ Fusion
