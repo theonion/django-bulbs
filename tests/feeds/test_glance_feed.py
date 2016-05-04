@@ -62,7 +62,7 @@ class GlanceFeedTestCase(BaseIndexableTestCase):
                     'slug': 'the-pros-and-cons-of-taking-a-gap-year',
                     'featured_media': {
                         'type': 'image',
-                        'image': 'http://images.onionstatic.com/onion/5333/8/1x1/600.jpg',
+                        'image': 'http://images.onionstatic.com/onion/5333/8/16x9/600.jpg',
                         'markup': ''
                     },
                     'authors': ["America's Finest News Source"],

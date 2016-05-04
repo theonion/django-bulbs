@@ -9,7 +9,7 @@ class GlanceFeaturedMediaSerializer(serializers.Serializer):
     def to_representation(self, obj):
         return {
             "type": "image",
-            "image": obj.thumbnail.get_crop_url(ratio='1x1'),
+            "image": obj.thumbnail.get_crop_url(ratio='16x9'),
             "markup": "",
         }
 
