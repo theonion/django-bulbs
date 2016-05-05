@@ -5,6 +5,12 @@ django-bulbs is a set of apps used to power content at [The Onion](http://www.th
 
 This project very much under active development, and is currently not as reusable as it could be.
 
+## Setting up virtual env
+```
+virtualenv .
+source bin/activate
+```
+
 First, enter any virtualenv, etc, that you plan on developing in.
 ```bash
 pip install -e .
