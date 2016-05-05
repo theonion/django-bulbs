@@ -1,3 +1,5 @@
+import json
+
 from django.template import Library, Context
 from django.template.loader import get_template
 
@@ -25,3 +27,11 @@ def dfp_ad(ad_unit, css_class=''):
     }
 
     return template.render(Context(context))
+
+
+@register.simple_tag(takes_context=True)
+def targeting(context):
+    targeting_template = "<script>var TARGETING={};</script>"  # Cute, huh?
+    if "targeting" not in context:
+        return targeting_template
+    return targeting_template.format(json.dumps(context["targeting"]))
