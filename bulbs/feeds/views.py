@@ -1,9 +1,17 @@
+from rest_framework import viewsets
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import AllowAny
+
 from django.template import RequestContext
 from django.utils.timezone import now
 from django.views.decorators.cache import cache_control
 
+from bulbs.content.filters import Published
+from bulbs.content.models import Content
 from bulbs.content.views import ContentListView
 from bulbs.special_coverage.models import SpecialCoverage
+
+from .serializers import GlanceContentSerializer
 
 
 class RSSView(ContentListView):
@@ -56,3 +64,20 @@ class SpecialCoverageRSSView(RSSView):
             return self.model.objects.none()
 
         return sc.get_content()[:self.paginate_by]
+
+
+class GlanceFeedViewSet(viewsets.ReadOnlyModelViewSet):
+
+    model = Content
+    serializer_class = GlanceContentSerializer
+
+    queryset = Content.search_objects.search().sort('-last_modified').filter(Published())
+
+    permission_classes = (AllowAny,)
+
+    class GlancePageNumberPagination(PageNumberPagination):
+        page_size = 100  # mparent(2016-05-04): Per Michael Patek @ Fusion
+        page_size_query_param = 'page_size'
+        max_page_size = 500
+
+    pagination_class = GlancePageNumberPagination
