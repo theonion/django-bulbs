@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 0.11.4
+
+- Add Glance JSON feed for content ingestion: `/feeds/glance.json`
+
 ## Version 0.11.1
 
 - Fix content API "Trash" to ignore ES 404 error by using new DJES "delete from index on save" functionality
