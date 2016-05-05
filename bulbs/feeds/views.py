@@ -4,7 +4,6 @@ from rest_framework.permissions import AllowAny
 
 from django.template import RequestContext
 from django.utils.timezone import now
-from django.views.decorators.cache import cache_control
 
 from bulbs.content.filters import Published
 from bulbs.content.models import Content
@@ -24,7 +23,6 @@ class RSSView(ContentListView):
     def get_template_names(self):
         return ["feeds/rss.xml", "feeds/_rss.xml"]
 
-    @cache_control(max_age=300)
     def get(self, request, *args, **kwargs):
         response = super(RSSView, self).get(request, *args, **kwargs)
         response["Content-Type"] = "application/rss+xml"

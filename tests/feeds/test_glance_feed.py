@@ -14,7 +14,7 @@ from bulbs.utils.test import BaseIndexableTestCase, make_content
 from example.testcontent.models import TestContentObj
 
 
-@override_settings(BETTY_IMAGE_URL='http://images.onionstatic.com/onion')
+@override_settings(BETTY_IMAGE_URL='//images.onionstatic.com/onion')
 class GlanceFeedTestCase(BaseIndexableTestCase):
 
     maxDiff = None  # Show full diffs on error
@@ -60,10 +60,8 @@ class GlanceFeedTestCase(BaseIndexableTestCase):
                     'modified': '2016-05-03T10:11:12+00:00',
                     'published': '2016-05-02T14:43:00+00:00',
                     'slug': 'the-pros-and-cons-of-taking-a-gap-year',
-                    'featured_media': {
-                        'type': 'image',
-                        'image': 'http://images.onionstatic.com/onion/5333/8/16x9/600.jpg',
-                        'markup': ''
+                    'images': {
+                        'post-16-9-thumbnail': '//images.onionstatic.com/onion/5333/8/16x9/600.jpg',
                     },
                     'authors': ["America's Finest News Source"],
                     'tags': {
