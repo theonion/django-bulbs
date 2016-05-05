@@ -21,7 +21,8 @@ from polymorphic import PolymorphicModel, PolymorphicManager
 
 from bulbs.content import TagCache
 from bulbs.content.tasks import (
-    index_content_contributions, index_content_report_content_proxy
+    index_content_contributions, index_content_report_content_proxy,
+    index_feature_type_content
 )
 from bulbs.utils.methods import datetime_to_epoch_seconds, get_template_choices
 from .managers import ContentManager
@@ -98,6 +99,12 @@ class FeatureType(Indexable):
 
     name = models.CharField(max_length=255)
     slug = models.SlugField(unique=True)
+    instant_article = models.BooleanField(default=False)
+
+    def __init__(self, *args, **kwargs):
+        super(FeatureType, self).__init__(*args, **kwargs)
+        # Reference for state change on save.
+        self._db_instant_article = self.instant_article
 
     class Mapping:
         name = field.String(
@@ -119,7 +126,15 @@ class FeatureType(Indexable):
         """
         if self.slug is None or self.slug == "":
             self.slug = slugify(self.name)
-        return super(FeatureType, self).save(*args, **kwargs)
+        feature_type = super(FeatureType, self).save(*args, **kwargs)
+        if self.instant_article_is_dirty:
+            index_feature_type_content.delay(self.pk)
+        self._db_instant_article = self.instant_article
+        return feature_type
+
+    @property
+    def instant_article_is_dirty(self):
+        return bool(self.instant_article != self._db_instant_article)
 
 
 class TemplateType(models.Model):
@@ -210,6 +225,17 @@ class Content(PolymorphicModel, Indexable):
         return '%s: %s' % (self.__class__.__name__, self.title)
 
     @property
+    def es_type(self):
+        return "{}_{}".format(
+            self._meta.app_label, self._meta.model_name.replace("_elasticsearchresult", "")
+        )
+
+    @property
+    def type(self):
+        # TODO: This is to be removed, but some sites rely on it's existence currently.
+        return self.es_type
+
+    @property
     def thumbnail(self):
         """Read-only attribute that provides the value of the thumbnail to display.
         """
@@ -263,6 +289,19 @@ class Content(PolymorphicModel, Indexable):
             return "final"  # The published time has been set
         return "draft"  # No published time has been set
     status = property(get_status)
+
+    def get_targeting(self):
+        data = {
+            "dfp_site": settings.DFP_SITE,
+            "dfp_feature": slugify(self.feature_type),
+            "dfp_contentid": self.pk,
+            "dfp_pagetype": self.__class__.__name__.lower(),
+            "dfp_slug": self.slug
+        }
+        data["dfp_campaign"] = getattr(self, "campaign", None)
+        tags = self.ordered_tags()
+        data["dfp_section"] = tags[0].slug if tags else None
+        return data
 
     @property
     def is_published(self):
