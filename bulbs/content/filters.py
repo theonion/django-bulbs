@@ -85,6 +85,10 @@ def Authors(usernames):  # noqa
     return f
 
 
+def InstantArticle(active=True):  # noqa
+    return Nested(path="feature_type", filter=Term(**{"feature_type.instant_article": active}))
+
+
 def NegateQueryFilter(es_query):  # noqa
     """
     Return a filter removing the contents of the provided query.
