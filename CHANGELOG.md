@@ -2,6 +2,12 @@
 
 ## Development
 
+## Version 0.11.5
+
+- Minor tweaks to Glance feed:
+  - Glance feed 5min cache time
+  - Switch thumbnails to "image" key
+
 ## Version 0.11.4
 
 - Add Glance JSON feed for content ingestion: `/feeds/glance.json`
