@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 0.11.6
+
+- Add video recirc widget and global SASS styles 
+
 ## Version 0.11.5
 
 - Minor tweaks to Glance feed:
