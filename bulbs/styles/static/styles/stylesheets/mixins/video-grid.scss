@@ -1,0 +1,55 @@
+///////////////////////////////
+// ************************* //
+//         VIDEO GRID        //
+// ************************* //
+///////////////////////////////
+
+@import 'flexbox';
+@import 'flex-grid';
+@import 'aspect-ratio';
+@import 'ease';
+@import '../global/breakpoints';
+@import '../extends/vertical-center-flex';
+
+.video-grid {
+  h2 {
+    margin-bottom: 1em;
+  }
+  .video-list {
+    @include flexgrid($columns: 2, $gutter: 24, $padding: 0);
+    list-style: none;    
+  }
+  .video-item {
+    @include aspect-ratio(16, 9);
+    margin-bottom: 24px;
+    outline: none;
+    position: relative;
+    .image:after {
+      @include ease(opacity, 50ms);
+      @extend .vertical-center-flex;
+      bottom: 10px;
+      color: white;
+      content: '\f01d';
+      cursor: pointer;
+      font-family: FontAwesome;
+      font-size: 40px;
+      height: 40px;
+      left: 10px;
+      opacity: .7;
+      position: absolute;
+      width: 40px;
+    }
+    &:hover {
+      .image:after {
+        opacity: 1;
+      }
+    }
+  }
+  @media (min-width: $screen-md) {
+    .video-list {
+      @include flexgrid($columns: 4, $gutter: 24, $padding: 0);
+      list-style: none;    
+    }
+  }
+}
+
