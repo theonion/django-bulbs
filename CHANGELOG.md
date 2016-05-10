@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 0.8.18
+
+- Change default sort order of Instant Article feed to last modified time, than published date
+
 ## Version 0.8.17
 
 - Add Glance JSON feed for content ingestion: `/feeds/glance.json`
