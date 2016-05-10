@@ -43,6 +43,7 @@ class ContentManager(PolymorphicManager, IndexableManager):
         Instant articles are configured via FeatureType. FeatureType.instant_article = True.
         """
         eqs = self.search(**kwargs)
+        eqs = eqs.sort('-last_modified', '-published')
         return eqs.filter(InstantArticle())
 
     def sponsored(self, **kwargs):

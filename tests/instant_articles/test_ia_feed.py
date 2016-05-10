@@ -28,6 +28,26 @@ class InstantArticleTestCase(BaseIndexableTestCase):
         content_list = resp.context_data['content_list']
         self.assertEqual(len(content_list), 100)
 
+    def test_sort_order(self):
+        content1 = TestContentObj.objects.create(
+            title='TestContentObj 1',
+            feature_type=self.news_in_brief,
+            published=timezone.now() - timezone.timedelta(days=1)
+        )
+        content2 = TestContentObj.objects.create(
+            title='TestContentObj 2',
+            feature_type=self.news_in_brief,
+            published=timezone.now() - timezone.timedelta(days=5)
+        )
+        TestContentObj.search_objects.refresh()
+        endpoint = reverse('instant_articles')
+        resp = self.client.get(endpoint)
+        self.assertEqual(resp.status_code, 200)
+        content_list = resp.context_data['content_list']
+        self.assertEqual(len(content_list), 2)
+        self.assertEqual(content_list[0].id, content2.id)
+        self.assertEqual(content_list[1].id, content1.id)
+
     def test_project_not_base_template(self):
         for i in range(100):
             TestContentObj.objects.create(
