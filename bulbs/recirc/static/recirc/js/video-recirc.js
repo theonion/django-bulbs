@@ -20,9 +20,7 @@ VideoRecircList.prototype.videoRecircFetched = function(data) {
   var that = this;
 
   that.$videoListTitle.html('More From ' + data.series.name);
-
-  console.log(data.videos);
-
+  
   $.each(data.videos.slice(0,this.recircCount), function(index, video) {
     var videoTitle = video.title;
     var videoHref = '/v/' + video.id;
