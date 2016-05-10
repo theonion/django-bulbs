@@ -2,7 +2,11 @@
 
 ## Development
 
+## Version 0.8.17
+
 - Add Glance JSON feed for content ingestion: `/feeds/glance.json`
+- Instant article improvements
+- Targeting + footer improvements
 
 ## Version 0.8.10
 
