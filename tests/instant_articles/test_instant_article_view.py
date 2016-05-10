@@ -9,27 +9,23 @@ from bulbs.utils.test import make_content, BaseIndexableTestCase
 from example.testcontent.models import TestContentObj
 
 
-class AnalyticsViewTests(BaseIndexableTestCase):
-
+class InstantArticleAdViewTests(BaseIndexableTestCase):
     def setUp(self):
-        super(AnalyticsViewTests, self).setUp()
-        self.feature_type = FeatureType.objects.create(
-            name="Ey go that way bruh", instant_article=True
-        )
+        super(InstantArticleAdViewTests, self).setUp()
+        self.client = Client()
+        self.feature_type = FeatureType.objects.create(name="AdBoys", instant_article=True)
         self.content = make_content(TestContentObj, feature_type=self.feature_type)
+        self.url = reverse("instant_article", kwargs={"pk": self.content.pk})
+
         User = get_user_model()
         admin = self.admin = User.objects.create_user("admin", "tech@theonion.com", "secret")
         admin.is_staff = True
         admin.save()
 
-    def test_analytics(self):
-        self.client = Client()
+    def test_ad_unit(self):
         self.client.login(username="admin", password="secret")
-        url = reverse("instant_article_analytics", kwargs={"pk": self.content.pk})
-        response = self.client.get(url)
+        response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual("Instant Articles", response.context_data.get("platform"))
-
         targeting = response.context_data.get("targeting")
         self.assertEqual(slugify(self.feature_type), targeting.get("dfp_feature"))
         self.assertEqual(self.content.id, targeting.get("dfp_contentid"))
