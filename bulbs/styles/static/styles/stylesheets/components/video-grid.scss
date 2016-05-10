@@ -4,10 +4,10 @@
 // ************************* //
 ///////////////////////////////
 
-@import 'flexbox';
-@import 'flex-grid';
-@import 'aspect-ratio';
-@import 'ease';
+@import '../mixins/flexbox';
+@import '../mixins/flex-grid';
+@import '../mixins/aspect-ratio';
+@import '../mixins/ease';
 @import '../global/breakpoints';
 @import '../extends/vertical-center-flex';
 
@@ -24,25 +24,18 @@
     margin-bottom: 24px;
     outline: none;
     position: relative;
-    .image:after {
-      @include ease(opacity, 50ms);
-      @extend .vertical-center-flex;
-      bottom: 10px;
-      color: white;
-      content: '\f01d';
-      cursor: pointer;
-      font-family: FontAwesome;
-      font-size: 40px;
-      height: 40px;
-      left: 10px;
-      opacity: .7;
-      position: absolute;
-      width: 40px;
-    }
     &:hover {
-      .image:after {
+      .bulbs-video-play-button {
         opacity: 1;
       }
+    }
+    .bulbs-video-play-button {
+      bottom: 10px;
+      left: 10px;
+      opacity: .8;
+      position: absolute;
+      width: 40px;
+      z-index: 1;
     }
   }
   @media (min-width: $screen-md) {
