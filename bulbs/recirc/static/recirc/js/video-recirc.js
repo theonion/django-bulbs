@@ -21,6 +21,8 @@ VideoRecircList.prototype.videoRecircFetched = function(data) {
 
   that.$videoListTitle.html('More From ' + data.series.name);
 
+  console.log(data.videos);
+
   $.each(data.videos.slice(0,this.recircCount), function(index, video) {
     var videoTitle = video.title;
     var videoHref = '/v/' + video.id;
@@ -32,7 +34,7 @@ VideoRecircList.prototype.videoRecircFetched = function(data) {
       'data-track-label' : videoHref,
       'html': $('<figure>',{
         'class' : 'content',
-        'html' : '<div class="image"><img src="' + posterSource + '/16x9/480.jpg"></div>'
+        'html' : '<div class="image"><bulbs-video-play-button></bulbs-video-play-button><img src="' + posterSource + '/16x9/480.jpg"></div>',
       }).add($('<p>',{
         'html' : videoTitle
       }))
