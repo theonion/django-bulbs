@@ -2,6 +2,8 @@
 
 ## Development
 
+- Add Glance JSON feed for content ingestion: `/feeds/glance.json`
+
 ## Version 0.8.10
 
 - Adds tag-based recirc fallback to `RecircViewSet` `GET` request
