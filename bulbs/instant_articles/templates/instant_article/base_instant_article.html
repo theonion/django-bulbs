@@ -49,11 +49,13 @@
          <iframe src="http://{{ absolute_uri }}{% url 'instant_article_analytics' pk=content.id %}?platform=ia&path={{ content.get_absolute_url }}"></iframe>
       </figure>
 
+      {% block article_footer %}
       <footer>
         <small>
            &copy; Copyright {% now "Y" %} Onion Inc. All rights reserved
         </small>
       </footer>
+      {% endblock article_footer %}
     </article>
   </body>
 </html>
