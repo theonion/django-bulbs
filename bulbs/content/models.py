@@ -292,7 +292,6 @@ class Content(PolymorphicModel, Indexable):
 
     def get_targeting(self):
         data = {
-            "dfp_site": settings.DFP_SITE,
             "dfp_feature": slugify(self.feature_type),
             "dfp_contentid": self.pk,
             "dfp_pagetype": self.__class__.__name__.lower(),
