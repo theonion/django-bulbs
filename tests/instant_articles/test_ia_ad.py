@@ -27,7 +27,7 @@ class InstantArticleAdViewTests(BaseIndexableTestCase):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         targeting = response.context_data.get("targeting")
-        self.assertEqual(slugify(self.feature_type), targeting.get("dfp_feature"))
+        self.assertEqual(self.feature_type.slug, targeting.get("dfp_feature"))
         self.assertEqual(self.content.id, targeting.get("dfp_contentid"))
         self.assertEqual(self.content.__class__.__name__.lower(), targeting.get("dfp_pagetype"))
         self.assertEqual(self.content.slug, targeting.get("dfp_slug"))
