@@ -1,6 +1,5 @@
 import datetime
 
-from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django.utils.html import strip_tags
 
@@ -31,7 +30,7 @@ class ContentModelTestCase(BaseIndexableTestCase):
         feature_type = FeatureType.objects.create(name="AdBoys")
         obj = make_content(TestContentObj, feature_type=feature_type)
         targeting = obj.get_targeting()
-        self.assertEqual(slugify(feature_type.name), targeting.get("dfp_feature"))
+        self.assertEqual(feature_type.slug, targeting.get("dfp_feature"))
         self.assertEqual(obj.id, targeting.get("dfp_contentid"))
         self.assertEqual(obj.__class__.__name__.lower(), targeting.get("dfp_pagetype"))
         self.assertEqual(obj.slug, targeting.get("dfp_slug"))
