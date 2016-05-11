@@ -295,8 +295,12 @@ class Content(PolymorphicModel, Indexable):
             "dfp_feature": slugify(self.feature_type),
             "dfp_contentid": self.pk,
             "dfp_pagetype": self.__class__.__name__.lower(),
-            "dfp_slug": self.slug
+            "dfp_slug": self.slug,
+            "dfp_evergreen": self.evergreen,
+            "dfp_title": strip_tags(self.title)
         }
+        if self.published is not None:
+            data["dfp_publishdate"] = self.published.isoformat()
         data["dfp_campaign"] = getattr(self, "campaign", None)
         tags = self.ordered_tags()
         data["dfp_section"] = tags[0].slug if tags else None
