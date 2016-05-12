@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 1.1.1
+
+- Update video grid styles and add bulbs-video-play-button
+
 ## Version 0.11.6
 
 - Add video recirc widget and global SASS styles 
