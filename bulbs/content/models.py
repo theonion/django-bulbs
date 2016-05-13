@@ -292,7 +292,7 @@ class Content(PolymorphicModel, Indexable):
 
     def get_targeting(self):
         data = {
-            "dfp_feature": self.feature_type.slug,
+            "dfp_feature": getattr(self.feature_type, "slug", None),
             "dfp_contentid": self.pk,
             "dfp_pagetype": self.__class__.__name__.lower(),
             "dfp_slug": self.slug,
