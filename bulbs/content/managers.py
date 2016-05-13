@@ -7,7 +7,8 @@ from elasticsearch_dsl import filter as es_filter
 from polymorphic import PolymorphicManager
 
 from .filters import (
-    Authors, Evergreen, FeatureTypes, InstantArticle, Published, Status, Tags, VideohubChannel
+    Authors, Evergreen, FeatureTypes, InstantArticle, Published, Status, Tags,
+    VideohubChannel
 )
 
 
@@ -42,8 +43,7 @@ class ContentManager(PolymorphicManager, IndexableManager):
 
         Instant articles are configured via FeatureType. FeatureType.instant_article = True.
         """
-        eqs = self.search(**kwargs)
-        eqs = eqs.sort('-last_modified', '-published')
+        eqs = self.search(**kwargs).sort('-last_modified', '-published')
         return eqs.filter(InstantArticle())
 
     def sponsored(self, **kwargs):

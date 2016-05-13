@@ -1,7 +1,6 @@
 from django.template import RequestContext, loader
 from django.template.base import TemplateDoesNotExist
 from django.views.decorators.cache import cache_control
-from django.views.generic import TemplateView
 
 from bulbs.content.models import Content
 from bulbs.content.views import BaseContentDetailView
@@ -80,6 +79,7 @@ class InstantArticleAnalyticsView(InstantArticleContentView):
         context["fire_pageview"] = True
         context["platform"] = "Instant Articles"
         context["path"] = self.request.GET.get("path", "")
+
         return context
 
 
