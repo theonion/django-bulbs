@@ -297,7 +297,8 @@ class Content(PolymorphicModel, Indexable):
             "dfp_pagetype": self.__class__.__name__.lower(),
             "dfp_slug": self.slug,
             "dfp_evergreen": self.evergreen,
-            "dfp_title": strip_tags(self.title)
+            "dfp_title": strip_tags(self.title),
+            "dfp_site": getattr(settings, "DFP_SITE", None)
         }
         if self.published is not None:
             data["dfp_publishdate"] = self.published.isoformat()

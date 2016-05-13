@@ -16,6 +16,33 @@ DEFAULT_SUBJECT = "Contribution Report."
 TEMPLATE = "reporting/__contribution_report.html"
 
 
+class ContributorReport(object):
+    """User specific logic for emails."""
+
+    def __init__(self, contributor):
+        self.contributor = contributor
+
+        self._body = None
+
+    @property
+    def body(self):
+        if not self._body:
+            contributions = self.get_contributions_by_contributor(self.contributor)
+            total = sum([contribution.pay for contribution in contributions if contribution.pay])
+            contribution_types = {}
+            for contribution in contributions:
+                contribution_types[contribution] = contribution.content._meta.concrete_model.__name__
+            context = {
+                "content_type": contribution.content._meta.concrete_model.__name__,
+                "contributor": self.contributor,
+                "contributions": contribution_types,
+                "deadline": self.deadline,
+                "total": total
+            }
+            self._body = loader.render_to_string(TEMPLATE, context)
+        return self._body
+
+
 class EmailReport(object):
     """Generate an email report for contributors."""
 
