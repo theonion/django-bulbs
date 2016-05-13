@@ -26,3 +26,11 @@ def index_content_report_content_proxy(content_pk):
         proxy.index()
     except ObjectDoesNotExist:
         pass
+
+
+@shared_task(default_retry_delay=5)
+def index_feature_type_content(featuretype_pk):
+    from .models import FeatureType
+    featuretype = FeatureType.objects.get(pk=featuretype_pk)
+    for content in featuretype.content_set.all():
+        content.index()

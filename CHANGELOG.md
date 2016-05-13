@@ -2,6 +2,49 @@
 
 ## Development
 
+## Version 2.0.0
+
+- Merged in all 0.8.x changes.
+
+## Version 1.1.1
+
+- Update video grid styles and add bulbs-video-play-button
+
+## Version 0.11.6
+
+- Add video recirc widget and global SASS styles
+
+## Version 0.11.5
+
+- Minor tweaks to Glance feed:
+  - Glance feed 5min cache time
+  - Switch thumbnails to "image" key
+
+## Version 0.11.4
+
+- Add Glance JSON feed for content ingestion: `/feeds/glance.json`
+
+## Version 0.11.1
+
+- Fix content API "Trash" to ignore ES 404 error by using new DJES "delete from index on save" functionality
+
+## Version 0.10.2
+
+- Added `TunicClient` with initial support for a single method `get_active_campaigns`. Requires these settings:
+    - TUNIC_STAFF_BACKEND_ROOT (ex: "http://onion.local/api/v1/")
+    - TUNIC_REQUEST_TOKEN (ex: "12345")
+    - TUNIC_API_PATH (ex: "/api/v1/")
+
+## Version 0.8.18
+
+- Change default sort order of Instant Article feed to last modified time, than published date
+
+## Version 0.8.17
+
+- Add Glance JSON feed for content ingestion: `/feeds/glance.json`
+- Instant article improvements
+- Targeting + footer improvements
+
 ## Version 0.8.10
 
 - Adds tag-based recirc fallback to `RecircViewSet` `GET` request

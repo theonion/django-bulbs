@@ -16,7 +16,7 @@ class ContentTwoListView(ContentListView):
 
 class TestContentCustomSearchListView(ContentCustomSearchListView):
     template_name = "testapp/content_list.html"
-    
+
     def post(self, *args, **kwargs):
         """Allow POST for those big queries."""
         return self.get(*args, **kwargs)

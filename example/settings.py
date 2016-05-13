@@ -39,12 +39,14 @@ INSTALLED_APPS = (
     # bulbs content types
     "bulbs.poll",
     # local apps
+    "bulbs.ads",
     "bulbs.api",
     "bulbs.campaigns",
     "bulbs.feeds",
     "bulbs.redirects",
     "bulbs.cms_notifications",
     "bulbs.content",
+    "bulbs.instant_articles",
     "bulbs.promotion",
     "bulbs.special_coverage",
     "bulbs.sections",

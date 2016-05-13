@@ -1,0 +1,43 @@
+///////////////////////////////
+// ************************* //
+//         BREAKPOINTS       //
+// ************************* //
+///////////////////////////////
+
+// 480px 30em
+// 600px 37.5em
+// 768px 48em
+// 992px 62em
+// 1382px 86.375em
+
+$bp2 : 480px;
+$bp3 : 600px;
+$bp4 : 768px;
+$bp5 : 992px;
+$bp6 : 1382px;
+$bp7 : 1900px;
+
+// TODO: SASSIFY THESE
+/* $xsmallonly: ~"only screen and (max-width: "$bp2 ~")";
+$xsmall:     ~"only screen and (min-width: "($bp2 + 1)~")";
+$smallonly:  ~"only screen and (max-width: "$bp3~")";
+$small:      ~"only screen and (min-width: "($bp3 + 1)~")";
+$mediumonly: ~"only screen and (max-width: "$bp4~")";
+$medium:     ~"only screen and (min-width: "($bp4 + 1)~")";
+$largeonly:  ~"only screen and (max-width: "$bp5~")";
+$large:      ~"only screen and (min-width: "($bp5 + 1)~")";
+$xlarge:     ~"only screen and (min-width: "($bp6 + 1)~")";
+$xxlarge:    ~"only screen and (min-width: "($bp7 + 1)~")"; */
+
+$screen-sm: $bp2;
+$screen-md: $bp3;
+$screen-lg: $bp4;
+$screen-xlg: $bp5;
+$screen-xxl: $bp6;
+
+// So media queries don't overlap when required, provide a maximum
+$screen-xs-max:  ($screen-sm - 1);
+$screen-sm-max:  ($screen-md - 1);
+$screen-md-max:  ($screen-lg - 1);
+$screen-lg-max:  ($screen-xlg - 1);
+$screen-xlg-max: ($screen-xxl - 1);

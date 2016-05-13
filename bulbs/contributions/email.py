@@ -36,6 +36,7 @@ class EmailReport(object):
         mail = EmailMultiAlternatives(
             subject=EMAIL_SETTINGS.get("SUBJECT", DEFAULT_SUBJECT),
             from_email=EMAIL_SETTINGS.get("FROM"),
+            bcc=EMAIL_SETTINGS.get("BCC"),
             headers={"Reply-To": EMAIL_SETTINGS.get("REPLY_TO")}
         )
         mail.attach_alternative(body, "text/html")
@@ -50,7 +51,8 @@ class EmailReport(object):
         # If the report configuration is not active we only send to the debugging user.
         if EMAIL_SETTINGS.get("ACTIVE", False):
             for contributor in self.contributors:
-                self.send_contributor_email(contributor)
+                if contributor.email not in EMAIL_SETTINGS.get("EXCLUDED", []):
+                    self.send_contributor_email(contributor)
         else:
             for email in EMAIL_SETTINGS.get("TO", []):
                 self.send_contributor_email(User.objects.get(email=email))
@@ -94,7 +96,7 @@ class EmailReport(object):
     def deadline(self):
         """Set deadline to next day if no deadline provided."""
         if not self._deadline:
-            self.now + timezone.timedelta(days=1)
+            self._deadline = self.now + timezone.timedelta(days=1)
         return self._deadline
 
     @property
