@@ -68,6 +68,14 @@ class InstantArticleAdView(InstantArticleContentView):
             "instant_article/_instant_article_ad.html",
         ]
 
+    def get_context_data(self, *args, **kwargs):
+        context = super(InstantArticleAdView, self).get_context_data(*args, **kwargs)
+        targeting = self.object.get_targeting()
+        context["targeting"] = targeting
+        context["targeting"]["dfp_position"] = self.request.GET.get("dfp_position", None)
+        return context
+
+
 class InstantArticleAnalyticsView(InstantArticleContentView):
     def get_template_names(self):
         return [
