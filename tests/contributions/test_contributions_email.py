@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
 from django.utils import timezone
 
-from bulbs.contributions.email import EmailReport
+from bulbs.contributions.email import ContributorReport, EmailReport
 from bulbs.contributions.models import ContributorRole
 from bulbs.utils.test import make_content, BaseAPITestCase
 
@@ -85,19 +85,16 @@ class EmailReportTestCase(BaseAPITestCase):
         self.assertEqual(contributors.count(), 2)
 
     def test_get_contributor_contributions_default(self):
-        report = EmailReport()
-        contributions = report.get_contributions_by_contributor(self.tony_sarpino)
-        self.assertEqual(contributions.count(), 25)
+        report = ContributorReport(self.tony_sarpino)
+        self.assertEqual(report.contributions.count(), 25)
 
     def test_get_contributor_contributions_next_month(self):
-        report = EmailReport(month=self.next_month)
-        contributions = report.get_contributions_by_contributor(self.tony_sarpino)
-        self.assertEqual(contributions.count(), 25)
+        report = ContributorReport(self.tony_sarpino, month=self.next_month)
+        self.assertEqual(report.contributions.count(), 25)
 
     def test_email_body(self):
-        report = EmailReport(month=self.next_month)
-        body = report.get_email_body(self.tony_sarpino)
-        self.assertTrue(body)
+        report = ContributorReport(self.tony_sarpino, month=self.next_month)
+        self.assertTrue(report.get_body())
 
     @override_settings(EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend')
     def test_email_api(self):
