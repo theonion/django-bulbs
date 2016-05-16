@@ -8,7 +8,7 @@ from django.test.utils import override_settings
 from django.utils import timezone
 
 from bulbs.contributions.email import ContributorReport, EmailReport
-from bulbs.contributions.models import ContributorRole
+from bulbs.contributions.models import Contribution, ContributorRole
 from bulbs.utils.test import make_content, BaseAPITestCase
 
 from example.testcontent.models import TestContentObj
@@ -95,6 +95,34 @@ class EmailReportTestCase(BaseAPITestCase):
     def test_email_body(self):
         report = ContributorReport(self.tony_sarpino, month=self.next_month)
         self.assertTrue(report.get_body())
+
+    def test_contribution_total_zero(self):
+        with mock.patch("django.core.mail.EmailMultiAlternatives.send") as mock_send:
+            for rate in self.draft_writer.flat_rates.all():
+                rate.rate = 0
+                rate.save()
+            report = ContributorReport(self.tony_sarpino)
+            self.assertEqual(report.total, 0)
+            self.assertFalse(report.is_valid())
+            report.send()
+            self.assertFalse(mock_send.called)
+
+    def test_contribution_total_valid(self):
+        with mock.patch("django.core.mail.EmailMultiAlternatives.send") as mock_send:
+            report = ContributorReport(self.tony_sarpino)
+            self.assertEqual(report.total, 1500)
+            self.assertTrue(report.is_valid())
+            report.send()
+            self.assertTrue(mock_send.called)
+
+    def test_no_contributions(self):
+        with mock.patch("django.core.mail.EmailMultiAlternatives.send") as mock_send:
+            Contribution.objects.all().delete()
+            report = ContributorReport(self.tony_sarpino)
+            self.assertEqual(report.total, 0)
+            self.assertFalse(report.is_valid())
+            report.send()
+            self.assertFalse(mock_send.called)
 
     @override_settings(EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend')
     def test_email_api(self):

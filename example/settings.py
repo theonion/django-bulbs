@@ -144,6 +144,8 @@ CONTRIBUTIONS = {
     }
 }
 
+DEFAULT_CONTRIBUTOR_ROLE = 'Draft Writer'
+
 SODAHEAD_BASE_URL = 'https://onion.sodahead.com'
 SODAHEAD_TOKEN_VAULT_PATH = 'sodahead/token'
 

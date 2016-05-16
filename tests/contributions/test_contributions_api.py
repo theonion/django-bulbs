@@ -122,7 +122,7 @@ class ContributionApiTestCase(BaseAPITestCase):
         content = Content.objects.get(id=id)
         self.assertTrue(content.contributions.exists())
         jarvis_contribution = content.contributions.first()
-        self.assertEqual(jarvis_contribution.role.name, 'default')
+        self.assertEqual(jarvis_contribution.role.name, 'Draft Writer')
         self.assertEqual(jarvis_contribution.contributor, self.contributors['jarvis'])
         self.assertEqual(jarvis_contribution.content, content)
 
@@ -139,7 +139,7 @@ class ContributionApiTestCase(BaseAPITestCase):
 
         self.assertEqual(content.contributions.count(), 2)
         marvin_contribution = content.contributions.last()
-        self.assertEqual(marvin_contribution.role.name, 'default')
+        self.assertEqual(marvin_contribution.role.name, 'Draft Writer')
         self.assertEqual(marvin_contribution.contributor, self.contributors['marvin'])
         self.assertEqual(marvin_contribution.content, content)
 

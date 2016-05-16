@@ -31,19 +31,22 @@ class ContributorReport(object):
         self._start = kwargs.get("start")
         self._end = kwargs.get("end")
 
+        self._total = 0
+
     def send(self):
-        mail = EmailMultiAlternatives(
-            subject=EMAIL_SETTINGS.get("SUBJECT", DEFAULT_SUBJECT),
-            from_email=EMAIL_SETTINGS.get("FROM"),
-            bcc=EMAIL_SETTINGS.get("BCC"),
-            headers={"Reply-To": EMAIL_SETTINGS.get("REPLY_TO")}
-        )
-        mail.attach_alternative(self.get_body(), "text/html")
-        if EMAIL_SETTINGS.get("ACTIVE", False):
-            mail.to = [self.contributor.email]
-        else:
-            mail.to = EMAIL_SETTINGS.get("TO")
-        mail.send()
+        if self.is_valid():
+            mail = EmailMultiAlternatives(
+                subject=EMAIL_SETTINGS.get("SUBJECT", DEFAULT_SUBJECT),
+                from_email=EMAIL_SETTINGS.get("FROM"),
+                bcc=EMAIL_SETTINGS.get("BCC"),
+                headers={"Reply-To": EMAIL_SETTINGS.get("REPLY_TO")}
+            )
+            mail.attach_alternative(self.get_body(), "text/html")
+            if EMAIL_SETTINGS.get("ACTIVE", False):
+                mail.to = [self.contributor.email]
+            else:
+                mail.to = EMAIL_SETTINGS.get("TO")
+            mail.send()
 
     def get_body(self):
         contribution_types = {}
@@ -54,14 +57,15 @@ class ContributorReport(object):
             "contributor": self.contributor,
             "contributions": contribution_types,
             "deadline": self.deadline,
-            "total": self.get_total()
+            "total": self.total
         }
         return loader.render_to_string(TEMPLATE, context)
 
-    def get_total(self):
-        return sum(
-            [contribution.pay for contribution in self.contributions if contribution.pay]
-        )
+    def is_valid(self):
+        """returns `True` if the report should be sent."""
+        if not self.total:
+            return False
+        return True
 
     @property
     def contributions(self):
@@ -71,6 +75,14 @@ class ContributorReport(object):
                 content__published__lt=self.end
             )
         return self._contributions
+
+    @property
+    def total(self):
+        if self._total == 0 and self.contributions:
+            self._total = sum(
+                [contribution.pay for contribution in self.contributions if contribution.pay]
+            )
+        return self._total
 
     @property
     def deadline(self):
