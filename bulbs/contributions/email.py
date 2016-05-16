@@ -65,6 +65,8 @@ class ContributorReport(object):
         """returns `True` if the report should be sent."""
         if not self.total:
             return False
+        if not self.contributor.freelanceprofile.is_freelance:
+            return False
         return True
 
     @property

@@ -8,7 +8,7 @@ from django.test.utils import override_settings
 from django.utils import timezone
 
 from bulbs.contributions.email import ContributorReport, EmailReport
-from bulbs.contributions.models import Contribution, ContributorRole
+from bulbs.contributions.models import Contribution, ContributorRole, FreelanceProfile
 from bulbs.utils.test import make_content, BaseAPITestCase
 
 from example.testcontent.models import TestContentObj
@@ -37,6 +37,11 @@ class EmailReportTestCase(BaseAPITestCase):
         )
         self.buddy_sarpino = User.objects.create(
             first_name="Buddy", last_name="Sarpino", username="Buddy"
+        )
+
+        FreelanceProfile.objects.create(
+            contributor=self.tony_sarpino,
+            is_freelance=True
         )
 
         # Add Roles.
@@ -120,6 +125,25 @@ class EmailReportTestCase(BaseAPITestCase):
             Contribution.objects.all().delete()
             report = ContributorReport(self.tony_sarpino)
             self.assertEqual(report.total, 0)
+            self.assertFalse(report.is_valid())
+            report.send()
+            self.assertFalse(mock_send.called)
+
+    def test_is_freelance_is_valid(self):
+        with mock.patch("django.core.mail.EmailMultiAlternatives.send") as mock_send:
+            self.assertTrue(self.tony_sarpino.freelanceprofile.is_freelance)
+            report = ContributorReport(self.tony_sarpino)
+            self.assertTrue(report.is_valid())
+            report.send()
+            self.assertTrue(mock_send.called)
+
+    def test_is_staff_not_valid(self):
+        profile = self.tony_sarpino.freelanceprofile
+        profile.is_freelance = False
+        profile.save()
+        with mock.patch("django.core.mail.EmailMultiAlternatives.send") as mock_send:
+            self.assertFalse(self.tony_sarpino.freelanceprofile.is_freelance)
+            report = ContributorReport(self.tony_sarpino)
             self.assertFalse(report.is_valid())
             report.send()
             self.assertFalse(mock_send.called)
