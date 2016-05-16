@@ -37,27 +37,27 @@
             <img src="{% cropped_url content.detail_image.id %}" />
           {% endblock cover %}
         </figure>
+
+        <section class="op-ad-template">
+         <!-- Ads to be automatically placed throughout the article -->
+         <figure class="op-ad op-ad-default">
+           <iframe src="http://{{ absolute_uri }}{% url 'instant_article_ad' pk=content.id %}?dfp_position=first" height="250" width="300"></iframe>
+         </figure>
+         <figure class="op-ad">
+           <iframe src="http://{{ absolute_uri }}{% url 'instant_article_ad' pk=content.id %}?dfp_position=second" height="250" width="300"></iframe>
+         </figure>
+         <figure class="op-ad">
+           <iframe src="http://{{ absolute_uri }}{% url 'instant_article_ad' pk=content.id %}?dfp_position=third" height="250" width="300"></iframe>
+         </figure>
+         <figure class="op-ad">
+           <iframe src="http://{{ absolute_uri }}{% url 'instant_article_ad' pk=content.id %}?dfp_position=last" height="250" width="300"></iframe>
+         </figure>
+        </section>
       </header>
 
       {% block article_content %}
         {{ content.body|safe }}
       {% endblock article_content %}
-
-      <section class="op-ad-template">
-       <!-- Ads to be automatically placed throughout the article -->
-       <figure class="op-ad op-ad-default">
-         <iframe src="http://{{ absolute_uri }}{% url 'instant_article_ad' pk=content.id %}?dfp_position=first" height="250" width="300"></iframe>
-       </figure>
-       <figure class="op-ad">
-         <iframe src="http://{{ absolute_uri }}{% url 'instant_article_ad' pk=content.id %}?dfp_position=second" height="250" width="300"></iframe>
-       </figure>
-       <figure class="op-ad">
-         <iframe src="http://{{ absolute_uri }}{% url 'instant_article_ad' pk=content.id %}?dfp_position=third" height="250" width="300"></iframe>
-       </figure>
-       <figure class="op-ad">
-         <iframe src="http://{{ absolute_uri }}{% url 'instant_article_ad' pk=content.id %}?dfp_position=last" height="250" width="300"></iframe>
-       </figure>
-      </section>
 
       <figure class="op-tracker">
          <iframe src="http://{{ absolute_uri }}{% url 'instant_article_analytics' pk=content.id %}?platform=ia&path={{ content.get_absolute_url }}"></iframe>

@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 2.0.2
+
+- Move instant article ads to header in base_instant_article.html
+
 ## Version 2.0.0
 
 - Merged in all 0.8.x changes.
