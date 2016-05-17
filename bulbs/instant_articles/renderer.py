@@ -50,7 +50,10 @@ class InstantArticleRenderer:
             raise Exception("Key not implemented")
 
     def render_betty(self, body):
-        return loader.render_to_string("instant_article/_ia_betty_embed.html", body)
+        return loader.render_to_string(
+            "instant_article/embeds/_ia_betty_embed.html",
+            body
+        )
 
     def render_facebook(self, body):
         pass
@@ -71,4 +74,7 @@ class InstantArticleRenderer:
         pass
 
     def render_youtube(self, body):
-        pass
+        return loader.render_to_string(
+            "instant_article/embeds/_ia_youtube_embed.html",
+            body
+        )

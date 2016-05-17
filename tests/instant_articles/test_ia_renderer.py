@@ -11,7 +11,10 @@ class InstantArticleRendererTests(BaseIndexableTestCase):
         block = {"betty": {"image_id": 2349}}
         output = self.renderer.render_betty(block['betty'])
 
-        self.assertEqual(output.replace('\n', ''), "<figure><img src=\"images/2349/16x9/1920.jpg\" /></figure>")
+        self.assertEqual(
+            output.replace('\n', ''),
+            "<figure><img src=\"images/2349/16x9/1920.jpg\" /></figure>"
+        )
 
     # def test_render_facebook(self):
     #     pass
@@ -36,6 +39,12 @@ class InstantArticleRendererTests(BaseIndexableTestCase):
     #
     # def test_render_vimeo(self):
     #     pass
-    #
-    # def test_render_youtube(self):
-    #     pass
+    
+    def test_render_youtube(self):
+        block = {"youtube": {"video_id": "2vnd49"}}
+        output = self.renderer.render_youtube(block["youtube"])
+
+        self.assertEqual(
+            output.replace('\n', ''),
+            '<figure class="op-social"><iframe width="560" height="315" src="https://www.youtube.com/embed/2vnd49" frameborder="0" allowfullscreen></iframe></figure>'
+        )
