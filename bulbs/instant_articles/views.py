@@ -57,6 +57,8 @@ class InstantArticleContentView(BaseContentDetailView):
     def get_context_data(self, *args, **kwargs):
         context = super(InstantArticleContentView, self).get_context_data(*args, **kwargs)
         targeting = self.object.get_targeting()
+        body = Parser(self.object.body)
+        context['body'] = create_content(body, IARenderer)
         context["targeting"] = targeting
         context["absolute_uri"] = self.request.META.get("HTTP_HOST", None)
         return context
