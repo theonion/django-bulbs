@@ -57,6 +57,7 @@ class ContributorReport(object):
             "contributor": self.contributor,
             "contributions": contribution_types,
             "deadline": self.deadline,
+            "line_items": self.line_items,
             "total": self.total
         }
         return loader.render_to_string(TEMPLATE, context)
@@ -71,12 +72,22 @@ class ContributorReport(object):
 
     @property
     def contributions(self):
+        """Apply a datetime filter against the contributor's contribution queryset."""
         if self._contributions is None:
             self._contributions = self.contributor.contributions.filter(
                 content__published__gte=self.start,
                 content__published__lt=self.end
             )
         return self._contributions
+
+    @property
+    def line_items(self):
+        """Apply a datetime filter against the contributors's line item queryset."""
+        if self._line_items is None:
+            self._line_items = self.contributor.line_items.filter(
+                payment_date__range=(self.start, self.end)
+            )
+        return self._line_items
 
     @property
     def total(self):
