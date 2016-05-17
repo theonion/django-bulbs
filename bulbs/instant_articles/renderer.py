@@ -39,20 +39,20 @@ class InstantArticleRenderer():
     def render_facebook(self, body):
         pass
 
-    def render_twitter(self, body):
-        pass
-
     def render_instagram(self, body):
         pass
 
     def render_onion_video(self, body):
         pass
 
+    def render_soundcloud(self, body):
+        pass
+
+    def render_twitter(self, body):
+        pass
+
     def render_vimeo(self, body):
         pass
 
     def render_youtube(self, body):
-        pass
-
-    def render_soundcloud(self, body):
         pass
