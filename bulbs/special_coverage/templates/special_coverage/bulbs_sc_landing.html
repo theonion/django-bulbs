@@ -16,15 +16,101 @@
         At this point, we are pushing this responsibility downstream.
       {% endcomment %}
       <campaign-display
-        data-track-category="Special Coverage Landing"
+        class="sc-hero-campaign"
         data-track-action="Sponsor Logo"
+        data-track-category="Special Coverage Landing"
         placement="detail"
         preamble-text="Presented by"
-        src="{% content_tunic_campaign_url special_coverage.tunic_campaign_id %}">
+        src="{% content_tunic_campaign_url special_coverage.tunic_campaign_id %}"
+        logo-only
+      >
       </campaign-display>
     {% endif %}
   </div>
 </div>
+
+{% if current_video %}
+  <div class='sc-video-player'>
+    <bulbs-video
+      src='{{ VIDEOHUB_BASE_URL }}/video/{{current_video}}.json'
+      autoplay
+      no-endcard
+    >
+    </bulbs-video>
+    <div class='sc-video-meta'>
+      {% if special_coverage.tunic_campaign_id %}
+        {% comment %}
+          TODO bulbs-elements dependency should be explicitly set by this repo.
+          At this point, we are pushing this responsibility downstream.
+        {% endcomment %}
+        <campaign-display
+          class="sc-player-campaign"
+          data-track-action="Sponsor Logo"
+          data-track-category="Special Coverage Landing"
+          placement="detail"
+          preamble-text="Presented by"
+          src="{% content_tunic_campaign_url special_coverage.tunic_campaign_id %}"
+          name-only
+        >
+        </campaign-display>
+      {% endif %}
+      <bulbs-video-meta
+        src='{{ VIDEOHUB_BASE_URL }}/video/{{current_video}}.json'
+        twitter-handle='{{ twitter_handle }}'
+        email-share-message='{{ share_message }}'
+      >
+      </bulbs-video-meta>
+    </div>
+  </div>
+{% endif %}
+
+{% if special_coverage.videos.1 %}
+  <div class='sc-divider'>
+    <hr>
+  </div>
+
+  <div class='sc-video-carousel'>
+    <div class='sc-video-carousel-header'>
+      <span class='sc-video-carousel-header-title'>
+        UP NEXT
+      </span>
+      {% if special_coverage.tunic_campaign_id %}
+        {% comment %}
+          TODO bulbs-elements dependency should be explicitly set by this repo.
+          At this point, we are pushing this responsibility downstream.
+        {% endcomment %}
+        <campaign-display
+          class="sc-carousel-campaign"
+          data-track-action="Sponsor Logo"
+          data-track-category="Special Coverage Landing"
+          placement="detail"
+          preamble-text="Presented by"
+          src="{% content_tunic_campaign_url special_coverage.tunic_campaign_id %}"
+          name-only
+        >
+        </campaign-display>
+      {% endif %}
+    </div>
+
+    <div class='sc-video-grid'>
+      {% for video_id in special_coverage.videos %}
+        <bulbs-video-carousel-item>
+          <a
+            href='{% url 'special-video' slug=special_coverage.slug video_id=video_id %}'
+          />
+            <bulbs-video-summary
+              src='{{ VIDEOHUB_BASE_URL }}/video/{{video_id}}.json'
+              {% if video_id == current_video %}
+                now-playing
+              {% endif %}
+            >
+            </bulbs-video-summary>
+          </a>
+        </bulbs-video-carousel-item>
+      {% endfor %}
+    </div>
+  </div>
+{% endif %}
 
 <ul class="sc-grid two-up">
   {% for content in content_list  %}
