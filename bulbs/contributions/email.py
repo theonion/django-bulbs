@@ -93,8 +93,11 @@ class ContributorReport(object):
     @property
     def total(self):
         if self._total == 0 and self.contributions:
-            self._total = sum(
+            self._total += sum(
                 [contribution.pay for contribution in self.contributions if contribution.pay]
+            )
+            self._total += sum(
+                [line_item.amount for line_item in self.line_items if line_item.amount]
             )
         return self._total
 

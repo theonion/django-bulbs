@@ -8,7 +8,7 @@ from django.test.utils import override_settings
 from django.utils import timezone
 
 from bulbs.contributions.email import ContributorReport, EmailReport
-from bulbs.contributions.models import Contribution, ContributorRole, FreelanceProfile
+from bulbs.contributions.models import Contribution, ContributorRole, FreelanceProfile, LineItem
 from bulbs.utils.test import make_content, BaseAPITestCase
 
 from example.testcontent.models import TestContentObj
@@ -113,9 +113,11 @@ class EmailReportTestCase(BaseAPITestCase):
             self.assertFalse(mock_send.called)
 
     def test_contribution_total_valid(self):
+        LineItem.objects.create(contributor=self.tony_sarpino, amount=25)
+        LineItem.objects.create(contributor=self.tony_sarpino, amount=25, payment_date=self.now)
         with mock.patch("django.core.mail.EmailMultiAlternatives.send") as mock_send:
             report = ContributorReport(self.tony_sarpino)
-            self.assertEqual(report.total, 1500)
+            self.assertEqual(report.total, 1525)
             self.assertTrue(report.is_valid())
             report.send()
             self.assertTrue(mock_send.called)
