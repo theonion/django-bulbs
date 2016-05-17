@@ -30,6 +30,11 @@ class SpecialCoverageView(BaseContentDetailView):
         context["content_list"] = self.special_coverage.get_content()
         context["special_coverage"] = self.special_coverage
         context["targeting"] = {}
+        try:
+            context["current_video"] = self.special_coverage.videos[0]
+        except IndexError:
+            context["current_video"] = None
+
         if self.special_coverage:
             context["targeting"]["dfp_specialcoverage"] = self.special_coverage.slug
             if self.special_coverage.tunic_campaign_id:
@@ -37,4 +42,18 @@ class SpecialCoverageView(BaseContentDetailView):
         return context
 
 
+class SpecialCoverageVideoView(SpecialCoverageView):
+    def get_context_data(self, *args, **kwargs):
+        context = super(SpecialCoverageVideoView, self).get_context_data()
+
+        video_id = int(self.kwargs.get('video_id'))
+        if video_id not in self.special_coverage.videos:
+            raise Http404('Video with id={} not in SpecialCoverage'.format(video_id))
+
+        context['current_video'] = video_id
+
+        return context
+
+
 special_coverage = cache_control(max_age=600)(SpecialCoverageView.as_view())
+special_coverage_video = cache_control(max_age=600)(SpecialCoverageVideoView.as_view())
