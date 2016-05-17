@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 from rest_framework import serializers
 
@@ -21,7 +22,7 @@ class ContributionCSVSerializer(serializers.ModelSerializer):
             'last_name': obj.contributor.last_name,
             'title': obj.content.title,
             'feature_type': obj.content.feature_type,
-            'publish_date': obj.content.published,
+            'publish_date': timezone.localtime(obj.content.published),
             'rate': obj.get_pay,
             'payroll_name': full_name
         }
