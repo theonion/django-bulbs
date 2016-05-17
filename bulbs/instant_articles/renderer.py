@@ -1,27 +1,14 @@
-class Embed:
-
-    def __init__(self):
-        pass
-
-    def generate_html(self):
-        return html
-
-
-class OnionVideoEmbed():
-
-    def __init__(self, body):
-        pass
-
-
 class InstantArticleRenderer():
 
     def __init__(self, intermediate):
-        pass
+        self.generate_body(intermediate)
 
     def generate_body(self, intermediate):
         body = ""
         for key, body in intermediate.iteritems():
             body.append(self.render_item(key, body))
+
+        return body
 
     def render_item(self, key, body):
         if key == "text":
