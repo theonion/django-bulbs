@@ -17,18 +17,19 @@ class InstantArticleRenderer():
             return self.render_betty(body)
         elif key == "facebook":
             return self.render_facebook(body)
-        elif key == "twitter":
-            return self.render_twitter(body)
         elif key == "instagram":
             return self.render_instagram(body)
         elif key == "onion_video":
             return self.render_onion_video(body)
+        elif key == "soundcloud":
+            return self.render_soundcloud(body)
+        elif key == "twitter":
+            return self.render_twitter(body)
         elif key == "vimeo":
             return self.render_vimeo(body)
         elif key == "youtube":
             return self.render_youtube(body)
-        elif key == "soundcloud":
-            return self.render_soundcloud(body)
+
         else:
             raise Exception("Key not implemented")
 

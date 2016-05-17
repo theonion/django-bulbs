@@ -1,14 +1,17 @@
-
-
+from bulbs.instant_articles.renderer import InstantArticleRenderer
 from bulbs.utils.test import BaseIndexableTestCase
+
 
 class InstantArticleRendererTests(BaseIndexableTestCase):
     def setUp(self):
         super(InstantArticleRendererTests, self).setUp()
+        self.renderer = InstantArticleRenderer([])
 
     def test_render_betty(self):
         block = {"betty": {"image_id": 2349}}
-        pass
+        output = self.renderer.render_betty(block)
+
+        import pdb; pdb.set_trace()
 
     def test_render_facebook(self):
         pass
