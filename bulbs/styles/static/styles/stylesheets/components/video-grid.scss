@@ -4,12 +4,12 @@
 // ************************* //
 ///////////////////////////////
 
-@import '../mixins/_flexbox';
-@import '../mixins/_flex-grid';
-@import '../mixins/_aspect-ratio';
-@import '../mixins/_ease';
-@import '../variables/_breakpoints';
-@import '../extends/_vertical-center-flex';
+@import '../mixins/flexbox';
+@import '../mixins/flex-grid';
+@import '../mixins/aspect-ratio';
+@import '../mixins/ease';
+@import '../variables/breakpoints';
+@import '../extends/vertical-center-flex';
 
 .video-grid {
   h2 {
