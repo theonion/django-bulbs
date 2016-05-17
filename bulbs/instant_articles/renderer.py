@@ -1,3 +1,16 @@
+from django.template import loader
+
+
+# class BaseRenderer:
+#     ... other stuff goes here ...
+#
+#     def render_instagram(self, body):
+#         return loader.render_to_string(self.INSTAGRAM_TEMPLATE, body)
+#
+#
+# class InstantArticleRenderer(BaseRenderer):
+#    INSTAGRAM_TEMPLATE = "embeds/_ia_betty_embed.html"
+
 class InstantArticleRenderer():
 
     def __init__(self, intermediate):
@@ -5,7 +18,7 @@ class InstantArticleRenderer():
 
     def generate_body(self, intermediate):
         body = ""
-        for key, body in intermediate.iteritems():
+        for key, body in intermediate:
             body.append(self.render_item(key, body))
 
         return body
@@ -29,12 +42,11 @@ class InstantArticleRenderer():
             return self.render_vimeo(body)
         elif key == "youtube":
             return self.render_youtube(body)
-
         else:
             raise Exception("Key not implemented")
 
     def render_betty(self, body):
-        pass
+        return loader.render_to_string("embeds/_ia_betty_embed.html", body)
 
     def render_facebook(self, body):
         pass

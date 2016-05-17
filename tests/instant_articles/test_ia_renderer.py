@@ -11,25 +11,31 @@ class InstantArticleRendererTests(BaseIndexableTestCase):
         block = {"betty": {"image_id": 2349}}
         output = self.renderer.render_betty(block)
 
-        import pdb; pdb.set_trace()
-
+        self.assertTrue(output)
+        
     def test_render_facebook(self):
+        pass
+
+    def test_render_instagram(self):
+        block = {"instagram": {"iframe": """
+            <iframe>GET IFRAMEEXAMPLE</iframe>
+        """}}
+
+        output = self.renderer.render_instagram(block)
+        self.assertTrue(output)
         pass
 
     def test_render_twitter(self):
         pass
 
-    def test_render_instagram(self):
+    def test_render_onion_video(self):
         pass
 
-    def test_render_onion_video(self):
+    def test_render_soundcloud(self):
         pass
 
     def test_render_vimeo(self):
         pass
 
     def test_render_youtube(self):
-        pass
-
-    def test_render_soundcloud(self):
         pass
