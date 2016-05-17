@@ -10,15 +10,19 @@ from django.template import loader
 #
 # class InstantArticleRenderer(BaseRenderer):
 #    INSTAGRAM_TEMPLATE = "embeds/_ia_betty_embed.html"
+#   ... other template names go here ...
 
-class InstantArticleRenderer():
+
+class InstantArticleRenderer:
 
     def __init__(self, intermediate):
         self.generate_body(intermediate)
 
     def generate_body(self, intermediate):
         body = ""
-        for key, body in intermediate:
+        for item in intermediate:
+            key = item.keys()[0]
+            body = item[key]
             body.append(self.render_item(key, body))
 
         return body
@@ -46,7 +50,7 @@ class InstantArticleRenderer():
             raise Exception("Key not implemented")
 
     def render_betty(self, body):
-        return loader.render_to_string("embeds/_ia_betty_embed.html", body)
+        return loader.render_to_string("instant_article/_ia_betty_embed.html", body)
 
     def render_facebook(self, body):
         pass

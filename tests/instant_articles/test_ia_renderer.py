@@ -9,33 +9,33 @@ class InstantArticleRendererTests(BaseIndexableTestCase):
 
     def test_render_betty(self):
         block = {"betty": {"image_id": 2349}}
-        output = self.renderer.render_betty(block)
+        output = self.renderer.render_betty(block['betty'])
 
-        self.assertTrue(output)
-        
-    def test_render_facebook(self):
-        pass
+        self.assertEqual(output.replace('\n', ''), "<figure><img src=\"images/2349/16x9/1920.jpg\" /></figure>")
 
-    def test_render_instagram(self):
-        block = {"instagram": {"iframe": """
-            <iframe>GET IFRAMEEXAMPLE</iframe>
-        """}}
-
-        output = self.renderer.render_instagram(block)
-        self.assertTrue(output)
-        pass
-
-    def test_render_twitter(self):
-        pass
-
-    def test_render_onion_video(self):
-        pass
-
-    def test_render_soundcloud(self):
-        pass
-
-    def test_render_vimeo(self):
-        pass
-
-    def test_render_youtube(self):
-        pass
+    # def test_render_facebook(self):
+    #     pass
+    #
+    # def test_render_instagram(self):
+    #     block = {"instagram": {"iframe": """
+    #         <iframe>GET IFRAMEEXAMPLE</iframe>
+    #     """}}
+    #
+    #     output = self.renderer.render_instagram(block)
+    #     self.assertTrue(output)
+    #     pass
+    #
+    # def test_render_twitter(self):
+    #     pass
+    #
+    # def test_render_onion_video(self):
+    #     pass
+    #
+    # def test_render_soundcloud(self):
+    #     pass
+    #
+    # def test_render_vimeo(self):
+    #     pass
+    #
+    # def test_render_youtube(self):
+    #     pass
