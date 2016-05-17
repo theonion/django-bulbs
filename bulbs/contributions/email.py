@@ -27,6 +27,7 @@ class ContributorReport(object):
         self.year = kwargs.get("year", self.now.year)
 
         self._contributions = None
+        self._line_items = None
         self._deadline = kwargs.get("deadline")
         self._start = kwargs.get("start")
         self._end = kwargs.get("end")

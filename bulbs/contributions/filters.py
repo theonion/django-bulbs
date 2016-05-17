@@ -44,9 +44,13 @@ class ESPublishedFilterBackend(filters.BaseFilterBackend):
 
     def get_end(self, request):
         end_value = self.get_date_datetime_param(request, "end")
-        end_value += timezone.timedelta(days=1)
-        end_value -= timezone.timedelta(seconds=1)
-        return timezone.make_aware(end_value).astimezone(timezone.pytz.utc)
+        if end_value:
+            end_value += timezone.timedelta(days=1)
+            end_value -= timezone.timedelta(seconds=1)
+            try:
+                return timezone.make_aware(end_value).astimezone(timezone.pytz.utc)
+            except:
+                import pdb; pdb.set_trace()
 
     def get_date_datetime_param(self, request, param):
         """Check the request for the provided query parameter and returns a rounded value.
@@ -64,7 +68,10 @@ class ESPublishedFilterBackend(filters.BaseFilterBackend):
                 )
             datetime_match = dateparse.datetime_re.match(param_value)
             if datetime_match:
-                return dateparse.parse_datetime(datetime_match.group(0)).date()
+                return timezone.datetime.combine(
+                    dateparse.parse_datetime(datetime_match.group(0)).date(),
+                    timezone.datetime.min.time()
+                )
         return None
 
 

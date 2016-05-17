@@ -1180,12 +1180,16 @@ class ReportingApiTestCase(BaseAPITestCase):
 
         ReportContent.search_objects.refresh()
 
-        end_date = Content.objects.order_by("-published").first().published
+        end_date = Content.objects.order_by(
+            "-published"
+        ).first().published.astimezone(
+            timezone.get_current_timezone()
+        )
         resp = self.client.get(endpoint, {"end": end_date})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data["count"], 6)
 
-        resp = self.client.get(endpoint, {"end": end_date - timezone.timedelta(seconds=1)})
+        resp = self.client.get(endpoint, {"end": end_date - timezone.timedelta(days=1)})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data["count"], 4)
 
@@ -1194,17 +1198,21 @@ class ReportingApiTestCase(BaseAPITestCase):
         self.assertEqual(resp.data["count"], 6)
 
         resp = self.client.get(
-            endpoint, {"end": str((end_date - timezone.timedelta(seconds=1)).date())}
+            endpoint, {"end": str((end_date - timezone.timedelta(days=1)).date())}
         )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data["count"], 4)
 
-        start_date = Content.objects.order_by("-published").first().published
+        start_date = Content.objects.order_by(
+            "-published"
+        ).first().published.astimezone(
+            timezone.get_current_timezone()
+        )
         resp = self.client.get(endpoint, {"start": start_date})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data["count"], 2)
 
-        resp = self.client.get(endpoint, {"start": start_date - timezone.timedelta(seconds=1)})
+        resp = self.client.get(endpoint, {"start": start_date - timezone.timedelta(days=1)})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data["count"], 3)
 
@@ -1213,7 +1221,7 @@ class ReportingApiTestCase(BaseAPITestCase):
         self.assertEqual(resp.data["count"], 2)
 
         resp = self.client.get(
-            endpoint, {"start": str((start_date - timezone.timedelta(seconds=1)).date())}
+            endpoint, {"start": str((start_date - timezone.timedelta(days=1)).date())}
         )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data["count"], 3)
@@ -1310,8 +1318,12 @@ class ReportingApiTestCase(BaseAPITestCase):
         self.assertEqual(len(resp.data['results']), 1)
 
         latest_content = Content.objects.all().order_by("-published").first()
-        end_date = (latest_content.published - timezone.timedelta(seconds=1)).date()
-        resp = self.client.get(endpoint, {"end": end_date})
+        end_date = (
+            self.c2.published.astimezone(
+                timezone.get_current_timezone()
+            ) - timezone.timedelta(seconds=1)
+        ).date()
+        resp = self.client.get(endpoint, {"end": str(end_date)})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data["count"], 16)
 
@@ -1320,19 +1332,26 @@ class ReportingApiTestCase(BaseAPITestCase):
         self.assertEqual(resp.data["count"], 21)
 
         latest_content = Content.objects.all().order_by("-published").first()
-        start_date = latest_content.published + timezone.timedelta(seconds=1)
+        start_date = (
+            latest_content.published.astimezone(
+                timezone.get_current_timezone()
+            ) + timezone.timedelta(seconds=1)
+        )
         resp = self.client.get(endpoint, {"start": start_date})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data["count"], 5)
 
-        # Second should switch the date.
         latest_content = Content.objects.all().order_by("-published").first()
-        start_date = (latest_content.published - timezone.timedelta(seconds=1)).date()
+        start_date = (
+            latest_content.published.astimezone(timezone.get_current_timezone()) -
+            timezone.timedelta(days=1)
+        ).date()
         resp = self.client.get(endpoint, {"start": start_date})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data["count"], 9)
 
-        resp = self.client.get(endpoint, {"start": str(latest_content.published)})
+        start_date = latest_content.published.astimezone(timezone.get_current_timezone())
+        resp = self.client.get(endpoint, {"start": str(start_date)})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data["count"], 5)
 
