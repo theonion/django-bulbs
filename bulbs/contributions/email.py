@@ -2,8 +2,11 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.mail import EmailMultiAlternatives
+from django.shortcuts import get_object_or_404
 from django.template import loader
 from django.utils import timezone
+
+from bulbs.content.models import Content
 
 
 User = get_user_model()
@@ -194,3 +197,22 @@ class EmailReport(object):
                 next_month = 12
             self._end = timezone.datetime(day=1, month=next_month, year=year)
         return self._end
+
+
+
+def send_byline_email(to, content_id, previous_byline, new_byline):
+    content = get_object_or_404(Content, id=content_id)
+    removed_bylines = [author for author in previous_byline if author not in new_byline]
+    context = {
+        "content": content,
+        "bylines": removed_bylines,
+        "contributions": content.contributions.all()
+    }
+    body = loader.render_to_string("reporting/__byline_report.html", context)
+    mail = EmailMultiAlternatives(
+        subject="Byline modified for article, {}".format(content.title),
+        from_email=EMAIL_SETTINGS.get("FROM"),
+    )
+    mail.attach_alternative(body)
+    mail.to = to
+    mail.send()
