@@ -57,9 +57,10 @@ def parse_text(tag):
 
 
 def parse_twitter(tag):
-    # Just pass blockquote tag verbatim
-    # return {'twitter': {'blockquote': blockquote}}
-    pass
+    if tag.name == 'div' and tag.attrs.get('data-type') == 'embed':
+        blockquote = tag.find('blockquote', class_='twitter-tweet')
+        if blockquote:
+            return {'twitter': {'blockquote': str(blockquote)}}
 
 
 def parse_youtube(tag):

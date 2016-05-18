@@ -13,6 +13,8 @@ def read_data(*parts):
 
 class InstantArticleTransformTest(TestCase):
 
+    maxDiff = None
+
     def check_embed(self, name):
         actual = transform(read_data('input/{}.html'.format(name)),
                            InstantArticleRenderer())
@@ -30,6 +32,10 @@ class InstantArticleTransformTest(TestCase):
     def test_instagram(self):
         self.check_embed('instagram-blockquote')
         self.check_embed('instagram-iframe')
+
+    def test_twitter(self):
+        self.check_embed('twitter-blockquote')
+        self.check_embed('twitter-widget')
 
     def test_youtube(self):
         self.check_embed('youtube-iframe')

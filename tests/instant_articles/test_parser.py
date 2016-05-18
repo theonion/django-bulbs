@@ -5,16 +5,21 @@ from bs4 import BeautifulSoup
 
 from bulbs.instant_articles.parser import (parse_betty,
                                            parse_body,
-                                           # parse_tag,
                                            parse_instagram,
+                                           # parse_tag,
+                                           parse_twitter,
                                            parse_youtube,
                                            )
+
+
+def parse_raw_tag(html):
+    return [c for c in BeautifulSoup(html.strip()).children][0]
 
 
 def read_data(name):
     here = os.path.dirname(os.path.realpath(__file__))
     html = open(os.path.join(here, 'test_data', 'input', name + '.html')).read()
-    return [c for c in BeautifulSoup(html.strip()).children][0]
+    return parse_raw_tag(html)
 
 
 class ParseBodyTest(unittest.TestCase):
@@ -51,6 +56,19 @@ class ParseInstagramTest(unittest.TestCase):
     def test_blockquote(self):
         self.assertEqual({'instagram': {'instagram_id': '3jeiuICtD7'}},
                          parse_instagram(read_data('instagram-blockquote')))
+
+
+class ParseTwitterTest(unittest.TestCase):
+
+    def test_blockquote(self):
+        tag = parse_raw_tag(parse_twitter(read_data('twitter-blockquote'))['twitter']['blockquote'])
+        self.assertEqual('blockquote', tag.name)
+        self.assertEqual(['twitter-tweet'], tag['class'])
+
+    def test_widget(self):
+        tag = parse_raw_tag(parse_twitter(read_data('twitter-widget'))['twitter']['blockquote'])
+        self.assertEqual('blockquote', tag.name)
+        self.assertEqual(['twitter-tweet'], tag['class'])
 
 
 class ParseYoutubeTest(unittest.TestCase):
