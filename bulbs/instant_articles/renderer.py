@@ -1,21 +1,9 @@
 from django.template import loader
 
 
-# class BaseRenderer:
-#     ... other stuff goes here ...
-#
-#     def render_instagram(self, body):
-#         return loader.render_to_string(self.INSTAGRAM_TEMPLATE, body)
-#
-#
-# class InstantArticleRenderer(BaseRenderer):
-#    INSTAGRAM_TEMPLATE = "embeds/_ia_betty_embed.html"
-#   ... other template names go here ...
-
-
+class BaseRenderer:
 
     def __init__(self, intermediate):
-
         body = ""
         for item in intermediate:
             key = item.keys()[0]
@@ -48,6 +36,7 @@ from django.template import loader
 
     def render_betty(self, body):
         return loader.render_to_string(
+            self.BETTY_TEMPLATE,
             body
         )
 
@@ -56,7 +45,7 @@ from django.template import loader
 
     def render_instagram(self, body):
         return loader.render_to_string(
-            "instant_article/embeds/_ia_instagram_embed.html",
+            self.INSTAGRAM_TEMPLATE,
             body
         )
 
@@ -74,6 +63,13 @@ from django.template import loader
 
     def render_youtube(self, body):
         return loader.render_to_string(
-            "instant_article/embeds/_ia_youtube_embed.html",
+            self.YOUTUBE_TEMPLATE,
             body
         )
+
+
+class InstantArticleRenderer(BaseRenderer):
+
+    BETTY_TEMPLATE = "instant_article/embeds/_ia_betty_embed.html"
+    INSTAGRAM_TEMPLATE = "instant_article/embeds/_ia_instagram_embed.html"
+    YOUTUBE_TEMPLATE = "instant_article/embeds/_ia_youtube_embed.html"
