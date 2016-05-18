@@ -11,13 +11,17 @@ def read_data(*parts):
     return open(os.path.join(here, 'test_data', *parts)).read()
 
 
-@override_settings(BETTY_IMAGE_URL='http://images.onionstatic.com/starwipe')
 class InstantArticleTransformTest(TestCase):
 
-    def test_betty(self):
-        actual = transform(read_data('input/betty.html'), InstantArticleRenderer())
+    def check_embed(self, name):
+        actual = transform(read_data('input/{}.html'.format(name)),
+                           InstantArticleRenderer())
         actual = actual.replace('\n', '')
 
-        expected = read_data('output/betty.html').strip()
+        expected = read_data('output/{}.html'.format(name)).strip()
         self.assertEqual(expected.strip(),
                          actual.strip())
+
+    @override_settings(BETTY_IMAGE_URL='http://images.onionstatic.com/starwipe')
+    def test_betty(self):
+        self.check_embed('betty')

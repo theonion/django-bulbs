@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 from bs4 import BeautifulSoup
 
 
@@ -14,7 +12,9 @@ def parse_betty(tag):
         'image' in tag.get('class', {}) and
             tag.attrs['data-type'] == 'image' and
             tag.has_attr('data-image-id')):
-        return {'betty': {'image_id': tag.attrs['data-image-id']}}
+        caption = tag.find('span', class_='caption')
+        return {'betty': {'image_id': tag.attrs['data-image-id'],
+                          'caption': caption.text if caption else ''}}
 
 
 def parse_facebook(tag):
@@ -71,7 +71,6 @@ def parse_body(html):
 
     soup = BeautifulSoup(html)
     for tag in soup.recursiveChildGenerator():
-        print(tag)
         matched = parse_tag(tag)
         if matched:
             components.append(matched)

@@ -30,16 +30,29 @@ class ParseBettyTest(unittest.TestCase):
 
     def test_match(self):
         self.assertEqual(
-            {'betty': {'image_id': '29938'}},
+            {'betty': {'image_id': '29938',
+                       'caption': u'Image by Batman©'}},
             parse_betty(make_tag("""
-                <div
-                    class="image"
-                    data-type="image"
-                    data-image-id="29938">
+                <div class="image"
+                     data-type="image"
+                     data-image-id="29938">
                     <div></div>
+                    <span class="caption">Image by Batman©</span>
                     <noscript>
                         <img src="http://i.onionstatic.com/clickhole/2993/8/16x9/600.jpg">
                     </noscript>
+                </div>
+            """)))
+
+    def test_missing_caption(self):
+        self.assertEqual(
+            {'betty': {'image_id': '29938',
+                       'caption': u''}},
+            parse_betty(make_tag("""
+                <div class="image"
+                     data-type="image"
+                     data-image-id="29938">
+                    <div></div>
                 </div>
             """)))
 
