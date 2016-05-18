@@ -15,77 +15,29 @@ class BaseRenderer:
         if key == "text":
             return body
         elif key == "betty":
-            return self.render_betty(body)
+            return self.render(self.BETTY_TEMPLATE, body)
         elif key == "facebook":
-            return self.render_facebook(body)
+            return self.render(self.FACEBOOK_TEMPLATE, body)
         elif key == "imgur":
-            return self.render_imgur(body)
+            return self.render(self.IMGUR_TEMPLATE, body)
         elif key == "instagram":
-            return self.render_instagram(body)
+            return self.render(self.INSTAGRAM_TEMPLATE, body)
         elif key == "onion_video":
-            return self.render_onion_video(body)
+            return self.render(self.ONION_VIDEO_TEMPLATE, body)
         elif key == "soundcloud":
-            return self.render_soundcloud(body)
+            return self.render(self.SOUNDCLOUD_TEMPLATE, body)
         elif key == "twitter":
-            return self.render_twitter(body)
+            return self.render(self.TWITTER_TEMPLATE, body)
         elif key == "vimeo":
-            return self.render_vimeo(body)
+            return self.render(self.VIMEO_TEMPLATE, body)
         elif key == "youtube":
-            return self.render_youtube(body)
+            return self.render(self.YOUTUBE_TEMPLATE, body)
         else:
             raise Exception("Key not implemented")
 
-    def render_betty(self, body):
+    def render(self, template, body):
         return loader.render_to_string(
-            self.BETTY_TEMPLATE,
-            body
-        )
-
-    def render_facebook(self, body):
-        return loader.render_to_string(
-            self.FACEBOOK_TEMPLATE,
-            body
-        )
-
-    def render_imgur(self, body):
-        return loader.render_to_string(
-            self.IMGUR_TEMPLATE,
-            body
-        )
-
-    def render_instagram(self, body):
-        return loader.render_to_string(
-            self.INSTAGRAM_TEMPLATE,
-            body
-        )
-
-    def render_onion_video(self, body):
-        return loader.render_to_string(
-            self.ONION_VIDEO_TEMPLATE,
-            body
-        )
-
-    def render_soundcloud(self, body):
-        return loader.render_to_string(
-            self.SOUNDCLOUD_TEMPLATE,
-            body
-        )
-
-    def render_twitter(self, body):
-        return loader.render_to_string(
-            self.TWITTER_TEMPLATE,
-            body
-        )
-
-    def render_vimeo(self, body):
-        return loader.render_to_string(
-            self.VIMEO_TEMPLATE,
-            body
-        )
-
-    def render_youtube(self, body):
-        return loader.render_to_string(
-            self.YOUTUBE_TEMPLATE,
+            template,
             body
         )
 
