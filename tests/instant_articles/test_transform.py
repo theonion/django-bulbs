@@ -27,6 +27,10 @@ class InstantArticleTransformTest(TestCase):
         self.check_embed('betty-caption')
         self.check_embed('betty-no-caption')
 
+    def test_instagram(self):
+        self.check_embed('instagram-blockquote')
+        self.check_embed('instagram-iframe')
+
     def test_youtube(self):
         self.check_embed('youtube-iframe')
         self.check_embed('youtube-no-iframe')
