@@ -13,12 +13,9 @@ from django.template import loader
 #   ... other template names go here ...
 
 
-class InstantArticleRenderer:
 
     def __init__(self, intermediate):
-        self.generate_body(intermediate)
 
-    def generate_body(self, intermediate):
         body = ""
         for item in intermediate:
             key = item.keys()[0]
@@ -51,7 +48,6 @@ class InstantArticleRenderer:
 
     def render_betty(self, body):
         return loader.render_to_string(
-            "instant_article/embeds/_ia_betty_embed.html",
             body
         )
 
