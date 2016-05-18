@@ -8,7 +8,7 @@ from bulbs.utils.test import BaseIndexableTestCase
 class InstantArticleRendererTests(BaseIndexableTestCase):
     def setUp(self):
         super(InstantArticleRendererTests, self).setUp()
-        self.renderer = InstantArticleRenderer([])
+        self.renderer = InstantArticleRenderer()
 
     def test_render_betty(self):
         block = {"betty": {"image_id": 2349}}
@@ -16,7 +16,7 @@ class InstantArticleRendererTests(BaseIndexableTestCase):
 
         self.assertEqual(
             output.replace('\n', ''),
-            "<figure><img src=\"//images.onionstatic.com/onion/images/2349/16x9/1920.jpg\" /></figure>"
+            "<figure><img src=\"//images.onionstatic.com/onion/2349/16x9/1920.jpg\" /></figure>"
         )
 
     # def test_render_facebook(self):
