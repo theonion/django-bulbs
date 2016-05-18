@@ -53,6 +53,16 @@ class InstantArticleRendererTests(BaseIndexableTestCase):
             '<figure><iframe class="instagram-media instagram-media-rendered" id="instagram-embed-0" src="https://www.instagram.com/p/3ewOSHitL2/embed/captioned/?v=7" allowtransparency="true" frameborder="0"></iframe></figure>'
         )
 
+    def test_render_text(self):
+        block = {"text": {"raw": "<p>This is a paragraph of text</p>"}}
+        name, data = block.items()[0]
+
+        output = self.renderer.render_item(name, data)
+        self.assertTrue(
+            output.replace('\n', ''),
+            '<p>This is a paragraph of text</p>'
+        )
+
     def test_render_twitter(self):
         block = {"twitter": {"blockquote": '''
             <blockquote class="twitter-tweet" lang="en">

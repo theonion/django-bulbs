@@ -13,7 +13,7 @@ class BaseRenderer:
 
     def render_item(self, key, body):
         if key == "text":
-            return body
+            return body["raw"]
         elif key == "betty":
             return self.render(self.BETTY_TEMPLATE, body)
         elif key == "facebook":
