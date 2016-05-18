@@ -47,6 +47,26 @@ def parse_youtube(tag):
     pass
 
 
+def parse_onion_video(tag):
+    # return {'onion_video': {'iframe': iframe}}
+    pass
+
+
+def parse_vimeo(tag):
+    # return {'vimeo': {'iframe': iframe}}
+    pass
+
+
+def parse_soundcloud(tag):
+    # return {'soundcloud': {'iframe': iframe}}
+    pass
+
+
+def parse_imgur(tag):
+    # return {'imgur': {'iframe': iframe}}
+    pass
+
+
 PARSERS = [
     # Sorted by precedence
     parse_betty,
