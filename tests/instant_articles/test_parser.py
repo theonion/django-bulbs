@@ -17,7 +17,7 @@ class ParseBodyTest(unittest.TestCase):
 
 
 def make_tag(html):
-    return [c for c in BeautifulSoup(html).body.children][0]
+    return [c for c in BeautifulSoup(html.strip()).children][0]
 
 
 # class ParseTagTest(unittest.TestCase):
