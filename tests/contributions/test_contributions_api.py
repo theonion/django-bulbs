@@ -1125,6 +1125,18 @@ class ReportingApiTestCase(BaseAPITestCase):
                 )
             ]
         }
+        LineItem.objects.create(
+            contributor=self.a1, payment_date=self.now, amount=10
+        )
+        LineItem.objects.create(
+            contributor=self.a2, payment_date=self.now, amount=10
+        )
+        LineItem.objects.create(
+            contributor=self.a3,
+            payment_date=self.now.replace(month=self.now.month + 1),
+            amount=20
+        )
+
         Contribution.search_objects.refresh()
 
     def tearDown(self):
@@ -1428,6 +1440,24 @@ class ReportingApiTestCase(BaseAPITestCase):
         resp = self.client.get(endpoint, {'staff': 'staff'})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.data['results']), 1)
+
+    def test_line_item_reporting(self):
+        endpoint = reverse("line-item-reporting-list")
+        self.assertEqual(endpoint, "/api/v1/contributions/line-item-reporting/")
+
+        start_date = self.now.replace(day=1, hour=0, minute=0, second=0)
+        end_date = start_date.replace(month=start_date.month + 1) - timezone.timedelta(seconds=1)
+
+        resp = self.client.get(
+            endpoint,
+            data={
+                "format": "csv",
+                "start": start_date.strftime("%Y-%m-%d"),
+                "end": end_date.strftime("%Y-%m-%d")
+            }
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 2)
 
 
 class FlatRateAPITestCase(BaseAPITestCase):
