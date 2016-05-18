@@ -24,4 +24,9 @@ class InstantArticleTransformTest(TestCase):
 
     @override_settings(BETTY_IMAGE_URL='http://images.onionstatic.com/starwipe')
     def test_betty(self):
-        self.check_embed('betty')
+        self.check_embed('betty-caption')
+        self.check_embed('betty-no-caption')
+
+    def test_youtube(self):
+        self.check_embed('youtube-iframe')
+        self.check_embed('youtube-no-iframe')

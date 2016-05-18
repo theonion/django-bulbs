@@ -1,3 +1,4 @@
+import os.path
 import unittest
 
 from bs4 import BeautifulSoup
@@ -6,18 +7,20 @@ from bulbs.instant_articles.parser import (parse_betty,
                                            parse_body,
                                            # parse_tag,
                                            # parse_instagram,
-                                           # parse_youtube,
+                                           parse_youtube,
                                            )
+
+
+def read_data(name):
+    here = os.path.dirname(os.path.realpath(__file__))
+    html = open(os.path.join(here, 'test_data', 'input', name + '.html')).read()
+    return [c for c in BeautifulSoup(html.strip()).children][0]
 
 
 class ParseBodyTest(unittest.TestCase):
 
     def test_empty(self):
         self.assertEqual([], parse_body(''))
-
-
-def make_tag(html):
-    return [c for c in BeautifulSoup(html.strip()).children][0]
 
 
 # class ParseTagTest(unittest.TestCase):
@@ -29,33 +32,25 @@ def make_tag(html):
 class ParseBettyTest(unittest.TestCase):
 
     def test_match(self):
-        self.assertEqual(
-            {'betty': {'image_id': '29938',
-                       'caption': u'Image by Batman©'}},
-            parse_betty(make_tag("""
-                <div class="image"
-                     data-type="image"
-                     data-image-id="29938">
-                    <div></div>
-                    <span class="caption">Image by Batman©</span>
-                    <noscript>
-                        <img src="http://i.onionstatic.com/clickhole/2993/8/16x9/600.jpg">
-                    </noscript>
-                </div>
-            """)))
+        self.assertEqual({'betty': {'image_id': '9513',
+                                    'caption': u"Testing «ταБЬℓσ» we're 20% done!"}},
+                         parse_betty(read_data('betty-caption')))
 
     def test_missing_caption(self):
-        self.assertEqual(
-            {'betty': {'image_id': '29938',
-                       'caption': u''}},
-            parse_betty(make_tag("""
-                <div class="image"
-                     data-type="image"
-                     data-image-id="29938">
-                    <div></div>
-                </div>
-            """)))
+        self.assertEqual({'betty': {'image_id': '9513',
+                                    'caption': u''}},
+                         parse_betty(read_data('betty-no-caption')))
 
+
+class ParseYoutubeTest(unittest.TestCase):
+
+    def test_iframe(self):
+        self.assertEqual({'youtube': {'video_id': 'A1LF-LP_-uY'}},
+                         parse_youtube(read_data('youtube-iframe')))
+
+    def test_no_iframe(self):
+        self.assertEqual({'youtube': {'video_id': '2RcbUMPz3Dg'}},
+                         parse_youtube(read_data('youtube-no-iframe')))
 
 # class ParseInstagramTest(unittest.TestCase):
 

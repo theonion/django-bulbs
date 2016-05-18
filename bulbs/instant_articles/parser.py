@@ -1,16 +1,18 @@
+import re
+
 from bs4 import BeautifulSoup
 
 
 def has_attr(attr):
     def inner_has_attr(tag):
-        return tag.has_attr(attr)
+        return tag and tag.has_attr(attr)
     return inner_has_attr
 
 
 def parse_betty(tag):
     if (tag.name == 'div' and
         'image' in tag.get('class', {}) and
-            tag.attrs['data-type'] == 'image' and
+            tag.attrs.get('data-type') == 'image' and
             tag.has_attr('data-image-id')):
         caption = tag.find('span', class_='caption')
         return {'betty': {'image_id': tag.attrs['data-image-id'],
@@ -43,8 +45,19 @@ def parse_twitter(tag):
 
 
 def parse_youtube(tag):
-    # return {'youtube': {'video_id': ###}}
-    pass
+    if tag.name == 'div':
+        # No-IFRAME - grab ID from attribute
+        if tag.attrs.get('data-type') == 'youtube':
+            video_id = tag.attrs.get('data-youtube-id')
+            if video_id:
+                return {'youtube': {'video_id': video_id}}
+        # IFRAME - parse ID from 'src' attribute
+        if tag.attrs.get('data-type') == 'embed':
+            iframe = tag.find('iframe')
+            if iframe:
+                m = re.match('https?://www.youtube.com/embed/(.*)', iframe.attrs['src'])
+                if m:
+                    return {'youtube': {'video_id': m.group(1)}}
 
 
 def parse_onion_video(tag):
