@@ -50,7 +50,7 @@ class InstantArticleRendererTests(BaseIndexableTestCase):
         output = self.renderer.render_item(name, data)
         self.assertTrue(
             output.replace('\n', ''),
-            '<figure><iframe src="https://www.instagram.com/p/3ewOSHitL2/embed"></iframe></figure>'
+            '<figure><iframe class="instagram-media instagram-media-rendered" id="instagram-embed-0" src="https://www.instagram.com/p/3ewOSHitL2/embed/captioned/?v=7" allowtransparency="true" frameborder="0"></iframe></figure>'
         )
 
     def test_render_twitter(self):
