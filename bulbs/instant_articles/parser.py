@@ -4,6 +4,10 @@ from bs4 import BeautifulSoup
 
 
 def has_attr(attr):
+    """Useful wrapper for filtering w/ BeautifulSoup 'find' methods
+
+    ex:  tag.find('iframe', has_attr('src'))
+    """
     def inner_has_attr(tag):
         return tag and tag.has_attr(attr)
     return inner_has_attr
@@ -102,15 +106,18 @@ def parse_imgur(tag):
 
 
 PARSERS = [
-    # Sorted by precedence
+    # Sorted by precedence (initially alphabically since no precedence required for now)
     parse_betty,
     parse_facebook,
+    parse_facebook,
+    parse_imgur,
     parse_instagram,
     parse_onion_video,
-    parse_twitter,
-    parse_youtube,
-
+    parse_soundcloud,
     parse_text,
+    parse_twitter,
+    parse_vimeo,
+    parse_youtube,
 ]
 
 
