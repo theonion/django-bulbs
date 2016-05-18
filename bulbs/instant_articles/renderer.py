@@ -6,9 +6,8 @@ class BaseRenderer:
     def generate_body(self, intermediate):
         body = ""
         for item in intermediate:
-            key = item.keys()[0]
-            body = item[key]
-            body.append(self.render_item(key, body))
+            for key, values in item.items():
+                body += self.render_item(key, values)
 
         return body
 

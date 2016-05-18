@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 from bulbs.instant_articles.parser import (parse_betty,
                                            parse_body,
                                            # parse_tag,
-                                           parse_instagram,
+                                           # parse_instagram,
                                            # parse_youtube,
                                            )
 
@@ -17,7 +17,7 @@ class ParseBodyTest(unittest.TestCase):
 
 
 def make_tag(html):
-    return [c for c in BeautifulSoup(html.strip())][0]
+    return [c for c in BeautifulSoup(html).body.children][0]
 
 
 # class ParseTagTest(unittest.TestCase):
@@ -44,12 +44,12 @@ class ParseBettyTest(unittest.TestCase):
             """)))
 
 
-class ParseInstagramTest(unittest.TestCase):
+# class ParseInstagramTest(unittest.TestCase):
 
-    def test_match(self):
-        IFRAME = '<iframe class="instagram-media instagram-media-rendered"></iframe>'
-        self.assertEqual({'instagram': {'iframe': IFRAME}},
-                         parse_instagram(make_tag(IFRAME)))
+#     def test_match(self):
+#         IFRAME = '<iframe class="instagram-media instagram-media-rendered"></iframe>'
+#         self.assertEqual({'instagram': {'iframe': IFRAME}},
+#                          parse_instagram(make_tag(IFRAME)))
 
 
 # class ParseYoutubeTest(unittest.TestCase):

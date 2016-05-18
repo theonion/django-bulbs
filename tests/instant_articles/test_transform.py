@@ -1,5 +1,6 @@
 import os.path
-import unittest
+from django.test import TestCase
+from django.test.utils import override_settings
 
 from bulbs.instant_articles.transform import transform
 from bulbs.instant_articles.renderer import InstantArticleRenderer
@@ -10,11 +11,13 @@ def read_data(*parts):
     return open(os.path.join(here, 'test_data', *parts)).read()
 
 
-class TransformTest(unittest.TestCase):
+@override_settings(BETTY_IMAGE_URL='http://images.onionstatic.com/starwipe')
+class InstantArticleTransformTest(TestCase):
 
-    def test_one_element(self):
+    def test_betty(self):
         actual = transform(read_data('input/betty.html'), InstantArticleRenderer())
+        actual = actual.replace('\n', '')
+
         expected = read_data('output/betty.html').strip()
-        # TODO: Compare HTML (need to strip whitespace + such
         self.assertEqual(expected.strip(),
                          actual.strip())

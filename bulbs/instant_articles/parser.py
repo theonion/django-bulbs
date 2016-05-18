@@ -17,15 +17,45 @@ def parse_betty(tag):
         return {'betty': {'image_id': tag.attrs['data-image-id']}}
 
 
+def parse_facebook(tag):
+    # Grab iframe, strip out style attribute
+    # return {'facebook': {'iframe': iframe}}
+    pass
+
+
 def parse_instagram(tag):
-    if tag.name == 'iframe' and 'instagram-media' in tag.get('class'):
-        return {'instagram': {'iframe': str(tag)}}
+    # Just pass along ID
+    # if tag.name == 'iframe' and 'instagram-media' in tag.get('class'):
+    #     return {'instagram': {'iframe': str(tag)}}
+    # return {'instagram': {'instagram_id': ###}}
+    pass
+
+
+def parse_text(tag):
+    # return {'text': {'raw': TEXT}}
+    pass
+
+
+def parse_twitter(tag):
+    # Just pass blockquote tag verbatim
+    # return {'twitter': {'blockquote': blockquote}}
+    pass
+
+
+def parse_youtube(tag):
+    # return {'youtube': {'video_id': ###}}
+    pass
 
 
 PARSERS = [
     # Sorted by precedence
     parse_betty,
+    parse_facebook,
     parse_instagram,
+    parse_twitter,
+    parse_youtube,
+
+    parse_text,
 ]
 
 
