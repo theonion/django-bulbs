@@ -9,16 +9,17 @@ def has_attr(attr):
     return inner_has_attr
 
 
-def parse_betty(element):
-    if element.name == 'figure':
-        div = element.find('div', has_attr('data-image-id'), class_='image')
-        if div:
-            return {'betty': {'image_id': div.attrs['data-image-id']}}
+def parse_betty(tag):
+    if (tag.name == 'div' and
+        'image' in tag.get('class', {}) and
+            tag.attrs['data-type'] == 'image' and
+            tag.has_attr('data-image-id')):
+        return {'betty': {'image_id': tag.attrs['data-image-id']}}
 
 
-def parse_instagram(element):
-    if element.name == 'iframe' and 'instagram-media' in element.get('class'):
-        return {'instagram': {'iframe': str(element)}}
+def parse_instagram(tag):
+    if tag.name == 'iframe' and 'instagram-media' in tag.get('class'):
+        return {'instagram': {'iframe': str(tag)}}
 
 
 PARSERS = [
@@ -28,20 +29,20 @@ PARSERS = [
 ]
 
 
-def parse_element(element):
+def parse_tag(tag):
     for parser in PARSERS:
-        match = parser(element)
+        match = parser(tag)
         if match:
             return match
 
 
-def parse_content(content):
+def parse_body(html):
     components = []
 
-    soup = BeautifulSoup(content)
-    for element in soup.recursiveChildGenerator():
-        print(element)
-        matched = parse_element(element)
+    soup = BeautifulSoup(html)
+    for tag in soup.recursiveChildGenerator():
+        print(tag)
+        matched = parse_tag(tag)
         if matched:
             components.append(matched)
 
