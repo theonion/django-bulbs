@@ -34,3 +34,6 @@ class InstantArticleTransformTest(TestCase):
     def test_youtube(self):
         self.check_embed('youtube-iframe')
         self.check_embed('youtube-no-iframe')
+
+    def test_onion_video(self):
+        self.check_embed('onion_video')
