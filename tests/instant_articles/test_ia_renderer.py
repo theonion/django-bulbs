@@ -6,17 +6,18 @@ from bulbs.utils.test import BaseIndexableTestCase
 
 @override_settings(BETTY_IMAGE_URL='//images.onionstatic.com/onion')
 class InstantArticleRendererTests(BaseIndexableTestCase):
+
     def setUp(self):
         super(InstantArticleRendererTests, self).setUp()
         self.renderer = InstantArticleRenderer()
 
     def test_render_betty(self):
-        block = {"betty": {"image_id": 2349}}
+        block = {"betty": {"image_id": 2349, "caption": "A really good caption"}}
         output = self.renderer.render_betty(block['betty'])
 
         self.assertEqual(
             output.replace('\n', ''),
-            "<figure><img src=\"//images.onionstatic.com/onion/2349/16x9/1920.jpg\" /></figure>"
+            "<figure><img src=\"//images.onionstatic.com/onion/2349/16x9/1920.jpg\" /><figcaption>A really good caption</figcaption></figure>"
         )
 
     # def test_render_facebook(self):
