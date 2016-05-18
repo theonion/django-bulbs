@@ -2,6 +2,13 @@
 
 ## Development
 
+## Version 2.1.0
+
+- change `special_coverage_landing_partial` template tag
+  It now expects a `twitter_handle` and `share_message` argument:
+
+  `{% special_coverage_landing_partial twitter_handle='theonion' share_message='via theonion.com' %}`
+
 ## Version 2.0.2
 
 - Move instant article ads to header in base_instant_article.html
