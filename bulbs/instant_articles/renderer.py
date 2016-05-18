@@ -59,7 +59,10 @@ class InstantArticleRenderer:
         pass
 
     def render_instagram(self, body):
-        pass
+        return loader.render_to_string(
+            "instant_article/embeds/_ia_instagram_embed.html",
+            body
+        )
 
     def render_onion_video(self, body):
         pass

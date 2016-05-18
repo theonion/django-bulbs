@@ -18,16 +18,16 @@ class InstantArticleRendererTests(BaseIndexableTestCase):
 
     # def test_render_facebook(self):
     #     pass
-    #
-    # def test_render_instagram(self):
-    #     block = {"instagram": {"iframe": """
-    #         <iframe>GET IFRAMEEXAMPLE</iframe>
-    #     """}}
-    #
-    #     output = self.renderer.render_instagram(block)
-    #     self.assertTrue(output)
-    #     pass
-    #
+
+    def test_render_instagram(self):
+        block = {"instagram": {"instagram_id": "3ewOSHitL2"}}
+
+        output = self.renderer.render_instagram(block['instagram'])
+        self.assertTrue(
+            output.replace('\n', ''),
+            '<figure><iframe src="https://www.instagram.com/p/3ewOSHitL2/embed"></iframe></figure>'
+        )
+
     # def test_render_twitter(self):
     #     pass
     #
@@ -39,7 +39,7 @@ class InstantArticleRendererTests(BaseIndexableTestCase):
     #
     # def test_render_vimeo(self):
     #     pass
-    
+
     def test_render_youtube(self):
         block = {"youtube": {"video_id": "2vnd49"}}
         output = self.renderer.render_youtube(block["youtube"])
