@@ -3,7 +3,7 @@ from django.template import loader
 
 class BaseRenderer:
 
-    def __init__(self, intermediate):
+    def generate_body(self, intermediate):
         body = ""
         for item in intermediate:
             key = item.keys()[0]

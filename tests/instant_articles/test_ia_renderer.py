@@ -1,7 +1,10 @@
+from django.test.utils import override_settings
+
 from bulbs.instant_articles.renderer import InstantArticleRenderer
 from bulbs.utils.test import BaseIndexableTestCase
 
 
+@override_settings(BETTY_IMAGE_URL='//images.onionstatic.com/onion')
 class InstantArticleRendererTests(BaseIndexableTestCase):
     def setUp(self):
         super(InstantArticleRendererTests, self).setUp()
@@ -13,7 +16,7 @@ class InstantArticleRendererTests(BaseIndexableTestCase):
 
         self.assertEqual(
             output.replace('\n', ''),
-            "<figure><img src=\"images/2349/16x9/1920.jpg\" /></figure>"
+            "<figure><img src=\"//images.onionstatic.com/onion/images/2349/16x9/1920.jpg\" /></figure>"
         )
 
     # def test_render_facebook(self):
