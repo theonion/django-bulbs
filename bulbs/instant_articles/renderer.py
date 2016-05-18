@@ -18,6 +18,8 @@ class BaseRenderer:
             return self.render_betty(body)
         elif key == "facebook":
             return self.render_facebook(body)
+        elif key == "imgur":
+            return self.render_imgur(body)
         elif key == "instagram":
             return self.render_instagram(body)
         elif key == "onion_video":
@@ -45,6 +47,12 @@ class BaseRenderer:
             body
         )
 
+    def render_imgur(self, body):
+        return loader.render_to_string(
+            self.IMGUR_TEMPLATE,
+            body
+        )
+
     def render_instagram(self, body):
         return loader.render_to_string(
             self.INSTAGRAM_TEMPLATE,
@@ -52,10 +60,16 @@ class BaseRenderer:
         )
 
     def render_onion_video(self, body):
-        pass
+        return loader.render_to_string(
+            self.ONION_VIDEO_TEMPLATE,
+            body
+        )
 
     def render_soundcloud(self, body):
-        pass
+        return loader.render_to_string(
+            self.SOUNDCLOUD_TEMPLATE,
+            body
+        )
 
     def render_twitter(self, body):
         return loader.render_to_string(
@@ -64,7 +78,10 @@ class BaseRenderer:
         )
 
     def render_vimeo(self, body):
-        pass
+        return loader.render_to_string(
+            self.VIMEO_TEMPLATE,
+            body
+        )
 
     def render_youtube(self, body):
         return loader.render_to_string(
@@ -77,6 +94,10 @@ class InstantArticleRenderer(BaseRenderer):
 
     BETTY_TEMPLATE = "instant_article/embeds/_ia_betty_embed.html"
     FACEBOOK_TEMPLATE = "instant_article/embeds/_ia_facebook_embed.html"
+    IMGUR_TEMPLATE = "instant_article/embeds/_ia_imgur_embed.html"
     INSTAGRAM_TEMPLATE = "instant_article/embeds/_ia_instagram_embed.html"
+    ONION_VIDEO_TEMPLATE = "instant_article/embeds/_ia_onion_video_embed.html"
+    SOUNDCLOUD_TEMPLATE = "instant_article/embeds/_ia_soundcloud_embed.html"
     TWITTER_TEMPLATE = "instant_article/embeds/_ia_twitter_embed.html"
+    VIMEO_TEMPLATE = "instant_article/embeds/_ia_vimeo_embed.html"
     YOUTUBE_TEMPLATE = "instant_article/embeds/_ia_youtube_embed.html"
