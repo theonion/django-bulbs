@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 from bulbs.instant_articles.parser import (parse_betty,
                                            parse_body,
                                            # parse_tag,
-                                           # parse_instagram,
+                                           parse_instagram,
                                            parse_youtube,
                                            )
 
@@ -40,6 +40,17 @@ class ParseBettyTest(unittest.TestCase):
         self.assertEqual({'betty': {'image_id': '9513',
                                     'caption': u''}},
                          parse_betty(read_data('betty-no-caption')))
+
+
+class ParseInstagramTest(unittest.TestCase):
+
+    def test_iframe(self):
+        self.assertEqual({'instagram': {'instagram_id': '3ewOSHitL2'}},
+                         parse_instagram(read_data('instagram-iframe')))
+
+    def test_blockquote(self):
+        self.assertEqual({'instagram': {'instagram_id': '3jeiuICtD7'}},
+                         parse_instagram(read_data('instagram-blockquote')))
 
 
 class ParseYoutubeTest(unittest.TestCase):

@@ -30,7 +30,25 @@ def parse_instagram(tag):
     # if tag.name == 'iframe' and 'instagram-media' in tag.get('class'):
     #     return {'instagram': {'iframe': str(tag)}}
     # return {'instagram': {'instagram_id': ###}}
-    pass
+
+    INSTAGRAM_ID_REGEX = re.compile('https?://www.instagram.com/p/([^/]+)/')
+
+    if tag.name == 'div' and tag.attrs.get('data-type') == 'embed':
+        # IFRAME
+        iframe = tag.find('iframe', 'instagram-media', has_attr('src'))
+        if iframe:
+            m = INSTAGRAM_ID_REGEX.match(iframe['src'])
+            if m:
+                return {'instagram': {'instagram_id': m.group(1)}}
+
+        # Blockquote
+        blockquote = tag.find('blockquote', 'instagram-media')
+        if blockquote:
+            for a in blockquote.findAll('a'):
+                if a.has_attr('href'):
+                    m = INSTAGRAM_ID_REGEX.match(a['href'])
+                    if m:
+                        return {'instagram': {'instagram_id': m.group(1)}}
 
 
 def parse_text(tag):
