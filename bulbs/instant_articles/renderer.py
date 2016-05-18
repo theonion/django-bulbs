@@ -40,7 +40,10 @@ class BaseRenderer:
         )
 
     def render_facebook(self, body):
-        pass
+        return loader.render_to_string(
+            self.FACEBOOK_TEMPLATE,
+            body
+        )
 
     def render_instagram(self, body):
         return loader.render_to_string(
@@ -55,7 +58,10 @@ class BaseRenderer:
         pass
 
     def render_twitter(self, body):
-        pass
+        return loader.render_to_string(
+            self.TWITTER_TEMPLATE,
+            body
+        )
 
     def render_vimeo(self, body):
         pass
@@ -70,5 +76,7 @@ class BaseRenderer:
 class InstantArticleRenderer(BaseRenderer):
 
     BETTY_TEMPLATE = "instant_article/embeds/_ia_betty_embed.html"
+    FACEBOOK_TEMPLATE = "instant_article/embeds/_ia_facebook_embed.html"
     INSTAGRAM_TEMPLATE = "instant_article/embeds/_ia_instagram_embed.html"
+    TWITTER_TEMPLATE = "instant_article/embeds/_ia_twitter_embed.html"
     YOUTUBE_TEMPLATE = "instant_article/embeds/_ia_youtube_embed.html"
