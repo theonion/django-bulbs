@@ -34,8 +34,7 @@ class ParseBettyTest(unittest.TestCase):
                     <div
                      class="image"
                      data-type="image"
-                     data-image-id="29938"
-                     >
+                     data-image-id="29938">
                         <div></div>
                         <noscript>
                             <img src="http://i.onionstatic.com/clickhole/2993/8/16x9/600.jpg">
@@ -51,3 +50,11 @@ class ParseInstagramTest(unittest.TestCase):
         IFRAME = '<iframe class="instagram-media instagram-media-rendered"></iframe>'
         self.assertEqual({'instagram': {'iframe': IFRAME}},
                          parse_instagram(make_element(IFRAME)))
+
+
+class ParseYoutubeTest(unittest.TestCase):
+
+    def test_match(self):
+        IFRAME = '<iframe class="instagram-media instagram-media-rendered"></iframe>'
+        self.assertEqual({'youtube': {'video_id': '23fh23'}},
+                         parse_youtube(make_element(IFRAME)))
