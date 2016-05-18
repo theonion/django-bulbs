@@ -74,14 +74,16 @@ def parse_youtube(tag):
         if tag.attrs.get('data-type') == 'embed':
             iframe = tag.find('iframe')
             if iframe:
-                m = re.match('https?://www.youtube.com/embed/(.*)', iframe.attrs['src'])
+                m = re.match('https?://www.youtube.com/embed/(.+)', iframe.attrs['src'])
                 if m:
                     return {'youtube': {'video_id': m.group(1)}}
 
 
 def parse_onion_video(tag):
-    # return {'onion_video': {'iframe': iframe}}
-    pass
+    if tag.name == 'div' and tag.attrs.get('data-type') == 'embed':
+        iframe = tag.find('iframe', class_='onionstudios-playlist')
+        if iframe:
+            return {'onion_video': {'iframe': str(iframe)}}
 
 
 def parse_vimeo(tag):
@@ -104,6 +106,7 @@ PARSERS = [
     parse_betty,
     parse_facebook,
     parse_instagram,
+    parse_onion_video,
     parse_twitter,
     parse_youtube,
 

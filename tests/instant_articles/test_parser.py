@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 from bulbs.instant_articles.parser import (parse_betty,
                                            parse_body,
                                            parse_instagram,
+                                           parse_onion_video,
                                            # parse_tag,
                                            parse_twitter,
                                            parse_youtube,
@@ -56,6 +57,14 @@ class ParseInstagramTest(unittest.TestCase):
     def test_blockquote(self):
         self.assertEqual({'instagram': {'instagram_id': '3jeiuICtD7'}},
                          parse_instagram(read_data('instagram-blockquote')))
+
+
+class ParseOnionVideoTest(unittest.TestCase):
+
+    def test_parse(self):
+        tag = parse_raw_tag(parse_onion_video(read_data('onion_video'))['onion_video']['iframe'])
+        self.assertEqual('iframe', tag.name)
+        self.assertEqual(['onionstudios-playlist'], tag['class'])
 
 
 class ParseTwitterTest(unittest.TestCase):
