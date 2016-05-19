@@ -47,10 +47,7 @@ class ESPublishedFilterBackend(filters.BaseFilterBackend):
         if end_value:
             end_value += timezone.timedelta(days=1)
             end_value -= timezone.timedelta(seconds=1)
-            try:
-                return timezone.make_aware(end_value).astimezone(timezone.pytz.utc)
-            except:
-                import pdb; pdb.set_trace()
+            return timezone.make_aware(end_value).astimezone(timezone.pytz.utc)
 
     def get_date_datetime_param(self, request, param):
         """Check the request for the provided query parameter and returns a rounded value.
