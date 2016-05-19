@@ -2,7 +2,6 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from celery import shared_task
 
-
 @shared_task(default_retry_delay=5)
 def index(content_type_id, pk, refresh=False):
     from django.contrib.contenttypes.models import ContentType
@@ -34,3 +33,21 @@ def index_feature_type_content(featuretype_pk):
     featuretype = FeatureType.objects.get(pk=featuretype_pk)
     for content in featuretype.content_set.all():
         content.index()
+
+
+@shared_task(default_retry_delay=5)
+def update_feature_type_rates(featuretype_pk):
+    from bulbs.contributions.models import ContributorRole, Rate, FeatureTypeRate
+
+    roles = ContributorRole.objects.all()
+
+    for role in roles:
+        existing_rates = FeatureTypeRate.objects.filter(
+            feature_type_id=featuretype_pk,
+            role_id=role.pk)
+
+        if existing_rates.count() == 0:
+            FeatureTypeRate.objects.create(
+                rate=0,
+                feature_type_id=featuretype_pk,
+                role_id=role.pk)
