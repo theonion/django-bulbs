@@ -6,7 +6,7 @@ from django.test.utils import override_settings
 from bulbs.content.models import FeatureType
 from bulbs.utils.test import make_content, BaseIndexableTestCase
 
-from example.testcontent.models import TestContentObj
+from example.testcontent.models import TestContentObj, TestContentObjThree
 
 
 DFP_SITE = "www.google.com"
@@ -38,3 +38,18 @@ class InstantArticleAdViewTests(BaseIndexableTestCase):
         self.assertEqual(self.content.id, targeting.get("dfp_contentid"))
         self.assertEqual(self.content.__class__.__name__.lower(), targeting.get("dfp_pagetype"))
         self.assertEqual(self.content.slug, targeting.get("dfp_slug"))
+
+    def test_set_transformed_body(self):
+        content = make_content(
+            TestContentObjThree,
+            feature_type=self.feature_type,
+            body="<p>This is the content body</p>")
+        url = reverse("instant_article", kwargs={"pk": content.pk})
+
+        self.client.login(username="admin", password="secret")
+
+        response = self.client.get(url)
+        targeting = response.context_data.get("targeting")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(targeting.get("transformed_body"), content.body)
