@@ -213,6 +213,6 @@ def send_byline_email(to, content_id, previous_byline, new_byline):
         subject="Byline modified for article, {}".format(content.title),
         from_email=EMAIL_SETTINGS.get("FROM"),
     )
-    mail.attach_alternative(body)
+    mail.attach_alternative(body, "text/html")
     mail.to = to
     mail.send()
