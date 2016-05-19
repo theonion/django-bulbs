@@ -33,6 +33,12 @@ class InstantArticleTransformTest(TestCase):
         self.check_embed('instagram-blockquote')
         self.check_embed('instagram-iframe')
 
+    def test_onion_video(self):
+        self.check_embed('onion_video')
+
+    def test_text(self):
+        self.check_embed('text-paragraph')
+
     def test_twitter(self):
         self.check_embed('twitter-blockquote')
         self.check_embed('twitter-widget')
@@ -40,6 +46,3 @@ class InstantArticleTransformTest(TestCase):
     def test_youtube(self):
         self.check_embed('youtube-iframe')
         self.check_embed('youtube-no-iframe')
-
-    def test_onion_video(self):
-        self.check_embed('onion_video')

@@ -56,8 +56,8 @@ def parse_instagram(tag):
 
 
 def parse_text(tag):
-    # return {'text': {'raw': TEXT}}
-    pass
+    if tag.name == 'p':
+        return {'text': {'raw': str(tag)}}
 
 
 def parse_twitter(tag):

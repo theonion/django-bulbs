@@ -9,7 +9,7 @@ from bulbs.instant_articles.parser import (parse_betty,
                                            parse_body,
                                            parse_instagram,
                                            parse_onion_video,
-                                           # parse_tag,
+                                           parse_text,
                                            parse_twitter,
                                            parse_youtube,
                                            )
@@ -67,6 +67,13 @@ class ParseOnionVideoTest(unittest.TestCase):
         tag = parse_raw_tag(parse_onion_video(read_data('onion_video'))['onion_video']['iframe'])
         self.assertEqual('iframe', tag.name)
         self.assertEqual(['onionstudios-playlist'], tag['class'])
+
+
+class ParseTextTest(unittest.TestCase):
+
+    def test_blockquote(self):
+        self.assertEqual({'text': {'raw': u"<p>Testing some text «ταБЬℓσ» we're 20% done!</p>"}},
+                         parse_text(read_data('text-paragraph')))
 
 
 class ParseTwitterTest(unittest.TestCase):
