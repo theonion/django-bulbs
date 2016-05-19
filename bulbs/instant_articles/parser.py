@@ -108,8 +108,13 @@ def parse_soundcloud(tag):
 
 
 def parse_imgur(tag):
-    # return {'imgur': {'iframe': iframe}}
-    pass
+    if tag.name == 'div' and tag.attrs.get('data-type') == 'embed':
+        iframe = tag.find('iframe', class_='imgur-embed-iframe-pub')
+        if iframe:
+            # Special Case: Strip out style attribute
+            if iframe.has_attr('style'):
+                del iframe.attrs['style']
+            return {'imgur': {'iframe': six.text_type(iframe)}}
 
 
 PARSERS = [

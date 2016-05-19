@@ -37,6 +37,9 @@ class InstantArticleTransformTest(TestCase):
         self.check_embed('facebook-post')
         self.check_embed('facebook-video')
 
+    def test_imgur(self):
+        self.check_embed('imgur-iframe')
+
     def test_instagram(self):
         self.check_embed('instagram-blockquote')
         self.check_embed('instagram-iframe')

@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 from bulbs.instant_articles.parser import (parse_betty,
                                            parse_body,
                                            parse_facebook,
+                                           parse_imgur,
                                            parse_instagram,
                                            parse_onion_video,
                                            parse_text,
@@ -64,6 +65,14 @@ class ParseBettyTest(unittest.TestCase):
         self.assertEqual({'betty': {'image_id': '9513',
                                     'caption': u''}},
                          parse_betty(read_data('betty-no-caption')))
+
+
+class ParseImgurTest(unittest.TestCase):
+
+    def test_parse(self):
+        tag = parse_raw_tag(parse_imgur(read_data('imgur-iframe'))['imgur']['iframe'])
+        self.assertEqual('iframe', tag.name)
+        self.assertIn('imgur-embed-iframe-pub', tag['class'])
 
 
 class ParseInstagramTest(unittest.TestCase):
