@@ -1,11 +1,15 @@
-///                                   ///
-///     Special Coverage Landing      ///
-///                                   ///
+///////////////////////////////////////
+// ********************************* //
+//     Special Coverage Landing      //
+// ********************************* //
+///////////////////////////////////////
 
-@import "../../styles/stylesheets/mixins/flex-grid";
-@import "../../styles/stylesheets/mixins/flexbox";
-@import "../../styles/stylesheets/global/breakpoints";
-@import "figures";
+
+@import "../mixins/flex-grid";
+@import "../mixins/flexbox";
+@import "../mixins/figures";
+@import "../variables/breakpoints";
+
 
 $light-shade: #eaeaea;
 
