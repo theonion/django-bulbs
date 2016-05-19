@@ -17,7 +17,7 @@
       {% endcomment %}
       <campaign-display
         class="sc-hero-campaign"
-        data-track-action="Sponsor Logo"
+        data-track-action="Feature: Sponsor"
         data-track-category="Special Coverage Landing"
         placement="detail"
         preamble-text="Presented by"
@@ -39,13 +39,9 @@
     </bulbs-video>
     <div class='sc-video-meta'>
       {% if special_coverage.tunic_campaign_id %}
-        {% comment %}
-          TODO bulbs-elements dependency should be explicitly set by this repo.
-          At this point, we are pushing this responsibility downstream.
-        {% endcomment %}
         <campaign-display
           class="sc-player-campaign"
-          data-track-action="Sponsor Logo"
+          data-track-action="Video: Main: Sponsor"
           data-track-category="Special Coverage Landing"
           placement="detail"
           preamble-text="Presented by"
@@ -56,8 +52,10 @@
       {% endif %}
       <bulbs-video-meta
         src='{{ VIDEOHUB_BASE_URL }}/video/{{current_video}}.json'
-        twitter-handle='{{ twitter_handle }}'
-        email-share-message='{{ share_message }}'
+        share-email-message="{{share_message}}"
+        share-twitter-handle="{{twitter_handle}}"
+        data-track-category="Special Coverage Landing"
+        share-track-action="Video: Main: Share"
       >
       </bulbs-video-meta>
     </div>
@@ -75,13 +73,9 @@
         UP NEXT
       </span>
       {% if special_coverage.tunic_campaign_id %}
-        {% comment %}
-          TODO bulbs-elements dependency should be explicitly set by this repo.
-          At this point, we are pushing this responsibility downstream.
-        {% endcomment %}
         <campaign-display
           class="sc-carousel-campaign"
-          data-track-action="Sponsor Logo"
+          data-track-action="Video: Recirc: Sponsor"
           data-track-category="Special Coverage Landing"
           placement="detail"
           preamble-text="Presented by"
@@ -96,6 +90,8 @@
       {% for video_id in special_coverage.videos %}
         <bulbs-video-carousel-item>
           <a
+            data-track-category="Special Coverage Landing"
+            data-track-action="Video: Recirc: {{forloop.counter}}"
             href='{% url 'special-video' slug=special_coverage.slug video_id=video_id %}'
           />
             <bulbs-video-summary
@@ -115,7 +111,11 @@
 <ul class="sc-grid two-up">
   {% for content in content_list  %}
     <li class="sc-item {% if forloop.counter|divisibleby:"5" %}large{% endif %}">
-      <a href="{{ content.get_absolute_url }}">
+      <a
+        data-track-category="Special Coverage Landing"
+        data-track-action="Article: {% if forloop.counter|divisibleby:"5" %}Large{% else %}Small{% endif %}"
+        href="{{ content.get_absolute_url }}"
+      >
         <figure class="thumb">
           {% cropped content.thumbnail %}
         </figure>
