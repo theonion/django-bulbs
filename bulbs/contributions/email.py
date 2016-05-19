@@ -199,10 +199,7 @@ class EmailReport(object):
         return self._end
 
 
-
-def send_byline_email(to, content_id, previous_byline, new_byline):
-    content = get_object_or_404(Content, id=content_id)
-    removed_bylines = [author for author in previous_byline if author not in new_byline]
+def send_byline_email(content, removed_bylines):
     context = {
         "content": content,
         "bylines": removed_bylines,
@@ -214,5 +211,5 @@ def send_byline_email(to, content_id, previous_byline, new_byline):
         from_email=EMAIL_SETTINGS.get("FROM"),
     )
     mail.attach_alternative(body, "text/html")
-    mail.to = to
+    mail.to = EMAIL_SETTINGS.get("BYLINE_RECIPIENTS")
     mail.send()

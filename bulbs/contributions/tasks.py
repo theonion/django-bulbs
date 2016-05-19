@@ -1,6 +1,7 @@
 """celery tasks for contributions."""
 from celery import shared_task
 
+from bulbs.content.models import Content
 from .email import send_byline_email, EmailReport
 from .models import Contribution
 
@@ -18,5 +19,7 @@ def run_contributor_email_report(**kwargs):
 
 
 @shared_task(default_retry_delay=5)
-def run_send_byline_email(to, content_id, previous_byline, new_byline):
-    send_byline_email(to, content_id, previous_byline, new_byline)
+def run_send_byline_email(content_id, removed_author_pks):
+    content = Content.objects.get(id=content_id)
+    removed_bylines = content.authors.filter(pk__in=removed_author_pks)
+    send_byline_email(content, removed_bylines)

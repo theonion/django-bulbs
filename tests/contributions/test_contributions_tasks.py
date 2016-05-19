@@ -20,8 +20,5 @@ class BylineTaskTestCase(BaseIndexableTestCase):
 
     def test_task_calls_send_success(self):
         with mock.patch("django.core.mail.EmailMultiAlternatives.send") as mock_send:
-            authors = self.content.authors.all()
-            run_send_byline_email.delay(
-                "dafella@.com", self.content.id, authors, authors
-            )
+            run_send_byline_email.delay(self.content.id, [self.king.id])
             self.assertTrue(mock_send.called)
