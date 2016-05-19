@@ -114,10 +114,11 @@ PARSERS = [
     parse_instagram,
     parse_onion_video,
     parse_soundcloud,
-    parse_text,
     parse_twitter,
     parse_vimeo,
     parse_youtube,
+    # Simple <p> tags have lowest priority
+    parse_text,
 ]
 
 
@@ -128,13 +129,18 @@ def parse_tag(tag):
             return match
 
 
-def parse_body(html):
-    components = []
+def parse_children(parent):
+    """Recursively parse child tags until match is found"""
 
-    soup = BeautifulSoup(html)
-    for tag in soup.recursiveChildGenerator():
+    components = []
+    for tag in parent.children:
         matched = parse_tag(tag)
         if matched:
             components.append(matched)
-
+        elif hasattr(tag, 'contents'):
+            parse_children(tag)
     return components
+
+
+def parse_body(html):
+    return parse_children(BeautifulSoup(html))
