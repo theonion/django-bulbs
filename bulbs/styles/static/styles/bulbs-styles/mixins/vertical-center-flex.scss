@@ -1,0 +1,13 @@
+//////////////////////////////
+// ************************ //
+//   VERTICAL CENTER FLEX   //
+// ************************ //
+//////////////////////////////
+
+@import 'flexbox';
+
+@mixin vertical-center-flex() {
+  @include flexbox;
+  @include justify-content(center);
+  @include align-items(center);
+}

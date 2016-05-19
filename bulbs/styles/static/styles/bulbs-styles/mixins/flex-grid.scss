@@ -13,9 +13,8 @@
     @include flex-wrap(wrap);
     box-sizing: border-box;
     margin-left: (-1 * $gutter) * 1px;
-
-  > * { 
-    box-sizing: border-box; 
+  > * {
+    box-sizing: border-box;
     margin-left: $gutter * 1px;
     padding: $padding * 1px;
   }
@@ -23,8 +22,8 @@
   $flexgrid_calc_percent: (1/$columns) * 100%;
   $flexgrid_calc_gutter_allowance: $gutter * 1px;
 
-  > * { 
-    width: calc(#{$flexgrid_calc_percent} - #{$flexgrid_calc_gutter_allowance}); 
+  > * {
+    width: calc(#{$flexgrid_calc_percent} - #{$flexgrid_calc_gutter_allowance});
   }
 }
 
