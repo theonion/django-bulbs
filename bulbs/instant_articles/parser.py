@@ -25,9 +25,15 @@ def parse_betty(tag):
 
 
 def parse_facebook(tag):
-    # Grab iframe, strip out style attribute
-    # return {'facebook': {'iframe': iframe}}
-    pass
+    if tag.name == 'div' and tag.attrs.get('data-type') == 'embed':
+        iframe = tag.find('iframe')
+        if iframe:
+            # Only way to identify is by 'src' URL
+            if iframe.attrs.get('src', '').startswith('https://www.facebook.com/plugins/'):
+                # Special Case: Strip out style attribute
+                if iframe.has_attr('style'):
+                    del iframe.attrs['style']
+                return {'facebook': {'iframe': six.text_type(iframe)}}
 
 
 def parse_instagram(tag):

@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 
 from bulbs.instant_articles.parser import (parse_betty,
                                            parse_body,
+                                           parse_facebook,
                                            parse_instagram,
                                            parse_onion_video,
                                            parse_text,
@@ -35,6 +36,21 @@ class ParseBodyTest(unittest.TestCase):
 
 #     def test_empty(self):
 #         self.assertIsNone([], parse_tag(''))
+
+
+class ParseFacebookTest(unittest.TestCase):
+
+    def test_post(self):
+        tag = parse_raw_tag(parse_facebook(read_data('facebook-post'))['facebook']['iframe'])
+        self.assertEqual('iframe', tag.name)
+        self.assertTrue(tag['src'].startswith('https://www.facebook.com/plugins/post.php?'))
+        self.assertFalse(tag.has_attr('style'))  # Verify removed
+
+    def test_video(self):
+        tag = parse_raw_tag(parse_facebook(read_data('facebook-video'))['facebook']['iframe'])
+        self.assertEqual('iframe', tag.name)
+        self.assertTrue(tag['src'].startswith('https://www.facebook.com/plugins/video.php?'))
+        self.assertFalse(tag.has_attr('style'))  # Verify removed
 
 
 class ParseBettyTest(unittest.TestCase):
