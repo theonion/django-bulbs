@@ -122,7 +122,8 @@ class ParseTextTest(unittest.TestCase):
 class ParseTwitterTest(unittest.TestCase):
 
     def test_blockquote(self):
-        tag = parse_raw_tag(parse_twitter(read_tag_data('twitter-blockquote'))['twitter']['blockquote'])
+        tag = parse_raw_tag(parse_twitter(
+            read_tag_data('twitter-blockquote'))['twitter']['blockquote'])
         self.assertEqual('blockquote', tag.name)
         self.assertEqual(['twitter-tweet'], tag['class'])
 
@@ -150,18 +151,3 @@ class ParseYoutubeTest(unittest.TestCase):
     def test_no_iframe(self):
         self.assertEqual({'youtube': {'video_id': '2RcbUMPz3Dg'}},
                          parse_youtube(read_tag_data('youtube-no-iframe')))
-
-# class ParseInstagramTest(unittest.TestCase):
-
-#     def test_match(self):
-#         IFRAME = '<iframe class="instagram-media instagram-media-rendered"></iframe>'
-#         self.assertEqual({'instagram': {'iframe': IFRAME}},
-#                          parse_instagram(make_tag(IFRAME)))
-
-
-# class ParseYoutubeTest(unittest.TestCase):
-
-#     def test_match(self):
-#         IFRAME = '<iframe class="instagram-media instagram-media-rendered"></iframe>'
-#         self.assertEqual({'youtube': {'video_id': '23fh23'}},
-#                          parse_youtube(make_tag(IFRAME)))

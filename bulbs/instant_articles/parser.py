@@ -15,6 +15,8 @@ def has_attr(attr):
 
 
 def prepare_iframe(iframe):
+    """Standard IFRAME cleanup when raw iframe is used as output."""
+
     # Strip out style attribute
     if iframe.has_attr('style'):
         del iframe.attrs['style']
@@ -147,6 +149,7 @@ PARSERS = [
 
 
 def parse_tag(tag):
+    """Check a single tag against all possible parsers. First match wins."""
     for parser in PARSERS:
         match = parser(tag)
         if match:
@@ -167,4 +170,13 @@ def parse_children(parent):
 
 
 def parse_body(html):
+    """Parse entire content blob of HTML into ordered list of components for renderer.
+
+    Example return value:
+
+        [{'text': {'raw': '<p>One paragraph</p>'},
+         {'youtube': {'video_id': '12345'}},
+         {'youtube': {'video_id': 'abcdefg'}}]
+
+    """
     return parse_children(BeautifulSoup(html))
