@@ -26,7 +26,11 @@ class InstantArticleTransformTest(TestCase):
         if six.PY2:
             # Force unicode
             expected = expected.decode('utf-8')
+
         self.assertEqual(expected, actual)
+
+    def test_example_avc_article(self):
+        self.check_embed('example')
 
     @override_settings(BETTY_IMAGE_URL='http://images.onionstatic.com/starwipe')
     def test_betty(self):
