@@ -117,8 +117,9 @@ class FeatureType(Indexable):
         """
         return self.name
 
+    @property
     def is_new(self):
-        return not bool(self.pk)
+        return self.pk is None
 
     def save(self, *args, **kwargs):
         """sets the `slug` values as the name
@@ -137,7 +138,7 @@ class FeatureType(Indexable):
 
         self._db_instant_article = self.instant_article
 
-        if self.is_new():
+        if self.is_new:
             update_feature_type_rates(self.pk)
 
         return feature_type

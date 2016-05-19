@@ -71,5 +71,5 @@ class FeatureTypeModelTestCase(BaseIndexableFeatureTypeTestCase):
             name='Existing Feature Type',
             slug='existing-feature-type')
 
-        self.assertTrue(new_feature_type.is_new())
-        self.assertFalse(existing_feature_type.is_new())
+        self.assertTrue(new_feature_type.is_new)
+        self.assertFalse(existing_feature_type.is_new)
