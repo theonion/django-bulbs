@@ -11,8 +11,10 @@ from bulbs.instant_articles.parser import (parse_betty,
                                            parse_imgur,
                                            parse_instagram,
                                            parse_onion_video,
+                                           parse_soundcloud,
                                            parse_text,
                                            parse_twitter,
+                                           parse_vimeo,
                                            parse_youtube,
                                            )
 
@@ -39,6 +41,19 @@ class ParseBodyTest(unittest.TestCase):
 #         self.assertIsNone([], parse_tag(''))
 
 
+class ParseBettyTest(unittest.TestCase):
+
+    def test_match(self):
+        self.assertEqual({'betty': {'image_id': '9513',
+                                    'caption': u"Testing «ταБЬℓσ» we're 20% done!"}},
+                         parse_betty(read_data('betty-caption')))
+
+    def test_missing_caption(self):
+        self.assertEqual({'betty': {'image_id': '9513',
+                                    'caption': u''}},
+                         parse_betty(read_data('betty-no-caption')))
+
+
 class ParseFacebookTest(unittest.TestCase):
 
     def test_post(self):
@@ -52,19 +67,6 @@ class ParseFacebookTest(unittest.TestCase):
         self.assertEqual('iframe', tag.name)
         self.assertTrue(tag['src'].startswith('https://www.facebook.com/plugins/video.php?'))
         self.assertFalse(tag.has_attr('style'))  # Verify removed
-
-
-class ParseBettyTest(unittest.TestCase):
-
-    def test_match(self):
-        self.assertEqual({'betty': {'image_id': '9513',
-                                    'caption': u"Testing «ταБЬℓσ» we're 20% done!"}},
-                         parse_betty(read_data('betty-caption')))
-
-    def test_missing_caption(self):
-        self.assertEqual({'betty': {'image_id': '9513',
-                                    'caption': u''}},
-                         parse_betty(read_data('betty-no-caption')))
 
 
 class ParseImgurTest(unittest.TestCase):
@@ -97,8 +99,10 @@ class ParseOnionVideoTest(unittest.TestCase):
 class ParseSoundcloudTest(unittest.TestCase):
 
     def test_parse(self):
-        self.assertEqual({'instagram': {'instagram_id': '3ewOSHitL2'}},
-                         parse_instagram(read_data('instagram-iframe')))
+        tag = parse_raw_tag(parse_soundcloud(read_data('soundcloud'))['soundcloud']['iframe'])
+        self.assertEqual('iframe', tag.name)
+        self.assertTrue(tag['src'].startswith('https://w.soundcloud.com/player/?'))
+        self.assertFalse(tag.has_attr('style'))  # Verify removed
 
 
 class ParseTextTest(unittest.TestCase):
@@ -119,6 +123,15 @@ class ParseTwitterTest(unittest.TestCase):
         tag = parse_raw_tag(parse_twitter(read_data('twitter-widget'))['twitter']['blockquote'])
         self.assertEqual('blockquote', tag.name)
         self.assertEqual(['twitter-tweet'], tag['class'])
+
+
+class ParseVimdeoTest(unittest.TestCase):
+
+    def test_parse(self):
+        tag = parse_raw_tag(parse_vimeo(read_data('vimeo'))['vimeo']['iframe'])
+        self.assertEqual('iframe', tag.name)
+        self.assertEqual('https://player.vimeo.com/video/166544005', tag['src'])
+        self.assertFalse(tag.has_attr('style'))  # Verify removed
 
 
 class ParseYoutubeTest(unittest.TestCase):

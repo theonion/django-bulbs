@@ -61,6 +61,9 @@ class InstantArticleTransformTest(TestCase):
         self.check_embed('twitter-blockquote')
         self.check_embed('twitter-widget')
 
+    def test_vimeo(self):
+        self.check_embed('vimeo')
+
     def test_youtube(self):
         self.check_embed('youtube-iframe')
         self.check_embed('youtube-no-iframe')

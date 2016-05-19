@@ -36,7 +36,7 @@ def parse_facebook(tag):
     if tag.name == 'div' and tag.attrs.get('data-type') == 'embed':
         iframe = tag.find('iframe')
         if iframe:
-            # Only way to identify is by 'src' URL
+            # Identify by 'src' URL
             src = iframe.attrs.get('src', '')
             if re.match('https?://www.facebook.com/plugins/', src):
                 return {'facebook': {'iframe': prepare_iframe(iframe)}}
@@ -104,15 +104,20 @@ def parse_onion_video(tag):
 
 
 def parse_vimeo(tag):
-    # return {'vimeo': {'iframe': iframe}}
-    pass
+    if tag.name == 'div' and tag.attrs.get('data-type') == 'embed':
+        iframe = tag.find('iframe')
+        if iframe:
+            # Identify by 'src' URL
+            src = iframe.attrs.get('src', '')
+            if re.match('https?://player.vimeo.com/video/', src):
+                return {'vimeo': {'iframe': prepare_iframe(iframe)}}
 
 
 def parse_soundcloud(tag):
     if tag.name == 'div' and tag.attrs.get('data-type') == 'embed':
         iframe = tag.find('iframe')
         if iframe:
-            # Only way to identify is by 'src' URL
+            # Identify by 'src' URL
             src = iframe.attrs.get('src', '')
             if re.match('https?://w.soundcloud.com/player/', src):
                 return {'soundcloud': {'iframe': prepare_iframe(iframe)}}
