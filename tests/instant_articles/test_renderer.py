@@ -1,27 +1,28 @@
 # -*- coding: utf-8 -*-
 
-from django.test.utils import override_settings
+from mock import patch
+
+from django.test import TestCase
 
 from bulbs.instant_articles.renderer import InstantArticleRenderer
-from bulbs.utils.test import BaseIndexableTestCase
 
 
-@override_settings(BETTY_IMAGE_URL='//images.onionstatic.com/onion')
-class InstantArticleRendererTests(BaseIndexableTestCase):
+class InstantArticleRendererTests(TestCase):
 
     def setUp(self):
         super(InstantArticleRendererTests, self).setUp()
         self.renderer = InstantArticleRenderer()
 
     def test_render_betty(self):
-        block = {"betty": {"image_id": 2349, "caption": "A really good caption"}}
-        name, data = block.items()[0]
+        with patch('djbetty.storage.settings.BETTY_IMAGE_URL', '//images.onionstatic.com/onion'):
+            block = {"betty": {"image_id": 2349, "caption": "A really good caption"}}
+            name, data = block.items()[0]
 
-        output = self.renderer.render_item(name, data)
-        self.assertEqual(
-            output.replace('\n', ''),
-            "<figure><img src=\"//images.onionstatic.com/onion/2349/16x9/1920.jpg\" /><figcaption>A really good caption</figcaption></figure>"
-        )
+            output = self.renderer.render_item(name, data)
+            self.assertEqual(
+                output.replace('\n', ''),
+                "<figure><img src=\"//images.onionstatic.com/onion/2349/16x9/1920.jpg\" /><figcaption>A really good caption</figcaption></figure>"
+            )
 
     def test_render_facebook(self):
         block = {"facebook": {"iframe": '<iframe src="https://www.facebook.com/plugins/post.php?href=https%3A%2F%2Fwww.facebook.com%2Fsarahpalin%2Fposts%2F10154115152888588&width=500" width="500" height="603" scrolling="no" frameborder="0" allowTransparency="true"></iframe>'}}

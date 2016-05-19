@@ -1,9 +1,9 @@
 import os.path
 
+from mock import patch
 import six
 
 from django.test import TestCase
-from django.test.utils import override_settings
 
 from bulbs.instant_articles.transform import transform
 from bulbs.instant_articles.renderer import InstantArticleRenderer
@@ -29,17 +29,19 @@ class InstantArticleTransformTest(TestCase):
 
         self.assertEqual(expected, actual)
 
-    @override_settings(BETTY_IMAGE_URL='http://images.onionstatic.com/starwipe')
     def test_multiple(self):
-        self.check_embed('body-multiple')
+        with patch('djbetty.storage.settings.BETTY_IMAGE_URL',
+                   'http://images.onionstatic.com/starwipe'):
+            self.check_embed('body-multiple')
 
     def test_example_avc_article(self):
         self.check_embed('avclub-example')
 
-    @override_settings(BETTY_IMAGE_URL='http://images.onionstatic.com/starwipe')
     def test_betty(self):
-        self.check_embed('betty-caption')
-        self.check_embed('betty-no-caption')
+        with patch('djbetty.storage.settings.BETTY_IMAGE_URL',
+                   'http://images.onionstatic.com/starwipe'):
+            self.check_embed('betty-caption')
+            self.check_embed('betty-no-caption')
 
     def test_facebook(self):
         self.check_embed('facebook-post')
