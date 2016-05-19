@@ -8,8 +8,7 @@
 @import '../mixins/flex-grid';
 @import '../mixins/aspect-ratio';
 @import '../mixins/ease';
-@import '../global/breakpoints';
-@import '../extends/vertical-center-flex';
+@import '../variables/breakpoints';
 
 .video-grid {
   h2 {
