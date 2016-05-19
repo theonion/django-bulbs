@@ -37,9 +37,9 @@ def index_feature_type_content(featuretype_pk):
 
 @shared_task(default_retry_delay=5)
 def update_feature_type_rates(featuretype_pk):
-    from bulbs.contributions.models import ContributorRole, FeatureTypeRate
+    from bulbs.contributions.models import ContributorRole, FeatureTypeRate, FEATURETYPE
 
-    roles = ContributorRole.objects.all()
+    roles = ContributorRole.objects.filter(payment_type=FEATURETYPE)
 
     for role in roles:
         existing_rates = FeatureTypeRate.objects.filter(
