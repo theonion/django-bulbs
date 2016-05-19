@@ -4,12 +4,11 @@ from django.template import loader
 class BaseRenderer:
 
     def generate_body(self, intermediate):
-        body = ""
+        body = []
         for item in intermediate:
             for key, values in item.items():
-                body += self.render_item(key, values)
-
-        return body
+                body.append(self.render_item(key, values).strip())
+        return '\n'.join(body)
 
     def render_item(self, key, body):
         if key == "text":

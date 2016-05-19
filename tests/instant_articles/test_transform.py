@@ -21,13 +21,17 @@ class InstantArticleTransformTest(TestCase):
     def check_embed(self, name):
         actual = transform(read_data('input/{}.html'.format(name)),
                            InstantArticleRenderer())
-        actual = actual.replace('\n', '').strip()
+        actual = actual.strip()
         expected = read_data('output/{}.html'.format(name)).strip()
         if six.PY2:
             # Force unicode
             expected = expected.decode('utf-8')
 
         self.assertEqual(expected, actual)
+
+    @override_settings(BETTY_IMAGE_URL='http://images.onionstatic.com/starwipe')
+    def test_multiple(self):
+        self.check_embed('body-multiple')
 
     def test_example_avc_article(self):
         self.check_embed('example')

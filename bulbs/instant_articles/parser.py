@@ -162,7 +162,7 @@ def parse_children(parent):
         if matched:
             components.append(matched)
         elif hasattr(tag, 'contents'):
-            parse_children(tag)
+            components += parse_children(tag)
     return components
 
 
