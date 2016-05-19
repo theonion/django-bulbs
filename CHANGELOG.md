@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 2.2.1
+
+- Move special coverage styles into bulbs styles
+
 ## Version 2.2.0
 
 - A little directory restructuring in bulbs-styles
