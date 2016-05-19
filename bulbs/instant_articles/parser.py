@@ -1,6 +1,7 @@
 import re
 
 from bs4 import BeautifulSoup
+import six
 
 
 def has_attr(attr):
@@ -32,7 +33,7 @@ def parse_facebook(tag):
 def parse_instagram(tag):
     # Just pass along ID
     # if tag.name == 'iframe' and 'instagram-media' in tag.get('class'):
-    #     return {'instagram': {'iframe': str(tag)}}
+    #     return {'instagram': {'iframe': six.text_type(tag)}}
     # return {'instagram': {'instagram_id': ###}}
 
     INSTAGRAM_ID_REGEX = re.compile('https?://www.instagram.com/p/([^/]+)/')
@@ -57,14 +58,14 @@ def parse_instagram(tag):
 
 def parse_text(tag):
     if tag.name == 'p':
-        return {'text': {'raw': str(tag)}}
+        return {'text': {'raw': six.text_type(tag)}}
 
 
 def parse_twitter(tag):
     if tag.name == 'div' and tag.attrs.get('data-type') == 'embed':
         blockquote = tag.find('blockquote', class_='twitter-tweet')
         if blockquote:
-            return {'twitter': {'blockquote': str(blockquote)}}
+            return {'twitter': {'blockquote': six.text_type(blockquote)}}
 
 
 def parse_youtube(tag):
@@ -87,7 +88,7 @@ def parse_onion_video(tag):
     if tag.name == 'div' and tag.attrs.get('data-type') == 'embed':
         iframe = tag.find('iframe', class_='onionstudios-playlist')
         if iframe:
-            return {'onion_video': {'iframe': str(iframe)}}
+            return {'onion_video': {'iframe': six.text_type(iframe)}}
 
 
 def parse_vimeo(tag):

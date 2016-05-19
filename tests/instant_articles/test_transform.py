@@ -1,4 +1,7 @@
 import os.path
+
+import six
+
 from django.test import TestCase
 from django.test.utils import override_settings
 
@@ -18,11 +21,12 @@ class InstantArticleTransformTest(TestCase):
     def check_embed(self, name):
         actual = transform(read_data('input/{}.html'.format(name)),
                            InstantArticleRenderer())
-        actual = actual.replace('\n', '')
-
+        actual = actual.replace('\n', '').strip()
         expected = read_data('output/{}.html'.format(name)).strip()
-        self.assertEqual(expected.strip(),
-                         actual.strip())
+        if six.PY2:
+            # Force unicode
+            expected = expected.decode('utf-8')
+        self.assertEqual(expected, actual)
 
     @override_settings(BETTY_IMAGE_URL='http://images.onionstatic.com/starwipe')
     def test_betty(self):
