@@ -118,7 +118,7 @@ class FeatureType(Indexable):
         return self.name
 
     def is_new(self):
-        return not bool(self.pk)
+        return self.pk is None
 
     def save(self, *args, **kwargs):
         """sets the `slug` values as the name
