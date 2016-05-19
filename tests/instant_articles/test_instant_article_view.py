@@ -49,7 +49,6 @@ class InstantArticleAdViewTests(BaseIndexableTestCase):
         self.client.login(username="admin", password="secret")
 
         response = self.client.get(url)
-        targeting = response.context_data.get("targeting")
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(targeting.get("transformed_body"), content.body)
+        self.assertEqual(response.context_data.get("transformed_body"), content.body)
