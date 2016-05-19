@@ -34,7 +34,7 @@ class InstantArticleTransformTest(TestCase):
         self.check_embed('body-multiple')
 
     def test_example_avc_article(self):
-        self.check_embed('example')
+        self.check_embed('avclub-example')
 
     @override_settings(BETTY_IMAGE_URL='http://images.onionstatic.com/starwipe')
     def test_betty(self):
