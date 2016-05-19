@@ -31,9 +31,11 @@ class InstantArticleRSSView(RSSView):
 
         for content in context["page_obj"].object_list:
             content.feed_url = self.request.build_absolute_uri(content.get_absolute_url())
+            body = getattr(content, 'body', "")
             content_ctx = {
                 "content": content,
-                "absolute_uri": self.request.META.get('HTTP_HOST', None)
+                "absolute_uri": self.request.META.get('HTTP_HOST', None),
+                "transformed_body": transform(body, InstantArticleRenderer())
             }
             try:
                 content.instant_article_html = loader.render_to_string(
