@@ -94,6 +94,13 @@ class ParseOnionVideoTest(unittest.TestCase):
         self.assertEqual(['onionstudios-playlist'], tag['class'])
 
 
+class ParseSoundcloudTest(unittest.TestCase):
+
+    def test_parse(self):
+        self.assertEqual({'instagram': {'instagram_id': '3ewOSHitL2'}},
+                         parse_instagram(read_data('instagram-iframe')))
+
+
 class ParseTextTest(unittest.TestCase):
 
     def test_blockquote(self):

@@ -47,6 +47,9 @@ class InstantArticleTransformTest(TestCase):
     def test_onion_video(self):
         self.check_embed('onion_video')
 
+    def test_soundcloud(self):
+        self.check_embed('soundcloud')
+
     def test_text(self):
         self.check_embed('text-paragraph')
 

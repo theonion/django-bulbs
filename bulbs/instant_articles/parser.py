@@ -14,11 +14,12 @@ def has_attr(attr):
     return inner_has_attr
 
 
-def clean_iframe(iframe):
+def prepare_iframe(iframe):
     # Strip out style attribute
     if iframe.has_attr('style'):
         del iframe.attrs['style']
-    return iframe
+    # Convert to unicode (for Python 2.7, noop for 3.x)
+    return six.text_type(iframe)
 
 
 def parse_betty(tag):
@@ -36,9 +37,9 @@ def parse_facebook(tag):
         iframe = tag.find('iframe')
         if iframe:
             # Only way to identify is by 'src' URL
-            if iframe.attrs.get('src', '').startswith('https://www.facebook.com/plugins/'):
-                iframe = clean_iframe(iframe)
-                return {'facebook': {'iframe': six.text_type(iframe)}}
+            src = iframe.attrs.get('src', '')
+            if re.match('https?://www.facebook.com/plugins/', src):
+                return {'facebook': {'iframe': prepare_iframe(iframe)}}
 
 
 def parse_instagram(tag):
@@ -99,8 +100,7 @@ def parse_onion_video(tag):
     if tag.name == 'div' and tag.attrs.get('data-type') == 'embed':
         iframe = tag.find('iframe', class_='onionstudios-playlist')
         if iframe:
-            iframe = clean_iframe(iframe)
-            return {'onion_video': {'iframe': six.text_type(iframe)}}
+            return {'onion_video': {'iframe': prepare_iframe(iframe)}}
 
 
 def parse_vimeo(tag):
@@ -109,22 +109,25 @@ def parse_vimeo(tag):
 
 
 def parse_soundcloud(tag):
-    # return {'soundcloud': {'iframe': iframe}}
-    pass
+    if tag.name == 'div' and tag.attrs.get('data-type') == 'embed':
+        iframe = tag.find('iframe')
+        if iframe:
+            # Only way to identify is by 'src' URL
+            src = iframe.attrs.get('src', '')
+            if re.match('https?://w.soundcloud.com/player/', src):
+                return {'soundcloud': {'iframe': prepare_iframe(iframe)}}
 
 
 def parse_imgur(tag):
     if tag.name == 'div' and tag.attrs.get('data-type') == 'embed':
         iframe = tag.find('iframe', class_='imgur-embed-iframe-pub')
         if iframe:
-            iframe = clean_iframe(iframe)
-            return {'imgur': {'iframe': six.text_type(iframe)}}
+            return {'imgur': {'iframe': prepare_iframe(iframe)}}
 
 
 PARSERS = [
     # Sorted by precedence (initially alphabically since no precedence required for now)
     parse_betty,
-    parse_facebook,
     parse_facebook,
     parse_imgur,
     parse_instagram,
