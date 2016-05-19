@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 2.2.0
+
+- A little directory restructuring in bulbs-styles
+
 ## Version 2.1.0
 
 - change `special_coverage_landing_partial` template tag
