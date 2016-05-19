@@ -42,7 +42,7 @@ class InstantArticleTransformTest(TestCase):
         self.check_embed('facebook-video')
 
     def test_imgur(self):
-        self.check_embed('imgur-iframe')
+        self.check_embed('imgur')
 
     def test_instagram(self):
         self.check_embed('instagram-blockquote')

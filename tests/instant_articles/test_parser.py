@@ -72,7 +72,7 @@ class ParseFacebookTest(unittest.TestCase):
 class ParseImgurTest(unittest.TestCase):
 
     def test_parse(self):
-        tag = parse_raw_tag(parse_imgur(read_data('imgur-iframe'))['imgur']['iframe'])
+        tag = parse_raw_tag(parse_imgur(read_data('imgur'))['imgur']['iframe'])
         self.assertEqual('iframe', tag.name)
         self.assertIn('imgur-embed-iframe-pub', tag['class'])
 
