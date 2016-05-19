@@ -14,6 +14,13 @@ def has_attr(attr):
     return inner_has_attr
 
 
+def clean_iframe(iframe):
+    # Strip out style attribute
+    if iframe.has_attr('style'):
+        del iframe.attrs['style']
+    return iframe
+
+
 def parse_betty(tag):
     if (tag.name == 'div' and
         'image' in tag.get('class', {}) and
@@ -30,9 +37,7 @@ def parse_facebook(tag):
         if iframe:
             # Only way to identify is by 'src' URL
             if iframe.attrs.get('src', '').startswith('https://www.facebook.com/plugins/'):
-                # Special Case: Strip out style attribute
-                if iframe.has_attr('style'):
-                    del iframe.attrs['style']
+                iframe = clean_iframe(iframe)
                 return {'facebook': {'iframe': six.text_type(iframe)}}
 
 
@@ -94,6 +99,7 @@ def parse_onion_video(tag):
     if tag.name == 'div' and tag.attrs.get('data-type') == 'embed':
         iframe = tag.find('iframe', class_='onionstudios-playlist')
         if iframe:
+            iframe = clean_iframe(iframe)
             return {'onion_video': {'iframe': six.text_type(iframe)}}
 
 
@@ -111,9 +117,7 @@ def parse_imgur(tag):
     if tag.name == 'div' and tag.attrs.get('data-type') == 'embed':
         iframe = tag.find('iframe', class_='imgur-embed-iframe-pub')
         if iframe:
-            # Special Case: Strip out style attribute
-            if iframe.has_attr('style'):
-                del iframe.attrs['style']
+            iframe = clean_iframe(iframe)
             return {'imgur': {'iframe': six.text_type(iframe)}}
 
 
