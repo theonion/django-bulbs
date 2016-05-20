@@ -23,7 +23,8 @@ class FeatureTypeTasksTestCase(BaseIndexableTestCase):
         feature_type = FeatureType.objects.create(
             name='Existing Feature Type',
             slug='existing-feature-type',
-            instant_article=False)
+            instant_article=False
+        )
 
         self.assertEqual(FeatureTypeRate.objects.all().count(), 1)
 
