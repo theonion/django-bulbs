@@ -10,7 +10,8 @@ class FeatureTypeTasksTestCase(BaseIndexableTestCase):
         feature_type = FeatureType.objects.create(
             name='Test Feature Type',
             slug='test-feature-type',
-            instant_article=False)
+            instant_article=False
+        )
 
         update_feature_type_rates(feature_type.pk)
 
