@@ -64,13 +64,14 @@ def parse_instagram(tag):
                     m = INSTAGRAM_ID_REGEX.match(a['href'])
                     if m:
                         return {'instagram': {'instagram_id': m.group(1)}}
+    # Div embed
     elif tag.name == 'div' and tag.attrs.get('data-type') == 'embed-instagram':
         div = tag.find('div', 'embed-container')
         m = INSTAGRAM_HTML_ID_REGEX.search(div['instagram-embed-html'])
 
         if m:
             return {'instagram': {'instagram_id': m.group(1)}}
-            
+
 
 def parse_text(tag):
     if tag.name == 'p':
