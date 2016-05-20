@@ -105,6 +105,7 @@ class FeatureType(Indexable):
         super(FeatureType, self).__init__(*args, **kwargs)
         # Reference for state change on save.
         self._db_instant_article = self.instant_article
+        self._db_pk = self.pk
 
     class Mapping:
         name = field.String(
@@ -119,7 +120,10 @@ class FeatureType(Indexable):
 
     @property
     def is_new(self):
-        return self.pk is None
+        return (
+            self.pk != self._db_pk or
+            self.pk is None and self._db_pk is None
+        )
 
     def save(self, *args, **kwargs):
         """sets the `slug` values as the name
@@ -138,8 +142,9 @@ class FeatureType(Indexable):
 
         self._db_instant_article = self.instant_article
 
+        # Run all behaviors for `create`
         if self.is_new:
-            update_feature_type_rates(self.pk)
+            update_feature_type_rates.delay(self.pk)
 
         return feature_type
 
