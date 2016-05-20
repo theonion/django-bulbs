@@ -45,12 +45,8 @@ def parse_facebook(tag):
 
 
 def parse_instagram(tag):
-    # Just pass along ID
-    # if tag.name == 'iframe' and 'instagram-media' in tag.get('class'):
-    #     return {'instagram': {'iframe': six.text_type(tag)}}
-    # return {'instagram': {'instagram_id': ###}}
-
     INSTAGRAM_ID_REGEX = re.compile('https?://www.instagram.com/p/([^/]+)/')
+    INSTAGRAM_HTML_ID_REGEX = re.compile('instagram.com/p/([^/]+)/')
 
     if tag.name == 'div' and tag.attrs.get('data-type') == 'embed':
         # IFRAME
@@ -68,7 +64,13 @@ def parse_instagram(tag):
                     m = INSTAGRAM_ID_REGEX.match(a['href'])
                     if m:
                         return {'instagram': {'instagram_id': m.group(1)}}
+    elif tag.name == 'div' and tag.attrs.get('data-type') == 'embed-instagram':
+        div = tag.find('div', 'embed-container')
+        m = INSTAGRAM_HTML_ID_REGEX.search(div['instagram-embed-html'])
 
+        if m:
+            return {'instagram': {'instagram_id': m.group(1)}}
+            
 
 def parse_text(tag):
     if tag.name == 'p':

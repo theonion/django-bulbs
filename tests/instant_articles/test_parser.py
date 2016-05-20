@@ -93,6 +93,10 @@ class ParseInstagramTest(unittest.TestCase):
         self.assertEqual({'instagram': {'instagram_id': '3jeiuICtD7'}},
                          parse_instagram(read_tag_data('instagram-blockquote')))
 
+    def test_instagram_div(self):
+        self.assertEqual({'instagram': {'instagram_id': 'BE9ZB_3LVWa'}},
+                         parse_instagram(read_tag_data('instagram-div')))
+
 
 class ParseOnionVideoTest(unittest.TestCase):
 
