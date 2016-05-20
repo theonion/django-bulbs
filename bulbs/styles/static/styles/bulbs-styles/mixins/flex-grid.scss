@@ -1,0 +1,36 @@
+///////////////////////////////
+// ************************* //
+//         FLEX GRID         //
+// ************************* //
+///////////////////////////////
+
+@import 'flexbox';
+
+// taken from https://ajy.co/the-simplest-sass-flexbox-grid-ever
+
+@mixin flexgrid($columns: 0, $gutter: 24, $padding: 0) {
+    @include flexbox;
+    @include flex-wrap(wrap);
+    box-sizing: border-box;
+    margin-left: (-1 * $gutter) * 1px;
+  > * {
+    box-sizing: border-box;
+    margin-left: $gutter * 1px;
+    padding: $padding * 1px;
+  }
+
+  $flexgrid_calc_percent: (1/$columns) * 100%;
+  $flexgrid_calc_gutter_allowance: $gutter * 1px;
+
+  > * {
+    width: calc(#{$flexgrid_calc_percent} - #{$flexgrid_calc_gutter_allowance});
+  }
+}
+
+// width override for a column in wrap scenario:
+
+@mixin flexgrid_width($flexgrid_ratio, $gutter: 24) {
+  $flexgrid_calc_percent: $flexgrid_ratio * 100%;
+  $flexgrid_calc_gutter: $gutter * 1px;
+  width: calc(#{$flexgrid_calc_percent} - #{$flexgrid_calc_gutter});
+};

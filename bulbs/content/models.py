@@ -303,12 +303,16 @@ class Content(PolymorphicModel, Indexable):
 
     def get_targeting(self):
         data = {
-            "dfp_site": settings.DFP_SITE,
-            "dfp_feature": slugify(self.feature_type),
+            "dfp_feature": getattr(self.feature_type, "slug", None),
             "dfp_contentid": self.pk,
             "dfp_pagetype": self.__class__.__name__.lower(),
-            "dfp_slug": self.slug
+            "dfp_slug": self.slug,
+            "dfp_evergreen": self.evergreen,
+            "dfp_title": strip_tags(self.title),
+            "dfp_site": getattr(settings, "DFP_SITE", None)
         }
+        if self.published is not None:
+            data["dfp_publishdate"] = self.published.isoformat()
         data["dfp_campaign"] = getattr(self, "campaign", None)
         tags = self.ordered_tags()
         data["dfp_section"] = tags[0].slug if tags else None
