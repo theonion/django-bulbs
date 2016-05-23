@@ -64,3 +64,16 @@ class FeatureTypeModelTestCase(BaseIndexableFeatureTypeTestCase):
             TestContentObj.search_objects.instant_articles().count(),
             50
         )
+
+    def test_is_new(self):
+        new_feature_type = FeatureType(name='New Feature Type', slug='new-feature-type')
+        existing_feature_type = FeatureType.objects.create(
+            name='Existing Feature Type',
+            slug='existing-feature-type')
+
+        self.assertTrue(new_feature_type.is_new)
+        self.assertTrue(existing_feature_type.is_new)
+
+        existing_feature_type = FeatureType.objects.get(id=existing_feature_type.id)
+        self.assertFalse(existing_feature_type.is_new)
+
