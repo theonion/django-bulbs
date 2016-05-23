@@ -37,6 +37,14 @@ class TestContentObjTwo(Content):
         return '/detail/%s/' % self.pk
 
 
+class TestContentObjThree(Content):
+
+    body = models.CharField(max_length=255)
+
+    def get_absolute_url(self):
+        return '/detail/%s/' % self.pk
+
+
 class TestReadingListObj(Content, ReadingListMixin):
     """Fake content with reading lists here."""
 

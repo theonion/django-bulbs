@@ -1,1 +1,7 @@
-<h1>HI!</h1>
+{% spaceless %}
+{% if transformed_body %}
+  {{ transformed_body| safe }}
+{% else %}
+  <h1>HI!</h1>
+{% endif %}
+{% endspaceless %}

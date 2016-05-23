@@ -1,0 +1,7 @@
+{% load betty %}
+{% spaceless %}
+<figure>
+  <img src="{% cropped_url image_id width="1920" %}" />
+  <figcaption>{{ caption }}</figcaption>
+</figure>
+{% endspaceless %}

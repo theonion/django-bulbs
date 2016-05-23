@@ -2,6 +2,11 @@
 
 ## Development
 
+## Version 2.3.0
+
+- Added `parser.py`, which parses article bodies, and sends them to `renderer.py`, which can render article bodies in a particular format
+- Update `base_instant_article.html` and `base_instant_article_rss.xml` to use generated body, based on `parser.py` & `renderer.py`
+
 ## Version 2.2.1
 
 - Move special coverage styles into bulbs styles

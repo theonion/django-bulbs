@@ -56,7 +56,7 @@
       </header>
 
       {% block article_content %}
-        {{ content.body|safe }}
+        {{ transformed_body|safe }}
       {% endblock article_content %}
 
       <figure class="op-tracker">
