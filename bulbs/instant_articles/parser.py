@@ -74,7 +74,12 @@ def parse_instagram(tag):
 
 
 def parse_text(tag):
-    if tag.name == 'p':
+    if (tag.name == 'p' or
+        tag.name == 'blockquote' or
+        tag.name == 'ol' or
+        tag.name == 'ul' or
+        tag.name == 'h3' or
+        tag.name == 'h4'):
         return {'text': {'raw': six.text_type(tag)}}
 
 
