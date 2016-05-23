@@ -40,14 +40,12 @@ class TunicClient(object):
         path = "/campaign/"
         if filter_active:
             path += "?active=True"
-        while True:
+        while path:
             resp = self.get(path).json()
             campaigns.update({
                 c["id"]: c for c in resp.get("results", {})
             })
             path = resp.get("next")
-            if not path:
-                break
         return campaigns
 
     def get_active_campaigns(self):
