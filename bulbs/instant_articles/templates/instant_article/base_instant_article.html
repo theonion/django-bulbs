@@ -17,6 +17,10 @@
       <header>
         <h1>{{ content.title|safe }}</h1>
 
+        {% if content.subhead %}
+          <h2>{{ content.subhead|safe }}</h2>
+        {% endif %}
+
         <h3 class="op-kicker">
           {{ content.feature_type.name|upper }}
         </h3>
