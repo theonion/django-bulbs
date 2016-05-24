@@ -1,133 +1,124 @@
 {% load betty humanize ads static content %}
 
-<bulbs-video-carousel>
-  <bulbs-data
-    id='sc-video-src'
-    src='{{ VIDEOHUB_BASE_URL }}/video/{{current_video}}.json'
-  ></bulbs-data>
+<div class="sc-hero">
+  <figure class="hero-img">
+    {% cropped special_coverage.image %}
+  </figure>
+  <div class="sc-label">Special Coverage</div>
+  <div class="billboard">
+    <h1>{{ special_coverage.name }}</h1>
+    {% if special_coverage.description %}
+      <p>{{ special_coverage.description }}</p>
+    {% endif %}
+    {% if special_coverage.tunic_campaign_id %}
+      {% comment %}
+        TODO bulbs-elements dependency should be explicitly set by this repo.
+        At this point, we are pushing this responsibility downstream.
+      {% endcomment %}
+      <campaign-display
+        class="sc-hero-campaign"
+        data-track-action="Feature: Sponsor"
+        data-track-category="Special Coverage Landing"
+        placement="detail"
+        preamble-text="Presented by"
+        src="{% content_tunic_campaign_url special_coverage.tunic_campaign_id %}"
+        logo-only
+      >
+      </campaign-display>
+    {% endif %}
+  </div>
+</div>
 
-  <div class="sc-hero">
-    <figure class="hero-img">
-      {% cropped special_coverage.image %}
-    </figure>
-    <div class="sc-label">Special Coverage</div>
-    <div class="billboard">
-      <h1>{{ special_coverage.name }}</h1>
-      {% if special_coverage.description %}
-        <p>{{ special_coverage.description }}</p>
-      {% endif %}
+{% if current_video %}
+  <div class='sc-video-player'>
+    <bulbs-video
+      src='{{ VIDEOHUB_BASE_URL }}/video/{{current_video}}.json'
+      data-play-track-action="Video: Main: Play"
+      data-play-track-category="Special Coverage Landing"
+      data-play-track-label="#"
+      autoplay
+      no-endcard
+    >
+    </bulbs-video>
+    <div class='sc-video-meta'>
       {% if special_coverage.tunic_campaign_id %}
-        {% comment %}
-          TODO bulbs-elements dependency should be explicitly set by this repo.
-          At this point, we are pushing this responsibility downstream.
-        {% endcomment %}
         <campaign-display
-          class="sc-hero-campaign"
-          data-track-action="Feature: Sponsor"
+          class="sc-player-campaign"
+          data-track-action="Video: Main: Sponsor"
           data-track-category="Special Coverage Landing"
           placement="detail"
           preamble-text="Presented by"
-          src='{% content_tunic_campaign_url special_coverage.tunic_campaign_id %}'
-          logo-only
+          src="{% content_tunic_campaign_url special_coverage.tunic_campaign_id %}"
+          name-only
+        >
+        </campaign-display>
+      {% endif %}
+      <bulbs-video-meta
+        src='{{ VIDEOHUB_BASE_URL }}/video/{{current_video}}.json'
+        share-email-message="{{share_message}}"
+        share-twitter-handle="{{twitter_handle}}"
+        data-track-category="Special Coverage Landing"
+        share-track-action="Video: Main: Share"
+      >
+      </bulbs-video-meta>
+    </div>
+  </div>
+{% endif %}
+
+{% if special_coverage.videos.1 %}
+  <div class='sc-divider'>
+    <hr>
+  </div>
+
+  <div class='sc-video-carousel'>
+    <div class='sc-video-carousel-header'>
+      <span class='sc-video-carousel-header-title'>
+        UP NEXT
+      </span>
+      {% if special_coverage.tunic_campaign_id %}
+        <campaign-display
+          class="sc-carousel-campaign"
+          data-track-action="Video: Recirc: Sponsor"
+          data-track-category="Special Coverage Landing"
+          placement="detail"
+          preamble-text="Presented by"
+          src="{% content_tunic_campaign_url special_coverage.tunic_campaign_id %}"
+          name-only
         >
         </campaign-display>
       {% endif %}
     </div>
-  </div>
 
-  {% if current_video %}
-    <div class='sc-video-player'>
-      <bulbs-video
-        src='#sc-video-src'
-        autoplay
-        no-endcard
-      >
-      </bulbs-video>
-      <div class='sc-video-meta'>
-        {% if special_coverage.tunic_campaign_id %}
-          <campaign-display
-            class="sc-player-campaign"
-            data-track-action="Video: Main: Sponsor"
-            data-track-category="Special Coverage Landing"
-            placement="detail"
-            preamble-text="Presented by"
-            src='{% content_tunic_campaign_url special_coverage.tunic_campaign_id %}'
-            name-only
-          >
-          </campaign-display>
-        {% endif %}
-        <bulbs-video-meta
-          src='#sc-video-src'
-          share-email-message="{{share_message}}"
-          share-twitter-handle="{{twitter_handle}}"
-          data-track-category="Special Coverage Landing"
-          share-track-action="Video: Main: Share"
-        >
-        </bulbs-video-meta>
-      </div>
-    </div>
-  {% endif %}
-
-  {% if special_coverage.videos.0 %}
-    <div class='sc-divider'>
-      <hr>
-    </div>
-
-    <div class='sc-video-carousel'>
-      <div class='sc-video-carousel-header'>
-        <span class='sc-video-carousel-header-title'>
-          UP NEXT
-        </span>
-        {% if special_coverage.tunic_campaign_id %}
-          <campaign-display
-            class="sc-carousel-campaign"
-            data-track-action="Video: Recirc: Sponsor"
-            data-track-category="Special Coverage Landing"
-            placement="detail"
-            preamble-text="Presented by"
-            src='{% content_tunic_campaign_url special_coverage.tunic_campaign_id %}'
-            name-only
-          >
-          </campaign-display>
-        {% endif %}
-      </div>
-
-      <div class='sc-video-grid'>
-        {% for x in 'abcde' %}
-        {% for video_id in special_coverage.videos %}
-          <bulbs-video-carousel-item
+    <div class='sc-video-grid'>
+      {% for video_id in special_coverage.videos %}
+        <bulbs-video-carousel-item>
+          <a
             data-track-category="Special Coverage Landing"
             data-track-action="Video: Recirc: {{forloop.counter}}"
             data-track-label='{% url 'special-video' slug=special_coverage.slug video_id=video_id %}'
             href='{% url 'special-video' slug=special_coverage.slug video_id=video_id %}'
-            {% if video_id == current_video %}
-              now-playing
-            {% endif %}
-           >
+          />
             <bulbs-video-summary
-              src='{{ VIDEOHUB_BASE_URL }}/video/{{ video_id }}.json'
+              src='{{ VIDEOHUB_BASE_URL }}/video/{{video_id}}.json'
               {% if video_id == current_video %}
                 now-playing
               {% endif %}
             >
             </bulbs-video-summary>
-          </bulbs-video-carousel-item>
-        {% endfor %}
-        {% endfor %}
-      </div>
+          </a>
+        </bulbs-video-carousel-item>
+      {% endfor %}
     </div>
-  {% endif %}
-</bulbs-video-carousel>
+  </div>
+{% endif %}
 
 <ul class="sc-grid two-up">
   {% for content in content_list  %}
-    <li
-        class="sc-item {% if forloop.counter|divisibleby:"5" %}large{% endif %}"
+    <li class="sc-item {% if forloop.counter|divisibleby:"5" %}large{% endif %}">
+      <a
         data-track-category="Special Coverage Landing"
         data-track-action="Article: {% if forloop.counter|divisibleby:"5" %}Large{% else %}Small{% endif %}"
         data-track-label="{{ content.get_absolute_url }}"
-    >
-      <a
         href="{{ content.get_absolute_url }}"
       >
         <figure class="thumb">
