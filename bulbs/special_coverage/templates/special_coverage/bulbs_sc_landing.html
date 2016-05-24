@@ -33,6 +33,9 @@
   <div class='sc-video-player'>
     <bulbs-video
       src='{{ VIDEOHUB_BASE_URL }}/video/{{current_video}}.json'
+      data-play-track-action="Video: Main: Play"
+      data-play-track-category="Special Coverage Landing"
+      data-play-track-label="#"
       autoplay
       no-endcard
     >
@@ -92,6 +95,7 @@
           <a
             data-track-category="Special Coverage Landing"
             data-track-action="Video: Recirc: {{forloop.counter}}"
+            data-track-label='{% url 'special-video' slug=special_coverage.slug video_id=video_id %}'
             href='{% url 'special-video' slug=special_coverage.slug video_id=video_id %}'
           />
             <bulbs-video-summary
@@ -114,6 +118,7 @@
       <a
         data-track-category="Special Coverage Landing"
         data-track-action="Article: {% if forloop.counter|divisibleby:"5" %}Large{% else %}Small{% endif %}"
+        data-track-label="{{ content.get_absolute_url }}"
         href="{{ content.get_absolute_url }}"
       >
         <figure class="thumb">
