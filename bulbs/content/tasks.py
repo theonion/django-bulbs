@@ -2,6 +2,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from celery import shared_task
 
+
 @shared_task(default_retry_delay=5)
 def index(content_type_id, pk, refresh=False):
     from django.contrib.contenttypes.models import ContentType
@@ -51,3 +52,51 @@ def update_feature_type_rates(featuretype_pk):
                 rate=0,
                 feature_type_id=featuretype_pk,
                 role_id=role.pk)
+
+
+@shared_task(default_retry_delay=5)
+def post_to_instant_articles_api(content_pk):
+    import requests
+    from django.conf import settings
+    from .models import Content
+
+    content = Content.objects.get(pk=content_pk)
+    if content.feature_type.instant_article:
+        # GET FACEBOOK_PAGE_ID FROM SETTINGS
+        fb_page_id = getattr(settings, 'FACEBOOK_PAGE_ID')
+        # GET ACCESS TOKEN FROM VAULT
+        fb_access_token = ""
+
+        # GET PAGE SOURCE FROM INSTANT ARTICLE CONTENT VIEW
+        source = ""
+
+        # POST IT TO FACEBOOK ENDPOINT
+        # curl \
+        #     -F 'access_token={access-token}' \
+        #     -F 'html_source=<!doctype html>...' \
+        #     -F 'published=true' \
+        #     -F 'development_mode=false' \
+        #     https://graph.facebook.com/{page-id}/instant_articles
+        post = requests.post(
+            'https://graph.facebook.com/{}/instant_articles'.format(fb_page_id),
+            data={
+                'access_token': fb_access_token,
+                'html_source': source,
+                'published': 'true',
+                'development_mode': 'false'
+            })
+
+        # GET IMPORT STATUS ID FROM RESPONSE
+        # GET https://graph.facebook.com/{import-status-id}?access_token={access-token}
+        status = requests.get('https://graph.facebook.com/{0}?access_token={1}'.format(
+            post.json()['id'],
+            fb_access_token
+        ))
+
+        # CHECK STATUS IN RESPONSE
+        if status.json()['status'] == 'SUCCESS':
+            content.instant_article_id = status.json()['id']
+            content.save()
+        else:
+            pass
+            # log error here
