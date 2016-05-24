@@ -122,6 +122,14 @@ class ParseTextTest(unittest.TestCase):
         self.assertEqual({'text': {'raw': u"<p>Testing some text «ταБЬℓσ» we're 20% done!</p>"}},
                          parse_text(read_tag_data('text-paragraph')))
 
+    def test_extra_editor_types(self):
+        self.assertEqual([{'text': {'raw': '<blockquote><p>blockquote</p></blockquote>'}},
+                         {'text': {'raw': '<ol>\n<li>one</li>\n<li>two</li>\n</ol>'}},
+                         {'text': {'raw': '<ul>\n<li>bullet one</li>\n<li>bullet two</li>\n</ul>'}},
+                         {'text': {'raw': '<h4>subheading</h4>'}},
+                         {'text': {'raw': '<h3>heading</h3>'}}],
+                         parse_body(read_data('editor-types')))
+
 
 class ParseTwitterTest(unittest.TestCase):
 
