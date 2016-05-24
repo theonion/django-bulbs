@@ -1,13 +1,13 @@
 """Module to generate and send a report to contributors containing a log of their contributions."""
+import logging
+
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.mail import EmailMultiAlternatives
-from django.shortcuts import get_object_or_404
 from django.template import loader
 from django.utils import timezone
 
-from bulbs.content.models import Content
-
+logger = logging.getLogger(__name__)
 
 User = get_user_model()
 
@@ -51,6 +51,8 @@ class ContributorReport(object):
             else:
                 mail.to = EMAIL_SETTINGS.get("TO")
             mail.send()
+        else:
+            logger.error("""No email sent for {}""".format(self.contributor.get_full_name()))
 
     def get_body(self):
         contribution_types = {}
@@ -158,17 +160,15 @@ class EmailReport(object):
     def send_mass_contributor_emails(self):
         """Send report email to all relevant contributors."""
         # If the report configuration is not active we only send to the debugging user.
-        if EMAIL_SETTINGS.get("ACTIVE", False):
-            for contributor in self.contributors:
-                if contributor.email not in EMAIL_SETTINGS.get("EXCLUDED", []):
-                    self.send_contributor_email(contributor)
-        else:
-            for email in EMAIL_SETTINGS.get("TO", []):
-                self.send_contributor_email(User.objects.get(email=email))
+        for contributor in self.contributors:
+            if contributor.email not in EMAIL_SETTINGS.get("EXCLUDED", []):
+                self.send_contributor_email(contributor)
 
     def get_contributors(self):
         """Return a list of contributors with contributions between the start/end dates."""
         return User.objects.filter(
+            freelanceprofile__is_freelance=True
+        ).filter(
             contributions__content__published__gte=self.start,
             contributions__content__published__lt=self.end
         ).distinct()

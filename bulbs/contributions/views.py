@@ -174,6 +174,9 @@ class LineItemReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
     def get_queryset(self):
         start = self.request.QUERY_PARAMS.get("start", None)
         end = self.request.QUERY_PARAMS.get("end", None)
+        if end:
+            end = timezone.datetime.strptime(end, "%Y-%m-%d")
+            end += timezone.timedelta(days=1)
         return LineItem.objects.filter(payment_date__range=(start, end))
 
     @property
