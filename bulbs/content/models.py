@@ -22,7 +22,7 @@ from polymorphic import PolymorphicModel, PolymorphicManager
 from bulbs.content import TagCache
 from bulbs.content.tasks import (
     index_content_contributions, index_content_report_content_proxy,
-    index_feature_type_content
+    index_feature_type_content, post_to_instant_articles_api
 )
 from bulbs.utils.methods import datetime_to_epoch_seconds, get_template_choices
 from .managers import ContentManager
@@ -217,6 +217,8 @@ class Content(PolymorphicModel, Indexable):
     tunic_campaign_id = models.IntegerField(blank=True, null=True, default=None)
     # Custom template choice. Configured via BULBS_TEMPLATE_CHOICE
     template_choice = models.IntegerField(default=0, choices=TEMPLATE_CHOICES)
+    # Facebook Instant Article ID
+    instant_article_id = models.IntegerField(blank=True, null=True, default=None)
 
     # custom ES manager
     search_objects = ContentManager()
