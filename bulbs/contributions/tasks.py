@@ -3,7 +3,16 @@ from celery import shared_task
 
 from bulbs.content.models import Content
 from .email import send_byline_email, EmailReport
-from .models import Contribution
+from .models import Contribution, FreelanceProfile
+
+
+@shared_task(default_retry_delay=5)
+def check_and_update_freelanceprofiles(content_id):
+    content = Content.objects.get(id=content_id)
+    for author in content.authors.all():
+        profile = getattr(author, "freelanceprofile", None)
+        if profile is None:
+            FreelanceProfile.objects.create(contributor=author)
 
 
 @shared_task(default_retry_delay=5)
