@@ -87,7 +87,7 @@ class EmailReportTestCase(BaseAPITestCase):
     def test_get_contributors_last_month(self):
         report = EmailReport(month=self.last_month)
         contributors = report.get_contributors()
-        self.assertEqual(contributors.count(), 2)
+        self.assertEqual(contributors.count(), 1)
 
     def test_get_contributor_contributions_default(self):
         report = ContributorReport(self.tony_sarpino)
