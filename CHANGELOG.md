@@ -5,7 +5,7 @@
 ## Version 2.3.3
 
 - Added twitter video parsing
-- Checks `src` on youtube iframe embeds
+- Parser checks `src` on youtube iframe embeds
 
 ## Version 2.3.2
 
