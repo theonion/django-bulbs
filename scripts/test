@@ -1,5 +1,4 @@
 #!/bin/sh
-# Run all tests
-#
+# Summary: Run all test.
 
 py.test "$@"

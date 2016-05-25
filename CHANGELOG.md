@@ -2,10 +2,14 @@
 
 ## Development
 
-## Version 2.3.3
+## Version 2.4.1
 
 - Added twitter video parsing
 - Parser checks `src` on youtube iframe embeds
+
+## Version 2.4.0
+
+- Added `SendToWebtech` view for a common bug reporter endpoint
 
 ## Version 2.3.2
 
