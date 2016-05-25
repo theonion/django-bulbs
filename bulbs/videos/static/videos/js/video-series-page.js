@@ -1,12 +1,15 @@
-var SeriesVideoGrid = require('./series-video-grid.js');
-var LatestEpisode = require('./latest-episode.js');
+//var SeriesVideoGrid = require('./series-video-grid.js');
+//var LatestEpisode = require('./latest-episode.js');
 
 SeriesPage = function(seriesSlug) {
-  this.fetchSeriesVideos(seriesSlug)
+  this.$seriesGrid = $('#series-grid');
+  this.source = this.$seriesList.data('series-slug');
+  this.fetchSeriesVideos();
 };
 
 SeriesPage.prototype.fetchSeriesVideos = function(seriesSlug) {
   // Make request to: 
+  $.getJSON(this.source, this.seriesFetched.bind(this));
   // http://www.onionstudios.com/api/series/film-club/videos`
 };
 

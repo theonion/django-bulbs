@@ -9,7 +9,7 @@ import requests
 class SeriesDetailView(DetailView):
 
     def get_template_names(self):
-        template_names = ["videos/series-detail.html"]
+        template_names = ["videos/video-series-detail-test.html"]
         return template_names
 
     def get(self, request, *args, **kwargs):

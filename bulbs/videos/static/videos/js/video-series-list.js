@@ -1,19 +1,20 @@
-var VideoSeriesFlyoutList = function() {
+var VideoSeriesList = function () {
   this.$seriesList = $('#series-list');
   this.source = this.$seriesList.data('channel-series');
   this.init();
 };
 
-VideoSeriesFlyoutList.prototype.init = function() {
+VideoSeriesList.prototype.init = function () {
   this.loadSeries();
 };
 
-VideoSeriesFlyoutList.prototype.loadSeries = function() {
+VideoSeriesList.prototype.loadSeries = function () {
   $.getJSON(this.source, this.seriesFetched.bind(this));
 };
 
-VideoSeriesFlyoutList.prototype.seriesFetched = function(data) {
+VideoSeriesList.prototype.seriesFetched = function (data) {
   var that = this;
+  
   data
     .forEach(function (series) {
       $('<li>',{
@@ -29,4 +30,4 @@ VideoSeriesFlyoutList.prototype.seriesFetched = function(data) {
     });
 };
 
-new VideoSeriesFlyoutList();
+new VideoSeriesList();
