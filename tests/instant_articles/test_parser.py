@@ -144,6 +144,11 @@ class ParseTwitterTest(unittest.TestCase):
         self.assertEqual('blockquote', tag.name)
         self.assertEqual(['twitter-tweet'], tag['class'])
 
+    def test_video(self):
+        tag = parse_raw_tag(parse_twitter(read_tag_data('twitter-video'))['twitter']['blockquote'])
+        self.assertEqual('blockquote', tag.name)
+        self.assertEqual(['twitter-video'], tag['class'])
+
 
 class ParseVimdeoTest(unittest.TestCase):
 
