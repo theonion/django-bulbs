@@ -1,8 +1,9 @@
 {% load betty %}
 
-<section class="video-grid" 
-         data-betty-url="{{ BETTY_ONION_STUDIOS_IMAGE_URL }}" 
-         data-count="{{ count }}" 
-         data-source="{{ VIDEOHUB_BASE_URL }}/{{ source }}">
-  <div class="video-list" id="series-video-list"></div>
+<section class="video-grid">
+  <div class="video-list" 
+       id="series-video-list"
+       data-betty-url="{{ BETTY_ONION_STUDIOS_IMAGE_URL }}" 
+       data-series-content="{{ VIDEOHUB_BASE_URL }}/api/series/{{ series_slug }}/videos">
+  </div>
 </section>

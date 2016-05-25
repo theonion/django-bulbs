@@ -1,35 +1,39 @@
-//var SeriesVideoGrid = require('./series-video-grid.js');
-//var LatestEpisode = require('./latest-episode.js');
-
-SeriesPage = function(seriesSlug) {
-  this.$seriesGrid = $('#series-grid');
-  this.source = this.$seriesList.data('series-slug');
-  this.fetchSeriesVideos();
+var SeriesPage = function () {
+  this.$seriesRecircList = $('#series-video-list');
+  this.bettyUrl = this.$seriesRecircList.data('betty-url');
+  this.source = this.$seriesRecircList.data('series-content');
+  this.init();
 };
 
-SeriesPage.prototype.fetchSeriesVideos = function(seriesSlug) {
-  // Make request to: 
-  $.getJSON(this.source, this.seriesFetched.bind(this));
-  // http://www.onionstudios.com/api/series/film-club/videos`
+SeriesPage.prototype.init = function () {
+  this.loadSeriesRecirc();
 };
 
-SeriesPage.prototype.seriesVideosFetched = function(data) {
-  // Make request to: 
-  this.latestEpisode = new LatestEpisode(data.videos);
-  this.seriesVideoGrid = new SeriesVideoGrid(data.videos);
+SeriesPage.prototype.loadSeriesRecirc = function () {
+  $.getJSON(this.source, this.seriesRecircFetched.bind(this));
 };
 
-module.exports = SeriesPage;
+SeriesPage.prototype.seriesRecircFetched = function (data) {
+  var that = this;
 
-LatestEpisode = function(videos) {
-  // 1. fetch videos[0]
-  // 2. Add <bulbs-video> to the DOM with the video id
+  data.results
+    .forEach(function (video) {
+    var videoTitle = video.title;
+    var videoHref = '/v/' + video.id;
+    var posterSource = that.bettyUrl + '/' + video.poster.id;
+      $('<a>',{
+        'class' : 'video-item',
+        'href' : videoHref,
+        'data-track-action' : 'Series: Recirc',
+        'data-track-label' : videoHref,
+        'html': $('<figure>',{
+          'class' : 'content',
+          'html' : '<div class="image"><bulbs-video-play-button></bulbs-video-play-button><img src="' + posterSource + '/16x9/480.jpg"></div>',
+        }).add($('<p>',{
+          'html' : videoTitle
+        }))
+      }).appendTo(that.$seriesRecircList);
+    });
 };
 
-module.exports = LatestEpisode;
-
-SeriesVideoGrid = function(videos) {
-  // Add grid to the DOM
-};
-
-module.exports = SeriesVideoGrid;
+new SeriesPage();
