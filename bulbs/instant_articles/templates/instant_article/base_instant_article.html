@@ -17,6 +17,10 @@
       <header>
         <h1>{{ content.title|safe }}</h1>
 
+        {% if content.subhead %}
+          <h2>{{ content.subhead|safe }}</h2>
+        {% endif %}
+
         <h3 class="op-kicker">
           {{ content.feature_type.name|upper }}
         </h3>
@@ -56,7 +60,7 @@
       </header>
 
       {% block article_content %}
-        {{ content.body|safe }}
+        {{ transformed_body|safe }}
       {% endblock article_content %}
 
       <figure class="op-tracker">

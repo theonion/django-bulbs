@@ -2,6 +2,40 @@
 
 ## Development
 
+## Version 2.4.1
+
+- Added twitter video parsing
+- Parser checks `src` on youtube iframe embeds
+
+## Version 2.4.0
+
+- Added `SendToWebtech` view for a common bug reporter endpoint
+
+## Version 2.3.2
+
+- Added `<blockquote>`, `<ol>`, `<ul>`, `<h3>`, and `<h4>` support to instant article parser
+- Added in `content.subhead` to `base_instant_article.html`
+
+## Version 2.3.0
+
+- Added `parser.py`, which parses article bodies, and sends them to `renderer.py`, which can render article bodies in a particular format
+- Update `base_instant_article.html` and `base_instant_article_rss.xml` to use generated body, based on `parser.py` & `renderer.py`
+
+## Version 2.2.1
+
+- Move special coverage styles into bulbs styles
+
+## Version 2.2.0
+
+- A little directory restructuring in bulbs-styles
+
+## Version 2.1.0
+
+- change `special_coverage_landing_partial` template tag
+  It now expects a `twitter_handle` and `share_message` argument:
+
+  `{% special_coverage_landing_partial twitter_handle='theonion' share_message='via theonion.com' %}`
+
 ## Version 2.0.2
 
 - Move instant article ads to header in base_instant_article.html

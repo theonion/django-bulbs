@@ -4,7 +4,7 @@ from django.utils import timezone
 from bulbs.content.models import FeatureType
 from bulbs.utils.test import BaseIndexableTestCase
 
-from example.testcontent.models import TestContentObj
+from example.testcontent.models import TestContentObj, TestContentObjThree
 
 
 class InstantArticleTestCase(BaseIndexableTestCase):
@@ -61,6 +61,21 @@ class InstantArticleTestCase(BaseIndexableTestCase):
         self.assertEqual(resp.status_code, 200)
         content_list = resp.context_data["content_list"]
         self.assertEqual(content_list[0].instant_article_html, "<h1>HI!</h1>")
+
+    def test_transformed_body(self):
+        TestContentObjThree.objects.create(
+            feature_type=self.news_in_brief,
+            published=timezone.now() - timezone.timedelta(days=1),
+            body="<p>This is the object body</p>"
+        )
+        TestContentObjThree.search_objects.refresh()
+
+        url = reverse("instant_articles")
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+
+        content_list = resp.context_data["content_list"]
+        self.assertEqual(content_list[0].instant_article_html, "<p>This is the object body</p>")
 
     def test_invalid_feature_types(self):
         news = FeatureType.objects.create(name='News', instant_article=True)

@@ -1,0 +1,8 @@
+{% autoescape off %}
+  {% if report %}
+    {{ report }}
+  {% endif %}
+  URL: {{ url }}
+  User Agent: {{ user_agent }}
+  Submitted by: {{ submitted_by }}
+{% endautoescape %}

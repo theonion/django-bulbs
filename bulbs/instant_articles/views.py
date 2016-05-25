@@ -6,6 +6,9 @@ from bulbs.content.models import Content
 from bulbs.content.views import BaseContentDetailView
 from bulbs.feeds.views import RSSView
 
+from bulbs.instant_articles.renderer import InstantArticleRenderer
+from bulbs.instant_articles.transform import transform
+
 
 class InstantArticleRSSView(RSSView):
     paginate_by = 100
@@ -28,9 +31,11 @@ class InstantArticleRSSView(RSSView):
 
         for content in context["page_obj"].object_list:
             content.feed_url = self.request.build_absolute_uri(content.get_absolute_url())
+            body = getattr(content, 'body', "")
             content_ctx = {
                 "content": content,
-                "absolute_uri": self.request.META.get('HTTP_HOST', None)
+                "absolute_uri": self.request.META.get('HTTP_HOST', None),
+                "transformed_body": transform(body, InstantArticleRenderer())
             }
             try:
                 content.instant_article_html = loader.render_to_string(
@@ -57,6 +62,8 @@ class InstantArticleContentView(BaseContentDetailView):
     def get_context_data(self, *args, **kwargs):
         context = super(InstantArticleContentView, self).get_context_data(*args, **kwargs)
         targeting = self.object.get_targeting()
+        body = getattr(self.object, 'body', "")
+        context["transformed_body"] = transform(body, InstantArticleRenderer())
         context["targeting"] = targeting
         context["absolute_uri"] = self.request.META.get("HTTP_HOST", None)
         return context
