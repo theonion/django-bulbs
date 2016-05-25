@@ -79,15 +79,8 @@ def parse_text(tag):
 
 
 def parse_twitter(tag):
-    if tag.name == 'div' and tag.attrs.get('data-type') == 'embed':
-        blockquote = tag.find('blockquote', class_='twitter-tweet')
-        if blockquote:
-            return {'twitter': {'blockquote': six.text_type(blockquote)}}
-
-
-def parse_twitter_video(tag):
-    if tag.name == 'div' and tag.attrs.get('data-type') == 'embed':
-        blockquote = tag.find('blockquote', class_='twitter-video')
+    for class_ in ['twitter-video', 'twitter-tweet']:
+        blockquote = tag.find('blockquote', class_=class_)
         if blockquote:
             return {'twitter': {'blockquote': six.text_type(blockquote)}}
 
@@ -102,7 +95,7 @@ def parse_youtube(tag):
         # IFRAME - parse ID from 'src' attribute
         if tag.attrs.get('data-type') == 'embed':
             iframe = tag.find('iframe')
-            if iframe:
+            if iframe and iframe.has_attr('src'):
                 m = re.match('https?://www.youtube.com/embed/(.+)', iframe.attrs['src'])
                 if m:
                     return {'youtube': {'video_id': m.group(1)}}
@@ -151,7 +144,6 @@ PARSERS = [
     parse_onion_video,
     parse_soundcloud,
     parse_twitter,
-    parse_twitter_video,
     parse_vimeo,
     parse_youtube,
     # Simple <p> tags have lowest priority
