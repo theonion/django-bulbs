@@ -21,6 +21,9 @@ except ImportError:
     from mock import Mock
 
 
+User = get_user_model()
+
+
 class TestContentListingAPI(BaseAPITestCase):
     """Test the listing of content"""
 
@@ -308,13 +311,35 @@ class BaseUpdateContentAPI(BaseAPITestCase):
 class TestUpdateContentAPI(BaseUpdateContentAPI):
     """Tests updating an `Article`"""
 
+    def setUp(self):
+        super(TestUpdateContentAPI, self).setUp()
+        self.newguy = User.objects.create(
+            email="newguy@new.com",
+            username="tone"
+        )
+
     def create_content(self):
         self.content = make_content(TestContentObj, title="Booyah: The Cramer Story", foo="booyah")
+        self.content.authors.delete()
 
     def updated_data(self):
         return dict(
             title="Cramer 2: Electric Booyah-loo",
-            foo="whatta guy....booyah indeed!"
+            foo="whatta guy....booyah indeed!",
+            authors=[{
+                "id": self.newguy.id,
+                "username": self.newguy.username,
+                "email": self.newguy.email
+            }],
+            authors=[{
+                "last_name": "",
+                "username": "tone",
+                "first_name": "",
+                "email": "newguy@new.com",
+                "short_name": "",
+                "id": 7,
+                "full_name": ""
+            }]
         )
 
     def test_update_article(self):
@@ -349,7 +374,9 @@ class TestUpdateAuthorsAPI(BaseUpdateContentAPI):
         )
 
     def test_update_article(self):
-        self._test_update_content()
+        with mock.patch("django.core.mail.EmailMultiAlternatives.send") as mock_send:
+            self._test_update_content()
+            self.assertTrue(mock_send.called)
 
 
 class TestAddTagsAPI(BaseUpdateContentAPI):

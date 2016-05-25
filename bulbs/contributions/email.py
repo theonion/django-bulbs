@@ -207,9 +207,9 @@ def send_byline_email(content, removed_bylines):
     }
     body = loader.render_to_string("reporting/__byline_report.html", context)
     mail = EmailMultiAlternatives(
-        subject="Byline modified for article, {}".format(content.title),
+        subject="Byline modified for article, {}".format(content.title.encode("ascii", "ignore")),
         from_email=EMAIL_SETTINGS.get("FROM"),
     )
     mail.attach_alternative(body, "text/html")
-    mail.to = EMAIL_SETTINGS.get("BYLINE_RECIPIENTS")
+    mail.to = EMAIL_SETTINGS.get("BYLINE_RECIPIENTS", [])
     mail.send()

@@ -136,6 +136,7 @@ ES_INDEX_SETTINGS = {
 }
 
 CONTRIBUTIONS = {
+    "BYLINE_REPORT": True,
     "EMAIL": {
         "BYLINE_RECIPIENTS": ["admin@theonion.com"],
         "FROM": "",
