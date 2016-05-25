@@ -2,11 +2,15 @@
 
 ## Development
 
+## Version 2.3.3
+
+- Added twitter video parsing
+
 ## Version 2.3.2
 
 - Added `<blockquote>`, `<ol>`, `<ul>`, `<h3>`, and `<h4>` support to instant article parser
 - Added in `content.subhead` to `base_instant_article.html`
- 
+
 ## Version 2.3.0
 
 - Added `parser.py`, which parses article bodies, and sends them to `renderer.py`, which can render article bodies in a particular format
