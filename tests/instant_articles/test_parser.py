@@ -14,6 +14,7 @@ from bulbs.instant_articles.parser import (parse_betty,
                                            parse_soundcloud,
                                            parse_text,
                                            parse_twitter,
+                                           parse_twitter_video,
                                            parse_vimeo,
                                            parse_youtube,
                                            )
@@ -143,6 +144,14 @@ class ParseTwitterTest(unittest.TestCase):
         tag = parse_raw_tag(parse_twitter(read_tag_data('twitter-widget'))['twitter']['blockquote'])
         self.assertEqual('blockquote', tag.name)
         self.assertEqual(['twitter-tweet'], tag['class'])
+
+
+class ParseTwitterVideoTest(unittest.TestCase):
+
+    def test_blockquote(self):
+        tag = parse_raw_tag(parse_twitter_video(read_tag_data('twitter-video'))['twitter']['blockquote'])
+        self.assertEqual('blockquote', tag.name)
+        self.assertEqual(['twitter-video'], tag['class'])
 
 
 class ParseVimdeoTest(unittest.TestCase):

@@ -85,6 +85,13 @@ def parse_twitter(tag):
             return {'twitter': {'blockquote': six.text_type(blockquote)}}
 
 
+def parse_twitter_video(tag):
+    if tag.name == 'div' and tag.attrs.get('data-type') == 'embed':
+        blockquote = tag.find('blockquote', class_='twitter-video')
+        if blockquote:
+            return {'twitter': {'blockquote': six.text_type(blockquote)}}
+
+
 def parse_youtube(tag):
     if tag.name == 'div':
         # No-IFRAME - grab ID from attribute
@@ -144,6 +151,7 @@ PARSERS = [
     parse_onion_video,
     parse_soundcloud,
     parse_twitter,
+    parse_twitter_video,
     parse_vimeo,
     parse_youtube,
     # Simple <p> tags have lowest priority
