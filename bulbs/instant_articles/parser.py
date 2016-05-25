@@ -79,10 +79,11 @@ def parse_text(tag):
 
 
 def parse_twitter(tag):
-    for class_ in ['twitter-video', 'twitter-tweet']:
-        blockquote = tag.find('blockquote', class_=class_)
-        if blockquote:
-            return {'twitter': {'blockquote': six.text_type(blockquote)}}
+    if tag.name == 'div' and tag.attrs.get('data-type') == 'embed':
+        for class_ in ['twitter-video', 'twitter-tweet']:
+            blockquote = tag.find('blockquote', class_=class_)
+            if blockquote:
+                return {'twitter': {'blockquote': six.text_type(blockquote)}}
 
 
 def parse_youtube(tag):
