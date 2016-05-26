@@ -86,7 +86,7 @@
           <thead>
             <tr>
               <th>Amount</th>
-              <th>Date</th>
+              <th>Contributor</th>
               <th>Title / Feature Type</th>
             </tr>
           </thead>
@@ -97,7 +97,7 @@
                   ${{ contribution.pay }}
                 </td>
                 <td style="text-align: center; max-width: 100px;">
-                  {{ content.published }}
+                  {{ contribution.contributor.get_full_name }}
                 </td>
                 <td>
                   <a href="{{ content.get_absolute_url }}" style="color: #000;">
