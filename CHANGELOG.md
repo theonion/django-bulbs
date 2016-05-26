@@ -13,7 +13,7 @@
 
 ## Version 2.4.0
 
-- Added `SendToWebtech` view for a common bug reporter endpoint
+- Added [`ReportBugEmail`](https://github.com/theonion/django-bulbs/blob/4034cb55ec4142d022bf8b48fa71cd935dc473db/bulbs/api/views.py#L608-L638) view for a common bug reporter endpoint
 
 ## Version 2.3.2
 
