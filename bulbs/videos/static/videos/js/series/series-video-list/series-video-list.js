@@ -1,10 +1,6 @@
 var VideoSeriesList = function () {
   this.$seriesList = $('#series-list');
   this.source = this.$seriesList.data('channel-series');
-  this.init();
-};
-
-VideoSeriesList.prototype.init = function () {
   this.loadSeries();
 };
 
