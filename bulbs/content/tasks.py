@@ -58,27 +58,23 @@ def update_feature_type_rates(featuretype_pk):
 def post_to_instant_articles_api(content_pk):
     import requests
     from django.conf import settings
+    from bulbs.utils import vault
     from .models import Content
 
     content = Content.objects.get(pk=content_pk)
-    if content.feature_type.instant_article:
-        # GET FACEBOOK_PAGE_ID FROM SETTINGS
-        fb_page_id = getattr(settings, 'FACEBOOK_PAGE_ID')
-        # GET ACCESS TOKEN FROM VAULT
-        fb_access_token = ""
+    feature_type = getattr(content, 'feature_type', None)
 
+    fb_page_id = getattr(settings, 'FACEBOOK_PAGE_ID')
+    # GET ACCESS TOKEN FROM VAULT
+    fb_access_token = vault.read()['value']
+
+    if feature_type and feature_type.instant_article and content.is_published:
         # GET PAGE SOURCE FROM INSTANT ARTICLE CONTENT VIEW
         source = ""
 
         # POST IT TO FACEBOOK ENDPOINT
-        # curl \
-        #     -F 'access_token={access-token}' \
-        #     -F 'html_source=<!doctype html>...' \
-        #     -F 'published=true' \
-        #     -F 'development_mode=false' \
-        #     https://graph.facebook.com/{page-id}/instant_articles
         post = requests.post(
-            'https://graph.facebook.com/{}/instant_articles'.format(fb_page_id),
+            'https://graph.facebook.com/v2.6/{0}/instant_articles'.format(fb_page_id),
             data={
                 'access_token': fb_access_token,
                 'html_source': source,
@@ -88,7 +84,7 @@ def post_to_instant_articles_api(content_pk):
 
         # GET IMPORT STATUS ID FROM RESPONSE
         # GET https://graph.facebook.com/{import-status-id}?access_token={access-token}
-        status = requests.get('https://graph.facebook.com/{0}?access_token={1}'.format(
+        status = requests.get('https://graph.facebook.com/v2.6/{0}?access_token={1}'.format(
             post.json()['id'],
             fb_access_token
         ))
@@ -100,3 +96,12 @@ def post_to_instant_articles_api(content_pk):
         else:
             pass
             # log error here
+    # if article is being unpublished
+    elif (feature_type and
+          feature_type.instant_article and not
+          content.is_published and
+          content.instant_article_id):
+        requests.delete('https://graph.facebook.com/v2.6/{0}?access_token={1}'.format(
+            content.instant_article_id,
+            fb_access_token
+        ))

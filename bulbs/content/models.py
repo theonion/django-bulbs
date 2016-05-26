@@ -372,6 +372,7 @@ class Content(PolymorphicModel, Indexable):
         content = super(Content, self).save(*args, **kwargs)
         index_content_contributions.delay(self.id)
         index_content_report_content_proxy.delay(self.id)
+        post_to_instant_articles_api.delay(self.id)
         return content
 
     @classmethod
