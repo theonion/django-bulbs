@@ -2,7 +2,9 @@ import mock
 
 from django.contrib.auth import get_user_model
 
-from bulbs.contributions.tasks import check_and_update_freelanceprofiles, run_send_byline_email
+from bulbs.contributions.tasks import (
+    check_and_update_freelanceprofiles, check_and_run_send_byline_email
+)
 from bulbs.utils.test import make_content, BaseIndexableTestCase
 
 from example.testcontent.models import TestContentObj
@@ -20,7 +22,7 @@ class BylineTaskTestCase(BaseIndexableTestCase):
 
     def test_task_calls_send_success(self):
         with mock.patch("django.core.mail.EmailMultiAlternatives.send") as mock_send:
-            run_send_byline_email.delay(self.content.id, [self.king.id])
+            check_and_run_send_byline_email.delay(self.content.id, [])
             self.assertTrue(mock_send.called)
 
     def test_update_freelanceprofile(self):
