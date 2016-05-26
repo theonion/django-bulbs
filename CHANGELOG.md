@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 2.4.2
+
+- Added animated gif support to the instant article renderer & parser
+
 ## Version 2.4.1
 
 - Added twitter video parsing
