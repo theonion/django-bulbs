@@ -20,7 +20,7 @@ from example.testcontent.models import TestContentObj, TestContentDetailImage
 try:
     from unittest import mock
 except ImportError:
-    from mock import mock
+    import mock
 
 
 User = get_user_model()
