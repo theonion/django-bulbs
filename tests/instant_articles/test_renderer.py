@@ -24,7 +24,7 @@ class InstantArticleRendererTests(TestCase):
                 "<figure><img src=\"//images.onionstatic.com/onion/2349/16x9/1920.jpg\" /><figcaption>A really good caption</figcaption></figure>"
             )
 
-    def test_reender_betty_gif(self):
+    def test_render_betty_gif(self):
         with patch('djbetty.storage.settings.BETTY_IMAGE_URL', '//images.onionstatic.com/onion'):
             block = {"betty": {"image_id": 1234, "caption": "", "format": "gif"}}
             name, data = list(block.items())[0]
