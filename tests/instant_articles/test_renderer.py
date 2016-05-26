@@ -15,13 +15,24 @@ class InstantArticleRendererTests(TestCase):
 
     def test_render_betty(self):
         with patch('djbetty.storage.settings.BETTY_IMAGE_URL', '//images.onionstatic.com/onion'):
-            block = {"betty": {"image_id": 2349, "caption": "A really good caption"}}
+            block = {"betty": {"image_id": 2349, "caption": "A really good caption", "format": "jpg"}}
             name, data = list(block.items())[0]
 
             output = self.renderer.render_item(name, data)
             self.assertEqual(
                 output.replace('\n', ''),
                 "<figure><img src=\"//images.onionstatic.com/onion/2349/16x9/1920.jpg\" /><figcaption>A really good caption</figcaption></figure>"
+            )
+
+    def test_reender_betty_gif(self):
+        with patch('djbetty.storage.settings.BETTY_IMAGE_URL', '//images.onionstatic.com/onion'):
+            block = {"betty": {"image_id": 1234, "caption": "", "format": "gif"}}
+            name, data = list(block.items())[0]
+
+            output = self.renderer.render_item(name, data)
+            self.assertEqual(
+                output.replace('\n', ''),
+                "<figure><img src=\"//images.onionstatic.com/onion/1234/animated/original.gif\" /><figcaption></figcaption></figure>"
             )
 
     def test_render_facebook(self):
