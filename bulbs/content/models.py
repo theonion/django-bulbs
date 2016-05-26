@@ -3,6 +3,7 @@ that we want any piece of content to have."""
 
 import logging
 import uuid
+import requests
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -25,6 +26,7 @@ from bulbs.content.tasks import (
     index_feature_type_content, post_to_instant_articles_api
 )
 from bulbs.utils.methods import datetime_to_epoch_seconds, get_template_choices
+from bulbs.utils import vault
 from .managers import ContentManager
 from .tasks import update_feature_type_rates
 
@@ -600,7 +602,18 @@ def content_deleted(sender, instance=None, **kwargs):
         cls.search_objects.client.delete(index, doc_type, instance.id, ignore=[404])
 
 
+def delete_from_instant_article_api(sender, instance=None, **kwargs):
+    fb_access_token = vault.read()['value']
+    
+    if instance.instant_article_id:
+        requests.delete('https://graph.facebook.com/v2.6/{0}?access_token={1}'.format(
+            instance.instant_article_id,
+            fb_access_token
+        ))
+
+
 ##
 # signal hooks
 
 models.signals.pre_delete.connect(content_deleted, Content)
+models.signals.pre_delete.connect(delete_from_instant_article_api, Content)

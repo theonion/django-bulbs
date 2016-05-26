@@ -57,22 +57,23 @@ def update_feature_type_rates(featuretype_pk):
 @shared_task(default_retry_delay=5)
 def post_to_instant_articles_api(content_pk):
     import requests
+    import logging
     from django.conf import settings
     from bulbs.utils import vault
     from .models import Content
+
+    logger = logging.getLogger(__name__)
 
     content = Content.objects.get(pk=content_pk)
     feature_type = getattr(content, 'feature_type', None)
 
     fb_page_id = getattr(settings, 'FACEBOOK_PAGE_ID')
-    # GET ACCESS TOKEN FROM VAULT
     fb_access_token = vault.read()['value']
 
     if feature_type and feature_type.instant_article and content.is_published:
         # GET PAGE SOURCE FROM INSTANT ARTICLE CONTENT VIEW
         source = ""
 
-        # POST IT TO FACEBOOK ENDPOINT
         post = requests.post(
             'https://graph.facebook.com/v2.6/{0}/instant_articles'.format(fb_page_id),
             data={
@@ -82,20 +83,18 @@ def post_to_instant_articles_api(content_pk):
                 'development_mode': 'false'
             })
 
-        # GET IMPORT STATUS ID FROM RESPONSE
-        # GET https://graph.facebook.com/{import-status-id}?access_token={access-token}
         status = requests.get('https://graph.facebook.com/v2.6/{0}?access_token={1}'.format(
             post.json()['id'],
             fb_access_token
         ))
 
-        # CHECK STATUS IN RESPONSE
         if status.json()['status'] == 'SUCCESS':
             content.instant_article_id = status.json()['id']
             content.save()
         else:
-            pass
-            # log error here
+            logger.error('Error in posting to Instant Article API: {}'.format(
+                status.json()
+            ))
     # if article is being unpublished
     elif (feature_type and
           feature_type.instant_article and not
