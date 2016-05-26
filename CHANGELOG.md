@@ -2,11 +2,24 @@
 
 ## Development
 
+## Version 2.4.2
+
+- Added animated gif support to the instant article renderer & parser
+
+## Version 2.4.1
+
+- Added twitter video parsing
+- Parser checks `src` on youtube iframe embeds
+
+## Version 2.4.0
+
+- Added `SendToWebtech` view for a common bug reporter endpoint
+
 ## Version 2.3.2
 
 - Added `<blockquote>`, `<ol>`, `<ul>`, `<h3>`, and `<h4>` support to instant article parser
 - Added in `content.subhead` to `base_instant_article.html`
- 
+
 ## Version 2.3.0
 
 - Added `parser.py`, which parses article bodies, and sends them to `renderer.py`, which can render article bodies in a particular format

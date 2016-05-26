@@ -28,10 +28,12 @@ def parse_betty(tag):
     if (tag.name == 'div' and
         'image' in tag.get('class', {}) and
             tag.attrs.get('data-type') == 'image' and
-            tag.has_attr('data-image-id')):
+            tag.has_attr('data-image-id') and
+            tag.has_attr('data-format')):
         caption = tag.find('span', class_='caption')
         return {'betty': {'image_id': tag.attrs['data-image-id'],
-                          'caption': caption.text if caption else ''}}
+                          'caption': caption.text if caption else '',
+                          'format': tag.attrs['data-format']}}
 
 
 def parse_facebook(tag):
@@ -80,9 +82,10 @@ def parse_text(tag):
 
 def parse_twitter(tag):
     if tag.name == 'div' and tag.attrs.get('data-type') == 'embed':
-        blockquote = tag.find('blockquote', class_='twitter-tweet')
-        if blockquote:
-            return {'twitter': {'blockquote': six.text_type(blockquote)}}
+        for class_ in ['twitter-video', 'twitter-tweet']:
+            blockquote = tag.find('blockquote', class_=class_)
+            if blockquote:
+                return {'twitter': {'blockquote': six.text_type(blockquote)}}
 
 
 def parse_youtube(tag):
@@ -95,7 +98,7 @@ def parse_youtube(tag):
         # IFRAME - parse ID from 'src' attribute
         if tag.attrs.get('data-type') == 'embed':
             iframe = tag.find('iframe')
-            if iframe:
+            if iframe and iframe.has_attr('src'):
                 m = re.match('https?://www.youtube.com/embed/(.+)', iframe.attrs['src'])
                 if m:
                     return {'youtube': {'video_id': m.group(1)}}
