@@ -1,7 +1,6 @@
 import json
 from datetime import datetime, timedelta
 
-import elasticsearch
 from django.contrib.auth import get_user_model
 from django.conf.urls import url
 from django.core.urlresolvers import reverse
@@ -10,15 +9,18 @@ from django.test.client import Client
 from django.test.utils import override_settings
 from django.utils import timezone
 
+import elasticsearch
+
 import bulbs.api.urls
 from bulbs.content.models import LogEntry, Tag, Content, ObfuscatedUrlInfo
-from example.testcontent.models import TestContentObj, TestContentDetailImage
 from bulbs.utils.test import JsonEncoder, BaseAPITestCase, make_content
 
+from example.testcontent.models import TestContentObj, TestContentDetailImage
+
 try:
-    from unittest.mock import Mock
+    from unittest import mock
 except ImportError:
-    from mock import Mock
+    from mock import mock
 
 
 User = get_user_model()
@@ -319,25 +321,21 @@ class TestUpdateContentAPI(BaseUpdateContentAPI):
         )
 
     def create_content(self):
-        self.content = make_content(TestContentObj, title="Booyah: The Cramer Story", foo="booyah")
-        self.content.authors.delete()
+        self.content = make_content(
+            TestContentObj, title="Booyah: The Cramer Story", foo="booyah", authors=[]
+        )
 
     def updated_data(self):
         return dict(
             title="Cramer 2: Electric Booyah-loo",
             foo="whatta guy....booyah indeed!",
             authors=[{
-                "id": self.newguy.id,
-                "username": self.newguy.username,
-                "email": self.newguy.email
-            }],
-            authors=[{
                 "last_name": "",
-                "username": "tone",
+                "username": self.newguy.username,
                 "first_name": "",
-                "email": "newguy@new.com",
+                "email": self.newguy.email,
                 "short_name": "",
-                "id": 7,
+                "id": self.newguy.id,
                 "full_name": ""
             }]
         )
@@ -649,7 +647,7 @@ class TestContentResolveAPI(BaseAPITestCase):
         # Simulate app-specific content URL
         class ContentUrls(object):
             urlpatterns = (bulbs.api.urls.urlpatterns +
-                           (url(r"^article/(?P<slug>[\w-]*)-(?P<pk>\d+)$", Mock()),))
+                           (url(r"^article/(?P<slug>[\w-]*)-(?P<pk>\d+)$", mock.Mock()),))
         make_content(id=123)
         with override_settings(ROOT_URLCONF=ContentUrls):
             r = self.resolve(url="/article/some-slug-123?one=two")
@@ -660,7 +658,7 @@ class TestContentResolveAPI(BaseAPITestCase):
         # Simulate app-specific content URL
         class ContentUrls(object):
             urlpatterns = (bulbs.api.urls.urlpatterns +
-                           (url(r"^article/(?P<slug>[\w-]*)$", Mock()),))
+                           (url(r"^article/(?P<slug>[\w-]*)$", mock.Mock()),))
         with override_settings(ROOT_URLCONF=ContentUrls):
             self.assertEqual(404, self.resolve(url="/article/some-slug").status_code)
 
