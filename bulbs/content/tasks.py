@@ -60,6 +60,7 @@ def post_to_instant_articles_api(content_pk):
     import logging
     from django.conf import settings
     from bulbs.utils import vault
+    from bulbs.instant_articles.views import InstantArticleContentView
     from .models import Content
 
     logger = logging.getLogger(__name__)
@@ -68,14 +69,16 @@ def post_to_instant_articles_api(content_pk):
     feature_type = getattr(content, 'feature_type', None)
 
     fb_page_id = getattr(settings, 'FACEBOOK_PAGE_ID')
+    fb_api_url = getattr(settings, 'FACEBOOK_API_BASE_URL')
     fb_access_token = vault.read()['value']
 
     if feature_type and feature_type.instant_article and content.is_published:
-        # GET PAGE SOURCE FROM INSTANT ARTICLE CONTENT VIEW
-        source = ""
+        # TODO: GET PAGE SOURCE FROM INSTANT ARTICLE CONTENT VIEW
+        import pdb; pdb.set_trace()
+        source = InstantArticleContentView.as_view()
 
         post = requests.post(
-            'https://graph.facebook.com/v2.6/{0}/instant_articles'.format(fb_page_id),
+            '{0}/{1}/instant_articles'.format(fb_api_url, fb_page_id),
             data={
                 'access_token': fb_access_token,
                 'html_source': source,
@@ -83,7 +86,8 @@ def post_to_instant_articles_api(content_pk):
                 'development_mode': 'false'
             })
 
-        status = requests.get('https://graph.facebook.com/v2.6/{0}?access_token={1}'.format(
+        status = requests.get('{0}/{1}?access_token={2}'.format(
+            fb_api_url,
             post.json()['id'],
             fb_access_token
         ))
@@ -100,7 +104,8 @@ def post_to_instant_articles_api(content_pk):
           feature_type.instant_article and not
           content.is_published and
           content.instant_article_id):
-        requests.delete('https://graph.facebook.com/v2.6/{0}?access_token={1}'.format(
+        requests.delete('{0}/{1}?access_token={2}'.format(
+            fb_api_url,
             content.instant_article_id,
             fb_access_token
         ))
