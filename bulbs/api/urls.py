@@ -2,10 +2,11 @@ from django.conf import settings
 from django.conf.urls import url, include
 
 from bulbs.cms_notifications.api import notifications_view
-from .views import api_v1_router, MeViewSet
+from .views import api_v1_router, MeViewSet, ReportBugEmail
 
 
 urlpatterns = (
+    url(r"^report-bug/?$", ReportBugEmail.as_view(), name="report-bug"),
     url(r"^me/logout/?$", "django.contrib.auth.views.logout", name="logout"),
     url(r"^me/?$", MeViewSet.as_view({"get": "retrieve"}), name="me"),
     url(r"^", include(api_v1_router.urls))  # noqa

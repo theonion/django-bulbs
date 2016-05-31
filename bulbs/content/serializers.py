@@ -3,12 +3,14 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.template.defaultfilters import slugify
+
 from djbetty.serializers import ImageFieldSerializer
 from rest_framework.utils import model_meta
 from rest_framework import relations
 from rest_framework import serializers
 from six import string_types
 
+from bulbs.contributions.tasks import check_and_run_send_byline_email
 from .models import Content, Tag, LogEntry, FeatureType, TemplateType, ObfuscatedUrlInfo
 
 
@@ -216,7 +218,6 @@ class AuthorField(relations.RelatedField):
 
     def to_internal_value(self, data):
         """Basically, each author dict must include either a username or id."""
-        # model = get_user_model()
         model = get_user_model()
 
         if data is None:
@@ -288,6 +289,11 @@ class ContentSerializer(serializers.ModelSerializer):
                 setattr(instance, field_name, value)
 
         return instance
+
+    def update(self, instance, validated_data):
+        if getattr(settings, "CONTRIBUTIONS", {}).get("BYLINE_REPORT", False):
+            check_and_run_send_byline_email.delay(instance.pk, validated_data.get("authors", []))
+        return super(ContentSerializer, self).update(instance, validated_data)
 
 
 class LogEntrySerializer(serializers.ModelSerializer):
