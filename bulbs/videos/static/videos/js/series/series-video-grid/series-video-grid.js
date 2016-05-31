@@ -10,7 +10,7 @@ SeriesVideoGrid = function (videos) {
     var videoTitle = video.title;
     var videoHref = '/v/' + video.id;
     var posterSource = that.bettyUrl + '/' + video.poster.id + '/16x9/480.jpg';
-      $('<a>',{
+    $('<a>',{
         'class' : 'video-item',
         'href' : videoHref,
         'data-track-action' : 'Series: Recirc',

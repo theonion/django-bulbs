@@ -11,6 +11,8 @@ VideoSeriesList.prototype.loadSeries = function () {
 VideoSeriesList.prototype.seriesFetched = function (data) {
   var that = this;
   
+  console.log(data);
+
   data
     .forEach(function (series) {
       $('<li>',{
