@@ -5,6 +5,7 @@ module.exports = function(config) {
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
     frameworks: [
+      'browserify',
       'chai',
       'mocha',
       'sinon'
@@ -12,11 +13,21 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'bulbs/recirc/static/recirc/js/sample.test.js',
+      'node_modules/jquery/dist/jquery.min.js',
+      'test_helper.js',
+      'bulbs/**/*.test.js'
     ],
 
     // list of files to exclude
     exclude: [],
+
+    preprocessors: {
+      'bulbs/**/*.test.js': [ 'browserify' ]
+    },
+
+    browserify: {
+      debug: true
+    },
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
