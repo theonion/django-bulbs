@@ -1,7 +1,7 @@
 var SeriesMeta = require('./series-meta/series-meta');
-var SeriesVideoList = require('./series-video-list/series-video-list');
 var SeriesVideoGrid = require('./series-video-grid/series-video-grid');
 var LatestEpisode = require('./series-video-latest-episode/series-video-latest-episode');
+var SeriesVideoList = require('./series-video-list/series-video-list');
 
 SeriesPage = function() {
   this.$seriesGrid = $('#series-video-list');

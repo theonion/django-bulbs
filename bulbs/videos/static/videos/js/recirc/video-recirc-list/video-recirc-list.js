@@ -43,4 +43,4 @@ VideoRecircList.prototype.videoRecircFetched = function (data) {
     });
 };
 
-new VideoRecircList();
+module.exports = VideoRecircList;
