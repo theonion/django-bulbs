@@ -126,8 +126,19 @@ def post_to_instant_articles_api(content_pk):
               feature_type.instant_article and
               not content.is_published and
               content.instant_article_id):
-            requests.delete('{0}/{1}?access_token={2}'.format(
+            delete = requests.delete('{0}/{1}?access_token={2}'.format(
                 fb_api_url,
                 content.instant_article_id,
                 fb_access_token
             ))
+
+            status = delete.json()["success"]
+            if bool(status) is not True:
+                logger.error('''
+                    Error in deleting Instant Article.\n
+                    Content ID: {0}\n
+                    IA ID: {1}\n
+                    Error: {2}'''.format(
+                        content.id,
+                        content.instant_article_id,
+                        delete.json()))
