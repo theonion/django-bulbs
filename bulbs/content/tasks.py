@@ -74,11 +74,10 @@ def post_to_instant_articles_api(content_pk):
         content = Content.objects.get(pk=content_pk)
         feature_type = getattr(content, 'feature_type', None)
 
-        fb_page_id = getattr(settings, 'FACEBOOK_PAGE_ID')
-        fb_api_url = getattr(settings, 'FACEBOOK_API_BASE_URL')
+        fb_page_id = getattr(settings, 'FACEBOOK_PAGE_ID', '')
+        fb_api_url = getattr(settings, 'FACEBOOK_API_BASE_URL', '')
 
-        fb_access_token = vault.read()['value']
-        fb_access_token = ""
+        fb_access_token = vault.read(settings.FACEBOOK_TOKEN_VAULT_PATH)
 
         if feature_type and feature_type.instant_article and content.is_published:
             context = {

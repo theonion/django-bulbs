@@ -152,3 +152,6 @@ SODAHEAD_BASE_URL = 'https://onion.sodahead.com'
 SODAHEAD_TOKEN_VAULT_PATH = 'sodahead/token'
 
 VIDEOHUB_BASE_URL = 'http://www.onionstudios.com'
+
+FACEBOOK_TOKEN_VAULT_PATH = 'facebook/onion_token'
+FACEBOOK_API_ENV = 'development'
