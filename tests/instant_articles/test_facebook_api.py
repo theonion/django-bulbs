@@ -3,7 +3,7 @@ import requests_mock
 from django.utils import timezone
 from django.test.utils import override_settings
 
-from bulbs.content.models import FeatureType
+from bulbs.content.models import FeatureType, Content
 from bulbs.utils.test import BaseIndexableTestCase
 from bulbs.utils.test.mock_vault import mock_vault
 
@@ -16,13 +16,14 @@ class FacebookAPITestCase(BaseIndexableTestCase):
         super(FacebookAPITestCase, self).setUp()
         self.ft = FeatureType.objects.create(name="NIP", instant_article=True)
 
-    # @mock_vault({'facebook/onion/token': {'value': '123abc'}})
     @override_settings(
         FACEBOOK_PAGE_ID='123456',
         FACEBOOK_API_BASE_URL='https://graph.facebook.com/v2.6',
+        FACEBOOK_API_ENV='production',
         WWW_URL='www.theonion.com',
         BETTY_FIXED_URL='http://i.onionstatic.com/onion'
     )
+    @mock_vault({'facebook/onion_token': 'TOKEN'})
     def test_publish(self):
         with requests_mock.mock() as mocker:
             # post to instant article endpoit
@@ -36,11 +37,11 @@ class FacebookAPITestCase(BaseIndexableTestCase):
 
             # get status of instant article
             mocker.get(
-                "https://graph.facebook.com/v2.6/456?access_token=123abc",
+                "https://graph.facebook.com/v2.6/456?access_token=TOKEN",
                 status_code=200,
                 json={
                     "id": 9876,
-                    "success": True
+                    "status": "SUCCESS"
                 }
             )
 
@@ -50,7 +51,10 @@ class FacebookAPITestCase(BaseIndexableTestCase):
             content.published = timezone.now()
             content.save()
 
-            self.assertEqual(content.instant_article_id, 9876)
+            Content.search_objects.refresh()
+            c = Content.objects.get(id=content.id)
+
+            self.assertEqual(c.instant_article_id, 9876)
 
     def test_publish_status_error(self):
         pass

@@ -604,7 +604,7 @@ def content_deleted(sender, instance=None, **kwargs):
 
 def delete_from_instant_article_api(sender, instance=None, **kwargs):
     fb_access_token = vault.read()['value']
-    
+
     if instance.instant_article_id:
         requests.delete('https://graph.facebook.com/v2.6/{0}?access_token={1}'.format(
             instance.instant_article_id,

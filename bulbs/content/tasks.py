@@ -68,63 +68,67 @@ def post_to_instant_articles_api(content_pk):
     from bulbs.instant_articles.transform import transform
     from .models import Content
 
-    logger = logging.getLogger(__name__)
+    if getattr(settings, 'FACEBOOK_API_ENV').lower() == 'production':
+        logger = logging.getLogger(__name__)
 
-    content = Content.objects.get(pk=content_pk)
-    feature_type = getattr(content, 'feature_type', None)
+        content = Content.objects.get(pk=content_pk)
+        feature_type = getattr(content, 'feature_type', None)
 
-    fb_page_id = getattr(settings, 'FACEBOOK_PAGE_ID')
-    fb_api_url = getattr(settings, 'FACEBOOK_API_BASE_URL')
+        fb_page_id = getattr(settings, 'FACEBOOK_PAGE_ID')
+        fb_api_url = getattr(settings, 'FACEBOOK_API_BASE_URL')
 
-    # fb_access_token = vault.read()['value']
+        fb_access_token = vault.read()['value']
+        fb_access_token = ""
 
-    if feature_type and feature_type.instant_article and content.is_published:
-        import pdb; pdb.set_trace()
-        context = {
-            "content": content,
-            "absolute_uri": getattr(settings, 'WWW_URL'),
-            "transformed_body": transform(
-                getattr(content, 'body', ""),
-                InstantArticleRenderer())
-        }
-        try:
-            source = render_to_string(
-                "instant_article/_instant_article.html", context
-            )
-        except TemplateDoesNotExist:
-            source = render_to_string(
-                "instant_article/base_instant_article.html", context
-            )
+        if feature_type and feature_type.instant_article and content.is_published:
+            context = {
+                "content": content,
+                "absolute_uri": getattr(settings, 'WWW_URL'),
+                "transformed_body": transform(
+                    getattr(content, 'body', ""),
+                    InstantArticleRenderer())
+            }
+            try:
+                source = render_to_string(
+                    "instant_article/_instant_article.html", context
+                )
+            except TemplateDoesNotExist:
+                source = render_to_string(
+                    "instant_article/base_instant_article.html", context
+                )
 
-        post = requests.post(
-            '{0}/{1}/instant_articles'.format(fb_api_url, fb_page_id),
-            data={
-                'access_token': fb_access_token,
-                'html_source': source,
-                'published': 'true',
-                'development_mode': 'false'
-            })
+            # Post article to instant article API
+            post = requests.post(
+                '{0}/{1}/instant_articles'.format(fb_api_url, fb_page_id),
+                data={
+                    'access_token': fb_access_token,
+                    'html_source': source,
+                    'published': 'true',
+                    'development_mode': 'false'
+                })
 
-        status = requests.get('{0}/{1}?access_token={2}'.format(
-            fb_api_url,
-            post.json()['id'],
-            fb_access_token
-        ))
-
-        if status.json()['status'] == 'SUCCESS':
-            content.instant_article_id = status.json()['id']
-            content.save()
-        else:
-            logger.error('Error in posting to Instant Article API: {}'.format(
-                status.json()
+            # Get status of article
+            status = requests.get('{0}/{1}?access_token={2}'.format(
+                fb_api_url,
+                post.json()['id'],
+                fb_access_token
             ))
-    # if article is being unpublished
-    elif (feature_type and
-          feature_type.instant_article and
-          not content.is_published and
-          content.instant_article_id):
-        requests.delete('{0}/{1}?access_token={2}'.format(
-            fb_api_url,
-            content.instant_article_id,
-            fb_access_token
-        ))
+
+            # If upload if successful, set ia_id to id
+            if status.json()['status'] == 'SUCCESS':
+                # using a queryset.update() will stop save() from recursing
+                Content.objects.filter(pk=content_pk).update(instant_article_id=status.json()['id'])
+            else:
+                logger.error('Error in posting to Instant Article API: {}'.format(
+                    status.json()
+                ))
+        # if article is being unpublished, delete it from IA API
+        elif (feature_type and
+              feature_type.instant_article and
+              not content.is_published and
+              content.instant_article_id):
+            requests.delete('{0}/{1}?access_token={2}'.format(
+                fb_api_url,
+                content.instant_article_id,
+                fb_access_token
+            ))
