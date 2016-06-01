@@ -1,5 +1,5 @@
-describe('VideoSeriesList', function() {
-  var VideoSeriesList = require('./series-video-list');
+describe('SeriesVideoList', function() {
+  var SeriesVideoList = require('./series-video-list');
   var seriesList;
 
   beforeEach(function() {
@@ -14,22 +14,22 @@ describe('VideoSeriesList', function() {
   });
 
   describe('#seriesFetched', function() {
-    var videoSeriesList, data;
+    var seriesVideoList, data;
 
     beforeEach(function() {
-      TestHelper.stub(VideoSeriesList.prototype, 'loadSeries');
+      TestHelper.stub(SeriesVideoList.prototype, 'loadSeries');
 
       data = [
         { slug: 'av-undercover', name: 'AV Undercover' },
         { slug: 'polite-fight', name: 'Polite Fight' }
       ];
 
-      videoSeriesList = new VideoSeriesList();
-      videoSeriesList.seriesFetched(data);
+      seriesVideoList = new SeriesVideoList();
+      seriesVideoList.seriesFetched(data);
     });
 
     it('adds a link for every video series', function() {
-      var links = videoSeriesList.$seriesList.find('li a');
+      var links = seriesVideoList.$seriesList.find('li a');
 
       links.each(function(index, link) {
         expect($(link).attr('href')).to.equal('/series/' + data[index].slug);

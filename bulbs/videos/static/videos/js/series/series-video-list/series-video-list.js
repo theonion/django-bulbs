@@ -1,14 +1,14 @@
-var VideoSeriesList = function () {
+var SeriesVideoList = function () {
   this.$seriesList = $('#series-list');
   this.source = this.$seriesList.data('channel-series');
   this.loadSeries();
 };
 
-VideoSeriesList.prototype.loadSeries = function () {
+SeriesVideoList.prototype.loadSeries = function () {
   $.getJSON(this.source, this.seriesFetched.bind(this));
 };
 
-VideoSeriesList.prototype.seriesFetched = function (data) {
+SeriesVideoList.prototype.seriesFetched = function (data) {
   var that = this;
   
   console.log(data);
@@ -28,4 +28,4 @@ VideoSeriesList.prototype.seriesFetched = function (data) {
     });
 };
 
-module.exports = VideoSeriesList;
+module.exports = SeriesVideoList;

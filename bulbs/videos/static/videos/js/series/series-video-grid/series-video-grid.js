@@ -1,12 +1,17 @@
-SeriesVideoGrid = function (videos) {
+SeriesVideoGrid = function (videos, selector) {
 
-  this.$seriesGrid = $('#series-video-list');
-  this.bettyUrl = this.$seriesGrid.data('betty-url');
+  this.$seriesGrid = $(selector || '#series-video-list');
+  this.bettyUrl = this.$seriesGrid.data('bettyUrl');
+
+  if (typeof this.bettyUrl === 'undefined') {
+    throw Error('SeriesVideoGrid requires series-video-list to have a data-betty-url attribute.');
+  }
 
   var that = this;
 
   videos
     .forEach(function (video) {
+
     var videoTitle = video.title;
     var videoHref = '/v/' + video.id;
     var posterSource = that.bettyUrl + '/' + video.poster.id + '/16x9/480.jpg';
