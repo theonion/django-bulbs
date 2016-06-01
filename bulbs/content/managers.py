@@ -7,7 +7,8 @@ from elasticsearch_dsl import filter as es_filter
 from polymorphic import PolymorphicManager
 
 from .filters import (
-    Authors, Evergreen, FeatureTypes, Published, Status, Tags, VideohubChannel
+    Authors, Evergreen, FeatureTypes, InstantArticle, Published, Status, Tags,
+    VideohubChannel
 )
 
 
@@ -35,6 +36,15 @@ class ContentManager(PolymorphicManager, IndexableManager):
         video_doc_type = getattr(settings, "VIDEO_DOC_TYPE", "")
         eqs = eqs.filter(es_filter.Type(value=video_doc_type))
         return eqs
+
+    def instant_articles(self, **kwargs):
+        """
+        QuerySet including all published content approved for instant articles.
+
+        Instant articles are configured via FeatureType. FeatureType.instant_article = True.
+        """
+        eqs = self.search(**kwargs).sort('-last_modified', '-published')
+        return eqs.filter(InstantArticle())
 
     def sponsored(self, **kwargs):
         """Search containing any sponsored pieces of Content."""

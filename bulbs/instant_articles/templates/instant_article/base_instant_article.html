@@ -1,0 +1,79 @@
+{% load betty %}
+
+<!doctype HTML>
+<html lang="en" prefix="op: http://media.facebook.com/op#">
+  <head>
+    <meta charset="utf-8">
+    <meta property="fb:use_automatic_ad_placement" content="true">
+    <link rel="canonical" href="http://{{ absolute_uri }}{{ content.get_absolute_url }}">
+    <meta property="op:markup_version" content="v1.0">
+    {% block article_style %}
+      <meta property="fb:article_style" content="default">
+    {% endblock article_style %}
+  </head>
+
+  <body>
+    <article>
+      <header>
+        <h1>{{ content.title|safe }}</h1>
+
+        {% if content.subhead %}
+          <h2>{{ content.subhead|safe }}</h2>
+        {% endif %}
+
+        <h3 class="op-kicker">
+          {{ content.feature_type.name|upper }}
+        </h3>
+
+        <time class="op-published" datetime="{{ content.published|date:'c'}}">{{ content.published|date:'F j, Y'|capfirst}}</time>
+        <time class="op-modified" datetime="{{ content.last_modified|date:'c'}}">{{ content.last_modified|date:'F j, Y'|capfirst}}</time>
+
+        <address>
+          {% block address %}
+            {% for author in content.authors.all %}
+              <a>{{ author.first_name }} {{ author.last_name }}</a>
+            {% endfor %}
+          {% endblock address %}
+        </address>
+
+        <figure>
+          {% block cover %}
+            <img src="{% cropped_url content.detail_image.id %}" />
+          {% endblock cover %}
+        </figure>
+
+        <section class="op-ad-template">
+         <!-- Ads to be automatically placed throughout the article -->
+         <figure class="op-ad op-ad-default">
+           <iframe src="http://{{ absolute_uri }}{% url 'instant_article_ad' pk=content.id %}?dfp_position=first" height="250" width="300"></iframe>
+         </figure>
+         <figure class="op-ad">
+           <iframe src="http://{{ absolute_uri }}{% url 'instant_article_ad' pk=content.id %}?dfp_position=second" height="250" width="300"></iframe>
+         </figure>
+         <figure class="op-ad">
+           <iframe src="http://{{ absolute_uri }}{% url 'instant_article_ad' pk=content.id %}?dfp_position=third" height="250" width="300"></iframe>
+         </figure>
+         <figure class="op-ad">
+           <iframe src="http://{{ absolute_uri }}{% url 'instant_article_ad' pk=content.id %}?dfp_position=last" height="250" width="300"></iframe>
+         </figure>
+        </section>
+      </header>
+
+      {% block article_content %}
+        {{ transformed_body|safe }}
+      {% endblock article_content %}
+
+      <figure class="op-tracker">
+         <iframe src="http://{{ absolute_uri }}{% url 'instant_article_analytics' pk=content.id %}?platform=ia&path={{ content.get_absolute_url }}"></iframe>
+      </figure>
+
+      {% block article_footer %}
+        <footer>
+          <small>
+             &copy; Copyright {% now "Y" %} Onion Inc. All rights reserved
+          </small>
+        </footer>
+      {% endblock article_footer %}
+    </article>
+  </body>
+</html>

@@ -7,8 +7,8 @@ from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
 from django.utils import timezone
 
-from bulbs.contributions.email import EmailReport
-from bulbs.contributions.models import ContributorRole
+from bulbs.contributions.email import ContributorReport, EmailReport
+from bulbs.contributions.models import Contribution, ContributorRole, FreelanceProfile, LineItem
 from bulbs.utils.test import make_content, BaseAPITestCase
 
 from example.testcontent.models import TestContentObj
@@ -37,6 +37,11 @@ class EmailReportTestCase(BaseAPITestCase):
         )
         self.buddy_sarpino = User.objects.create(
             first_name="Buddy", last_name="Sarpino", username="Buddy"
+        )
+
+        FreelanceProfile.objects.create(
+            contributor=self.tony_sarpino,
+            is_freelance=True
         )
 
         # Add Roles.
@@ -82,22 +87,68 @@ class EmailReportTestCase(BaseAPITestCase):
     def test_get_contributors_last_month(self):
         report = EmailReport(month=self.last_month)
         contributors = report.get_contributors()
-        self.assertEqual(contributors.count(), 2)
+        self.assertEqual(contributors.count(), 1)
 
     def test_get_contributor_contributions_default(self):
-        report = EmailReport()
-        contributions = report.get_contributions_by_contributor(self.tony_sarpino)
-        self.assertEqual(contributions.count(), 25)
+        report = ContributorReport(self.tony_sarpino)
+        self.assertEqual(report.contributions.count(), 25)
 
     def test_get_contributor_contributions_next_month(self):
-        report = EmailReport(month=self.next_month)
-        contributions = report.get_contributions_by_contributor(self.tony_sarpino)
-        self.assertEqual(contributions.count(), 25)
+        report = ContributorReport(self.tony_sarpino, month=self.next_month)
+        self.assertEqual(report.contributions.count(), 25)
 
     def test_email_body(self):
-        report = EmailReport(month=self.next_month)
-        body = report.get_email_body(self.tony_sarpino)
-        self.assertTrue(body)
+        report = ContributorReport(self.tony_sarpino, month=self.next_month)
+        self.assertTrue(report.get_body())
+
+    def test_contribution_total_zero(self):
+        with mock.patch("django.core.mail.EmailMultiAlternatives.send") as mock_send:
+            for rate in self.draft_writer.flat_rates.all():
+                rate.rate = 0
+                rate.save()
+            report = ContributorReport(self.tony_sarpino)
+            self.assertEqual(report.total, 0)
+            self.assertFalse(report.is_valid())
+            report.send()
+            self.assertFalse(mock_send.called)
+
+    def test_contribution_total_valid(self):
+        LineItem.objects.create(contributor=self.tony_sarpino, amount=25)
+        LineItem.objects.create(contributor=self.tony_sarpino, amount=25, payment_date=self.now)
+        with mock.patch("django.core.mail.EmailMultiAlternatives.send") as mock_send:
+            report = ContributorReport(self.tony_sarpino)
+            self.assertEqual(report.total, 1525)
+            self.assertTrue(report.is_valid())
+            report.send()
+            self.assertTrue(mock_send.called)
+
+    def test_no_contributions(self):
+        with mock.patch("django.core.mail.EmailMultiAlternatives.send") as mock_send:
+            Contribution.objects.all().delete()
+            report = ContributorReport(self.tony_sarpino)
+            self.assertEqual(report.total, 0)
+            self.assertFalse(report.is_valid())
+            report.send()
+            self.assertFalse(mock_send.called)
+
+    def test_is_freelance_is_valid(self):
+        with mock.patch("django.core.mail.EmailMultiAlternatives.send") as mock_send:
+            self.assertTrue(self.tony_sarpino.freelanceprofile.is_freelance)
+            report = ContributorReport(self.tony_sarpino)
+            self.assertTrue(report.is_valid())
+            report.send()
+            self.assertTrue(mock_send.called)
+
+    def test_is_staff_not_valid(self):
+        profile = self.tony_sarpino.freelanceprofile
+        profile.is_freelance = False
+        profile.save()
+        with mock.patch("django.core.mail.EmailMultiAlternatives.send") as mock_send:
+            self.assertFalse(self.tony_sarpino.freelanceprofile.is_freelance)
+            report = ContributorReport(self.tony_sarpino)
+            self.assertFalse(report.is_valid())
+            report.send()
+            self.assertFalse(mock_send.called)
 
     @override_settings(EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend')
     def test_email_api(self):

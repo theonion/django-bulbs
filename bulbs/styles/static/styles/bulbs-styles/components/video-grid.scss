@@ -1,0 +1,47 @@
+///////////////////////////////
+// ************************* //
+//         VIDEO GRID        //
+// ************************* //
+///////////////////////////////
+
+@import '../mixins/flexbox';
+@import '../mixins/flex-grid';
+@import '../mixins/aspect-ratio';
+@import '../mixins/ease';
+@import '../variables/breakpoints';
+
+.video-grid {
+  h2 {
+    margin-bottom: 1em;
+  }
+  .video-list {
+    @include flexgrid($columns: 2, $gutter: 24, $padding: 0);
+    list-style: none;    
+  }
+  .video-item {
+    @include aspect-ratio(16, 9);
+    margin-bottom: 24px;
+    outline: none;
+    position: relative;
+    &:hover {
+      .bulbs-video-play-button {
+        opacity: 1;
+      }
+    }
+    .bulbs-video-play-button {
+      bottom: 10px;
+      left: 10px;
+      opacity: .8;
+      position: absolute;
+      width: 40px;
+      z-index: 1;
+    }
+  }
+  @media (min-width: $screen-md) {
+    .video-list {
+      @include flexgrid($columns: 4, $gutter: 24, $padding: 0);
+      list-style: none;    
+    }
+  }
+}
+

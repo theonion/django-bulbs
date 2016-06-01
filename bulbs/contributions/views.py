@@ -2,6 +2,7 @@
 
 import datetime
 
+from django.http import Http404
 from django.utils import dateparse, timezone
 
 from elasticsearch_dsl import filter as es_filter
@@ -11,7 +12,7 @@ from rest_framework.response import Response
 from rest_framework_csv.renderers import CSVRenderer
 from rest_framework_nested import routers as nested_routers
 
-from bulbs.content.filters import FeatureTypes, Published, Tags
+from bulbs.content.filters import FeatureTypes, Tags
 
 
 from .filters import ESPublishedFilterBackend, StartEndFilterBackend
@@ -19,8 +20,8 @@ from .models import (
     ContributorRole, Contribution, FeatureTypeRate, FlatRate, FreelanceProfile, HourlyRate,
     LineItem, OverrideProfile, ReportContent, MANUAL
 )
-from .renderers import ContributionReportingRenderer
-from .csv_serializers import ContributionCSVSerializer
+from .renderers import ContributionReportingRenderer, LineItemRenderer
+from .csv_serializers import ContributionCSVSerializer, LineItemCSVSerializer
 from .serializers import (
     ContributorRoleSerializer, ContributionReportingSerializer, ContentReportingSerializer,
     FeatureTypeRateSerializer, FlatRateSerializer, FreelanceProfileSerializer,
@@ -150,6 +151,38 @@ class ContentReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
         #     content = content.filter(pk__in=contribution_content_ids)
 
         return qs
+
+
+class LineItemReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
+
+    renderer_classes = (
+        LineItemRenderer,
+    ) + tuple(
+        api_settings.DEFAULT_RENDERER_CLASSES
+    )
+    paginate_by = 20
+    serializer_class = LineItemCSVSerializer
+
+    def list(self, request):
+        if self.format == "csv":
+            serializer = self.get_serializer(
+                self.get_queryset(), many=True
+            )
+            return Response(serializer.data)
+        else:
+            raise Http404("""Invalid reporting format requested.""")
+
+    def get_queryset(self):
+        start = self.request.QUERY_PARAMS.get("start", None)
+        end = self.request.QUERY_PARAMS.get("end", None)
+        if end:
+            end = timezone.datetime.strptime(end, "%Y-%m-%d")
+            end += timezone.timedelta(days=1)
+        return LineItem.objects.filter(payment_date__range=(start, end))
+
+    @property
+    def format(self):
+        return self.request.QUERY_PARAMS.get("format", None)
 
 
 class ReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
@@ -282,6 +315,9 @@ nested_role_router.register(
 
 api_v1_router.register(r"rate-overrides", OverrideProfileViewSet, base_name="rate-overrides")
 api_v1_router.register(r"reporting", ReportingViewSet, base_name="contributionreporting")
+api_v1_router.register(
+    r"line-item-reporting", LineItemReportingViewSet, base_name="line-item-reporting"
+)
 api_v1_router.register(r"contentreporting", ContentReportingViewSet, base_name="contentreporting")
 api_v1_router.register(
     r"freelancereporting", FreelanceReportingViewSet, base_name="freelancereporting"

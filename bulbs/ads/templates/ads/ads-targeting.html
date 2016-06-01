@@ -1,0 +1,9 @@
+{% if targeting %}
+  <script>
+    window.TARGETING = {
+      {% for key, value in targeting.items %}
+        '{{ key }}': '{{ value }}',
+      {% endfor %}
+    };
+  </script>
+{% endif %}

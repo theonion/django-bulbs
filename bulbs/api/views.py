@@ -8,14 +8,16 @@ except ImportError:
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import resolve, Resolver404
+from django.core.mail import EmailMessage
 from django.db.models.loading import get_models
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from django.template import loader
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
 from djes.apps import indexable_registry
-import elasticsearch
+
 from elasticsearch_dsl.query import Q
 from elasticsearch_dsl import filter as es_filter
 from firebase_token_generator import create_token
@@ -175,30 +177,21 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
 
     @detail_route(permission_classes=[CanPublishContent], methods=['post'])
     def trash(self, request, **kwargs):
-        """destroys a `Content` instance and removes it from the ElasticSearch index
+        """Psuedo-deletes a `Content` instance and removes it from the ElasticSearch index
+
+        Content is not actually deleted, merely hidden by deleted from ES index.import
 
         :param request: a WSGI request object
         :param kwargs: keyword arguments (optional)
         :return: `rest_framework.response.Response`
-        :raise: 404
         """
         content = self.get_object()
 
         content.indexed = False
         content.save()
 
-        index = content.__class__.search_objects.mapping.index
-        doc_type = content.__class__.search_objects.mapping.doc_type
-
-        try:
-            self.model.search_objects.client.delete(
-                index=index,
-                doc_type=doc_type,
-                id=content.id)
-            LogEntry.objects.log(request.user, content, "Trashed")
-            return Response({"status": "Trashed"})
-        except elasticsearch.exceptions.NotFoundError:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+        LogEntry.objects.log(request.user, content, "Trashed")
+        return Response({"status": "Trashed"})
 
     @detail_route(methods=["get"])
     def status(self, request, **kwargs):
@@ -612,17 +605,50 @@ class SendContributorReport(viewsets.GenericViewSet):
         return Response(status=status.HTTP_200_OK)
 
 
+class ReportBugEmail(APIView):
+
+    def post(self, request):
+        SETTINGS = getattr(settings, "BUG_REPORTER", {})
+
+        report = request.DATA.get("report", "")
+        url = request.DATA.get("url", "")
+        user_agent = request.DATA.get("user_agent", "")
+
+        if request.user.first_name and request.user.last_name:
+            name = request.user.get_full_name()
+        else:
+            name = request.user.get_username()
+
+        mail = EmailMessage(
+            subject=SETTINGS.get("EMAIL_SUBJECT", "Hey! A bug was reported!"),
+            body=loader.render_to_string(
+                SETTINGS.get("EMAIL_TEMPLATE_PATH", "__bug_report_email.html"),
+                {
+                    "report": report,
+                    "url": url,
+                    "user_agent": user_agent,
+                    "submitted_by": name
+                }
+            ),
+            from_email=request.user.email,
+            to=SETTINGS.get("EMAIL_TO_ADDRESSES", ["webtech@theonion.com"])
+        )
+        mail.send()
+
+        return Response({"message": "Message Sent!"}, status=status.HTTP_200_OK)
+
+
 # api router for aforementioned/defined viewsets
 # note: me view is registered in urls.py
 api_v1_router = routers.DefaultRouter()
+api_v1_router.register(r"author", AuthorViewSet, base_name="author")
 api_v1_router.register(r"content", ContentViewSet, base_name="content")
-api_v1_router.register(r"custom-search-content", CustomSearchContentViewSet, base_name="custom-search-content")
-api_v1_router.register(r"content-type", ContentTypeViewSet, base_name="content-type")
 api_v1_router.register(r"content-resolve", ContentResolveViewSet, base_name="content-resolve")
+api_v1_router.register(r"content-type", ContentTypeViewSet, base_name="content-type")
+api_v1_router.register(r"contributor-email", SendContributorReport, base_name="contributor-email")
+api_v1_router.register(r"custom-search-content", CustomSearchContentViewSet, base_name="custom-search-content")
+api_v1_router.register(r"feature-type", FeatureTypeViewSet, base_name="feature-type")
+api_v1_router.register(r"log", LogEntryViewSet, base_name="logentry")
 api_v1_router.register(r"special-coverage-resolve", SpecialCoverageResolveViewSet, base_name="special-coverage-resolve")
 api_v1_router.register(r"tag", TagViewSet, base_name="tag")
-api_v1_router.register(r"log", LogEntryViewSet, base_name="logentry")
-api_v1_router.register(r"author", AuthorViewSet, base_name="author")
-api_v1_router.register(r"feature-type", FeatureTypeViewSet, base_name="feature-type")
 api_v1_router.register(r"user", UserViewSet, base_name="user")
-api_v1_router.register(r"contributor-email", SendContributorReport, base_name="contributor-email")

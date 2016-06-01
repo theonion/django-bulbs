@@ -16,6 +16,7 @@ author_email = "csinchok@theonion.com"
 license = "BSD"
 requires = [
     "Django>=1.8,<1.9",
+    "beautifulsoup4>=4.4.1",
     "celery==3.1.10",
     "contextdecorator==0.10.0",
     "django-betty-cropper>=0.2.0",
@@ -25,7 +26,7 @@ requires = [
     "djangorestframework-csv==1.3.3",
     "pageview_client==1.0.4",
     "djangorestframework==3.1.1",
-    "djes>=0.1.108",
+    "djes>=0.1.109",
     "drf-nested-routers==0.11.1",
     "firebase-token-generator==1.3.2",
     "python-dateutil==2.1",

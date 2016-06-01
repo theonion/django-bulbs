@@ -15,18 +15,13 @@ class ESPublishedFilterBackend(filters.BaseFilterBackend):
 
     def filter_queryset(self, request, queryset, view):
         """Apply the relevant behaviors to the view queryset."""
-        start_value = self.get_date_datetime_param(request, "start")
+        start_value = self.get_start(request)
         if start_value:
             queryset = self.apply_published_filter(queryset, "after", start_value)
-        end_value = self.get_date_datetime_param(request, "end")
+        end_value = self.get_end(request)
         if end_value:
             # Forces the end_value to be the last second of the date provided in the query.
             # Necessary currently as our Published filter for es only applies to gte & lte.
-            end_value += timezone.timedelta(days=1)
-            end_value = (
-                timezone.datetime.combine(end_value, timezone.datetime.min.time()) -
-                timezone.timedelta(seconds=1)
-            )
             queryset = self.apply_published_filter(queryset, "before", end_value)
         return queryset
 
@@ -42,6 +37,18 @@ class ESPublishedFilterBackend(filters.BaseFilterBackend):
             raise ValueError("""Publish filters only use before or after for range filters.""")
         return queryset.filter(Published(**{operation: value}))
 
+    def get_start(self, request):
+        start_value = self.get_date_datetime_param(request, "start")
+        if start_value:
+            return timezone.make_aware(start_value).astimezone(timezone.pytz.utc)
+
+    def get_end(self, request):
+        end_value = self.get_date_datetime_param(request, "end")
+        if end_value:
+            end_value += timezone.timedelta(days=1)
+            end_value -= timezone.timedelta(seconds=1)
+            return timezone.make_aware(end_value).astimezone(timezone.pytz.utc)
+
     def get_date_datetime_param(self, request, param):
         """Check the request for the provided query parameter and returns a rounded value.
 
@@ -53,10 +60,15 @@ class ESPublishedFilterBackend(filters.BaseFilterBackend):
             # Match and interpret param if formatted as a date.
             date_match = dateparse.date_re.match(param_value)
             if date_match:
-                return dateparse.parse_date(date_match.group(0))
+                return timezone.datetime.combine(
+                    dateparse.parse_date(date_match.group(0)), timezone.datetime.min.time()
+                )
             datetime_match = dateparse.datetime_re.match(param_value)
             if datetime_match:
-                return dateparse.parse_datetime(datetime_match.group(0)).date()
+                return timezone.datetime.combine(
+                    dateparse.parse_datetime(datetime_match.group(0)).date(),
+                    timezone.datetime.min.time()
+                )
         return None
 
 
