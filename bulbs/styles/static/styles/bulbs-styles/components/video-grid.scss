@@ -13,6 +13,7 @@
 .video-grid {
   h2 {
     margin-bottom: 1em;
+    line-height: 1.1em;
   }
   .video-list {
     @include flexgrid($columns: 2, $gutter: 24, $padding: 0);
