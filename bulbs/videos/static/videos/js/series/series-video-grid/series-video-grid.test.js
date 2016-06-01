@@ -14,7 +14,7 @@ describe('SeriesVideoGrid', function() {
   context('normal functionality', function () {
 
     beforeEach(function() {
-      bettyUrl = 'onionstatic.com';
+      bettyUrl = 'http://i.onionstatic.com';
       seriesGrid = $('<div id="series-video-list" data-betty-url="' + bettyUrl + '">');
 
       $('body').append(seriesGrid);

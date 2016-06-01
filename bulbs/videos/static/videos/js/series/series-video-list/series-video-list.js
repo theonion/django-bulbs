@@ -10,8 +10,6 @@ SeriesVideoList.prototype.loadSeries = function () {
 
 SeriesVideoList.prototype.seriesFetched = function (data) {
   var that = this;
-  
-  console.log(data);
 
   data
     .forEach(function (series) {
