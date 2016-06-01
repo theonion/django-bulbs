@@ -68,7 +68,7 @@ def post_to_instant_articles_api(content_pk):
     from bulbs.instant_articles.transform import transform
     from .models import Content
 
-    if getattr(settings, 'FACEBOOK_API_ENV').lower() == 'production':
+    if getattr(settings, 'FACEBOOK_API_ENV', '').lower() == 'production':
         logger = logging.getLogger(__name__)
 
         content = Content.objects.get(pk=content_pk)
