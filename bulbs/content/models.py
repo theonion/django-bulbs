@@ -603,13 +603,25 @@ def content_deleted(sender, instance=None, **kwargs):
 
 
 def delete_from_instant_article_api(sender, instance=None, **kwargs):
-    fb_access_token = vault.read()['value']
+    fb_api_url = getattr(settings, 'FACEBOOK_API_BASE_URL', '')
+    fb_access_token = vault.read(settings.FACEBOOK_TOKEN_VAULT_PATH)
 
-    if instance.instant_article_id:
-        requests.delete('https://graph.facebook.com/v2.6/{0}?access_token={1}'.format(
-            instance.instant_article_id,
-            fb_access_token
-        ))
+    delete = requests.delete('{0}/{1}?access_token={2}'.format(
+        fb_api_url,
+        instance.instant_article_id,
+        fb_access_token
+    ))
+
+    status = delete.json()["success"]
+    if bool(status) is not True:
+        logger.error('''
+            Error in deleting Instant Article.\n
+            Content ID: {0}\n
+            IA ID: {1}\n
+            Error: {2}'''.format(
+                instance.id,
+                instance.instant_article_id,
+                delete.json()))
 
 
 ##
