@@ -155,3 +155,4 @@ VIDEOHUB_BASE_URL = 'http://www.onionstudios.com'
 
 FACEBOOK_TOKEN_VAULT_PATH = 'facebook/onion_token'
 FACEBOOK_API_ENV = 'development'
+WWW_URL = "www.theonion.com"
