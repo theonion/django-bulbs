@@ -79,7 +79,9 @@ def post_to_instant_articles_api(content_pk):
         fb_api_url = getattr(settings, 'FACEBOOK_API_BASE_URL', '')
         fb_access_token = vault.read(settings.FACEBOOK_TOKEN_VAULT_PATH)
 
+        # if feature type is IA approved & content is published
         if feature_type and feature_type.instant_article and content.is_published:
+            # render page source
             context = {
                 'content': content,
                 'absolute_uri': getattr(settings, 'WWW_URL'),
@@ -139,6 +141,18 @@ def post_to_instant_articles_api(content_pk):
                             status.status_code))
                     return
                 response = status.json().get('status')
+
+                # log error from polling
+                if response == "ERROR":
+                    logger.error('''
+                        Error in getting status of Instant Article.\n
+                        Content ID: {0}\n
+                        IA ID: {1}\n
+                        Status Code: {2}'''.format(
+                            content.id,
+                            content.instant_article_id,
+                            status.status_code))
+                    return
 
             # set instant_article_id to response id
             Content.objects.filter(pk=content_pk).update(
