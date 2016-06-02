@@ -1,0 +1,33 @@
+#!/bin/sh -e
+
+# Summary: Setup project database role, allowing other commands to create databases
+source "$(cd "$(dirname "$0")" && pwd)"/source-state
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+# Ensure database role exists (ignoring "already exists" errors)
+docker-compose run \
+    -e PGHOST=postgres \
+    -e PGUSER=postgres \
+    -e PGPASSWORD=${PGPASSWORD} \
+    web \
+    psql -c "CREATE ROLE ${SITE_ID} PASSWORD '${SITE_PASSWORD}' SUPERUSER LOGIN CREATEDB;" \
+    || true
+
+docker-compose run \
+    -e PGHOST=postgres \
+    -e PGUSER=${SITE_ID} \
+    -e PGPASSWORD=${SITE_PASSWORD} \
+    web \
+    psql -d postgres -c "DROP DATABASE IF EXISTS ${SITE_DB};"
+
+docker-compose run \
+    -e PGHOST=postgres \
+    -e PGUSER=${SITE_ID} \
+    -e PGPASSWORD=${SITE_PASSWORD} \
+    web \
+    psql -d postgres -c "CREATE DATABASE ${SITE_DB};"
+
+docker-compose run \
+    web \
+    python manage.py migrate --noinput

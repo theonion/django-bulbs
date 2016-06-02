@@ -402,7 +402,7 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
         )
         # (search filter, (list, of, ids, in, order)),
         self.ordered_expectations = (
-            (s_all_but_one_article, (2, 3, 4)),
+            (s_all_but_one_article, (content_list[1].id, content_list[2].id, content_list[3].id)),
             (s_text_query_pinned, (content_list[4].id, content_list[2].id)),
         )
         self.pinned_expectations = (

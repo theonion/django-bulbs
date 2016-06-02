@@ -1,4 +1,6 @@
-#!/bin/sh
-# Summary: Run all test.
+#!/bin/sh -e
+# Summary: Run all tests
 
-py.test "$@"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+docker-compose run web py.test tests/

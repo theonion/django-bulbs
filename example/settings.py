@@ -7,8 +7,12 @@ VAULT_ACCESS_TOKEN = 'beepborp'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ':memory:'
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'bulbs_test',
+        'USER': 'bulbs',
+        'PASSWORD': 'testing',
+        'HOST': 'postgres',
+        'PORT': '5432',
     }
 }
 USE_TZ = True,
@@ -103,7 +107,7 @@ ES_DISABLED = False
 
 ES_CONNECTIONS = {
     "default": {
-        "hosts": [os.environ.get('ELASTICSEARCH_HOST', 'localhost')],
+        "hosts": [os.environ.get('ELASTICSEARCH_HOST', 'elasticsearch')],
         "timeout": 30,
     }
 }

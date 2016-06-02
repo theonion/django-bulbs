@@ -567,9 +567,9 @@ class TestTokenAPI(BaseAPITestCase):
         # test that what we expect to happen happened
         json_response = json.loads(response.content.decode("utf8"))
         self.assertEquals(len(json_response["url_uuid"]), 32)
-        self.assertEquals(json_response["content"], 1)
+        self.assertEquals(json_response["content"], content.id)
         self.assertEquals(ObfuscatedUrlInfo.objects.count(), 1)
-        self.assertEquals(ObfuscatedUrlInfo.objects.all()[0].content.id, 1)
+        self.assertEquals(ObfuscatedUrlInfo.objects.all()[0].content.id, content.id)
 
     def test_list_tokens(self):
         """Test token listing."""

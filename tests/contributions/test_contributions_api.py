@@ -516,7 +516,7 @@ class ContributionApiTestCase(BaseAPITestCase):
             profile=profile
         )
 
-        endpoint = reverse("rate-overrides-detail", kwargs={"pk": override.id})
+        endpoint = reverse("rate-overrides-detail", kwargs={"pk": profile.id})
         resp = client.get(endpoint)
         self.assertEqual(resp.status_code, 200)
 
@@ -784,7 +784,7 @@ class ContributionApiTestCase(BaseAPITestCase):
         self.assertEqual(rate['name'], 'Manual')
         self.assertEqual(contribution['content'], content.id),
         self.assertEqual(contribution["force_payment"], True)
-        self.assertEqual(contribution['role']['id'], 1)
+        self.assertEqual(contribution['role']['id'], self.roles["editor"].id)
 
     def test_contribution_post_override_api(self):
         client = Client()
@@ -1473,7 +1473,9 @@ class FlatRateAPITestCase(BaseAPITestCase):
         self.list_endpoint = reverse("flat-rate-list", kwargs={"role_pk": self.role.pk})
 
     def test_list_route(self):
-        self.assertEqual(self.list_endpoint, "/api/v1/contributions/role/1/flat_rates/")
+        self.assertEqual(
+            self.list_endpoint, "/api/v1/contributions/role/{}/flat_rates/".format(self.role.id)
+        )
 
     def test_detail_route(self):
         endpoint = reverse("flat-rate-detail", kwargs={"role_pk": 1, "pk": 1})
@@ -1532,11 +1534,15 @@ class HourlyRateAPITestCase(BaseAPITestCase):
         self.list_endpoint = reverse("hourly-rate-list", kwargs={"role_pk": self.role.pk})
 
     def test_list_route(self):
-        self.assertEqual(self.list_endpoint, "/api/v1/contributions/role/1/hourly_rates/")
+        self.assertEqual(
+            self.list_endpoint, "/api/v1/contributions/role/{}/hourly_rates/".format(self.role.id)
+        )
 
     def test_detail_route(self):
-        endpoint = reverse("hourly-rate-detail", kwargs={"role_pk": 1, "pk": 1})
-        self.assertEqual(endpoint, "/api/v1/contributions/role/1/hourly_rates/1/")
+        endpoint = reverse("hourly-rate-detail", kwargs={"role_pk": self.role.id, "pk": 1})
+        self.assertEqual(
+            endpoint, "/api/v1/contributions/role/{}/hourly_rates/1/".format(self.role.id)
+        )
 
     def test_post_success(self):
         data = {"rate": 200}
@@ -1594,7 +1600,10 @@ class FeatureTypeRateAPITestCase(BaseAPITestCase):
         self.list_endpoint = reverse("feature-type-rate-list", kwargs={"role_pk": self.role.pk})
 
     def test_list_route(self):
-        self.assertEqual(self.list_endpoint, "/api/v1/contributions/role/1/feature_type_rates/")
+        self.assertEqual(
+            self.list_endpoint,
+            "/api/v1/contributions/role/{}/feature_type_rates/".format(self.role.id)
+        )
 
     def test_detail_route(self):
         endpoint = reverse("feature-type-rate-detail", kwargs={"role_pk": 1, "pk": 1})
@@ -1603,7 +1612,9 @@ class FeatureTypeRateAPITestCase(BaseAPITestCase):
     def test_put_success(self):
         data = {"rate": 200, "feature_type": "surf"}
         rr = self.role.feature_type_rates.filter(feature_type__slug="surf").first()
-        endpoint = reverse("feature-type-rate-detail", kwargs={"role_pk": 1, "pk": rr.id})
+        endpoint = reverse(
+            "feature-type-rate-detail", kwargs={"role_pk": self.role.id, "pk": rr.id}
+        )
         resp = self.api_client.put(endpoint, data=data)
         self.assertEqual(resp.status_code, 200)
         rate = FeatureTypeRate.objects.last()
@@ -1624,13 +1635,20 @@ class FeatureTypeRateAPITestCase(BaseAPITestCase):
         resp = self.api_client.get(self.list_endpoint)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data["count"], FeatureType.objects.count())
+        
+        ordered_feature_types = [
+            feature_type.name for feature_type in FeatureType.objects.all().order_by('name')
+        ]
         feature_type = None
         for obj in resp.data["results"]:
             new_feature_type = obj.get("feature_type")
             if not feature_type:
                 pass
             else:
-                self.assertGreater(new_feature_type, feature_type)
+                self.assertGreater(
+                    ordered_feature_types.index(new_feature_type), 
+                    ordered_feature_types.index(feature_type)
+                )
             feature_type = new_feature_type
 
     def test_role_filter(self):
