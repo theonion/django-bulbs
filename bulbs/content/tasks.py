@@ -130,7 +130,8 @@ def post_to_instant_articles_api(content_pk):
                     fb_access_token
                 ))
 
-                if not status.ok:
+                # log errors
+                if not status.ok or status.json().get('status') == "ERROR":
                     logger.error('''
                         Error in getting status of Instant Article.\n
                         Content ID: {0}\n
@@ -140,19 +141,8 @@ def post_to_instant_articles_api(content_pk):
                             content.instant_article_id,
                             status.status_code))
                     return
-                response = status.json().get('status')
 
-                # log error from polling
-                if response == "ERROR":
-                    logger.error('''
-                        Error in getting status of Instant Article.\n
-                        Content ID: {0}\n
-                        IA ID: {1}\n
-                        Status Code: {2}'''.format(
-                            content.id,
-                            content.instant_article_id,
-                            status.status_code))
-                    return
+                response = status.json().get('status')
 
             # set instant_article_id to response id
             Content.objects.filter(pk=content_pk).update(
