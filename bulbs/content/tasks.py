@@ -1,3 +1,5 @@
+import time
+
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.template.base import TemplateDoesNotExist
@@ -104,21 +106,44 @@ def post_to_instant_articles_api(content_pk):
                     'development_mode': 'false'
                 })
 
-            # Get status of article
-            status = requests.get('{0}/{1}?access_token={2}'.format(
-                fb_api_url,
-                post.json()['id'],
-                fb_access_token
-            ))
+            if not post.ok:
+                logger.error('''
+                    Error in posting Instant Article.\n
+                    Content ID: {0}\n
+                    IA ID: {1}\n
+                    Status Code: {2}'''.format(
+                        content.id,
+                        content.instant_article_id,
+                        post.status_code))
+                return
 
-            # If upload if successful, set ia_id to id
-            if status.json()['status'] == 'SUCCESS':
-                # using a queryset.update() will stop save() from recursing
-                Content.objects.filter(pk=content_pk).update(instant_article_id=status.json()['id'])
-            else:
-                logger.error('Error in posting to Instant Article API: {}'.format(
-                    status.json()
+            # Poll for status of article
+            response = ""
+            while response != "SUCCESS":
+                time.sleep(1)
+
+                status = requests.get('{0}/{1}?access_token={2}'.format(
+                    fb_api_url,
+                    post.json().get('id'),
+                    fb_access_token
                 ))
+
+                if not status.ok:
+                    logger.error('''
+                        Error in getting status of Instant Article.\n
+                        Content ID: {0}\n
+                        IA ID: {1}\n
+                        Status Code: {2}'''.format(
+                            content.id,
+                            content.instant_article_id,
+                            status.status_code))
+                    return
+                response = status.json().get('status')
+
+            # set instant_article_id to response id
+            Content.objects.filter(pk=content_pk).update(
+                instant_article_id=status.json().get('id'))
+
         # if article is being unpublished, delete it from IA API
         elif (not content.is_published and
               content.instant_article_id):
@@ -128,13 +153,23 @@ def post_to_instant_articles_api(content_pk):
                 fb_access_token
             ))
 
-            status = delete.json()['success']
-            if bool(status) is not True:
+            if not delete.ok:
                 logger.error('''
                     Error in deleting Instant Article.\n
                     Content ID: {0}\n
                     IA ID: {1}\n
-                    Error: {2}'''.format(
+                    Status Code: {2}'''.format(
                         content.id,
                         content.instant_article_id,
-                        delete.json()))
+                        delete.status_code))
+            else:
+                status = delete.json().get('success')
+                if bool(status) is not True:
+                    logger.error('''
+                        Error in deleting Instant Article.\n
+                        Content ID: {0}\n
+                        IA ID: {1}\n
+                        Error: {2}'''.format(
+                            content.id,
+                            content.instant_article_id,
+                            delete.json()))
