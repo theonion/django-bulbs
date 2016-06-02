@@ -153,8 +153,6 @@ SODAHEAD_TOKEN_VAULT_PATH = 'sodahead/token'
 
 VIDEOHUB_BASE_URL = 'http://www.onionstudios.com'
 
-BETTY_FIXED_URL='http://i.onionstatic.com/onion'
-
 FACEBOOK_TOKEN_VAULT_PATH = 'facebook/onion_token'
 FACEBOOK_API_ENV = 'development'
 FACEBOOK_PAGE_ID = '123456'

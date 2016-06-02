@@ -75,24 +75,23 @@ def post_to_instant_articles_api(content_pk):
 
         fb_page_id = getattr(settings, 'FACEBOOK_PAGE_ID', '')
         fb_api_url = getattr(settings, 'FACEBOOK_API_BASE_URL', '')
-
         fb_access_token = vault.read(settings.FACEBOOK_TOKEN_VAULT_PATH)
 
         if feature_type and feature_type.instant_article and content.is_published:
             context = {
-                "content": content,
-                "absolute_uri": getattr(settings, 'WWW_URL'),
-                "transformed_body": transform(
-                    getattr(content, 'body', ""),
+                'content': content,
+                'absolute_uri': getattr(settings, 'WWW_URL'),
+                'transformed_body': transform(
+                    getattr(content, 'body', ''),
                     InstantArticleRenderer())
             }
             try:
                 source = render_to_string(
-                    "instant_article/_instant_article.html", context
+                    'instant_article/_instant_article.html', context
                 )
             except TemplateDoesNotExist:
                 source = render_to_string(
-                    "instant_article/base_instant_article.html", context
+                    'instant_article/base_instant_article.html', context
                 )
 
             # Post article to instant article API
@@ -129,7 +128,7 @@ def post_to_instant_articles_api(content_pk):
                 fb_access_token
             ))
 
-            status = delete.json()["success"]
+            status = delete.json()['success']
             if bool(status) is not True:
                 logger.error('''
                     Error in deleting Instant Article.\n
