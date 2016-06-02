@@ -1,5 +1,6 @@
 import requests_mock
 
+from django.conf import settings
 from django.utils import timezone
 from django.test.utils import override_settings
 
@@ -16,14 +17,7 @@ class FacebookAPITestCase(BaseIndexableTestCase):
         super(FacebookAPITestCase, self).setUp()
         self.ft = FeatureType.objects.create(name="NIP", instant_article=True)
 
-    @override_settings(
-        FACEBOOK_PAGE_ID='123456',
-        FACEBOOK_API_BASE_URL='https://graph.facebook.com/v2.6',
-        FACEBOOK_API_ENV='production',
-        FACEBOOK_TOKEN_VAULT_PATH='facebook/onion_token',
-        WWW_URL='www.theonion.com',
-        BETTY_FIXED_URL='http://i.onionstatic.com/onion'
-    )
+    @override_settings(FACEBOOK_API_ENV='production')
     @mock_vault({'facebook/onion_token': 'TOKEN'})
     def test_publish(self):
         with requests_mock.mock() as mocker:
@@ -56,14 +50,7 @@ class FacebookAPITestCase(BaseIndexableTestCase):
             self.assertEqual(c.instant_article_id, 9876)
             self.assertEqual(mocker.call_count, 2)
 
-    @override_settings(
-        FACEBOOK_PAGE_ID='123456',
-        FACEBOOK_API_BASE_URL='https://graph.facebook.com/v2.6',
-        FACEBOOK_API_ENV='production',
-        FACEBOOK_TOKEN_VAULT_PATH='facebook/onion_token',
-        WWW_URL='www.theonion.com',
-        BETTY_FIXED_URL='http://i.onionstatic.com/onion'
-    )
+    @override_settings(FACEBOOK_API_ENV='production')
     @mock_vault({'facebook/onion_token': 'TOKEN'})
     def test_unpublish(self):
         with requests_mock.mock() as mocker:
@@ -105,14 +92,7 @@ class FacebookAPITestCase(BaseIndexableTestCase):
 
             self.assertEqual(mocker.call_count, 3)
 
-    @override_settings(
-        FACEBOOK_PAGE_ID='123456',
-        FACEBOOK_API_BASE_URL='https://graph.facebook.com/v2.6',
-        FACEBOOK_API_ENV='production',
-        FACEBOOK_TOKEN_VAULT_PATH='facebook/onion_token',
-        WWW_URL='www.theonion.com',
-        BETTY_FIXED_URL='http://i.onionstatic.com/onion'
-    )
+    @override_settings(FACEBOOK_API_ENV='production')
     @mock_vault({'facebook/onion_token': 'TOKEN'})
     def test_delete(self):
         with requests_mock.mock() as mocker:
