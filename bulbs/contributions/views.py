@@ -76,6 +76,7 @@ class FeatureTypeRateViewSet(NestedRateViewSet):
     model = FeatureTypeRate
     serializer_class = FeatureTypeRateSerializer
     paginate_by = 20
+    order_by = ("feature_type.name",)
 
 
 class OverrideProfileViewSet(viewsets.ModelViewSet):

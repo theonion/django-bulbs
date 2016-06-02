@@ -26,7 +26,7 @@ class AuthorApiTestCase(BaseIndexableTestCase):
         """
         User = get_user_model()
         user = User.objects.create(
-            username="Choo Choo The Herky-Jerky Dancer",
+            username="Herky-Jerky Dancer",
             first_name="Choo",
             last_name="Choo",
             is_staff=True

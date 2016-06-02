@@ -23,7 +23,7 @@ class TestRecircViews(BaseIndexableTestCase):
             self.tags.append(Tag.objects.create(name=name))
 
         # create dumb test objects
-        objects = []
+        self.objects = []
         for i, tag in enumerate(self.tags):
             t = TestRecircContentObject.objects.create(
                 title="Test {}".format(i+1),
@@ -33,7 +33,7 @@ class TestRecircViews(BaseIndexableTestCase):
                 published=timezone.now() - timezone.timedelta(days=1)
             )
             t.tags.add(tag)
-            objects.append(t)
+            self.objects.append(t)
 
         self.content = TestRecircContentObject.objects.create(
             foo="whatever",
@@ -54,9 +54,9 @@ class TestRecircViews(BaseIndexableTestCase):
         # assert that there are more than 3 items in the response
         # & that the first three are as expected
         self.assertEqual(len(self.content.query['included_ids']), 4)
-        self.assertEqual(self.content.query['included_ids'][0], 1)
-        self.assertEqual(self.content.query['included_ids'][1], 2)
-        self.assertEqual(self.content.query['included_ids'][2], 3)
+        self.assertEqual(self.content.query['included_ids'][0], self.objects[0].id)
+        self.assertEqual(self.content.query['included_ids'][1], self.objects[1].id)
+        self.assertEqual(self.content.query['included_ids'][2], self.objects[2].id)
 
         # refresh search objects
         TestRecircContentObject.search_objects.refresh()
@@ -70,19 +70,19 @@ class TestRecircViews(BaseIndexableTestCase):
 
         # assert first three things are returned from endpoint
         self.assertEqual(len(data), 3)
-        self.assertEqual(data[0]['id'], 3)
+        self.assertEqual(data[0]['id'], self.objects[2].id)
         self.assertEqual(data[0]['thumbnail'], None)
         self.assertEqual(data[0]['slug'], 'test-3')
         self.assertEqual(data[0]['title'], 'Test 3')
         self.assertEqual(data[0]['feature_type'], 'Article')
 
-        self.assertEqual(data[1]['id'], 2)
+        self.assertEqual(data[1]['id'], self.objects[1].id)
         self.assertEqual(data[1]['thumbnail'], None)
         self.assertEqual(data[1]['slug'], 'test-2')
         self.assertEqual(data[1]['title'], 'Test 2')
         self.assertEqual(data[1]['feature_type'], 'Article')
 
-        self.assertEqual(data[2]['id'], 1)
+        self.assertEqual(data[2]['id'], self.objects[0].id)
         self.assertEqual(data[2]['thumbnail'], None)
         self.assertEqual(data[2]['slug'], 'test-1')
         self.assertEqual(data[2]['title'], 'Test 1')
@@ -90,10 +90,10 @@ class TestRecircViews(BaseIndexableTestCase):
 
         # assert that the query wasn't changed
         self.assertEqual(len(self.content.query['included_ids']), 4)
-        self.assertEqual(self.content.query['included_ids'][0], 1)
-        self.assertEqual(self.content.query['included_ids'][1], 2)
-        self.assertEqual(self.content.query['included_ids'][2], 3)
-        self.assertEqual(self.content.query['included_ids'][3], 4)
+        self.assertEqual(self.content.query['included_ids'][0], self.objects[0].id)
+        self.assertEqual(self.content.query['included_ids'][1], self.objects[1].id)
+        self.assertEqual(self.content.query['included_ids'][2], self.objects[2].id)
+        self.assertEqual(self.content.query['included_ids'][3], self.objects[3].id)
 
     def test_recirc_content_not_found(self):
         recirc_url = reverse('content_recirc', kwargs={'pk': 300})

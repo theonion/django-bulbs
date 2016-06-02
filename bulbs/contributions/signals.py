@@ -19,7 +19,7 @@ def update_feature_type_rates(sender, instance, created, *args, **kwargs):
 
 
 @receiver(post_save, sender=ContributorRole)
-def call_update_role_rates(sender, instance, * args, **kwargs):
+def call_update_role_rates(sender, instance, *args, **kwargs):
     update_role_rates.delay(instance.pk)
 
 
