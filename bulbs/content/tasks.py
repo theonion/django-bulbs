@@ -1,5 +1,14 @@
+from django.conf import settings
+from django.template.loader import render_to_string
+from django.template.base import TemplateDoesNotExist
 from django.core.exceptions import ObjectDoesNotExist
 
+from bulbs.utils import vault
+from bulbs.instant_articles.renderer import InstantArticleRenderer
+from bulbs.instant_articles.transform import transform
+
+import requests
+import logging
 from celery import shared_task
 
 
@@ -56,16 +65,6 @@ def update_feature_type_rates(featuretype_pk):
 
 @shared_task(default_retry_delay=5)
 def post_to_instant_articles_api(content_pk):
-    import requests
-    import logging
-
-    from django.conf import settings
-    from django.template.loader import render_to_string
-    from django.template.base import TemplateDoesNotExist
-
-    from bulbs.utils import vault
-    from bulbs.instant_articles.renderer import InstantArticleRenderer
-    from bulbs.instant_articles.transform import transform
     from .models import Content
 
     if getattr(settings, 'FACEBOOK_API_ENV', '').lower() == 'production':
