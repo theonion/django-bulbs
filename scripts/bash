@@ -1,0 +1,16 @@
+#!/usr/bin/env ruby
+# Summary: Launch Docker Bash (attempt to attach)
+command = ""
+
+attach_to = `docker-compose ps`.scan(/\w+_web_run_\d+/).flatten.sort.reverse.first
+if attach_to
+  puts "Attaching to #{attach_to}"
+  command << "docker exec -it #{attach_to}"
+else
+  command << "docker-compose run web"
+end
+
+command << " /bin/bash"
+command << " -c '#{ARGV.join(' ')}'" if ARGV.any?
+
+system command

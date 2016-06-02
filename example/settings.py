@@ -11,7 +11,7 @@ DATABASES = {
         'NAME': 'bulbs_test',
         'USER': 'bulbs',
         'PASSWORD': 'testing',
-        'HOST': '192.168.99.100',
+        'HOST': 'postgres',
         'PORT': '5432',
     }
 }
@@ -106,7 +106,7 @@ ES_DISABLED = False
 
 ES_CONNECTIONS = {
     "default": {
-        "hosts": [os.environ.get('ELASTICSEARCH_HOST', 'localhost')],
+        "hosts": [os.environ.get('ELASTICSEARCH_HOST', 'elasticsearch')],
         "timeout": 30,
     }
 }
