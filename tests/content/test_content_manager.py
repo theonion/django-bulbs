@@ -67,9 +67,25 @@ class ContentManagerTestCase(BaseIndexableTestCase):
         make_content(TestVideoContentObj, evergreen=True, published=self.now)  # No video ref
 
         Content.search_objects.refresh()
-        evergreen = Content.search_objects.evergreen_video().extra(from_=0, size=50)
+        evergreen = Content.search_objects.evergreen_video()[:50]
         self.assertEqual(12, evergreen.count())
         self.assertEqual(
             sorted([o.id for o in expected]),
             sorted([o.id for o in evergreen])
         )
+
+    def test_recent_videos(self):
+        videohub_ref = VideohubVideo.objects.create(id=1)
+        expected = [make_content(TestVideoContentObj, videohub_ref=videohub_ref,
+                                 published=self.now - timezone.timedelta(hours=hours))
+                    for hours in [4, 2, 3, 0, 5, 1]]
+        # Ignored content
+        make_content(TestVideoContentObj, videohub_ref=videohub_ref)  # Not published
+        make_content(TestVideoContentObj, videohub_ref=videohub_ref,
+                     published=(self.now + timezone.timedelta(hours=1)))  # Not published yet
+        make_content(TestVideoContentObj, published=self.now)  # No video ref
+
+        Content.search_objects.refresh()
+        recent = Content.search_objects.recent_videos()
+        self.assertEqual([o.id for o in sorted(expected, reverse=True, key=lambda x: x.published)],
+                         [o.id for o in recent])
