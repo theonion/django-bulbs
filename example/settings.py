@@ -107,7 +107,7 @@ ES_DISABLED = False
 
 ES_CONNECTIONS = {
     "default": {
-        "hosts": [os.environ.get('ELASTICSEARCH_HOST', 'elasticsearch')],
+        "hosts": [os.environ.get('ELASTICSEARCH_HOST', 'localhost')],
         "timeout": 30,
     }
 }

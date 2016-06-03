@@ -2,10 +2,6 @@ web:
   build: .
   environment:
     DJANGO_SETTINGS_MODULE: example.settings
-  # FROM https://github.com/unbit/uwsgi-docker
-  # in bridged mode the class B network is allocated, so we can simply bind to the first address starting with 172
-  # so we use the very handy .* trick
-  # NOTE: If uWSGI "--python-autoreload" doesn't work / is too slow, could try Django handler: http://serverfault.com/a/642024
   stdin_open: true
   volumes:
     - .:/webapp

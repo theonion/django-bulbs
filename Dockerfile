@@ -12,12 +12,6 @@ RUN apt-get update \
         vim \
     && rm -rf /var/lib/apt/lists/*
 
-# Deploy-specific python packages
-# - Django runs inside uWSGI
-# - docker-py required for Docker-assigned ephemeral port detection from within container
-RUN pip install "uwsgi>=2.0.11.1,<=2.1" \
-                "docker-py==1.4.0"
-
 # Setup app directory
 WORKDIR /webapp
 
