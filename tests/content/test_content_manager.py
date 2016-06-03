@@ -4,8 +4,10 @@ from django.utils import timezone
 from bulbs.content.models import Content, FeatureType
 from bulbs.utils.test import make_content, BaseIndexableTestCase
 
-from example.testcontent.models import TestContentObj, TestContentObjTwo, TestReadingListObj
+from example.testcontent.models import (TestContentObj, TestContentObjTwo, TestReadingListObj,
+                                        TestVideoContentObj)
 
+from videohub_client.models import VideohubVideo
 
 class ContentManagerTestCase(BaseIndexableTestCase):
 
@@ -56,13 +58,13 @@ class ContentManagerTestCase(BaseIndexableTestCase):
         self.assertEqual(instant_articles.count(), 50)
         self.assertTrue(instant_articles[0].feature_type.instant_article)
 
-    @override_settings(VIDEO_DOC_TYPE=TestContentObjTwo.search_objects.mapping.doc_type)
     def test_evergreen_video(self):
-        make_content(TestContentObjTwo, evergreen=True, published=self.now, _quantity=12)
-        make_content(TestContentObjTwo, published=self.now, _quantity=12)
+        videohub_ref = VideohubVideo.objects.create(id=1)
+        make_content(TestVideoContentObj, videohub_ref=videohub_ref, evergreen=True, published=self.now, _quantity=12)
+        make_content(TestVideoContentObj, videohub_ref=videohub_ref, published=self.now, _quantity=12)
         Content.search_objects.refresh()
         evergreen = Content.search_objects.evergreen_video().extra(from_=0, size=50)
-        qs = TestContentObjTwo.objects.filter(evergreen=True)
+        qs = TestVideoContentObj.objects.filter(evergreen=True)
         self.assertEqual(12, evergreen.count())
         self.assertEqual(
             sorted([obj.id for obj in qs]),

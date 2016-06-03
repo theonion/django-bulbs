@@ -136,6 +136,10 @@ def VideohubChannel(included_ids=None, excluded_ids=None):
         f &= ~Nested(path="video", filter=Terms(**{"video.channel_id": excluded_ids}))
 
 
+def VideohubVideo():
+    return Nested(path='videohub_ref', filter=Exists(field='videohub_ref.id'))
+
+
 def TagBoost(slugs, boost_mode="multiply", weight=5):
     included, excluded = _parse_slugs(slugs)
     return FunctionScore(
