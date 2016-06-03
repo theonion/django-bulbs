@@ -1,13 +1,12 @@
-from django.test import override_settings
 from django.utils import timezone
 
 from bulbs.content.models import Content, FeatureType
 from bulbs.utils.test import make_content, BaseIndexableTestCase
 
-from example.testcontent.models import (TestContentObj, TestContentObjTwo, TestReadingListObj,
-                                        TestVideoContentObj)
+from example.testcontent.models import (TestContentObj, TestReadingListObj, TestVideoContentObj)
 
 from videohub_client.models import VideohubVideo
+
 
 class ContentManagerTestCase(BaseIndexableTestCase):
 
@@ -60,13 +59,17 @@ class ContentManagerTestCase(BaseIndexableTestCase):
 
     def test_evergreen_video(self):
         videohub_ref = VideohubVideo.objects.create(id=1)
-        make_content(TestVideoContentObj, videohub_ref=videohub_ref, evergreen=True, published=self.now, _quantity=12)
-        make_content(TestVideoContentObj, videohub_ref=videohub_ref, published=self.now, _quantity=12)
+        expected = make_content(TestVideoContentObj, videohub_ref=videohub_ref, evergreen=True,
+                                published=self.now, _quantity=12)
+        # Ignored content
+        make_content(TestVideoContentObj, videohub_ref=videohub_ref,
+                     published=self.now, _quantity=12)  # Not evergreen
+        make_content(TestVideoContentObj, evergreen=True, published=self.now)  # No video ref
+
         Content.search_objects.refresh()
         evergreen = Content.search_objects.evergreen_video().extra(from_=0, size=50)
-        qs = TestVideoContentObj.objects.filter(evergreen=True)
         self.assertEqual(12, evergreen.count())
         self.assertEqual(
-            sorted([obj.id for obj in qs]),
-            sorted([obj.id for obj in evergreen])
+            sorted([o.id for o in expected]),
+            sorted([o.id for o in evergreen])
         )
