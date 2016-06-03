@@ -168,6 +168,7 @@ def post_to_instant_articles_api(content_pk):
                 fb_page_id,
                 fb_api_url,
                 fb_access_token))
+        return 
 
     # render page source
     context = {
