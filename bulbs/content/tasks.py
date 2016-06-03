@@ -158,6 +158,7 @@ def post_to_instant_articles_api(content_pk):
     fb_page_id = getattr(settings, 'FACEBOOK_PAGE_ID', None)
     fb_api_url = getattr(settings, 'FACEBOOK_API_BASE_URL', None)
     fb_access_token = vault.read(settings.FACEBOOK_TOKEN_VAULT_PATH)
+    environment = getattr(settings, 'FACEBOOK_API_ENV', '').lower()
 
     if not fb_page_id or not fb_api_url or not fb_access_token:
         logger.error('''
@@ -170,28 +171,27 @@ def post_to_instant_articles_api(content_pk):
                 fb_access_token))
         return
 
-    # render page source
-    context = {
-        'content': content,
-        'absolute_uri': getattr(settings, 'WWW_URL'),
-        'transformed_body': transform(
-            getattr(content, 'body', ''),
-            InstantArticleRenderer())
-    }
-    try:
-        source = render_to_string(
-            'instant_article/_instant_article.html', context
-        )
-    except TemplateDoesNotExist:
-        source = render_to_string(
-            'instant_article/base_instant_article.html', context
-        )
+    # if feature type is IA approved & content is published
+    feature_type = getattr(content, 'feature_type', None)
+    if feature_type and feature_type.instant_article and content.is_published:
+        # render page source
+        context = {
+            'content': content,
+            'absolute_uri': getattr(settings, 'WWW_URL'),
+            'transformed_body': transform(
+                getattr(content, 'body', ''),
+                InstantArticleRenderer())
+        }
+        try:
+            source = render_to_string(
+                'instant_article/_instant_article.html', context
+            )
+        except TemplateDoesNotExist:
+            source = render_to_string(
+                'instant_article/base_instant_article.html', context
+            )
 
-    if getattr(settings, 'FACEBOOK_API_ENV', '').lower() == 'production':
-        feature_type = getattr(content, 'feature_type', None)
-
-        # if feature type is IA approved & content is published
-        if feature_type and feature_type.instant_article and content.is_published:
+        if environment == 'production':
             post_article(
                 content,
                 source,
@@ -200,8 +200,9 @@ def post_to_instant_articles_api(content_pk):
                 fb_access_token)
 
         # if article is being unpublished, delete it from IA API
-        elif (not content.is_published and
-              content.instant_article_id):
+    elif (not content.is_published and
+          content.instant_article_id):
+        if environment == 'production':
             delete_article(
                 content,
                 fb_api_url,
