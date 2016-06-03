@@ -65,13 +65,10 @@ def update_feature_type_rates(featuretype_pk):
                 role_id=role.pk)
 
 
-def post_article(content, body):
+def post_article(content, body, fb_page_id, fb_api_url, fb_access_token):
     from .models import Content
 
     logger = logging.getLogger(__name__)
-    fb_page_id = getattr(settings, 'FACEBOOK_PAGE_ID', '')
-    fb_api_url = getattr(settings, 'FACEBOOK_API_BASE_URL', '')
-    fb_access_token = vault.read(settings.FACEBOOK_TOKEN_VAULT_PATH)
 
     # Post article to instant article API
     post = requests.post(
@@ -124,10 +121,8 @@ def post_article(content, body):
         instant_article_id=status.json().get('id'))
 
 
-def delete_article(content):
+def delete_article(content, fb_api_url, fb_access_token):
     logger = logging.getLogger(__name__)
-    fb_api_url = getattr(settings, 'FACEBOOK_API_BASE_URL', '')
-    fb_access_token = vault.read(settings.FACEBOOK_TOKEN_VAULT_PATH)
 
     delete = requests.delete('{0}/{1}?access_token={2}'.format(
         fb_api_url,
@@ -160,33 +155,45 @@ def delete_article(content):
 @shared_task(default_retry_delay=5, time_limit=300)
 def post_to_instant_articles_api(content_pk):
     from .models import Content
+    content = Content.objects.get(pk=content_pk)
+
+    fb_page_id = getattr(settings, 'FACEBOOK_PAGE_ID', '')
+    fb_api_url = getattr(settings, 'FACEBOOK_API_BASE_URL', '')
+    fb_access_token = vault.read(settings.FACEBOOK_TOKEN_VAULT_PATH)
+
+    # render page source
+    context = {
+        'content': content,
+        'absolute_uri': getattr(settings, 'WWW_URL'),
+        'transformed_body': transform(
+            getattr(content, 'body', ''),
+            InstantArticleRenderer())
+    }
+    try:
+        source = render_to_string(
+            'instant_article/_instant_article.html', context
+        )
+    except TemplateDoesNotExist:
+        source = render_to_string(
+            'instant_article/base_instant_article.html', context
+        )
 
     if getattr(settings, 'FACEBOOK_API_ENV', '').lower() == 'production':
-        content = Content.objects.get(pk=content_pk)
         feature_type = getattr(content, 'feature_type', None)
 
         # if feature type is IA approved & content is published
         if feature_type and feature_type.instant_article and content.is_published:
-            # render page source
-            context = {
-                'content': content,
-                'absolute_uri': getattr(settings, 'WWW_URL'),
-                'transformed_body': transform(
-                    getattr(content, 'body', ''),
-                    InstantArticleRenderer())
-            }
-            try:
-                source = render_to_string(
-                    'instant_article/_instant_article.html', context
-                )
-            except TemplateDoesNotExist:
-                source = render_to_string(
-                    'instant_article/base_instant_article.html', context
-                )
-
-            post_article(content, source)
+            post_article(
+                content,
+                source,
+                fb_page_id,
+                fb_api_url,
+                fb_access_token)
 
         # if article is being unpublished, delete it from IA API
         elif (not content.is_published and
               content.instant_article_id):
-            delete_article(content)
+            delete_article(
+                content,
+                fb_api_url,
+                fb_access_token)
