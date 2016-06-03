@@ -604,9 +604,19 @@ def content_deleted(sender, instance=None, **kwargs):
 
 def delete_from_instant_article_api(sender, instance=None, **kwargs):
     if getattr(settings, 'FACEBOOK_API_ENV', '').lower() == 'production':
-        fb_api_url = getattr(settings, 'FACEBOOK_API_BASE_URL', '')
-        fb_access_token = vault.read(settings.FACEBOOK_TOKEN_VAULT_PATH)
+        fb_api_url = getattr(settings, 'FACEBOOK_API_BASE_URL', None)
+        fb_token_path = getattr(settings, 'FACEBOOK_TOKEN_VAULT_PATH', None)
 
+        if not fb_api_url or not fb_token_path:
+            logger.error('''
+                Error in Django Settings.\n
+                FACEBOOK_API_BASE_URL: {0}\n
+                FACEBOOK_TOKEN_VAULT_PATH: {1}'''.format(
+                    fb_api_url,
+                    fb_token_path))
+            return
+
+        fb_access_token = vault.read(fb_token_path)
         delete = requests.delete('{0}/{1}?access_token={2}'.format(
             fb_api_url,
             instance.instant_article_id,

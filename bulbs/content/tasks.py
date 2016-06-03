@@ -122,7 +122,7 @@ def post_article(content, body, fb_page_id, fb_api_url, fb_token_path):
         instant_article_id=status.json().get('id'))
 
 
-def delete_article(content, fb_api_url, fb_access_token, fb_token_path):
+def delete_article(content, fb_api_url, fb_token_path):
     fb_access_token = vault.read(fb_token_path)
     delete = requests.delete('{0}/{1}?access_token={2}'.format(
         fb_api_url,
