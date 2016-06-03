@@ -613,17 +613,26 @@ def delete_from_instant_article_api(sender, instance=None, **kwargs):
             fb_access_token
         ))
 
-        status = delete.json()["success"]
-        if bool(status) is not True:
+        if not delete.ok:
             logger.error('''
                 Error in deleting Instant Article.\n
                 Content ID: {0}\n
                 IA ID: {1}\n
-                Error: {2}'''.format(
+                Status Code: {2}'''.format(
                     instance.id,
                     instance.instant_article_id,
-                    delete.json()))
-
+                    delete.status_code))
+        else:
+            status = delete.json().get('success')
+            if bool(status) is not True:
+                logger.error('''
+                    Error in deleting Instant Article.\n
+                    Content ID: {0}\n
+                    IA ID: {1}\n
+                    Error: {2}'''.format(
+                        instance.id,
+                        instance.instant_article_id,
+                        delete.json()))
 
 ##
 # signal hooks
