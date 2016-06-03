@@ -13,6 +13,8 @@ import requests
 import logging
 from celery import shared_task
 
+logger = logging.getLogger(__name__)
+
 
 @shared_task(default_retry_delay=5)
 def index(content_type_id, pk, refresh=False):
@@ -68,8 +70,6 @@ def update_feature_type_rates(featuretype_pk):
 def post_article(content, body, fb_page_id, fb_api_url, fb_access_token):
     from .models import Content
 
-    logger = logging.getLogger(__name__)
-
     # Post article to instant article API
     post = requests.post(
         '{0}/{1}/instant_articles'.format(fb_api_url, fb_page_id),
@@ -122,8 +122,6 @@ def post_article(content, body, fb_page_id, fb_api_url, fb_access_token):
 
 
 def delete_article(content, fb_api_url, fb_access_token):
-    logger = logging.getLogger(__name__)
-
     delete = requests.delete('{0}/{1}?access_token={2}'.format(
         fb_api_url,
         content.instant_article_id,
@@ -157,9 +155,19 @@ def post_to_instant_articles_api(content_pk):
     from .models import Content
     content = Content.objects.get(pk=content_pk)
 
-    fb_page_id = getattr(settings, 'FACEBOOK_PAGE_ID', '')
-    fb_api_url = getattr(settings, 'FACEBOOK_API_BASE_URL', '')
+    fb_page_id = getattr(settings, 'FACEBOOK_PAGE_ID', None)
+    fb_api_url = getattr(settings, 'FACEBOOK_API_BASE_URL', None)
     fb_access_token = vault.read(settings.FACEBOOK_TOKEN_VAULT_PATH)
+
+    if not fb_page_id or not fb_api_url or not fb_access_token:
+        logger.error('''
+            Error in Django Settings.\n
+            FACEBOOK_PAGE_ID: {0}\n
+            FACEBOOK_API_BASE_URL: {1}\n
+            FB_ACCESS_TOKEN: {2}'''.format(
+                fb_page_id,
+                fb_api_url,
+                fb_access_token))
 
     # render page source
     context = {
