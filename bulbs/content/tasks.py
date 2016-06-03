@@ -200,8 +200,7 @@ def post_to_instant_articles_api(content_pk):
                 fb_access_token)
 
         # if article is being unpublished, delete it from IA API
-    elif (not content.is_published and
-          content.instant_article_id):
+    elif not content.is_published and content.instant_article_id:
         if environment == 'production':
             delete_article(
                 content,
