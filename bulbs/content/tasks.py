@@ -67,7 +67,8 @@ def update_feature_type_rates(featuretype_pk):
                 role_id=role.pk)
 
 
-def post_article(content, body, fb_page_id, fb_api_url, fb_access_token):
+def post_article(content, body, fb_page_id, fb_api_url, fb_token_path):
+    fb_access_token = vault.read(fb_token_path)
     from .models import Content
 
     # Post article to instant article API
@@ -121,7 +122,8 @@ def post_article(content, body, fb_page_id, fb_api_url, fb_access_token):
         instant_article_id=status.json().get('id'))
 
 
-def delete_article(content, fb_api_url, fb_access_token):
+def delete_article(content, fb_api_url, fb_access_token, fb_token_path):
+    fb_access_token = vault.read(fb_token_path)
     delete = requests.delete('{0}/{1}?access_token={2}'.format(
         fb_api_url,
         content.instant_article_id,
@@ -157,18 +159,18 @@ def post_to_instant_articles_api(content_pk):
 
     fb_page_id = getattr(settings, 'FACEBOOK_PAGE_ID', None)
     fb_api_url = getattr(settings, 'FACEBOOK_API_BASE_URL', None)
-    fb_access_token = vault.read(settings.FACEBOOK_TOKEN_VAULT_PATH)
+    fb_token_path = getattr(settings, 'FACEBOOK_TOKEN_VAULT_PATH', None)
     environment = getattr(settings, 'FACEBOOK_API_ENV', '').lower()
 
-    if not fb_page_id or not fb_api_url or not fb_access_token:
+    if not fb_page_id or not fb_api_url or not fb_token_path:
         logger.error('''
             Error in Django Settings.\n
             FACEBOOK_PAGE_ID: {0}\n
             FACEBOOK_API_BASE_URL: {1}\n
-            FB_ACCESS_TOKEN: {2}'''.format(
+            FACEBOOK_TOKEN_VAULT_PATH: {2}'''.format(
                 fb_page_id,
                 fb_api_url,
-                fb_access_token))
+                fb_token_path))
         return
 
     # if feature type is IA approved & content is published
@@ -197,7 +199,7 @@ def post_to_instant_articles_api(content_pk):
                 source,
                 fb_page_id,
                 fb_api_url,
-                fb_access_token)
+                fb_token_path)
 
     # if article is being unpublished, delete it from IA API
     elif not content.is_published and content.instant_article_id:
@@ -205,4 +207,4 @@ def post_to_instant_articles_api(content_pk):
             delete_article(
                 content,
                 fb_api_url,
-                fb_access_token)
+                fb_token_path)
