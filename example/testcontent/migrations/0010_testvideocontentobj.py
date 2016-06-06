@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('videohub_client', '0002_videohubvideo_channel_id'),
-        ('content', '0010_auto_20160603_1217'),
+        ('content', '0009_auto_20160422_1212'),
         ('testcontent', '0009_testcontentobjthree'),
     ]
 
