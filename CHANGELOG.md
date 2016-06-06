@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 2.5.1
+
+- Added `FACEBOOK_API_DEVELOPMENT_MODE` and `FACEBOOK_API_PUBLISH_ARTICLE` settings flags for instant article testing
+
 ## Version 2.5.0
 
 - Added publishing to Facebook's Instant Article API on Content.save(), if the content feature type supports Instant Artices & the content is published.
