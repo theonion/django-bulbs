@@ -28,10 +28,12 @@ def parse_betty(tag):
     if (tag.name == 'div' and
         'image' in tag.get('class', {}) and
             tag.attrs.get('data-type') == 'image' and
-            tag.has_attr('data-image-id')):
+            tag.has_attr('data-image-id') and
+            tag.has_attr('data-format')):
         caption = tag.find('span', class_='caption')
         return {'betty': {'image_id': tag.attrs['data-image-id'],
-                          'caption': caption.text if caption else ''}}
+                          'caption': caption.text if caption else '',
+                          'format': tag.attrs['data-format']}}
 
 
 def parse_facebook(tag):

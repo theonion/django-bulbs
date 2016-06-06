@@ -147,7 +147,7 @@ class ReportContent(Content):
 
 
 class LineItem(models.Model):
-    contributor = models.ForeignKey(settings.AUTH_USER_MODEL)
+    contributor = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="line_items")
     amount = models.FloatField(default=0)
     note = models.TextField()
     payment_date = models.DateTimeField(null=True, blank=True)

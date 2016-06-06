@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.template import RequestContext, loader
 from django.template.base import TemplateDoesNotExist
 from django.views.decorators.cache import cache_control
@@ -34,7 +35,7 @@ class InstantArticleRSSView(RSSView):
             body = getattr(content, 'body', "")
             content_ctx = {
                 "content": content,
-                "absolute_uri": self.request.META.get('HTTP_HOST', None),
+                "absolute_uri": getattr(settings, 'WWW_URL'),
                 "transformed_body": transform(body, InstantArticleRenderer())
             }
             try:
@@ -65,7 +66,7 @@ class InstantArticleContentView(BaseContentDetailView):
         body = getattr(self.object, 'body', "")
         context["transformed_body"] = transform(body, InstantArticleRenderer())
         context["targeting"] = targeting
-        context["absolute_uri"] = self.request.META.get("HTTP_HOST", None)
+        context["absolute_uri"] = getattr(settings, "WWW_URL")
         return context
 
 

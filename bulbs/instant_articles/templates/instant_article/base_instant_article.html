@@ -38,7 +38,7 @@
 
         <figure>
           {% block cover %}
-            <img src="{% cropped_url content.detail_image.id %}" />
+            <img src="{% cropped_url content.detail_image.id fixed=True %}" />
           {% endblock cover %}
         </figure>
 

@@ -33,7 +33,7 @@ class Campaign(Indexable):
         :return: `bulbs.campaigns.Campaign`
         """
         campaign = super(Campaign, self).save(*args, **kwargs)
-        save_campaign_special_coverage_percolator.delay(self.id)
+        save_campaign_special_coverage_percolator.delay(self.tunic_campaign_id)
         return campaign
 
     @property
