@@ -4,6 +4,7 @@
 
 ## Version 2.5.1
 
+- Removed 'FACEBOOK_API_ENV' in favor of boolean 'FACEBOOK_POST_TO_IA' for determining if article should be posted to IA or not
 - Added `FACEBOOK_API_DEVELOPMENT_MODE` and `FACEBOOK_API_PUBLISH_ARTICLE` settings flags for instant article testing
 
 ## Version 2.5.0
