@@ -24,7 +24,7 @@ before_install:
   - sudo dpkg -i --force-confnew elasticsearch-$ELASTICSEARCH_VERSION.deb
   - sudo service elasticsearch start
 install:
-  - travis_retry pip install -e .
+  - travis_retry pip install --process-dependency-links -e .
   - travis_retry pip install "file://$(pwd)#egg=django-bulbs[dev]"
 before_script:
   - psql -c 'create database bulbs;' -U postgres

@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('videohub_client', '0003_auto_20160603_1318'),
+        ('videohub_client', '0002_videohubvideo_channel_id'),
         ('content', '0010_auto_20160603_1217'),
         ('testcontent', '0009_testcontentobjthree'),
     ]
