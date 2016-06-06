@@ -9,10 +9,11 @@
 // taken from https://ajy.co/the-simplest-sass-flexbox-grid-ever
 
 @mixin flexgrid($columns: 0, $gutter: 24, $padding: 0) {
-    @include flexbox;
-    @include flex-wrap(wrap);
-    box-sizing: border-box;
-    margin-left: (-1 * $gutter) * 1px;
+  @include flexbox;
+  @include flex-wrap(wrap);
+  box-sizing: border-box;
+  margin-left: (-1 * $gutter) * 1px;
+
   > * {
     box-sizing: border-box;
     margin-left: $gutter * 1px;
@@ -34,3 +35,19 @@
   $flexgrid_calc_gutter: $gutter * 1px;
   width: calc(#{$flexgrid_calc_percent} - #{$flexgrid_calc_gutter});
 };
+
+@mixin overflow-flexgrid($columns: 0, $gutter: 24) {
+  @include flexbox;
+  @include flex-wrap(no-wrap);
+  box-sizing: border-box;
+
+  $gutters: $columns - 1;
+  $item-percent: (1 / $columns) * 100%;
+  $gutter: $gutter * 1px;
+
+
+  > * {
+    min-width: calc(#{$item-percent} - ((#{$gutter} * #{$gutters}) / #{$columns}));
+    margin-right: $gutter;
+  }
+}
