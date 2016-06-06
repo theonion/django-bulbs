@@ -37,7 +37,7 @@
       tbody tr:last-child {
         border-bottom: 0;
       }
-      tbody td { 
+      tbody td {
         border-color: #ddd;
         border-style: solid;
         border-width: 0 1px 0 0;
@@ -74,11 +74,12 @@
             Hey <b>{{ contributor.get_full_name }}</b>,
           </p>
           <p style="margin:2em">
-          Please check the amount below and make sure it matches your records. The total is <b>${{ total }}</b>. 
-          If you have any question about it, please hit reply-all and let us know by <b>{{ deadline }}</b>.
+          Please check the amount below and make sure it matches your records. The total is <b>${{ total|floatformat:2 }}</b>.
+          If you have any questions about it, please hit reply-all and let us know by <b>{{ deadline }}</b>
+          All payments will be processed by the 15th of the month.
           </p>
           <p style="background: #90a6ba; color: #fff; display: inline-block; padding: 0.75em 1em; margin: 0 2em;">
-            Total: ${{ total }}
+            Total: ${{ total|floatformat:2 }}
           </p>
           <table style="margin: 2em">
             <thead>
@@ -92,7 +93,7 @@
             {% for contribution, content_type in contributions.items %}
               <tr>
                 <td style="text-align: center; max-width: 100px;">
-                  ${{ contribution.pay }}
+                  ${{ contribution.pay|floatformat:2 }}
                 </td>
                 <td style="text-align: center; max-width: 100px;">
                   {{ contribution.content.published|date:"m/d/y" }}
@@ -103,8 +104,21 @@
                   </a>
                   <br>
                   <span>
-                    {{ content_type }}
+                    {{ contribution.content.feature_type.name }}
                   </span>
+                </td>
+              </tr>
+            {% endfor %}
+            {% for line_item in line_items %}
+              <tr>
+                <td style="text-align: center; max-width: 100px;">
+                  ${{ line_item.amount|floatformat:2 }}
+                </td>
+                <td style="text-align: center; max-width: 100px;">
+                  {{ line_item.payment_date|date:"m/d/y" }}
+                </td>
+                <td>
+                  {{ line_item.note }}
                 </td>
               </tr>
             {% endfor %}

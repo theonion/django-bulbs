@@ -3,6 +3,7 @@ that we want any piece of content to have."""
 
 import logging
 import uuid
+import requests
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -22,11 +23,12 @@ from polymorphic import PolymorphicModel, PolymorphicManager
 from bulbs.content import TagCache
 from bulbs.content.tasks import (
     index_content_contributions, index_content_report_content_proxy,
-    index_feature_type_content
+    index_feature_type_content, post_to_instant_articles_api
 )
 from bulbs.utils.methods import datetime_to_epoch_seconds, get_template_choices
+from bulbs.utils import vault
 from .managers import ContentManager
-
+from .tasks import update_feature_type_rates
 
 logger = logging.getLogger(__name__)
 
@@ -105,6 +107,7 @@ class FeatureType(Indexable):
         super(FeatureType, self).__init__(*args, **kwargs)
         # Reference for state change on save.
         self._db_instant_article = self.instant_article
+        self._db_pk = self.pk
 
     class Mapping:
         name = field.String(
@@ -117,6 +120,13 @@ class FeatureType(Indexable):
         """
         return self.name
 
+    @property
+    def is_new(self):
+        return (
+            self.pk != self._db_pk or
+            self.pk is None and self._db_pk is None
+        )
+
     def save(self, *args, **kwargs):
         """sets the `slug` values as the name
 
@@ -126,10 +136,18 @@ class FeatureType(Indexable):
         """
         if self.slug is None or self.slug == "":
             self.slug = slugify(self.name)
+
         feature_type = super(FeatureType, self).save(*args, **kwargs)
+
         if self.instant_article_is_dirty:
             index_feature_type_content.delay(self.pk)
+
         self._db_instant_article = self.instant_article
+
+        # Run all behaviors for `create`
+        if self.is_new:
+            update_feature_type_rates.delay(self.pk)
+
         return feature_type
 
     @property
@@ -201,6 +219,8 @@ class Content(PolymorphicModel, Indexable):
     tunic_campaign_id = models.IntegerField(blank=True, null=True, default=None)
     # Custom template choice. Configured via BULBS_TEMPLATE_CHOICE
     template_choice = models.IntegerField(default=0, choices=TEMPLATE_CHOICES)
+    # Facebook Instant Article ID
+    instant_article_id = models.IntegerField(blank=True, null=True, default=None)
 
     # custom ES manager
     search_objects = ContentManager()
@@ -354,6 +374,7 @@ class Content(PolymorphicModel, Indexable):
         content = super(Content, self).save(*args, **kwargs)
         index_content_contributions.delay(self.id)
         index_content_report_content_proxy.delay(self.id)
+        post_to_instant_articles_api.delay(self.id)
         return content
 
     @classmethod
@@ -581,7 +602,50 @@ def content_deleted(sender, instance=None, **kwargs):
         cls.search_objects.client.delete(index, doc_type, instance.id, ignore=[404])
 
 
+def delete_from_instant_article_api(sender, instance=None, **kwargs):
+    if getattr(settings, 'FACEBOOK_API_ENV', '').lower() == 'production':
+        fb_api_url = getattr(settings, 'FACEBOOK_API_BASE_URL', None)
+        fb_token_path = getattr(settings, 'FACEBOOK_TOKEN_VAULT_PATH', None)
+
+        if not fb_api_url or not fb_token_path:
+            logger.error('''
+                Error in Django Settings.\n
+                FACEBOOK_API_BASE_URL: {0}\n
+                FACEBOOK_TOKEN_VAULT_PATH: {1}'''.format(
+                    fb_api_url,
+                    fb_token_path))
+            return
+
+        fb_access_token = vault.read(fb_token_path)
+        delete = requests.delete('{0}/{1}?access_token={2}'.format(
+            fb_api_url,
+            instance.instant_article_id,
+            fb_access_token
+        ))
+
+        if not delete.ok:
+            logger.error('''
+                Error in deleting Instant Article.\n
+                Content ID: {0}\n
+                IA ID: {1}\n
+                Status Code: {2}'''.format(
+                    instance.id,
+                    instance.instant_article_id,
+                    delete.status_code))
+        else:
+            status = delete.json().get('success')
+            if bool(status) is not True:
+                logger.error('''
+                    Error in deleting Instant Article.\n
+                    Content ID: {0}\n
+                    IA ID: {1}\n
+                    Error: {2}'''.format(
+                        instance.id,
+                        instance.instant_article_id,
+                        delete.json()))
+
 ##
 # signal hooks
 
 models.signals.pre_delete.connect(content_deleted, Content)
+models.signals.pre_delete.connect(delete_from_instant_article_api, Content)

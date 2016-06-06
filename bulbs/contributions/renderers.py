@@ -36,5 +36,15 @@ class ContributionReportingRenderer(HeaderCSVRenderer):
         'feature_type': 'Feature Type',
         'published': 'Publish Date',
         'rate': 'Rate',
-        'full_name': 'Payroll Name'
+        'payroll_name': 'Payroll Name'
+    }
+
+
+class LineItemRenderer(HeaderCSVRenderer):
+
+    header_fields = {
+        "note": "Note",
+        "amount": "Amount",
+        "payment_date": "Payment Date",
+        "payroll_name": "Payroll Name"
     }

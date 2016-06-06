@@ -2,6 +2,35 @@
 
 ## Development
 
+## Version 2.5.0
+
+- Added publishing to Facebook's Instant Article API on Content.save(), if the content feature type supports Instant Artices & the content is published.
+- Added deletion from Facebook's Instant Article API on Content.save(), if the content has already been pushed to the Instant Article platform & is being unpublished
+- Added deletion from Facebook's Instant Article API on Contnet.delete(), if the content had been pushed to the Instant Article platform
+
+## Version 2.4.2
+
+- Added animated gif support to the instant article renderer & parser
+
+## Version 2.4.1
+
+- Added twitter video parsing
+- Parser checks `src` on youtube iframe embeds
+
+## Version 2.4.0
+
+- Added [`ReportBugEmail`](https://github.com/theonion/django-bulbs/blob/4034cb55ec4142d022bf8b48fa71cd935dc473db/bulbs/api/views.py#L608-L638) view for a common bug reporter endpoint
+
+## Version 2.3.2
+
+- Added `<blockquote>`, `<ol>`, `<ul>`, `<h3>`, and `<h4>` support to instant article parser
+- Added in `content.subhead` to `base_instant_article.html`
+
+## Version 2.3.0
+
+- Added `parser.py`, which parses article bodies, and sends them to `renderer.py`, which can render article bodies in a particular format
+- Update `base_instant_article.html` and `base_instant_article_rss.xml` to use generated body, based on `parser.py` & `renderer.py`
+
 ## Version 2.2.1
 
 - Move special coverage styles into bulbs styles

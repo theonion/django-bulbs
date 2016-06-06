@@ -1,0 +1,13 @@
+{% load betty %}
+{% spaceless %}
+<figure>
+
+  {% if format == "gif" %}
+    <img src="{% animated_url image_id fixed=True %}" />
+  {% else %}
+    <img src="{% cropped_url image_id width="1920" fixed=True %}" />
+  {% endif %}
+
+  <figcaption>{{ caption }}</figcaption>
+</figure>
+{% endspaceless %}
