@@ -2,7 +2,6 @@ from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.db import models
 
-from celery import shared_task
 from elasticsearch_dsl import field
 from djes.models import Indexable, IndexableManager
 
@@ -27,13 +26,6 @@ RATE_PAYMENT_TYPES = ROLE_PAYMENT_TYPES + ((OVERRIDE, 'Override'),)
 
 def calculate_hourly_pay(rate, minutes_worked):
     return ((float(rate) / 60) * minutes_worked)
-
-
-@shared_task(default_retry_delay=5)
-def updated_role_payment_type(role_pk):
-    role = ContributorRole.objects.get(pk=role_pk)
-    for contribution in role.contribution_set.all():
-        contribution.index()
 
 
 class SlugObjectField(field.Object):
@@ -179,8 +171,6 @@ class ContributorRole(Indexable):
     def save(self, *args, **kwargs):
         created = bool(self.pk is None)
         super(ContributorRole, self).save(*args, **kwargs)
-        if self._payment_type != self.payment_type:
-            updated_role_payment_type.delay(self.pk)
         self.create_feature_type_rates(created)
 
     def create_feature_type_rates(self, created=False):
