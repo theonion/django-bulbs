@@ -18,7 +18,7 @@ class FacebookAPITestCase(BaseIndexableTestCase):
         self.ft = FeatureType.objects.create(name="NIP", instant_article=True)
 
     @override_settings(
-        FACEBOOK_API_ENV='production',
+        FACEBOOK_POST_TO_IA=True,
         BETTY_FIXED_URL='http://i.onionstatic.com/onion')
     @mock_vault({'facebook/onion_token': 'TOKEN'})
     def test_publish(self):
@@ -53,7 +53,7 @@ class FacebookAPITestCase(BaseIndexableTestCase):
             self.assertEqual(mocker.call_count, 2)
 
     @override_settings(
-        FACEBOOK_API_ENV='production',
+        FACEBOOK_POST_TO_IA=True,
         BETTY_FIXED_URL='http://i.onionstatic.com/onion')
     @mock_vault({'facebook/onion_token': 'TOKEN'})
     def test_unpublish(self):
@@ -97,7 +97,7 @@ class FacebookAPITestCase(BaseIndexableTestCase):
             self.assertEqual(mocker.call_count, 3)
 
     @override_settings(
-        FACEBOOK_API_ENV='production',
+        FACEBOOK_POST_TO_IA=True,
         BETTY_FIXED_URL='http://i.onionstatic.com/onion')
     @mock_vault({'facebook/onion_token': 'TOKEN'})
     def test_delete(self):
