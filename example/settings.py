@@ -157,4 +157,6 @@ FACEBOOK_TOKEN_VAULT_PATH = 'facebook/onion_token'
 FACEBOOK_API_ENV = 'development'
 FACEBOOK_PAGE_ID = '123456'
 FACEBOOK_API_BASE_URL = 'https://graph.facebook.com/v2.6'
+FACEBOOK_API_DEVELOPMENT_MODE = True
+FACEBOOK_API_PUBLISH_ARTICLE = False
 WWW_URL = "www.theonion.com"

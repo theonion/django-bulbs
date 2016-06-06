@@ -67,7 +67,7 @@ def update_feature_type_rates(featuretype_pk):
                 role_id=role.pk)
 
 
-def post_article(content, body, fb_page_id, fb_api_url, fb_token_path):
+def post_article(content, body, fb_page_id, fb_api_url, fb_token_path, fb_dev_mode, fb_publish):
     fb_access_token = vault.read(fb_token_path)
     from .models import Content
 
@@ -77,8 +77,8 @@ def post_article(content, body, fb_page_id, fb_api_url, fb_token_path):
         data={
             'access_token': fb_access_token,
             'html_source': body,
-            'published': 'true',
-            'development_mode': 'false'
+            'published': fb_publish,
+            'development_mode': fb_dev_mode
         })
 
     if not post.ok:
@@ -161,6 +161,8 @@ def post_to_instant_articles_api(content_pk):
     fb_api_url = getattr(settings, 'FACEBOOK_API_BASE_URL', None)
     fb_token_path = getattr(settings, 'FACEBOOK_TOKEN_VAULT_PATH', None)
     environment = getattr(settings, 'FACEBOOK_API_ENV', '').lower()
+    fb_dev_mode = 'true' if getattr(settings, 'FACEBOOK_API_DEVELOPMENT_MODE', None) else 'false'
+    fb_publish = 'true' if getattr(settings, 'FACEBOOK_API_PUBLISH_ARTICLE', None) else 'false'
 
     if not fb_page_id or not fb_api_url or not fb_token_path:
         logger.error('''
@@ -199,7 +201,9 @@ def post_to_instant_articles_api(content_pk):
                 source,
                 fb_page_id,
                 fb_api_url,
-                fb_token_path)
+                fb_token_path,
+                fb_dev_mode,
+                fb_publish)
 
     # if article is being unpublished, delete it from IA API
     elif not content.is_published and content.instant_article_id:
