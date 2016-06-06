@@ -8,14 +8,14 @@ import jsonfield.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('content', '0010_auto_20160601_1509'),
+        ('content', '0010_auto_20160606_1004'),
     ]
 
     operations = [
         migrations.CreateModel(
             name='BaseInfographic',
             fields=[
-                ('content_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='content.Content')),
+                ('content_ptr', models.OneToOneField(serialize=False, to='content.Content', primary_key=True, auto_created=True, parent_link=True)),
                 ('infographic_type', models.IntegerField(default=0)),
                 ('data', jsonfield.fields.JSONField(default=dict)),
             ],
