@@ -20,7 +20,7 @@ class FacebookAPITestCase(BaseIndexableTestCase):
     @override_settings(
         FACEBOOK_POST_TO_IA=True,
         BETTY_FIXED_URL='http://i.onionstatic.com/onion')
-    @mock_vault({'facebook/onion_token': 'TOKEN'})
+    @mock_vault({'facebook/onion_token': {'authtoken': 'TOKEN'}})
     def test_publish(self):
         with requests_mock.mock() as mocker:
             # post to instant article endpoit
@@ -55,7 +55,7 @@ class FacebookAPITestCase(BaseIndexableTestCase):
     @override_settings(
         FACEBOOK_POST_TO_IA=True,
         BETTY_FIXED_URL='http://i.onionstatic.com/onion')
-    @mock_vault({'facebook/onion_token': 'TOKEN'})
+    @mock_vault({'facebook/onion_token': {'authtoken': 'TOKEN'}})
     def test_unpublish(self):
         with requests_mock.mock() as mocker:
             mocker.post(
@@ -99,7 +99,7 @@ class FacebookAPITestCase(BaseIndexableTestCase):
     @override_settings(
         FACEBOOK_POST_TO_IA=True,
         BETTY_FIXED_URL='http://i.onionstatic.com/onion')
-    @mock_vault({'facebook/onion_token': 'TOKEN'})
+    @mock_vault({'facebook/onion_token': {'authtoken': 'TOKEN'}})
     def test_delete(self):
         with requests_mock.mock() as mocker:
             mocker.post(
