@@ -3,6 +3,7 @@
 ## Development
 
 ## Version 2.5.3
+> *__This version safe to roll-out without changes to site.__*
 
 - Changed css and html for special_coverage_landing
 
