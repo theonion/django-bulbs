@@ -17,11 +17,14 @@ class BaseInfographicTestCase(BaseIndexableTestCase):
         infographic = BaseInfographic.objects.create(
             title="A GOOD BOYS ADVENTURE",
             infographic_type=InfographicType.LIST,
-            data=[{
+            data={
                 "is_numbered": True,
-                "title": "Michael Bayless",
-                "copy": "How did he do that?",
-            }]
+                "items": [{
+                    "title": "Michael Bayless",
+                    "copy": "How did he do that?",
+                    "image": {"id": 1}
+                }]
+            }
         )
         db_infographic = BaseInfographic.objects.get(pk=infographic.pk)
         self.assertEqual(db_infographic.pk, infographic.pk)
@@ -34,6 +37,7 @@ class BaseInfographicTestCase(BaseIndexableTestCase):
                 data=[{
                     "is_numbered": True,
                     "copy": "How did he do that?",
+                    "image": {"id": 1}
                 }]
             )
 
@@ -45,6 +49,20 @@ class BaseInfographicTestCase(BaseIndexableTestCase):
                 data=[{
                     "title": "It me.",
                     "is_numbered": "Tru",
-                    "copy": "Who dat?"
+                    "copy": "Who dat?",
+                    "image": {"id": 1}
                 }]
             )
+
+    def test_timeline_validator(self):
+        BaseInfographic.objects.create(
+            title="A GOD BOY ADVENTURE",
+            infographic_type=InfographicType.TIMELINE,
+            data={
+                "items": [{
+                    "title": "Sickass",
+                    "copy": "heya",
+                    "image": {"id": 50}
+                }]
+            }
+        )
