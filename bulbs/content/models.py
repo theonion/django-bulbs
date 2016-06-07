@@ -616,7 +616,11 @@ def delete_from_instant_article_api(sender, instance=None, **kwargs):
                     fb_token_path))
             return
 
-        fb_access_token = vault.read(fb_token_path).get('authtoken', None)
+        fb_access_token = vault.read(fb_token_path).get('authtoken')
+        if fb_access_token is None:
+            logger.error('Missing FB Auth Token in Vault.\n')
+            return
+
         delete = requests.delete('{0}/{1}?access_token={2}'.format(
             fb_api_url,
             instance.instant_article_id,
