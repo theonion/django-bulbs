@@ -67,9 +67,13 @@ def update_feature_type_rates(featuretype_pk):
                 role_id=role.pk)
 
 
-def post_article(content, body, fb_page_id, fb_api_url, fb_token_path):
-    fb_access_token = vault.read(fb_token_path)
+def post_article(content, body, fb_page_id, fb_api_url, fb_token_path, fb_dev_mode, fb_publish):
     from .models import Content
+
+    fb_access_token = vault.read(fb_token_path).get('authtoken')
+    if fb_access_token is None:
+        logger.error('Missing FB Auth Token in Vault.\n')
+        return
 
     # Post article to instant article API
     post = requests.post(
@@ -77,8 +81,8 @@ def post_article(content, body, fb_page_id, fb_api_url, fb_token_path):
         data={
             'access_token': fb_access_token,
             'html_source': body,
-            'published': 'true',
-            'development_mode': 'false'
+            'published': fb_publish,
+            'development_mode': fb_dev_mode
         })
 
     if not post.ok:
@@ -123,7 +127,11 @@ def post_article(content, body, fb_page_id, fb_api_url, fb_token_path):
 
 
 def delete_article(content, fb_api_url, fb_token_path):
-    fb_access_token = vault.read(fb_token_path)
+    fb_access_token = vault.read(fb_token_path).get('authtoken')
+    if fb_access_token is None:
+        logger.error('Missing FB Auth Token in Vault.\n')
+        return
+
     delete = requests.delete('{0}/{1}?access_token={2}'.format(
         fb_api_url,
         content.instant_article_id,
@@ -160,7 +168,9 @@ def post_to_instant_articles_api(content_pk):
     fb_page_id = getattr(settings, 'FACEBOOK_PAGE_ID', None)
     fb_api_url = getattr(settings, 'FACEBOOK_API_BASE_URL', None)
     fb_token_path = getattr(settings, 'FACEBOOK_TOKEN_VAULT_PATH', None)
-    environment = getattr(settings, 'FACEBOOK_API_ENV', '').lower()
+    fb_dev_mode = 'true' if getattr(settings, 'FACEBOOK_API_DEVELOPMENT_MODE', False) else 'false'
+    fb_publish = 'true' if getattr(settings, 'FACEBOOK_API_PUBLISH_ARTICLE', False) else 'false'
+    should_post = getattr(settings, 'FACEBOOK_POST_TO_IA', False)
 
     if not fb_page_id or not fb_api_url or not fb_token_path:
         logger.error('''
@@ -193,17 +203,19 @@ def post_to_instant_articles_api(content_pk):
                 'instant_article/base_instant_article.html', context
             )
 
-        if environment == 'production':
+        if should_post:
             post_article(
                 content,
                 source,
                 fb_page_id,
                 fb_api_url,
-                fb_token_path)
+                fb_token_path,
+                fb_dev_mode,
+                fb_publish)
 
     # if article is being unpublished, delete it from IA API
     elif not content.is_published and content.instant_article_id:
-        if environment == 'production':
+        if should_post:
             delete_article(
                 content,
                 fb_api_url,
