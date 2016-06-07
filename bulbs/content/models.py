@@ -603,7 +603,7 @@ def content_deleted(sender, instance=None, **kwargs):
 
 
 def delete_from_instant_article_api(sender, instance=None, **kwargs):
-    if getattr(settings, 'FACEBOOK_API_ENV', '').lower() == 'production':
+    if getattr(settings, 'FACEBOOK_POST_TO_IA', False):
         fb_api_url = getattr(settings, 'FACEBOOK_API_BASE_URL', None)
         fb_token_path = getattr(settings, 'FACEBOOK_TOKEN_VAULT_PATH', None)
 
