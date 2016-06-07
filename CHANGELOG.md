@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 2.5.2
+
+- Changed Instant Article `vault.read()`s to check for key of `authtoken` & throw an error if it's not present
+
 ## Version 2.5.1
 
 - Removed 'FACEBOOK_API_ENV' in favor of boolean 'FACEBOOK_POST_TO_IA' for determining if article should be posted to IA or not
