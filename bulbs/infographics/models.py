@@ -3,18 +3,8 @@ from django_enumfield import enum
 from elasticsearch_dsl import field
 
 from bulbs.content.models import Content
-from .data_serializers import (
-    ComparisonSerializer, ListInfographicDataSerializer, ProConSerializer,
-    StrongSideWeakSideSerializer, TimelineSerializer
-)
-
-
-class InfographicType(enum.Enum):
-    LIST = 0
-    TIMELINE = 1
-    STRONGSIDE_WEAKSIDE = 2
-    PRO_CON = 3
-    COMPARISON = 4
+from .enum import InfographicType
+from .utils import get_data_serializer
 
 
 class BaseInfographic(Content):
@@ -39,19 +29,10 @@ class BaseInfographic(Content):
         return super(BaseInfographic, self).clean(*args, **kwargs)
 
     def validate_data_field(self):
-        Serializer = self.get_data_serializer()  # NOQA
+        Serializer = get_data_serializer(self.infographic_type)  # NOQA
         Serializer(data=self.data).is_valid(raise_exception=True)
 
-    def get_data_serializer(self):
-        serializer = {
-            InfographicType.LIST: ListInfographicDataSerializer,
-            InfographicType.TIMELINE: TimelineSerializer,
-            InfographicType.STRONGSIDE_WEAKSIDE: StrongSideWeakSideSerializer,
-            InfographicType.PRO_CON: ProConSerializer,
-            InfographicType.COMPARISON: ComparisonSerializer
-        }.get(self.infographic_type, None)
-        if serializer is None:
-            raise KeyError(
-                """The requested Infographic does not have a configured serializer."""
-            )
-        return serializer
+    @classmethod
+    def get_serializer_class(cls):
+        from .serializers import BaseInfographicSerializer
+        return BaseInfographicSerializer

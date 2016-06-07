@@ -1,11 +1,5 @@
 from djbetty.serializers import ImageFieldSerializer
 from rest_framework import serializers
-from rest_framework.serializers import ValidationError
-
-
-def has_two(value):
-    if len(value) != 2:
-        raise ValidationError("""key field requires at least 2 entries.""")
 
 
 class CopySerializer(serializers.Serializer):
@@ -30,7 +24,7 @@ class ComparisonKeySerializer(serializers.Serializer):
 
 
 class ComparisonSerializer(serializers.Serializer):
-    key = ComparisonKeySerializer(many=True, validators=[has_two])
+    key = ComparisonKeySerializer()
     items = XYItemSerializer(many=True)
 
 
