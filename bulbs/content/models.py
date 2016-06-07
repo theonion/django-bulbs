@@ -616,7 +616,7 @@ def delete_from_instant_article_api(sender, instance=None, **kwargs):
                     fb_token_path))
             return
 
-        fb_access_token = vault.read(fb_token_path)
+        fb_access_token = vault.read(fb_token_path)['authtoken']
         delete = requests.delete('{0}/{1}?access_token={2}'.format(
             fb_api_url,
             instance.instant_article_id,
