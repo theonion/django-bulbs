@@ -22,3 +22,4 @@ venv/
 .cache/
 .sass-cache/
 .map
+*.sw[nop]

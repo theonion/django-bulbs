@@ -2,6 +2,11 @@
 
 ## Development
 
+## Version 2.5.3
+> *__This version safe to roll-out without changes to site.__*
+
+- Changed css and html for special_coverage_landing
+
 ## Version 2.5.2
 
 - Changed Instant Article `vault.read()`s to check for key of `authtoken` & throw an error if it's not present
