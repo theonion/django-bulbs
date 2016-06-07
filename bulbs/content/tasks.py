@@ -68,7 +68,7 @@ def update_feature_type_rates(featuretype_pk):
 
 
 def post_article(content, body, fb_page_id, fb_api_url, fb_token_path, fb_dev_mode, fb_publish):
-    fb_access_token = vault.read(fb_token_path)['authtoken']
+    fb_access_token = vault.read(fb_token_path).get('authtoken', None)
     from .models import Content
 
     # Post article to instant article API
@@ -123,7 +123,7 @@ def post_article(content, body, fb_page_id, fb_api_url, fb_token_path, fb_dev_mo
 
 
 def delete_article(content, fb_api_url, fb_token_path):
-    fb_access_token = vault.read(fb_token_path)['authtoken']
+    fb_access_token = vault.read(fb_token_path).get('authtoken', None)
     delete = requests.delete('{0}/{1}?access_token={2}'.format(
         fb_api_url,
         content.instant_article_id,
