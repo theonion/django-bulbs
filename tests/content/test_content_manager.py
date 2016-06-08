@@ -5,7 +5,7 @@ from bulbs.utils.test import make_content, BaseIndexableTestCase
 
 from example.testcontent.models import (TestContentObj, TestReadingListObj, TestVideoContentObj)
 
-from videohub_client.models import VideohubVideo
+from bulbs.videos.models import VideohubVideo
 
 
 class ContentManagerTestCase(BaseIndexableTestCase):

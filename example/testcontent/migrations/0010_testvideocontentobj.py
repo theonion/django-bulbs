@@ -7,8 +7,8 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('videohub_client', '0002_videohubvideo_channel_id'),
-        ('content', '0009_auto_20160422_1212'),
+        ('content', '0012_auto_20160608_1159'),
+        ('videos', '0001_initial'),
         ('testcontent', '0009_testcontentobjthree'),
     ]
 
@@ -16,12 +16,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='TestVideoContentObj',
             fields=[
-                ('content_ptr', models.OneToOneField(auto_created=True, parent_link=True, serialize=False, to='content.Content', primary_key=True)),
-                ('videohub_ref', models.ForeignKey(null=True, blank=True, to='videohub_client.VideohubVideo')),
+                ('content_ptr', models.OneToOneField(auto_created=True, serialize=False, primary_key=True, parent_link=True, to='content.Content')),
+                ('videohub_ref', models.ForeignKey(blank=True, to='videos.VideohubVideo', null=True)),
             ],
             options={
                 'abstract': False,
             },
-            bases=('content.content',),
+            bases=('content.content', models.Model),
         ),
     ]

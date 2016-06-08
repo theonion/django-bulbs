@@ -36,7 +36,6 @@ INSTALLED_APPS = (
     "rest_framework",
     "rest_framework.authtoken",
     "polymorphic",
-    "videohub_client",
     # bulbs content types
     "bulbs.poll",
     # local apps

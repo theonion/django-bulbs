@@ -13,7 +13,7 @@ source bin/activate
 
 First, enter any virtualenv, etc, that you plan on developing in.
 ```bash
-pip install --process-dependency-links -e .
+pip install -e .
 pip install "file://$(pwd)#egg=django-bulbs[dev]"
 ```
 

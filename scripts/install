@@ -2,5 +2,5 @@
 # Install django-bulbs to local directory. Virtual environment recommended.
 #
 
-pip install --process-dependency-links -e .
+pip install -e .
 pip install "file://$(pwd)#egg=django-bulbs[dev]"

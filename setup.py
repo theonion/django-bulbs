@@ -34,11 +34,6 @@ requires = [
     "requests>=1.1.0",
     "simplejson==3.3.0",
     "six==1.10.0",
-    "videohub_client==0.2.1",
-]
-
-dependency_links = [
-    "https://github.com/theonion/videohub-client/archive/0.2.1.tar.gz#egg=videohub_client-0.2.1",
 ]
 
 dev_requires = [
@@ -111,7 +106,6 @@ setup(
     packages=get_packages(package),
     package_data=get_package_data(package),
     install_requires=requires,
-    dependency_links=dependency_links,
     extras_require={
         'dev': dev_requires,
     },
