@@ -36,13 +36,9 @@ class ContentManager(PolymorphicManager, IndexableManager):
         eqs = eqs.filter(VideohubVideo())
         return eqs
 
-    def recent_videos(self, **kw):
-        return self.search(**kw).filter(
-            Published()  # TODO: Or leverage .search()
-        ).filter(
-            VideohubVideo(),
-        ).sort(
-            '-published', '-last_modified',  # TODO: Or leverage .search()?
+    def recent_videos(self, **kwargs):
+        return self.search(**kwargs).filter(
+            VideohubVideo()
         )
 
     def instant_articles(self, **kwargs):
