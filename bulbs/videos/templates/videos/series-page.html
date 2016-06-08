@@ -1,9 +1,19 @@
 {% load betty core %}
 
 <header>
-  <h1 id="series-title"></h1>
-  <p>Watch The Latest Episode</p>
+  <div class="series-logo">
+    <div class="series-image"></div>
+  </div>
+  <ul class="series-meta">
+    <li><h1 class="series-title"></h1></li>
+    <li class="series-episodes"></li>
+  </ul>
+  <p class="series-description"></p>
 </header>
+
+<section class="latest-episode">
+ <p>Watch The Latest Episode</p>
+</section>
 
 <figure class="video-container">
   <div class="content">
@@ -15,7 +25,7 @@
   </div>
 </figure>
 
-<p id="series-description"></p>
+<h2 id="latest-video-title"></h2>
 
 <section class="video-grid">
   <header>

@@ -21,8 +21,6 @@ VideoRecircList.prototype.videoRecircFetched = function (data) {
   
   var recirc = data.videos.slice(0,that.recircCount);
 
-  that.$videoListTitle.html('More From ' + data.series.name);
-
   recirc
     .forEach(function (video) {
     var videoTitle = video.title;

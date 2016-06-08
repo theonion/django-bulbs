@@ -10,11 +10,11 @@ describe('SeriesMeta', function() {
     seriesContainer.appendChild(seriesVideoList);
 
     var seriesTitle = document.createElement('div');
-    seriesTitle.id = 'series-title';
+    seriesTitle.class= 'series-title';
     seriesContainer.appendChild(seriesTitle);
 
     var seriesDescription = document.createElement('div');
-    seriesDescription.id = 'series-description';
+    seriesDescription.class = 'series-description';
     seriesContainer.appendChild(seriesDescription);
 
     $('body').append(seriesContainer);
@@ -38,7 +38,7 @@ describe('SeriesMeta', function() {
     });
 
     it('populates the series description', function() {
-      expect($('#series-description').html()).to.eql(data.series_description);
+      expect($('.series-description').html()).to.eql(data.series_description);
     });
 
     it('populates the series title', function() {
