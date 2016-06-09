@@ -1,0 +1,34 @@
+{% load betty humanize ads static content %}
+
+<bulbs-video-carousel class="homepage-player">
+  <div class="homepage-player-nav">
+    <div class="homepage-player-branding"></div>
+    <div>VIDEO</div>
+  </div>
+
+  <bulbs-video></bulbs-video>
+  <bulbs-video-meta></bulbs-video-meta>
+
+  <hr class="homepage-player-divider"/>
+
+  <bulbs-carousel>
+    <header>
+      <span class="homempage-player-up-next">
+        Up Next
+      </span>
+
+      <bulbs-carousel-previous></bulbs-carousel-previous>
+      <bulbs-carousel-next></bulbs-carousel-next>
+    </header>
+
+    <bulbs-carousel-slider>
+      {% for video in videos %}
+        <bulbs-carousel-item>
+          <img src="{{ video.poster_image }}"/>
+          <span class="home-page-player-item-title">{{ video.title }}</span>
+          <bulbs-video-play-button></bulbs-video-play-button>
+        </bulbs-carousel-item>
+      {% endfor %}
+    </bulbs-carousel-slider>
+  </bulbs-carousel>
+</bulbs-video-carousel>
