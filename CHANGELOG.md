@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 2.6.0
+
+- Added Series Detail View to Videos App.
+
 ## Version 2.5.4
 > *__This version safe to roll-out without changes to site.__*
 
