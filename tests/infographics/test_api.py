@@ -126,17 +126,19 @@ class BaseInfographicTestCase(BaseAPITestCase):
                 "items": OrderedDict([(
                     "copy",
                     OrderedDict([
-                        ("type", "string"),
+                        ("type", "richtext"),
                         ("required", True),
                         ("read_only", False),
-                        ("label", "Copy")
+                        ("label", "Copy"),
+                        ("field_size", "long")
                     ]),
                 ), (
                     "title", OrderedDict([
-                        ("type", "string"),
+                        ("type", "richtext"),
                         ("required", True),
                         ("read_only", False),
-                        ("label", "Title")
+                        ("label", "Title"),
+                        ("field_size", "short")
                     ]),
                 ), (
                     "image", OrderedDict([

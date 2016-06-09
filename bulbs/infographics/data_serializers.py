@@ -1,13 +1,15 @@
 from djbetty.serializers import ImageFieldSerializer
 from rest_framework import serializers
 
+from .fields import RichTextField
+
 
 class CopySerializer(serializers.Serializer):
-    copy = serializers.CharField(required=True)
+    copy = RichTextField(required=True, field_size="long")
 
 
 class ItemSerializer(CopySerializer):
-    title = serializers.CharField()
+    title = RichTextField(field_size="short")
     image = ImageFieldSerializer(required=False)
 
 
