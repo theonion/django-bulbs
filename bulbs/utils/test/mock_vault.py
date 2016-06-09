@@ -7,12 +7,12 @@ class mock_vault(contextdecorator.ContextDecorator):
 
     Usage:
             def test_vault(self):
-                with mock_vault({'some/secret': 'my value'}):
+                with mock_vault({'some/secret': {'my key': 'my value'}}):
                     self.assertEqual('my value', vault.read('some/secret'))
 
         .. OR ..
 
-            @mock_vault({'some/secret': 'my value'})
+            @mock_vault({'some/secret': {'my key': 'my value'}})
             def test_vault(self):
                 self.assertEqual('my value', vault.read('some/secret'))
     """
