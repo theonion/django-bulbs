@@ -44,6 +44,7 @@ from bulbs.content.serializers import (
 from bulbs.contributions.tasks import run_contributor_email_report
 from bulbs.contributions.models import Contribution
 from bulbs.contributions.serializers import ContributionSerializer, ContributorReportSerializer
+from bulbs.infographics.metadata import InfographicMetadataMixin
 from bulbs.special_coverage.models import SpecialCoverage
 from bulbs.special_coverage.serializers import SpecialCoverageSerializer
 from bulbs.utils.methods import get_query_params, get_request_data
@@ -53,10 +54,15 @@ from .permissions import CanEditContent, CanPublishContent
 
 
 class ContentViewMetaData(BaseMetadata):
-    def determine_metadata(self, request, view):
-        return {
-            'status': 'ok',
-        }
+
+    pass
+    # def determine_metadata(self, request, view):
+    #     # serializer_class = view.get_serializer_class()
+    #     # if issubclass(serializer_class, SerializerMetadataMixin):
+    #         # return serializer_class(instance=view.get_object()).get_metadata()
+    #     return {
+    #         'status': 'ok',
+    #     }
 
 
 class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
@@ -75,7 +81,7 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         "authors", "types"
     )
     permission_classes = [IsAdminUser, CanEditContent]
-    metadata_class = ContentViewMetaData
+    metadata_class = InfographicMetadataMixin
 
     def get_serializer_class(self):
         """gets the class type of the serializer

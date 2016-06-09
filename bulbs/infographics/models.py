@@ -28,8 +28,11 @@ class BaseInfographic(Content):
         self.validate_data_field()
         return super(BaseInfographic, self).clean(*args, **kwargs)
 
+    def get_data_serializer(self):
+        return get_data_serializer(self.infographic_type)
+
     def validate_data_field(self):
-        Serializer = get_data_serializer(self.infographic_type)  # NOQA
+        Serializer = self.get_data_serializer()  # NOQA
         Serializer(data=self.data).is_valid(raise_exception=True)
 
     @classmethod
