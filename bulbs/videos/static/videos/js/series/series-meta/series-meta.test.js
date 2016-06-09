@@ -3,25 +3,16 @@ describe('SeriesMeta', function() {
   var seriesContainer;
 
   beforeEach(function() {
-    seriesContainer = document.createElement('div');
-
-    seriesVideoList = document.createElement('div');
-    seriesVideoList.id = 'series-video-list';
-    seriesContainer.appendChild(seriesVideoList);
-
-    var seriesTitle = document.createElement('div');
-    seriesTitle.class= 'series-title';
-    seriesContainer.appendChild(seriesTitle);
-
-    var seriesDescription = document.createElement('div');
-    seriesDescription.class = 'series-description';
-    seriesContainer.appendChild(seriesDescription);
+    seriesContainer = $('<div id="seriesContainer">')
+      .append('<div id="series-video-list">')
+      .append('<div class="series-title">')
+      .append('<div class="series-description">');
 
     $('body').append(seriesContainer);
   });
 
   afterEach(function() {
-    document.body.removeChild(seriesContainer);
+    seriesContainer.remove();
   });
 
   describe('#seriesMetaFetched', function() {
@@ -38,7 +29,7 @@ describe('SeriesMeta', function() {
     });
 
     it('populates the series description', function() {
-      expect($('.series-description').html()).to.eql(data.series_description);
+      expect(seriesMeta.$seriesDescription.html()).to.eql(data.series_description);
     });
 
     it('populates the series title', function() {
