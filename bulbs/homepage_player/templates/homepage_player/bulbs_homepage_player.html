@@ -2,8 +2,10 @@
 
 <bulbs-video-carousel class="homepage-player">
   <div class="homepage-player-nav">
-    <div class="homepage-player-branding"></div>
-    <div>VIDEO</div>
+    {% block homepage_player_nav %}
+      <div class="homepage-player-branding"></div>
+      <div>VIDEO</div>
+    {% endblock homepage_player_nav %}
   </div>
 
   <bulbs-video></bulbs-video>
