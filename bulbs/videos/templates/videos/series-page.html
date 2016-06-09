@@ -1,0 +1,40 @@
+{% load betty core %}
+
+<header class="series-summary">
+  <div class="series-logo">
+    <div class="series-image"></div>
+  </div>
+  <ul class="series-meta">
+    <li><h1 class="series-title"></h1></li>
+    <li class="series-episodes"></li>
+    <li><p class="series-description"></p></li>
+  </ul>
+</header>
+
+<section class="latest-episode">
+ <p>Watch The Latest Episode</p>
+</section>
+
+<figure class="video-container">
+  <div class="content">
+    <bulbs-video
+      twitter-handle="avclub"
+      src="{{ VIDEOHUB_BASE_URL }}/video/"
+    >
+    </bulbs-video>
+  </div>
+</figure>
+
+<h2 id="latest-video-title"></h2>
+
+<section class="video-grid">
+  <header>
+    <h2>Episodes</h2>
+  </header>
+  <div class="video-list" 
+       id="series-video-list"
+       data-betty-url="{{ BETTY_ONION_STUDIOS_IMAGE_URL }}"
+       data-videohub-base="{{ VIDEOHUB_BASE_URL }}" 
+       data-series-slug="{{ series_slug }}">
+  </div>
+</section>
