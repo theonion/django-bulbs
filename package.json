@@ -1,0 +1,32 @@
+{
+  "name": "django-bulbs",
+  "version": "0.0.1",
+  "devDependencies": {
+    "browserify": "^13.0.1",
+    "chai": "^3.4.1",
+    "jquery": "^2.2.1",
+    "karma": "^0.13.19",
+    "karma-bower": "^1.0.1",
+    "karma-browserify": "^5.0.5",
+    "karma-browserstack-launcher": "^0.1.9",
+    "karma-chai": "^0.1.0",
+    "karma-chai-spies": "^0.1.4",
+    "karma-chrome-launcher": "^0.2.2",
+    "karma-coverage": "^1.0.0",
+    "karma-coveralls": "^1.1.2",
+    "karma-fixture": "^0.2.5",
+    "karma-html2js-preprocessor": "^0.1.0",
+    "karma-mocha": "^0.2.1",
+    "karma-sinon": "^1.0.4",
+    "karma-sinon-chai": "^1.2.0",
+    "mocha": "^2.3.4",
+    "sinon": "^1.17.4",
+    "sinon-chai": "^2.8.0",
+    "watchify": "^3.7.0"
+  },
+  "private": true,
+  "scripts": {
+    "karma": "karma start --single-run",
+    "test": "karma start"
+  }
+}

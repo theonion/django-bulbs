@@ -12,14 +12,16 @@
 
 .video-grid {
   h2 {
+    font-size: 1.4em; 
+    font-weight: normal;
     margin-bottom: 1em;
+    line-height: 1.1em;
   }
   .video-list {
-    @include flexgrid($columns: 2, $gutter: 24, $padding: 0);
+    @include flexgrid($columns: 2, $gutter: 10, $padding: 0);
     list-style: none;    
   }
   .video-item {
-    @include aspect-ratio(16, 9);
     margin-bottom: 24px;
     outline: none;
     position: relative;
@@ -27,6 +29,9 @@
       .bulbs-video-play-button {
         opacity: 1;
       }
+    }
+    .image {
+      @include aspect-ratio(16, 9, "img");
     }
     .bulbs-video-play-button {
       bottom: 10px;
@@ -36,10 +41,15 @@
       width: 40px;
       z-index: 1;
     }
+    p {
+      font-size: .85em;
+      line-height: 1.3em;
+      margin: .5em 0 1em; 
+    }
   }
   @media (min-width: $screen-md) {
     .video-list {
-      @include flexgrid($columns: 4, $gutter: 24, $padding: 0);
+      @include flexgrid($columns: 4, $gutter: 10, $padding: 0);
       list-style: none;    
     }
   }
