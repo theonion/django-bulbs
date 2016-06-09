@@ -161,10 +161,6 @@ class ContributorRole(Indexable):
     description = models.TextField(null=True, blank=True)
     payment_type = models.IntegerField(choices=ROLE_PAYMENT_TYPES, default=MANUAL)
 
-    def __init__(self, *args, **kwargs):
-        super(ContributorRole, self).__init__(*args, **kwargs)
-        self._payment_type = self.payment_type
-
     def __unicode__(self):
         return self.name
 
