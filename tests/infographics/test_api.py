@@ -123,25 +123,29 @@ class BaseInfographicTestCase(BaseAPITestCase):
                     ("required", False),
                     ("read_only", False)
                 ]),
-                "items": {
-                    "fields": {
-                        "copy": OrderedDict([
-                            ("type", "string"),
-                            ("required", True),
-                            ("read_only", False)
-                        ]),
-                        "image": OrderedDict([
-                            ("type", "field"),
-                            ("required", False),
-                            ("read_only", False)
-                        ]),
-                        "title": OrderedDict([
-                            ("type", "string"),
-                            ("required", True),
-                            ("read_only", False)
-                        ]),
-                    }
-                }
+                "items": OrderedDict([(
+                    "copy",
+                    OrderedDict([
+                        ("type", "string"),
+                        ("required", True),
+                        ("read_only", False),
+                        ("label", "Copy")
+                    ]),
+                ), (
+                    "title", OrderedDict([
+                        ("type", "string"),
+                        ("required", True),
+                        ("read_only", False),
+                        ("label", "Title")
+                    ]),
+                ), (
+                    "image", OrderedDict([
+                        ("type", "field"),
+                        ("required", False),
+                        ("read_only", False),
+                        ("label", "Image")
+                    ]),
+                )]),
             }
         })
 

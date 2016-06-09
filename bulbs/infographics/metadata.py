@@ -14,23 +14,18 @@ class InfographicMetadataMixin(SimpleMetadata):
 
     def get_custom_metadata(self, serializer, view):
         fields_metadata = dict()
-
-        child = getattr(serializer, "child", None)
-        if child:
-            return self.get_custom_metadata(child, view)
+        if hasattr(serializer, "__call__"):
+            serializer_instance = serializer()
         else:
-            if hasattr(serializer, "__call__"):
-                serializer_instance = serializer()
+            serializer_instance = serializer
+        for field_name, field in serializer_instance.get_fields().items():
+            if isinstance(field, InfographicDataField):
+                serializer = view.get_object().get_data_serializer()
+                fields_metadata[field_name] = self.get_custom_metadata(serializer, view)
+            elif isinstance(field, serializers.BaseSerializer):
+                fields_metadata[field_name] = self.get_serializer_info(field)
             else:
-                serializer_instance = serializer
-            for field_name, field in serializer_instance.get_fields().items():
-                if isinstance(field, InfographicDataField):
-                    serializer = view.get_object().get_data_serializer()
-                    fields_metadata[field_name] = self.get_custom_metadata(serializer, view)
-                elif isinstance(field, serializers.BaseSerializer):
-                    fields_metadata[field_name] = self.get_custom_metadata(field, view)
-                else:
-                    fields_metadata[field_name] = self.get_field_info(field)
+                fields_metadata[field_name] = self.get_field_info(field)
         return {
             "fields": fields_metadata
         }

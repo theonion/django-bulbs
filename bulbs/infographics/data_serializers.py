@@ -30,7 +30,7 @@ class ComparisonSerializer(serializers.Serializer):
 
 class ListInfographicDataSerializer(serializers.Serializer):
     is_numbered = serializers.BooleanField(default=False)
-    items = ItemSerializer(many=True)
+    items = ItemSerializer(many=True, required=False)
 
 
 class ProConSerializer(serializers.Serializer):
@@ -46,4 +46,4 @@ class StrongSideWeakSideSerializer(serializers.Serializer):
 
 
 class TimelineSerializer(serializers.Serializer):
-    items = ItemSerializer(many=True)
+    items = ItemSerializer(many=True, required=False)
