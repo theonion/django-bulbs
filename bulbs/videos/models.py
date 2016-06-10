@@ -15,7 +15,6 @@ import six
 
 class VideohubVideo(Indexable):
     """A reference to a video on the onion videohub."""
-    id = models.IntegerField(primary_key=True)
     title = models.CharField(max_length=512)
     description = models.TextField(blank=True, default="")
     keywords = models.TextField(blank=True, default="")
