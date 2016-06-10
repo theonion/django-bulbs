@@ -8,7 +8,7 @@ from polymorphic import PolymorphicManager
 
 from .filters import (
     Authors, Evergreen, FeatureTypes, InstantArticle, Published, Status, Tags,
-    VideohubChannel
+    VideohubChannel, VideohubVideo,
 )
 
 
@@ -33,9 +33,13 @@ class ContentManager(PolymorphicManager, IndexableManager):
     def evergreen_video(self, **kwargs):
         """Filter evergreen content to exclusively video content."""
         eqs = self.evergreen(**kwargs)
-        video_doc_type = getattr(settings, "VIDEO_DOC_TYPE", "")
-        eqs = eqs.filter(es_filter.Type(value=video_doc_type))
+        eqs = eqs.filter(VideohubVideo())
         return eqs
+
+    def videos(self, **kwargs):
+        return self.search(**kwargs).filter(
+            VideohubVideo()
+        )
 
     def instant_articles(self, **kwargs):
         """

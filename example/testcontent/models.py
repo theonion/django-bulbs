@@ -8,6 +8,7 @@ from djbetty.fields import ImageField
 from bulbs.content.models import Content, Tag, ElasticsearchImageField
 from bulbs.reading_list.mixins import ReadingListMixin
 from bulbs.recirc.mixins import BaseQueryMixin
+from bulbs.videos.mixins import VideoMixin
 
 
 class TestContentObj(Content):
@@ -96,3 +97,7 @@ class TestRecircContentObject(Content, BaseQueryMixin):
 
     class Mapping(Content.Mapping):
         query = field.Object(enabled=False)
+
+
+class TestVideoContentObj(Content, VideoMixin):
+    """Fake video"""

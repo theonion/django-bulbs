@@ -19,7 +19,7 @@ requires = [
     "beautifulsoup4>=4.4.1",
     "celery==3.1.10",
     "contextdecorator==0.10.0",
-    "django-betty-cropper>=0.2.0",
+    "django-betty-cropper>=0.2.6",
     "django-filter==0.9.2",
     "django-json-field==0.5.5",
     "django-polymorphic==0.7.1",
