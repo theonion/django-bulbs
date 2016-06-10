@@ -42,7 +42,7 @@ class ProConSerializer(serializers.Serializer):
 
 
 class StrongSideWeakSideSerializer(serializers.Serializer):
-    body = serializers.CharField(required=True)
+    body = RichTextField(required=True, field_size="long")
     strong = CopySerializer(many=True)
     weak = CopySerializer(many=True)
 

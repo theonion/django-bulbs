@@ -31,23 +31,14 @@ class BaseInfographicTestCase(BaseAPITestCase):
         self.assertEqual(infographic.data, self.timeline_data.get("data"))
 
     def test_post_strongside_weakside(self):
-        info_data = {
-            "title": "KILL ME",
-            "infographic_type": InfographicType.STRONGSIDE_WEAKSIDE,
-            "data": {
-                "body": "It's body time!",
-                "strong": [{"copy": "glo strong"}],
-                "weak": [{"copy": "glo weak"}]
-            }
-        }
         resp = self.api_client.post(
             self.list_endpoint,
-            data=json.dumps(info_data),
+            data=json.dumps(self.strongside_weakside_data),
             content_type="application/json"
         )
         self.assertEqual(resp.status_code, 201)
         infographic = BaseInfographic.objects.get(id=resp.data["id"])
-        self.assertEqual(infographic.data, info_data.get("data"))
+        self.assertEqual(infographic.data, self.strongside_weakside_data.get("data"))
 
     def test_post_pro_con(self):
         info_data = {
@@ -184,6 +175,52 @@ class BaseInfographicTestCase(BaseAPITestCase):
             }
         })
 
+    def test_options_strongside_weakside(self):
+        info = BaseInfographic.objects.create(
+            title="Drake is good.",
+            infographic_type=InfographicType.STRONGSIDE_WEAKSIDE,
+            data=self.strongside_weakside_data.get("data")
+        )
+        url = self.get_detail_endpoint(info.pk)
+        resp = self.api_client.options(url)
+        self.assertEqual(resp.status_code, 200)
+        fields = resp.data.get("fields")
+        data_field = fields.get("data")
+        self.assertEqual(data_field, {
+            "fields": {
+                "body": OrderedDict([
+                    ("type", "richtext"),
+                    ("required", True),
+                    ("read_only", False),
+                    ("field_size", "long")
+                ]),
+                "strong": OrderedDict([
+                    ("type", "array"),
+                    ("fields", OrderedDict([(
+                        "copy", OrderedDict([
+                            ("type", "richtext"),
+                            ("required", True),
+                            ("read_only", False),
+                            ("label", "Copy"),
+                            ("field_size", "long")
+                        ]))
+                    ]))
+                ]),
+                "weak": OrderedDict([
+                    ("type", "array"),
+                    ("fields", OrderedDict([(
+                        "copy", OrderedDict([
+                            ("type", "richtext"),
+                            ("required", True),
+                            ("read_only", False),
+                            ("label", "Copy"),
+                            ("field_size", "long")
+                        ]))
+                    ]))
+                ]),
+            }
+        })
+
     def get_detail_endpoint(self, pk):
         return reverse("content-detail", kwargs={"pk": pk})
 
@@ -213,6 +250,18 @@ class BaseInfographicTestCase(BaseAPITestCase):
                     "copy": "How did he do that?",
                     "image": {"id": 1}
                 }]
+            }
+        }
+
+    @property
+    def strongside_weakside_data(self):
+        return {
+            "title": "KILL ME",
+            "infographic_type": InfographicType.STRONGSIDE_WEAKSIDE,
+            "data": {
+                "body": "It's body time!",
+                "strong": [{"copy": "glo strong"}],
+                "weak": [{"copy": "glo weak"}]
             }
         }
 

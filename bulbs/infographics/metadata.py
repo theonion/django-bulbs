@@ -6,7 +6,7 @@ from rest_framework.utils.field_mapping import ClassLookupDict
 
 from djbetty.serializers import ImageFieldSerializer
 
-from .data_serializers import ItemSerializer
+from .data_serializers import CopySerializer, ItemSerializer
 from .fields import RichTextField
 from .serializers import BaseInfographicSerializer, InfographicDataField
 
@@ -26,6 +26,7 @@ class InfographicMetadataMixin(SimpleMetadata):
     def label_lookup(self):
         mapping = SimpleMetadata.label_lookup.mapping
         mapping.update({
+            CopySerializer: "array",
             ItemSerializer: "array",
             ImageFieldSerializer: "image",
             RichTextField: "richtext"
