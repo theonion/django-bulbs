@@ -14,7 +14,7 @@ SeriesVideoList.prototype.seriesFetched = function (data) {
   data
     .forEach(function (series) {
       $('<li>',{
-        'data-track-action' : 'Video: Series',
+        'data-track-action' : 'Series Flyout: Browse',
         'data-track-label' : '/series/' + series.slug,
         'html': $('<a>',{
           'class' : '',
