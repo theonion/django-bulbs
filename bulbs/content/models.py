@@ -632,10 +632,12 @@ def delete_from_instant_article_api(sender, instance=None, **kwargs):
                 Error in deleting Instant Article.\n
                 Content ID: {0}\n
                 IA ID: {1}\n
-                Status Code: {2}'''.format(
+                Status Code: {2}
+                Request: {3}'''.format(
                     instance.id,
                     instance.instant_article_id,
-                    delete.status_code))
+                    delete.status_code,
+                    delete.__dict__))
         else:
             status = delete.json().get('success')
             if bool(status) is not True:

@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 2.7.0
+
+- Added `videos.VideoMixin` and merged `videohub-client` repository into `django-bulbs` (one less repository!)
+
 ## Version 2.6.0
 
 - Added Series Detail View to Videos App.
