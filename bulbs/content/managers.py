@@ -36,7 +36,7 @@ class ContentManager(PolymorphicManager, IndexableManager):
         eqs = eqs.filter(VideohubVideo())
         return eqs
 
-    def recent_videos(self, **kwargs):
+    def videos(self, **kwargs):
         return self.search(**kwargs).filter(
             VideohubVideo()
         )
