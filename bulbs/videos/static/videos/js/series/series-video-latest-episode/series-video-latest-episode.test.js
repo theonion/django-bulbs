@@ -14,8 +14,8 @@ describe('LatestEpisode', function() {
   context('normal functionality', function () {
 
     beforeEach(function() {
-      videoPlayerSrc = 'http://onionstudios.com/';
-      videoPlayer = $('<bulbs-video src="' + videoPlayerSrc + '">');
+      videohubBaseUrl = 'http://onionstudios.com';
+      videoPlayer = $('<bulbs-video data-videohub-base="' + videohubBaseUrl + '">');
 
       $('body').append(videoPlayer);
 
@@ -23,7 +23,7 @@ describe('LatestEpisode', function() {
     });
 
     it('adds most recent video in series to player', function() {
-      expect($(videoPlayer).attr('src')).to.equal(videoPlayerSrc + videos[0].id + '.json');
+      expect($(videoPlayer).attr('src')).to.equal(videohubBaseUrl + '/video/' + videos[0].id + '.json');
     });
 
   });

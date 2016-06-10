@@ -18,7 +18,7 @@ SeriesVideoGrid = function (videos, selector) {
     $('<a>',{
         'class' : 'video-item',
         'href' : videoHref,
-        'data-track-action' : 'Series: Recirc',
+        'data-track-action' : 'Single Series: Episodes',
         'data-track-label' : videoHref,
         'html': $('<figure>',{
           'class' : 'content',
