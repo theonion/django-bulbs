@@ -1,7 +1,12 @@
+from collections import OrderedDict
+
 from rest_framework import serializers
 from rest_framework.metadata import SimpleMetadata
 from rest_framework.utils.field_mapping import ClassLookupDict
 
+from djbetty.serializers import ImageFieldSerializer
+
+from .data_serializers import ItemSerializer
 from .fields import RichTextField
 from .serializers import BaseInfographicSerializer, InfographicDataField
 
@@ -20,7 +25,11 @@ class InfographicMetadataMixin(SimpleMetadata):
     @property
     def label_lookup(self):
         mapping = SimpleMetadata.label_lookup.mapping
-        mapping.update({RichTextField: "richtext"})
+        mapping.update({
+            ItemSerializer: "array",
+            ImageFieldSerializer: "image",
+            RichTextField: "richtext"
+        })
         return ClassLookupDict(mapping)
 
     def determine_metadata(self, request, view):
@@ -39,6 +48,17 @@ class InfographicMetadataMixin(SimpleMetadata):
             if meta:
                 field_info.update({attr: meta})
         return field_info
+
+    def get_serializer_info(self, serializer):
+        serializer_info = super(InfographicMetadataMixin, self).get_serializer_info(serializer)
+        label = self.label_lookup[serializer.child]
+        # MIKE PARENT PAY ATTENTION: IDK IF THIS IS PRUDENT. LET'S DISCUSS.
+        if label != "field":
+            return OrderedDict([
+                ("type", label),
+                ("fields", serializer_info)
+            ])
+        return serializer_info
 
     def get_custom_metadata(self, serializer, view):
         fields_metadata = dict()
