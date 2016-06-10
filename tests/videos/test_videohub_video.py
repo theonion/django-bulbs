@@ -85,9 +85,5 @@ class VideohubVideoTests(TestCase):
         video_1 = VideohubVideo.objects.create(title=u"\u2019The Facts Of Life\u2019")
         video_2 = VideohubVideo.objects.create(title=u"‘The Facts Of Life’")
 
-        # TODO: check this test—is this really a concern?
-        # video_3 = VideohubVideo.objects.create(title="‘The Facts Of Life’")
-
         self.assertEqual(video_1.get_hub_url(), VideohubVideoSerializer(video_1).data["hub_url"])
         self.assertEqual(video_2.get_hub_url(), VideohubVideoSerializer(video_2).data["hub_url"])
-        # self.assertEqual(video_3.get_hub_url(), VideohubVideoSerializer(video_3).data["hub_url"])
