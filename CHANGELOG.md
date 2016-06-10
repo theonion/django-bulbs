@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 2.7.1
+
+- Added analytics to video series js and updated tests for latest episode js
+
 ## Version 2.7.0
 
 - Added `videos.VideoMixin` and merged `videohub-client` repository into `django-bulbs` (one less repository!)
