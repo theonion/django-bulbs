@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 
 from bulbs.content.models import Content, FeatureType
+from bulbs.content.tasks import post_to_instant_articles_api
 
 import timezone
 
@@ -27,5 +28,4 @@ class Command(BaseCommand):
                     published__lte=timezone.now())
 
                 for c in content:
-                    # save to trigger celery task to post to Instant Article API
-                    c.save()
+                    post_to_instant_articles_api.delay(c.id)
