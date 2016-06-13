@@ -220,7 +220,7 @@ class Content(PolymorphicModel, Indexable):
     # Custom template choice. Configured via BULBS_TEMPLATE_CHOICE
     template_choice = models.IntegerField(default=0, choices=TEMPLATE_CHOICES)
     # Facebook Instant Article ID
-    instant_article_id = models.IntegerField(blank=True, null=True, default=None)
+    instant_article_id = models.BigIntegerField(blank=True, null=True, default=None)
 
     # custom ES manager
     search_objects = ContentManager()
