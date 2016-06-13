@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 2.7.2
+
+- Changed `instant_article_id` on Content model from `IntegerField` to `BigIntegerField`
+
 ## Version 2.7.1
 
 - Added analytics to video series js and updated tests for latest episode js
