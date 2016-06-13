@@ -36,7 +36,7 @@ class ListInfographicDataSerializer(serializers.Serializer):
 
 
 class ProConSerializer(serializers.Serializer):
-    body = serializers.CharField(required=True)
+    body = RichTextField(required=True, field_size="long")
     pro = CopySerializer(many=True)
     con = CopySerializer(many=True)
 
