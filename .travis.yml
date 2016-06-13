@@ -2,9 +2,6 @@ language: python
 
 sudo: required
 
-python:
-  - '2.7'
-  - '3.5'
 matrix:
     # For speed, just run future ES version with latest Python
     include:
