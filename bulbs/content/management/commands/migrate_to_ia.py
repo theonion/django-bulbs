@@ -128,7 +128,7 @@ class Command(BaseCommand):
 
         feature = options['feature'][0]
         if feature:
-            feature_types.objects.filter(name=feature)
+            feature_types.objects.filter(slug=feature)
 
         for ft in feature_types:
             if ft.instant_article:
