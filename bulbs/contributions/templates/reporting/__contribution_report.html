@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Contribution Report</title>
+    <title>A Simple Responsive HTML Email</title>
     <style type="text/css">
       header {
         background:#191f2c;
@@ -37,7 +37,7 @@
       tbody tr:last-child {
         border-bottom: 0;
       }
-      tbody td { 
+      tbody td {
         border-color: #ddd;
         border-style: solid;
         border-width: 0 1px 0 0;
@@ -74,11 +74,12 @@
             Hey <b>{{ contributor.get_full_name }}</b>,
           </p>
           <p style="margin-top:2em;margin-bottom:2em;margin-right:2em;margin-left:2em;" >
-          Please check the amount below and make sure it matches your records. The total is <b>${{ total }}</b>. 
-          If you have any question about it, please hit reply-all and let us know by <b>{{ deadline }}</b>.
+          Please check the amount below and make sure it matches your records. The total is <b>${{ total|floatformat:2 }}</b>.
+          If you have any questions about it, please hit reply-all and let us know by <b>{{ deadline }}</b>
+          All payments will be processed by the 15th of the month.
           </p>
           <p style="background-color:#90a6ba;background-image:none;background-repeat:repeat;background-position:top left;background-attachment:scroll;color:#fff;display:inline-block;padding-top:0.75em;padding-bottom:0.75em;padding-right:1em;padding-left:1em;margin-top:0;margin-bottom:0;margin-right:2em;margin-left:2em;" >
-            Total: ${{ total }}
+            Total: ${{ total|floatformat:2 }}
           </p>
           <table style="margin-top:2em;margin-bottom:2em;margin-right:2em;margin-left:2em;border-collapse:collapse;display:block;font-size:0.85em;" >
             <thead style="font-size:0.9em;color:#90a6ba;letter-spacing:1px;text-transform:uppercase;" >
@@ -92,7 +93,7 @@
             {% for contribution, content_type in contributions.items %}
               <tr style="border-bottom-width:1px;border-bottom-style:solid;border-bottom-color:#ddd;" >
                 <td style="text-align:center;max-width:100px;padding-top:1.2em;padding-bottom:1.2em;padding-right:1.2em;padding-left:1.2em;border-color:#ddd;border-style:solid;border-width:0 1px 0 0;font-weight:bold;" >
-                  ${{ contribution.pay }}
+                  ${{ contribution.pay|floatformat:2 }}
                 </td>
                 <td style="text-align:center;max-width:100px;padding-top:1.2em;padding-bottom:1.2em;padding-right:1.2em;padding-left:1.2em;border-color:#ddd;border-style:solid;border-width:0 1px 0 0;font-weight:bold;" >
                   {{ contribution.content.published|date:"m/d/y" }}
@@ -103,8 +104,21 @@
                   </a>
                   <br>
                   <span style="color:#333;display:inline-block;font-size:0.8em;font-weight:normal;margin-top:8px;text-transform:uppercase;" >
-                    {{ content_type }}
+                    {{ contribution.content.feature_type.name }}
                   </span>
+                </td>
+              </tr>
+            {% endfor %}
+            {% for line_item in line_items %}
+              <tr style="border-bottom-width:1px;border-bottom-style:solid;border-bottom-color:#ddd;" >
+                <td style="text-align:center;max-width:100px;padding-top:1.2em;padding-bottom:1.2em;padding-right:1.2em;padding-left:1.2em;border-color:#ddd;border-style:solid;border-width:0 1px 0 0;font-weight:bold;" >
+                  ${{ line_item.amount|floatformat:2 }}
+                </td>
+                <td style="text-align:center;max-width:100px;padding-top:1.2em;padding-bottom:1.2em;padding-right:1.2em;padding-left:1.2em;border-color:#ddd;border-style:solid;border-width:0 1px 0 0;font-weight:bold;" >
+                  {{ line_item.payment_date|date:"m/d/y" }}
+                </td>
+                <td style="padding-top:1.2em;padding-bottom:1.2em;padding-right:1.2em;padding-left:1.2em;border-color:#ddd;border-style:solid;border-width:0 1px 0 0;font-weight:bold;" >
+                  {{ line_item.note }}
                 </td>
               </tr>
             {% endfor %}
