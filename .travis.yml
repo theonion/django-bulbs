@@ -3,14 +3,13 @@ language: python
 sudo: required
 
 matrix:
-    # For speed, just run future ES version with latest Python
     include:
         # Current production
         - python: '2.7'
           env: ELASTICSEARCH_VERSION=1.4.4
         - python: "3.5"
           env: ELASTICSEARCH_VERSION=1.4.4
-        # Latest in 1.X line (as of 2016-02-10) - just run on one Python version for speed
+        # Latest in 1.X line (as of 2016-02-10). For speed, just run future ES version with latest Python
         - python: '3.5'
           env: ELASTICSEARCH_VERSION=1.7.5
 cache:
