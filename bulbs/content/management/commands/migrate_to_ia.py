@@ -1,9 +1,8 @@
 from django.core.management.base import BaseCommand
+from django.utils import timezone
 
 from bulbs.content.models import Content, FeatureType
 from bulbs.content.tasks import post_to_instant_articles_api
-
-import timezone
 
 
 class Command(BaseCommand):

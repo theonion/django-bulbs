@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 2.7.5
+
+- Fixed import issue in `migrate_to_ia` command
+
 ## Version 2.7.4
 
 - Fixed `migrate_to_ia` command to migrate Feature Types passed in on command line
