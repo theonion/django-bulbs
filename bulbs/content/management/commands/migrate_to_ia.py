@@ -12,7 +12,7 @@ class Command(BaseCommand):
         parser.add_argument('feature', nargs="+", type=str)
 
     def handle(self, *args, **options):
-        feature_types = FeatureType.objects.all(instant_article=True)
+        feature_types = FeatureType.objects.filter(instant_article=True)
 
         feature = options['feature'][0]
         if feature:
