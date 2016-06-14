@@ -2,9 +2,13 @@
 
 ## Development
 
+## Version 2.7.4
+
+- Fixed `migrate_to_ia` command to migrate Feature Types passed in on command line
+
 ## Version 2.7.3
 
-- Added  `migrate_to_ia` command to migrate entire Feature Types over to Instant Articles
+- Added `migrate_to_ia` command to migrate entire Feature Types over to Instant Articles
 
 ## Version 2.7.2
 
