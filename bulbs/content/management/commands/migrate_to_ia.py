@@ -18,11 +18,12 @@ class Command(BaseCommand):
             feature_types = feature_types.filter(slug=feature)
 
         for ft in feature_types:
-                # All published content belonging to feature type
+                # All unmigrated published content belonging to feature type
                 content = Content.objects.filter(
                     feature_type=ft,
                     published__isnull=False,
-                    published__lte=timezone.now())
+                    published__lte=timezone.now(),
+                    instant_article_id__isnull=True)
 
                 for c in content:
                     post_to_instant_articles_api.delay(c.id)

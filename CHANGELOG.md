@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 2.7.6
+
+- `migrate_to_ia` command now only migrates previously un-migrated content
+
 ## Version 2.7.5
 
 - Fixed import issue in `migrate_to_ia` command
