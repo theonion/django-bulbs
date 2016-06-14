@@ -12,15 +12,13 @@ class Command(BaseCommand):
         parser.add_argument('feature', nargs="+", type=str)
 
     def handle(self, *args, **options):
-        feature_types = FeatureType.objects.all()
+        feature_types = FeatureType.objects.filter(instant_article=True)
 
         feature = options['feature'][0]
         if feature:
-            feature_types.objects.filter(slug=feature)
+            feature_types = feature_types.filter(slug=feature)
 
         for ft in feature_types:
-            if ft.instant_article:
-
                 # All published content belonging to feature type
                 content = Content.objects.filter(
                     feature_type=ft,
