@@ -16,7 +16,7 @@ class Command(BaseCommand):
 
         feature = options['feature'][0]
         if feature:
-            feature_types = feature_types.objects.filter(slug=feature)
+            feature_types = feature_types.filter(slug=feature)
 
         for ft in feature_types:
                 # All published content belonging to feature type
