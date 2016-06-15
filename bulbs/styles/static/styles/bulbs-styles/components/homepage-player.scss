@@ -28,12 +28,10 @@ $light-shade: #f4f4f4;
     min-width: 200px;
   }
 
-  .homepage-player video-carousel-track {
-    bulbs-carousel-track {
-      @include overflow-flexgrid(
-        $columns: 5,
-        $gutter: 20
-      );
-    }
+  .homepage-player bulbs-carousel-track {
+    @include overflow-flexgrid(
+      $columns: 5,
+      $gutter: 20
+    );
   }
 }
