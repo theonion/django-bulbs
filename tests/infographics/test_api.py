@@ -51,30 +51,14 @@ class BaseInfographicTestCase(BaseAPITestCase):
         self.assertEqual(infographic.data, self.pro_con_data.get("data"))
 
     def test_post_comparison(self):
-        info_data = {
-            "title": "KILL ME",
-            "infographic_type": InfographicType.COMPARISON,
-            "data": {
-                "key": {
-                    "title": "Yassss queen",
-                    "color": "BLUE!",
-                    "initial": "A!"
-                },
-                "items": [{
-                    "title": "Michael Bayless",
-                    "copy_x": "How did he do that?",
-                    "copy_y": "How didn't he do that?"
-                }]
-            }
-        }
         resp = self.api_client.post(
             self.list_endpoint,
-            data=json.dumps(info_data),
+            data=json.dumps(self.comparison_data),
             content_type="application/json"
         )
         self.assertEqual(resp.status_code, 201)
         infographic = BaseInfographic.objects.get(id=resp.data["id"])
-        self.assertEqual(infographic.data, info_data.get("data"))
+        self.assertEqual(infographic.data, self.comparison_data.get("data"))
 
     def test_options_list(self):
         info = BaseInfographic.objects.create(
@@ -258,6 +242,102 @@ class BaseInfographicTestCase(BaseAPITestCase):
             }
         })
 
+    def test_options_comparison(self):
+        info = BaseInfographic.objects.create(
+            title="Drake is good.",
+            infographic_type=InfographicType.COMPARISON,
+            data=self.comparison_data.get("data")
+        )
+        url = self.get_detail_endpoint(info.pk)
+        resp = self.api_client.options(url)
+        self.assertEqual(resp.status_code, 200)
+        fields = resp.data.get("fields")
+        data_field = fields.get("data")
+        self.assertEqual(data_field, {
+            "fields": {
+                "items": OrderedDict([
+                    ("type", "array"),
+                    ("fields", OrderedDict([
+                        (
+                            "title", OrderedDict([
+                                ("type", "richtext"),
+                                ("required", True),
+                                ("read_only", False),
+                                ("label", "Title"),
+                                ("field_size", "short")
+                            ])
+                        ), (
+                            "copy_x", OrderedDict([
+                                ("type", "richtext"),
+                                ("required", True),
+                                ("read_only", False),
+                                ("label", "Copy x"),
+                                ("field_size", "long")
+                            ])
+                        ), (
+                            "copy_y", OrderedDict([
+                                ("type", "richtext"),
+                                ("required", True),
+                                ("read_only", False),
+                                ("label", "Copy y"),
+                                ("field_size", "long")
+                            ])
+                        )
+                    ]))
+                ]),
+                "key_x": OrderedDict([
+                    (
+                        "title", OrderedDict([
+                            ("type", "richtext"),
+                            ("required", True),
+                            ("read_only", False),
+                            ("label", "Title"),
+                            ("field_size", "short")
+                        ])
+                    ), (
+                        "color", OrderedDict([
+                            ("type", "string"),
+                            ("required", True),
+                            ("read_only", False),
+                            ("label", "Color")
+                        ]),
+                    ), (
+                        "initial", OrderedDict([
+                            ("type", "string"),
+                            ("required", True),
+                            ("read_only", False),
+                            ("label", "Initial")
+                        ])
+                    )
+                ]),
+                "key_y": OrderedDict([
+                    (
+                        "title", OrderedDict([
+                            ("type", "richtext"),
+                            ("required", True),
+                            ("read_only", False),
+                            ("label", "Title"),
+                            ("field_size", "short")
+                        ])
+                    ), (
+                        "color", OrderedDict([
+                            ("type", "string"),
+                            ("required", True),
+                            ("read_only", False),
+                            ("label", "Color")
+                        ]),
+                    ), (
+                        "initial", OrderedDict([
+                            ("type", "string"),
+                            ("required", True),
+                            ("read_only", False),
+                            ("label", "Initial")
+                        ])
+                    )
+                ]),
+            }
+        })
+
     def get_detail_endpoint(self, pk):
         return reverse("content-detail", kwargs={"pk": pk})
 
@@ -311,6 +391,30 @@ class BaseInfographicTestCase(BaseAPITestCase):
                 "body": "Pro Con Body",
                 "pro": [{"copy": "did it"}],
                 "con": [{"copy": "not so much my dudes."}]
+            }
+        }
+
+    @property
+    def comparison_data(self):
+        return {
+            "title": "KILL ME",
+            "infographic_type": InfographicType.COMPARISON,
+            "data": {
+                "key_x": {
+                    "title": "Yassss queen",
+                    "color": "BLUE!",
+                    "initial": "A!"
+                },
+                "key_y": {
+                    "title": "Yassss queen",
+                    "color": "BLUE!",
+                    "initial": "A!"
+                },
+                "items": [{
+                    "title": "Michael Bayless",
+                    "copy_x": "How did he do that?",
+                    "copy_y": "How didn't he do that?"
+                }]
             }
         }
 

@@ -6,8 +6,8 @@ from rest_framework.utils.field_mapping import ClassLookupDict
 
 from djbetty.serializers import ImageFieldSerializer
 
-from .data_serializers import CopySerializer, ItemSerializer
-from .fields import RichTextField
+from .data_serializers import CopySerializer, ItemSerializer, XYItemSerializer
+from .fields import ColorField, RichTextField
 from .serializers import BaseInfographicSerializer, InfographicDataField
 
 
@@ -26,8 +26,10 @@ class InfographicMetadataMixin(SimpleMetadata):
     def label_lookup(self):
         mapping = SimpleMetadata.label_lookup.mapping
         mapping.update({
+            ColorField: "color",
             CopySerializer: "array",
             ItemSerializer: "array",
+            XYItemSerializer: "array",
             ImageFieldSerializer: "image",
             RichTextField: "richtext"
         })
@@ -52,7 +54,12 @@ class InfographicMetadataMixin(SimpleMetadata):
 
     def get_serializer_info(self, serializer):
         serializer_info = super(InfographicMetadataMixin, self).get_serializer_info(serializer)
-        label = self.label_lookup[serializer.child]
+
+        if hasattr(serializer, "child"):
+            label = self.label_lookup[serializer.child]
+        else:
+            label = self.label_lookup[serializer]
+
         # MIKE PARENT PAY ATTENTION: IDK IF THIS IS PRUDENT. LET'S DISCUSS.
         if label != "field":
             return OrderedDict([

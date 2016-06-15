@@ -14,19 +14,20 @@ class ItemSerializer(CopySerializer):
 
 
 class XYItemSerializer(serializers.Serializer):
-    title = serializers.CharField()
-    copy_x = serializers.CharField()
-    copy_y = serializers.CharField()
+    title = RichTextField(field_size="short")
+    copy_x = RichTextField(field_size="long")
+    copy_y = RichTextField(field_size="long")
 
 
 class ComparisonKeySerializer(serializers.Serializer):
-    title = serializers.CharField()
+    title = RichTextField(field_size="short")
     color = serializers.CharField()
     initial = serializers.CharField()
 
 
 class ComparisonSerializer(serializers.Serializer):
-    key = ComparisonKeySerializer()
+    key_x = ComparisonKeySerializer()
+    key_y = ComparisonKeySerializer()
     items = XYItemSerializer(many=True)
 
 
