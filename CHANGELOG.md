@@ -2,6 +2,50 @@
 
 ## Development
 
+## Version 2.8.0
+
+- Add `AppConfigs` with namespaced labels as workaround for duplicate app names (ex: `bulbs.videos` and `starwipe.apps.videos`). 
+
+  For example, the `videos` app can be re-labeled as `bulbs_videos` by explicitly including the `AppConfig` in your app list:
+
+          INSTALLED_APPS = [
+            ...
+            "bulbs.videos.apps.AppConfig",
+            ...
+          ]
+
+## Version 2.7.6
+
+- `migrate_to_ia` command now only migrates previously un-migrated content
+
+## Version 2.7.5
+
+- Fixed import issue in `migrate_to_ia` command
+
+## Version 2.7.4
+
+- Fixed `migrate_to_ia` command to migrate Feature Types passed in on command line
+
+## Version 2.7.3
+
+- Added `migrate_to_ia` command to migrate entire Feature Types over to Instant Articles
+
+## Version 2.7.2
+
+- Changed `instant_article_id` on Content model from `IntegerField` to `BigIntegerField`
+
+## Version 2.7.1
+
+- Added analytics to video series js and updated tests for latest episode js
+
+## Version 2.7.0
+
+- Added `videos.VideoMixin` and merged `videohub-client` repository into `django-bulbs` (one less repository!)
+
+## Version 2.6.0
+
+- Added Series Detail View to Videos App.
+
 ## Version 2.5.4
 > *__This version safe to roll-out without changes to site.__*
 

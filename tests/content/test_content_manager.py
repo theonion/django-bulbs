@@ -1,10 +1,11 @@
-from django.test import override_settings
 from django.utils import timezone
 
 from bulbs.content.models import Content, FeatureType
 from bulbs.utils.test import make_content, BaseIndexableTestCase
 
-from example.testcontent.models import TestContentObj, TestContentObjTwo, TestReadingListObj
+from example.testcontent.models import (TestContentObj, TestReadingListObj, TestVideoContentObj)
+
+from bulbs.videos.models import VideohubVideo
 
 
 class ContentManagerTestCase(BaseIndexableTestCase):
@@ -56,15 +57,35 @@ class ContentManagerTestCase(BaseIndexableTestCase):
         self.assertEqual(instant_articles.count(), 50)
         self.assertTrue(instant_articles[0].feature_type.instant_article)
 
-    @override_settings(VIDEO_DOC_TYPE=TestContentObjTwo.search_objects.mapping.doc_type)
     def test_evergreen_video(self):
-        make_content(TestContentObjTwo, evergreen=True, published=self.now, _quantity=12)
-        make_content(TestContentObjTwo, published=self.now, _quantity=12)
+        videohub_ref = VideohubVideo.objects.create(id=1)
+        expected = make_content(TestVideoContentObj, videohub_ref=videohub_ref, evergreen=True,
+                                published=self.now, _quantity=12)
+        # Ignored content
+        make_content(TestVideoContentObj, videohub_ref=videohub_ref,
+                     published=self.now, _quantity=12)  # Not evergreen
+        make_content(TestVideoContentObj, evergreen=True, published=self.now)  # No video ref
+
         Content.search_objects.refresh()
-        evergreen = Content.search_objects.evergreen_video().extra(from_=0, size=50)
-        qs = TestContentObjTwo.objects.filter(evergreen=True)
+        evergreen = Content.search_objects.evergreen_video()[:50]
         self.assertEqual(12, evergreen.count())
         self.assertEqual(
-            sorted([obj.id for obj in qs]),
-            sorted([obj.id for obj in evergreen])
+            sorted([o.id for o in expected]),
+            sorted([o.id for o in evergreen])
         )
+
+    def test_videos(self):
+        videohub_ref = VideohubVideo.objects.create(id=1)
+        expected = [make_content(TestVideoContentObj, videohub_ref=videohub_ref,
+                                 published=self.now - timezone.timedelta(hours=hours))
+                    for hours in [4, 2, 3, 0, 5, 1]]
+        # Ignored content
+        make_content(TestVideoContentObj, videohub_ref=videohub_ref)  # Not published
+        make_content(TestVideoContentObj, videohub_ref=videohub_ref,
+                     published=(self.now + timezone.timedelta(hours=1)))  # Not published yet
+        make_content(TestVideoContentObj, published=self.now)  # No video ref
+
+        Content.search_objects.refresh()
+        recent = Content.search_objects.videos()
+        self.assertEqual([o.id for o in sorted(expected, reverse=True, key=lambda x: x.published)],
+                         [o.id for o in recent])

@@ -608,10 +608,10 @@ class TestContentTypeSearchAPI(BaseAPITestCase):
         self.assertEqual(r.status_code, 200)
         self.assertEqual(len(r.data["results"]), 1)
         # Content, TestContentObj, TestContentObjTwo, TestContentObjThree,
-        # TestContentDetailImage, TestRecircContentObject
+        # TestContentDetailImage, TestRecircContentObject, TestVideoContentObj
         r = self.api_client.get(url, dict(search="conte"), format="json")
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(len(r.data["results"]), 6)
+        self.assertEqual(len(r.data["results"]), 7)
         # no query gives us all types
         r = self.api_client.get(url, format="json")
         self.assertEqual(r.status_code, 200)

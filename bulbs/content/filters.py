@@ -131,9 +131,13 @@ def SponsoredBoost(field_name, boost_mode="multiply", weight=5):
 def VideohubChannel(included_ids=None, excluded_ids=None):
     f = MatchAll()
     if included_ids:
-        f &= Nested(path="video", filter=Terms(**{"video.channel_id": included_ids}))
+        f &= Nested(path="videohub_ref", filter=Terms(**{"videohub_ref.channel_id": included_ids}))
     if excluded_ids:
-        f &= ~Nested(path="video", filter=Terms(**{"video.channel_id": excluded_ids}))
+        f &= ~Nested(path="videohub_ref", filter=Terms(**{"videohub_ref.channel_id": excluded_ids}))
+
+
+def VideohubVideo():
+    return Nested(path='videohub_ref', filter=Exists(field='videohub_ref.id'))
 
 
 def TagBoost(slugs, boost_mode="multiply", weight=5):
