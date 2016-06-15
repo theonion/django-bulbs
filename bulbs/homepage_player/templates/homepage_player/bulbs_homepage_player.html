@@ -1,36 +1,51 @@
 {% load betty humanize ads static content %}
 
-<bulbs-video-carousel class="homepage-player">
-  <div class="homepage-player-nav">
-    {% block homepage_player_nav %}
-      <div class="homepage-player-branding"></div>
-      <div>VIDEO</div>
-    {% endblock homepage_player_nav %}
-  </div>
+{% if videos.0 %}
+  <bulbs-video-carousel class="video-carousel homepage-player">
+    <div class="homepage-player-nav">
+      {% block homepage_player_nav %}
+        <div class="homepage-player-branding"></div>
+        <div>VIDEO</div>
+      {% endblock homepage_player_nav %}
+    </div>
 
-  <bulbs-video></bulbs-video>
-  <bulbs-video-meta></bulbs-video-meta>
+    <div class="video-carousel-player">
+      <bulbs-video
+        src="{{ VIDEOHUB_BASE_URL }}/video/{{ videos.0.videohub_ref.id }}.json"
+      >
+      </bulbs-video>
+    </div>
 
-  <hr class="homepage-player-divider"/>
+    <div class="video-carousel-meta">
+      <bulbs-video-meta
+        src="{{ VIDEOHUB_BASE_URL }}/video/{{ videos.0.videohub_ref.id }}.json"
+      >
+      </bulbs-video-meta>
+    </div>
 
-  <bulbs-carousel>
-    <header>
-      <span class="homempage-player-up-next">
-        Up Next
-      </span>
+    <hr class="video-carousel-divider"/>
 
-      <bulbs-carousel-previous></bulbs-carousel-previous>
-      <bulbs-carousel-next></bulbs-carousel-next>
-    </header>
+    <bulbs-carousel class="video-carousel-carousel">
+      <header class="video-carousel-header">
+        <span class="video-carousel-header-title">
+          Up Next
+        </span>
 
-    <bulbs-carousel-slider>
-      {% for video in videos %}
-        <bulbs-carousel-item>
-          <img src="{{ video.poster_image }}"/>
-          <span class="home-page-player-item-title">{{ video.title }}</span>
-          <bulbs-video-play-button></bulbs-video-play-button>
-        </bulbs-carousel-item>
-      {% endfor %}
-    </bulbs-carousel-slider>
-  </bulbs-carousel>
-</bulbs-video-carousel>
+        <bulbs-carousel-previous class="video-carousel-previous"></bulbs-carousel-previous>
+        <bulbs-carousel-next class="video-carousel-next"></bulbs-carousel-next>
+      </header>
+
+      <bulbs-carousel-slider>
+        {% for video in videos %}
+          <bulbs-carousel-item>
+            <bulbs-video-summary
+              class="video-carousel-summary"
+              src="{{ VIDEOHUB_BASE_URL }}/video/{{ video.videohub_ref.id }}.json"
+            >
+            </bulbs-vido-summary>
+          </bulbs-carousel-item>
+        {% endfor %}
+      </bulbs-carousel-slider>
+    </bulbs-carousel>
+  </bulbs-video-carousel>
+{% endif %}
