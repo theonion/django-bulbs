@@ -125,14 +125,17 @@ def post_article(content, body, fb_page_id, fb_api_url, fb_token_path, fb_dev_mo
 
         response = status.json().get('status')
 
-    # build canonical URL
-    canonical_url = ""
-    canon = requests.get(
-        '{0}?id={1}&amp;fields=instant_article&amp;access_token={2}'.format(
-            fb_api_url,
-            canonical_url,
-            fb_access_token)
-        )
+    # build URL
+    base = getattr(settings, 'WWW_URL')
+    if not base.startswith("http"):
+        base = "http://" + base
+
+    canonical_url = "{0}{1}".format(base, content.get_absolute_url())
+    url = '{0}?id={1}&amp;fields=instant_article&amp;access_token={2}'.format(
+        fb_api_url,
+        canonical_url,
+        fb_access_token)
+    canon = requests.get(url)
 
     if not canon.ok:
         logger.error('''
@@ -148,7 +151,7 @@ def post_article(content, body, fb_page_id, fb_api_url, fb_token_path, fb_dev_mo
     # set instant_article_id to response id
     Content.objects.filter(pk=content.id).update(
         instant_article_id=canon.json().get('instant_article').get('id'))
-        
+
 
 def delete_article(content, fb_api_url, fb_token_path):
     fb_access_token = vault.read(fb_token_path).get('authtoken')
