@@ -125,10 +125,30 @@ def post_article(content, body, fb_page_id, fb_api_url, fb_token_path, fb_dev_mo
 
         response = status.json().get('status')
 
+    # build canonical URL
+    canonical_url = ""
+    canon = requests.get(
+        '{0}?id={1}&amp;fields=instant_article&amp;access_token={2}'.format(
+            fb_api_url,
+            canonical_url,
+            fb_access_token)
+        )
+
+    if not canon.ok:
+        logger.error('''
+            Error in getting article ID of Instant Article.\n
+            Content ID: {0}\n
+            Status Code: {1}
+            Request: {2}'''.format(
+                content.id,
+                canon.status_code,
+                canon.__dict__))
+        return
+
     # set instant_article_id to response id
     Content.objects.filter(pk=content.id).update(
-        instant_article_id=status.json().get('id'))
-
+        instant_article_id=canon.json().get('instant_article').get('id'))
+        
 
 def delete_article(content, fb_api_url, fb_token_path):
     fb_access_token = vault.read(fb_token_path).get('authtoken')
