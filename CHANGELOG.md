@@ -2,17 +2,9 @@
 
 ## Development
 
-## Version 2.8.0
+## Version 2.8.1
 
-- Add `AppConfigs` with namespaced labels as workaround for duplicate app names (ex: `bulbs.videos` and `starwipe.apps.videos`). 
-
-  For example, the `videos` app can be re-labeled as `bulbs_videos` by explicitly including the `AppConfig` in your app list:
-
-          INSTALLED_APPS = [
-            ...
-            "bulbs.videos.apps.AppConfig",
-            ...
-          ]
+- Reverted `AppConfig` changes released in 2.8.0. Decided to go another route with duplicate app names.
 
 ## Version 2.7.6
 
