@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 2.8.2
+
+- Changed `post_to_instant_articles_api` to get the Article ID based on its canonical url
+
 ## Version 2.8.1
 
 - Reverted `AppConfig` changes released in 2.8.0. Decided to go another route with duplicate app names.
