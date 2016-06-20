@@ -46,7 +46,7 @@ class FacebookAPITestCase(BaseIndexableTestCase):
 
             # get article ID
             mocker.get(
-                "https://graph.facebook.com/v2.6?id=http://www.theonion.com{0}&amp;fields=instant_article&amp;access_token=TOKEN".format(
+                "https://graph.facebook.com/v2.6?id=http://www.theonion.com{0}&fields=instant_article&access_token=TOKEN".format(
                     content.get_absolute_url()),
                 status_code=200,
                 json={"instant_article": {
@@ -97,7 +97,7 @@ class FacebookAPITestCase(BaseIndexableTestCase):
                 feature_type=self.ft)
 
             mocker.get(
-                "https://graph.facebook.com/v2.6?id=http://www.theonion.com{0}&amp;fields=instant_article&amp;access_token=TOKEN".format(
+                "https://graph.facebook.com/v2.6?id=http://www.theonion.com{0}&fields=instant_article&access_token=TOKEN".format(
                     content.get_absolute_url()),
                 status_code=200,
                 json={"instant_article": {
@@ -153,7 +153,7 @@ class FacebookAPITestCase(BaseIndexableTestCase):
                 feature_type=self.ft)
 
             mocker.get(
-                "https://graph.facebook.com/v2.6?id=http://www.theonion.com{0}&amp;fields=instant_article&amp;access_token=TOKEN".format(
+                "https://graph.facebook.com/v2.6?id=http://www.theonion.com{0}&fields=instant_article&access_token=TOKEN".format(
                     content.get_absolute_url()),
                 status_code=200,
                 json={"instant_article": {

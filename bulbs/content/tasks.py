@@ -131,11 +131,10 @@ def post_article(content, body, fb_page_id, fb_api_url, fb_token_path, fb_dev_mo
         base = "http://" + base
 
     canonical_url = "{0}{1}".format(base, content.get_absolute_url())
-    url = '{0}?id={1}&amp;fields=instant_article&amp;access_token={2}'.format(
+    canon = requests.get('{0}?id={1}&fields=instant_article&access_token={2}'.format(
         fb_api_url,
         canonical_url,
-        fb_access_token)
-    canon = requests.get(url)
+        fb_access_token))
 
     if not canon.ok:
         logger.error('''
