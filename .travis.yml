@@ -17,6 +17,8 @@ cache:
     - $HOME/.cache/pip
 services:
   - postgresql
+addons:
+  postgresql: "9.4"
 before_install:
   # Use same ES version as in production (also the Travis "elasticsearch" service setting fails to start)
   - travis_retry curl -OL https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-$ELASTICSEARCH_VERSION.deb
