@@ -26,7 +26,8 @@ install:
   - travis_retry pip install -e .
   - travis_retry pip install "file://$(pwd)#egg=django-bulbs[dev]"
 before_script:
-  - psql -c 'create database bulbs;' -U postgres
+  - psql -c 'create database bulbs_test;' -U postgres
+  - psql -c 'CREATE USER bulbs WITH PASSWORD "testing";' -U postgres
   # Wait for ES startup
   - until curl http://localhost:9200/; do sleep 1; done
 script:
