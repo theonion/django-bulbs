@@ -24,4 +24,4 @@ venv/
 .map
 scripts/.state
 node_modules
-I*.sw[nop]
+*.sw[nop]

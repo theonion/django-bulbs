@@ -2,17 +2,14 @@
 
 ## Development
 
-## Version 2.8.0
+## Version 2.8.2
 
-- Add `AppConfigs` with namespaced labels as workaround for duplicate app names (ex: `bulbs.videos` and `starwipe.apps.videos`). 
+- Changed `post_to_instant_articles_api` to get the Article ID based on its canonical url
 
-  For example, the `videos` app can be re-labeled as `bulbs_videos` by explicitly including the `AppConfig` in your app list:
+## Version 2.8.1
 
-          INSTALLED_APPS = [
-            ...
-            "bulbs.videos.apps.AppConfig",
-            ...
-          ]
+- Reverted `AppConfig` changes released in 2.8.0. Decided to go another route with duplicate app names.
+>>>>>>> 43683584ffc91191e1dc4fd9d3cc06fb149b253a
 
 ## Version 2.7.6
 
