@@ -2,6 +2,7 @@
 var _ = require('lodash');
 var adHtml = '<div class="dfp dfp-slot-inread" data-ad-unit="inread"></div>';
 
+
 var MobileAdPlacer = {
   placeAds: function () {
     var body = $('body');
