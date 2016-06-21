@@ -2,6 +2,30 @@
 
 ## Development
 
+## Version 2.8.2
+
+- Changed `post_to_instant_articles_api` to get the Article ID based on its canonical url
+
+## Version 2.8.1
+
+- Reverted `AppConfig` changes released in 2.8.0. Decided to go another route with duplicate app names.
+
+## Version 2.7.6
+
+- `migrate_to_ia` command now only migrates previously un-migrated content
+
+## Version 2.7.5
+
+- Fixed import issue in `migrate_to_ia` command
+
+## Version 2.7.4
+
+- Fixed `migrate_to_ia` command to migrate Feature Types passed in on command line
+
+## Version 2.7.3
+
+- Added `migrate_to_ia` command to migrate entire Feature Types over to Instant Articles
+
 ## Version 2.7.2
 
 - Changed `instant_article_id` on Content model from `IntegerField` to `BigIntegerField`
