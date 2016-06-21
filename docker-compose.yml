@@ -2,6 +2,8 @@ web:
   build: .
   environment:
     DJANGO_SETTINGS_MODULE: example.settings
+    DJANGO_DB_HOST: postgres
+    ELASTICSEARCH_HOST: elasticsearch
   stdin_open: true
   volumes:
     - .:/webapp

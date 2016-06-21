@@ -11,7 +11,7 @@ DATABASES = {
         'NAME': 'bulbs_test',
         'USER': 'bulbs',
         'PASSWORD': 'testing',
-        'HOST': 'localhost',
+        'HOST': os.environ.get("DJANGO_DB_HOST", "localhost"),
         'PORT': '5432',
     }
 }
