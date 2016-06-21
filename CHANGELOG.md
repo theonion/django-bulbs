@@ -9,7 +9,6 @@
 ## Version 2.8.1
 
 - Reverted `AppConfig` changes released in 2.8.0. Decided to go another route with duplicate app names.
->>>>>>> 43683584ffc91191e1dc4fd9d3cc06fb149b253a
 
 ## Version 2.7.6
 
