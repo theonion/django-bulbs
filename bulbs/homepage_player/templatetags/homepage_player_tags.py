@@ -10,6 +10,8 @@ template_name = get_overridable_template_name(
 
 
 @register.inclusion_tag(template_name, takes_context=True)
-def homepage_player_partial(context, videos=[]):
+def homepage_player_partial(context, twitter_handle, share_message, videos=[]):
     context['videos'] = videos
+    context['twitter_handle'] = twitter_handle
+    context['share_message'] = share_message
     return context
