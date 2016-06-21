@@ -53,18 +53,6 @@ from .mixins import UncachedResponse
 from .permissions import CanEditContent, CanPublishContent
 
 
-class ContentViewMetaData(BaseMetadata):
-
-    pass
-    # def determine_metadata(self, request, view):
-    #     # serializer_class = view.get_serializer_class()
-    #     # if issubclass(serializer_class, SerializerMetadataMixin):
-    #         # return serializer_class(instance=view.get_object()).get_metadata()
-    #     return {
-    #         'status': 'ok',
-    #     }
-
-
 class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
     """
     uncached viewset for the `bulbs.content.Content` model

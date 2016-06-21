@@ -12,7 +12,7 @@ from .serializers import BaseInfographicSerializer, InfographicDataField
 
 
 def get_and_check_attribute(obj, attr_name):
-    attribute = getattr(obj, attr_name)
+    attribute = getattr(obj, attr_name, None)
     if not attribute:
         raise AttributeError("The provided object has no '{}' attribute.".format(attr_name))
     return attribute
