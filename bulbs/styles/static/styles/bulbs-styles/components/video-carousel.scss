@@ -46,7 +46,13 @@ $light-shade: #f4f4f4;
   }
 
   .video-carousel-summary {
+    cursor: pointer;
     position: relative;
+    &:hover {
+      .bulbs-video-play-button {
+        opacity: 1;
+      }
+    }
 
     .bulbs-video-summary-playing {
       padding: 0 .5em;
@@ -91,7 +97,10 @@ $light-shade: #f4f4f4;
   }
 
   .bulbs-video-play-button {
-    width: 3em;
+    bottom: 10px;
+    left: 10px;
+    opacity: .8;
+    width: 40px;
   }
 
   .bulbs-video-poster {
