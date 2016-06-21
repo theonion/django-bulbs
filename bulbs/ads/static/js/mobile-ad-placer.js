@@ -1,5 +1,5 @@
 'use strict';
-var _ = require('lodash');
+var _ = require('lodash/lodash');
 var adHtml = '<div class="dfp dfp-slot-inread" data-ad-unit="inread"></div>';
 
 
@@ -21,6 +21,7 @@ var MobileAdPlacer = {
         adsPlaced++;
       }
     }
+    window.ads.loadAds();
   },
 };
 
