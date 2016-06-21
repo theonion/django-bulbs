@@ -8,6 +8,7 @@ describe('MobileAdPlacer', function () {
 
   beforeEach(function () {
     $('body').append(article);
+    window.ads = {loadAds: function() { return }};
   });
 
   afterEach(function () {
@@ -15,6 +16,7 @@ describe('MobileAdPlacer', function () {
   });
 
   it('places ad after 350 words', function () {
+    debugger;
     $('.article-text').append(paragraph351);
     mobileAdPlacer.placeAds();
     var articleContents = $('.article-text').children();
