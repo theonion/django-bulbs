@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 2.9.3
+
+- Added `content.filters.AllSponsored` for elasticsearch queries.
+
 ## Version 2.9.2
 
 - Added mobile ad placer static files to bulbs ads
