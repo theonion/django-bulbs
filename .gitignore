@@ -22,5 +22,6 @@ venv/
 .cache/
 .sass-cache/
 .map
+scripts/.state
 node_modules
 *.sw[nop]

@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Summary: Sources a state file. Expected to be here: <site-id>/scripts/state
+siblingstate="$(cd "$(dirname "$0")" && pwd)"/.state
+parentstate="$(cd "$(dirname "$0")" && pwd)"/../.state
+
+for statefile in $siblingstate $parentstate; do
+  if [ -f $statefile ]; then
+    source $statefile
+  fi
+done

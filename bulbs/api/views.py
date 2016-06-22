@@ -48,15 +48,9 @@ from bulbs.special_coverage.models import SpecialCoverage
 from bulbs.special_coverage.serializers import SpecialCoverageSerializer
 from bulbs.utils.methods import get_query_params, get_request_data
 
+from .metadata import PolymorphicContentMetadata
 from .mixins import UncachedResponse
 from .permissions import CanEditContent, CanPublishContent
-
-
-class ContentViewMetaData(BaseMetadata):
-    def determine_metadata(self, request, view):
-        return {
-            'status': 'ok',
-        }
 
 
 class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
@@ -75,7 +69,7 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         "authors", "types"
     )
     permission_classes = [IsAdminUser, CanEditContent]
-    metadata_class = ContentViewMetaData
+    metadata_class = PolymorphicContentMetadata
 
     def get_serializer_class(self):
         """gets the class type of the serializer
