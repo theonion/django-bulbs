@@ -30,6 +30,15 @@ $light-shade: #f4f4f4;
 
   .homepage-player bulbs-carousel-track {
     @include overflow-flexgrid(
+      $columns: 3,
+      $gutter: 20
+    );
+  }
+}
+
+@media all and (min-width: $screen-xlg) {
+  .homepage-player bulbs-carousel-track {
+    @include overflow-flexgrid(
       $columns: 5,
       $gutter: 20
     );
