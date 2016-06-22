@@ -66,7 +66,7 @@ class InfographicMetadata(SimpleMetadata):
             ])
         return serializer_info
 
-    def get_custom_metadata(self, serializer, view):
+    def get_custom_metadata(self, serializer, view, list=False):
         fields_metadata = dict()
         if hasattr(serializer, "__call__"):
             serializer_instance = serializer()
@@ -74,8 +74,9 @@ class InfographicMetadata(SimpleMetadata):
             serializer_instance = serializer
         for field_name, field in serializer_instance.get_fields().items():
             if isinstance(field, InfographicDataField):
-                serializer = view.get_object().get_data_serializer()
-                fields_metadata[field_name] = self.get_custom_metadata(serializer, view)
+                if view.get_view_name() != "Content List":
+                    serializer = view.get_object().get_data_serializer()
+                    fields_metadata[field_name] = self.get_custom_metadata(serializer, view)
             elif isinstance(field, serializers.BaseSerializer):
                 fields_metadata[field_name] = self.get_serializer_info(field)
             else:

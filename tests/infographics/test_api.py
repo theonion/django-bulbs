@@ -10,6 +10,10 @@ from bulbs.utils.test import BaseAPITestCase
 
 class BaseInfographicTestCase(BaseAPITestCase):
 
+    def test_list_view_options(self):
+        resp = self.api_client.options(self.list_endpoint)
+        self.assertEqual(resp.status_code, 200)
+
     def test_post_list_no_data(self):
         data = self.list_data
         data.pop("data")
