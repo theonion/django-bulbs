@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 2.9.2
+
+- Added mobile ad placer static files to bulbs ads
+
 ## Version 2.8.4
 
 - Added `PolymorphicContentMetadata` to register custom metadata responses with given serializers.
