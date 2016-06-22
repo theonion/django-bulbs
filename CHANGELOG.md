@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 2.9.1
+
+- add mobile-ad-placer to bulbs.ads
+
 ## Version 2.8.2
 
 - Changed `post_to_instant_articles_api` to get the Article ID based on its canonical url
