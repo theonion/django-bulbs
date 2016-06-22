@@ -2,6 +2,14 @@
 
 ## Development
 
+## Version 2.8.4
+
+- Added `PolymorphicContentMetadata` to register custom metadata responses with given serializers.
+- Added `Infographic` models..
+- Added `InfographicSerializer` and `InfographicMetadata` to API.
+- Added Docker configurations for local testing.
+- Added Postgresql9.4 testing for .travis.yml builds.
+
 ## Version 2.8.2
 
 - Changed `post_to_instant_articles_api` to get the Article ID based on its canonical url
