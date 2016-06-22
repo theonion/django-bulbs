@@ -546,20 +546,22 @@ class PromotionApiTestCase(BaseAPITestCase):
         test_time_out_of_range = test_time_upper_bound + datetime.timedelta(hours=1)
 
         # set up some test operations)
-        op_past_1 = InsertOperation.objects.create(
+        # Past operations
+        InsertOperation.objects.create(
             pzone=self.pzone,
             when=test_time_past,
             index=0,
             content=make_content(),
             applied=True
         )
-        op_past_2 = InsertOperation.objects.create(
+        InsertOperation.objects.create(
             pzone=self.pzone,
             when=test_time_past,
             index=0,
             content=make_content(),
             applied=True
         )
+        # Future operations
         op_future_1 = InsertOperation.objects.create(
             pzone=self.pzone,
             when=test_time_future,
@@ -574,7 +576,8 @@ class PromotionApiTestCase(BaseAPITestCase):
             content=make_content(),
             applied=True
         )
-        op_out_of_range_1 = InsertOperation.objects.create(
+        # Out of range
+        InsertOperation.objects.create(
             pzone=self.pzone,
             when=test_time_out_of_range,
             index=0,

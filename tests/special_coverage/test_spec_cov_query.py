@@ -330,7 +330,7 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
             (s_wow, len(self.content_list)),
             (s_one_article, 1),
             (s_two_articles, 2),
-            (s_all_but_one_article, len(self.content_list)), # excluded
+            (s_all_but_one_article, len(self.content_list)),  # excluded
             (s_last_day, 3),
             (s_doctype, TestContentObjTwo.objects.count()),
             (s_text_query, 2),
@@ -343,7 +343,7 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
             (s_wow, len(self.content_list)),
             (s_one_article, 1),
             (s_two_articles, 2),
-            (s_all_but_one_article, len(self.content_list)), # excluded
+            (s_all_but_one_article, len(self.content_list)),  # excluded
         )
         # is not published and not is_preview
         self.unpublished_expectations = (

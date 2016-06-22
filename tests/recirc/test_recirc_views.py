@@ -26,7 +26,7 @@ class TestRecircViews(BaseIndexableTestCase):
         self.objects = []
         for i, tag in enumerate(self.tags):
             t = TestRecircContentObject.objects.create(
-                title="Test {}".format(i+1),
+                title="Test {}".format(i + 1),
                 foo="foo",
                 bar="bar",
                 feature_type=self.ft,
@@ -45,7 +45,9 @@ class TestRecircViews(BaseIndexableTestCase):
         # set query in content object
         self.content.query = dict(
             included_ids=[
-                o.id for o in TestRecircContentObject.objects.all().exclude(id__in=[self.content.id])
+                o.id for o in TestRecircContentObject.objects.all().exclude(
+                    id__in=[self.content.id]
+                )
             ]
         )
         self.content.save()

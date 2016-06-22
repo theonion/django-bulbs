@@ -98,5 +98,3 @@ class SpecialCoverageQueryTests(BaseIndexableTestCase):
                 doc_type=".percolator",
                 id="section.999"
             )
-
-
