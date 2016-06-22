@@ -159,9 +159,13 @@ class PolyContentTestCase(BaseIndexableTestCase):
     def test_allsponsored_filter(self):
         self.assertEqual(Content.search_objects.count(), 13)
         sponsored = Content.search_objects.search().filter(AllSponsored())
-        unsponsored = Content.search_objects.serach().filter(~AllSponsored)
+        unsponsored = Content.search_objects.search().filter(~AllSponsored())
         self.assertEqual(sponsored.count(), 6)
-        self.assertEqual(unsponsored.count(), 7)
+        for content in sponsored:
+            self.assertIsNotNone(content.tunic_campaign_id)
+        self.assertEqual(unsponsored.count(), 6)
+        for content in unsponsored:
+            self.assertIsNone(content.tunic_campaign_id)
 
     def test_status_filter(self):
         q = Content.search_objects.search(status="final")
