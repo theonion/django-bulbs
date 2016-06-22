@@ -8,7 +8,7 @@ from djbetty.serializers import ImageFieldSerializer
 
 from .data_serializers import CopySerializer, ItemSerializer, XYItemSerializer
 from .fields import ColorField, RichTextField
-from .serializers import BaseInfographicSerializer, InfographicDataField
+from .serializers import InfographicSerializer, InfographicDataField
 
 
 def get_and_check_attribute(obj, attr_name):
@@ -37,7 +37,7 @@ class InfographicMetadata(SimpleMetadata):
 
     def determine_metadata(self, request, view):
         serializer_class = view.get_serializer_class()
-        if issubclass(serializer_class, BaseInfographicSerializer):
+        if issubclass(serializer_class, InfographicSerializer):
             data = self.get_custom_metadata(serializer_class, view)
             return data
         return super(InfographicMetadata, self).determine_metadata(request, view)

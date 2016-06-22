@@ -1,13 +1,13 @@
 from rest_framework.metadata import SimpleMetadata
 
 from bulbs.infographics.metadata import InfographicMetadata
-from bulbs.infographics.serializers import BaseInfographicSerializer
+from bulbs.infographics.serializers import InfographicSerializer
 
 
 class PolymorphicContentMetadata(SimpleMetadata):
 
     serializer_lookup = {
-        BaseInfographicSerializer: InfographicMetadata()
+        InfographicSerializer: InfographicMetadata()
     }
 
     def determine_metadata(self, request, view):

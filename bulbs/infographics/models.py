@@ -37,5 +37,5 @@ class BaseInfographic(Content):
 
     @classmethod
     def get_serializer_class(cls):
-        from .serializers import BaseInfographicSerializer
-        return BaseInfographicSerializer
+        from .serializers import InfographicSerializer
+        return InfographicSerializer
