@@ -16,7 +16,6 @@ describe('MobileAdPlacer', function () {
   });
 
   it('places ad after 350 words', function () {
-    debugger;
     $('.article-text').append(paragraph351);
     mobileAdPlacer.placeAds();
     var articleContents = $('.article-text').children();
