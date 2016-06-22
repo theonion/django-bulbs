@@ -18,7 +18,7 @@ def get_and_check_attribute(obj, attr_name):
     return attribute
 
 
-class InfographicMetadataMixin(SimpleMetadata):
+class InfographicMetadata(SimpleMetadata):
 
     additional_attributes = ["field_size"]
 
@@ -40,12 +40,10 @@ class InfographicMetadataMixin(SimpleMetadata):
         if issubclass(serializer_class, BaseInfographicSerializer):
             data = self.get_custom_metadata(serializer_class, view)
             return data
-        return {
-            "status": "ok"
-        }
+        return super(InfographicMetadata, self).determine_metadata(request, view)
 
     def get_field_info(self, field):
-        field_info = super(InfographicMetadataMixin, self).get_field_info(field)
+        field_info = super(InfographicMetadata, self).get_field_info(field)
         for attr in self.additional_attributes:
             meta = getattr(field, attr, None)
             if meta:
@@ -53,7 +51,7 @@ class InfographicMetadataMixin(SimpleMetadata):
         return field_info
 
     def get_serializer_info(self, serializer):
-        serializer_info = super(InfographicMetadataMixin, self).get_serializer_info(serializer)
+        serializer_info = super(InfographicMetadata, self).get_serializer_info(serializer)
 
         if hasattr(serializer, "child"):
             label = self.label_lookup[serializer.child]
