@@ -2,18 +2,16 @@ from __future__ import absolute_import
 
 import itertools
 import datetime
-import time
-import pytest
-
 
 from django.utils import timezone
 from django.test.client import Client
 from django.template.defaultfilters import slugify
 
-from bulbs.utils.test import BaseIndexableTestCase
+from bulbs.content.filters import AllSponsored
 from bulbs.content.models import Content, Tag, FeatureType
+from bulbs.utils.test import make_content, BaseIndexableTestCase
+
 from example.testcontent.models import TestContentObj, TestContentObjTwo
-from bulbs.utils.test import make_content
 
 
 class PolyContentTestCase(BaseIndexableTestCase):
@@ -41,7 +39,12 @@ class PolyContentTestCase(BaseIndexableTestCase):
                 tags.append(tag)
                 self.all_tags.append(tag)
 
-            obj = make_content(TestContentObj, published=one_hour_ago, feature_type=ft_one)
+            obj = make_content(
+                TestContentObj,
+                published=one_hour_ago,
+                feature_type=ft_one,
+                tunic_campaign_id=1
+            )
             obj.tags.add(*tags)
             obj.index()
 
@@ -152,6 +155,17 @@ class PolyContentTestCase(BaseIndexableTestCase):
         q = Content.search_objects.search(types=[
             "testcontent_testcontentobjtwo", "testcontent_testcontentobj"])
         self.assertEqual(q.count(), 12)
+
+    def test_allsponsored_filter(self):
+        self.assertEqual(Content.search_objects.count(), 13)
+        sponsored = Content.search_objects.search().filter(AllSponsored())
+        unsponsored = Content.search_objects.search().filter(~AllSponsored())
+        self.assertEqual(sponsored.count(), 6)
+        for content in sponsored:
+            self.assertIsNotNone(content.tunic_campaign_id)
+        self.assertEqual(unsponsored.count(), 6)
+        for content in unsponsored:
+            self.assertIsNone(content.tunic_campaign_id)
 
     def test_status_filter(self):
         q = Content.search_objects.search(status="final")

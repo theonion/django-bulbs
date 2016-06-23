@@ -48,6 +48,11 @@ def _parse_slugs(slugs):
     return (included, excluded)
 
 
+def AllSponsored():
+    """Filter for any content that has a tunic_campaign_id."""
+    return Exists(field="tunic_campaign_id")
+
+
 def Published(before=None, after=None):  # noqa
     published_params = {}
     if after is not None:
