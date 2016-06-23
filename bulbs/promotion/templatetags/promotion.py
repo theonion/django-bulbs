@@ -54,8 +54,8 @@ def do_pzone(parser, token):
     bits = token.split_contents()
 
     if len(bits) < 2:
-        raise TemplateSyntaxError("'pzone' statements should have at least two"
-                                  " words: %s" % token.contents)
+        raise template.TemplateSyntaxError("'pzone' statements should have at least two"
+                                           " words: %s" % token.contents)
 
     nodelist_loop = parser.parse(("endforpzone", "empty"))
     token = parser.next_token()
@@ -79,7 +79,7 @@ def do_pzone(parser, token):
                 slice_bits.append(None)
             else:
                 slice_bits.append(int(x))
-        slice_object = slice(*slice_bits)
+        slice_object = slice(*slice_bits)  # NOQA  mparent(2016-06-23): Variable not used, fix me
 
     apply = False
     if "apply" in kwargs:

@@ -91,11 +91,10 @@ def post_article(content, body, fb_page_id, fb_api_url, fb_token_path, fb_dev_mo
                      Content ID: {0}\n
                      IA ID: {1}\n
                      Status Code: {2}
-                     Request: {3}'''.format(
-                         content.id,
-                         content.instant_article_id,
-                         post.status_code,
-                         post.__dict__))
+                     Request: {3}'''.format(content.id,
+                                            content.instant_article_id,
+                                            post.status_code,
+                                            post.__dict__))
         return
 
     # Poll for status of article
@@ -116,11 +115,10 @@ def post_article(content, body, fb_page_id, fb_api_url, fb_token_path, fb_dev_mo
                 Content ID: {0}\n
                 IA ID: {1}\n
                 Status Code: {2}
-                Request: {3}'''.format(
-                    content.id,
-                    content.instant_article_id,
-                    status.status_code,
-                    status.__dict__))
+                Request: {3}'''.format(content.id,
+                                       content.instant_article_id,
+                                       status.status_code,
+                                       status.__dict__))
             return
 
         response = status.json().get('status')
@@ -141,10 +139,9 @@ def post_article(content, body, fb_page_id, fb_api_url, fb_token_path, fb_dev_mo
             Error in getting article ID of Instant Article.\n
             Content ID: {0}\n
             Status Code: {1}
-            Request: {2}'''.format(
-                content.id,
-                canon.status_code,
-                canon.__dict__))
+            Request: {2}'''.format(content.id,
+                                   canon.status_code,
+                                   canon.__dict__))
         return
 
     # set instant_article_id to response id
@@ -170,11 +167,10 @@ def delete_article(content, fb_api_url, fb_token_path):
                      Content ID: {0}\n
                      IA ID: {1}\n
                      Status Code: {2}
-                     Request: {3}'''.format(
-                         content.id,
-                         content.instant_article_id,
-                         delete.status_code,
-                         delete.__dict__))
+                     Request: {3}'''.format(content.id,
+                                            content.instant_article_id,
+                                            delete.status_code,
+                                            delete.__dict__))
     else:
         status = delete.json().get('success')
         if bool(status) is not True:
@@ -182,10 +178,9 @@ def delete_article(content, fb_api_url, fb_token_path):
                 Error in deleting Instant Article.\n
                 Content ID: {0}\n
                 IA ID: {1}\n
-                Error: {2}'''.format(
-                    content.id,
-                    content.instant_article_id,
-                    delete.json()))
+                Error: {2}'''.format(content.id,
+                                     content.instant_article_id,
+                                     delete.json()))
 
 
 @shared_task(default_retry_delay=5, time_limit=300)
@@ -205,10 +200,9 @@ def post_to_instant_articles_api(content_pk):
                      Error in Django Settings.\n
                      FACEBOOK_PAGE_ID: {0}\n
                      FACEBOOK_API_BASE_URL: {1}\n
-                     FACEBOOK_TOKEN_VAULT_PATH: {2}'''.format(
-                         fb_page_id,
-                         fb_api_url,
-                         fb_token_path))
+                     FACEBOOK_TOKEN_VAULT_PATH: {2}'''.format(fb_page_id,
+                                                              fb_api_url,
+                                                              fb_token_path))
         return
 
     # if feature type is IA approved & content is published
