@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 2.9.4
+
+- Fixed issue with incorrect targeting passed into special coverage landing page
+
 ## Version 2.9.3
 
 - Added `content.filters.AllSponsored` for elasticsearch queries.
