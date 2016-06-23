@@ -7,8 +7,12 @@ VAULT_ACCESS_TOKEN = 'beepborp'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ':memory:'
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'bulbs_test',
+        'USER': 'bulbs',
+        'PASSWORD': 'testing',
+        'HOST': os.environ.get("DJANGO_DB_HOST", "localhost"),
+        'PORT': '5432',
     }
 }
 USE_TZ = True,
@@ -43,6 +47,7 @@ INSTALLED_APPS = (
     "bulbs.api",
     "bulbs.campaigns",
     "bulbs.feeds",
+    "bulbs.infographics",
     "bulbs.redirects",
     "bulbs.cms_notifications",
     "bulbs.content",

@@ -1,0 +1,6 @@
+#!/bin/sh -e
+# Summary: Build the docker image.
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+docker-compose build

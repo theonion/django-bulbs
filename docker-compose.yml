@@ -1,0 +1,16 @@
+web:
+  build: .
+  environment:
+    DJANGO_SETTINGS_MODULE: example.settings
+    DJANGO_DB_HOST: postgres
+    ELASTICSEARCH_HOST: elasticsearch
+  stdin_open: true
+  volumes:
+    - .:/webapp
+  external_links:
+    - onionservices_elasticsearch_1:elasticsearch
+    - onionservices_fastrouter_1:fastrouter
+    - onionservices_memcached_1:memcached
+    - onionservices_postgres_1:postgres
+    - onionservices_rabbitmq_1:rabbitmq
+    - onionservices_fastrouter_1:tunic.local

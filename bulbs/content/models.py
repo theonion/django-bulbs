@@ -637,7 +637,9 @@ def delete_from_instant_article_api(sender, instance=None, **kwargs):
                     instance.id,
                     instance.instant_article_id,
                     delete.status_code,
-                    delete.__dict__))
+                    delete.__dict__
+                )
+            )
         else:
             status = delete.json().get('success')
             if bool(status) is not True:
@@ -645,10 +647,7 @@ def delete_from_instant_article_api(sender, instance=None, **kwargs):
                     Error in deleting Instant Article.\n
                     Content ID: {0}\n
                     IA ID: {1}\n
-                    Error: {2}'''.format(
-                        instance.id,
-                        instance.instant_article_id,
-                        delete.json()))
+                    Error: {2}'''.format(instance.id, instance.instant_article_id, delete.json()))
 
 ##
 # signal hooks

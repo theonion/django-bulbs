@@ -89,8 +89,6 @@ class TestCreateContentAPI(BaseAPITestCase):
     that it ends up searchable"""
 
     def test_create_article(self):
-        User = get_user_model()
-
         author = User.objects.create(
             username="csinchok",
             first_name="Chris",
@@ -348,7 +346,6 @@ class TestUpdateAuthorsAPI(BaseUpdateContentAPI):
     """Tests updating an `Article`"""
 
     def create_content(self):
-        User = get_user_model()
         self.author = User.objects.create(
             username="csinchok",
             first_name="Chris",
@@ -361,14 +358,14 @@ class TestUpdateAuthorsAPI(BaseUpdateContentAPI):
             title="Cramer 2: Electric Booyah-loo",
             foo="whatta guy....booyah indeed!",
             authors=[{
-                         "id": self.author.id,
-                         "username": self.author.username,
-                         "email": "",
-                         "full_name": "Chris Sinchok",
-                         "short_name": "Chris",
-                         "first_name": "Chris",
-                         "last_name": "Sinchok"
-                     }]
+                "id": self.author.id,
+                "username": self.author.username,
+                "email": "",
+                "full_name": "Chris Sinchok",
+                "short_name": "Chris",
+                "first_name": "Chris",
+                "last_name": "Sinchok"
+            }]
         )
 
     def test_update_article(self):
@@ -452,7 +449,6 @@ class TestMeApi(BaseAPITestCase):
         """Test that firebase token is put into me view if settings contains a FIREBASE_SECRET
         variable.
         """
-
         # login user
         client = Client()
         client.login(username="admin", password="secret")
@@ -470,8 +466,6 @@ class TestMeApi(BaseAPITestCase):
 
     def test_me_as_superuser(self):
         """Test that super users get an addtional is_superuser property and regular users do not."""
-
-        User = get_user_model()
         # login and test regular user
         client = Client()
         User.objects.create_user("regularuser", "regularguy@aol.com", "passward")
@@ -548,7 +542,6 @@ class TestTokenAPI(BaseAPITestCase):
 
     def test_create_token(self):
         """Test token creation."""
-
         # create a test piece of content
         content = Content.objects.create()
 
@@ -567,13 +560,12 @@ class TestTokenAPI(BaseAPITestCase):
         # test that what we expect to happen happened
         json_response = json.loads(response.content.decode("utf8"))
         self.assertEquals(len(json_response["url_uuid"]), 32)
-        self.assertEquals(json_response["content"], 1)
+        self.assertEquals(json_response["content"], content.id)
         self.assertEquals(ObfuscatedUrlInfo.objects.count(), 1)
-        self.assertEquals(ObfuscatedUrlInfo.objects.all()[0].content.id, 1)
+        self.assertEquals(ObfuscatedUrlInfo.objects.all()[0].content.id, content.id)
 
     def test_list_tokens(self):
         """Test token listing."""
-
         # create some test content
         content = make_content()
         content_2 = make_content()
@@ -623,7 +615,7 @@ class TestContentTypeSearchAPI(BaseAPITestCase):
         # no query gives us all types
         r = self.api_client.get(url, format="json")
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(len(r.data["results"]), 9)
+        self.assertEqual(len(r.data["results"]), 10)
 
 
 class TestContentResolveAPI(BaseAPITestCase):
