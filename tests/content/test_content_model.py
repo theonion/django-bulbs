@@ -43,6 +43,7 @@ class ContentModelTestCase(BaseIndexableTestCase):
         targeting = obj.get_targeting()
         self.assertEqual(obj.published.isoformat(), targeting.get("dfp_publishdate"))
 
+
 class SerializerTestCase(BaseIndexableTestCase):
     def test_content_status(self):
         content = make_content(published=None)

@@ -49,18 +49,18 @@ class TestResolveSpecialCoverageAPI(BaseAPITestCase):
         return content
 
     def resolve(self, expected_status_code=200, **data):
-        r = self.api_client.get(reverse("special-coverage-resolve-list"),
-                                data=data, format="json")
-        self.assertEqual(expected_status_code, r.status_code)
-        return r
+        resp = self.api_client.get(reverse("special-coverage-resolve-list"),
+                                   data=data, format="json")
+        self.assertEqual(expected_status_code, resp.status_code)
+        return resp
 
     def test_found_one(self):
         self.make_special_coverage(90, 'joe-biden')
         self.make_content(id=123, tags=['joe-biden'])
 
-        r = self.resolve(content_id=123)
-        self.assertEqual(1, len(r.data))
-        data = r.data[0]
+        resp = self.resolve(content_id=123)
+        self.assertEqual(1, len(resp.data))
+        data = resp.data[0]
         self.assertEqual(90, data['id'])
         self.assertEqual('joe-biden', data['name'])
 
@@ -69,33 +69,33 @@ class TestResolveSpecialCoverageAPI(BaseAPITestCase):
         self.make_special_coverage(91, 'joe-biden')
         self.make_content(id=123, tags=['joe-biden', 'obama'])
 
-        r = self.resolve(content_id=123)
-        six.assertCountEqual(self, [90, 91], [r['id'] for r in r.data])
+        resp = self.resolve(content_id=123)
+        six.assertCountEqual(self, [90, 91], [r['id'] for r in resp.data])
 
     def test_no_special_coverage_tag(self):
         self.make_special_coverage(90, 'obama')
         self.make_content(id=123)
 
-        r = self.resolve(content_id=123, expected_status_code=204)
+        self.resolve(content_id=123, expected_status_code=204)
 
     def test_invalid_content(self):
-        r = self.resolve(content_id=123, expected_status_code=404)
+        self.resolve(content_id=123, expected_status_code=404)
 
     def test_filter_sponsored(self):
         self.make_special_coverage(90, 'obama', tunic_campaign_id=2001)
         self.make_special_coverage(91, 'joe-biden')
         self.make_content(id=123, tags=['joe-biden', 'obama'])
 
-        r = self.resolve(content_id=123, sponsored=True)
-        six.assertCountEqual(self, [90], [r['id'] for r in r.data])
+        resp = self.resolve(content_id=123, sponsored=True)
+        six.assertCountEqual(self, [90], [r['id'] for r in resp.data])
 
     def test_filter_not_sponsored(self):
         self.make_special_coverage(90, 'obama', tunic_campaign_id=2001)
         self.make_special_coverage(91, 'joe-biden')
         self.make_content(id=123, tags=['joe-biden', 'obama'])
 
-        r = self.resolve(content_id=123, sponsored=False)
-        six.assertCountEqual(self, [91], [r['id'] for r in r.data])
+        resp = self.resolve(content_id=123, sponsored=False)
+        six.assertCountEqual(self, [91], [r['id'] for r in resp.data])
 
     def test_filter_active(self):
         self.make_special_coverage(90, 'joe-biden',
@@ -108,8 +108,8 @@ class TestResolveSpecialCoverageAPI(BaseAPITestCase):
                                    )
         self.make_content(id=123, tags=['joe-biden', 'obama'])
 
-        r = self.resolve(content_id=123, active=True)
-        six.assertCountEqual(self, [91], [r['id'] for r in r.data])
+        resp = self.resolve(content_id=123, active=True)
+        six.assertCountEqual(self, [91], [r['id'] for r in resp.data])
 
     def test_filter_not_active(self):
         self.make_special_coverage(90, 'joe-biden',
@@ -121,5 +121,5 @@ class TestResolveSpecialCoverageAPI(BaseAPITestCase):
                                    end_date=(timezone.now() + timedelta(days=1)),
                                    )
         self.make_content(id=123, tags=['joe-biden', 'obama'])
-        r = self.resolve(content_id=123, active=False)
-        six.assertCountEqual(self, [90], [r['id'] for r in r.data])
+        resp = self.resolve(content_id=123, active=False)
+        six.assertCountEqual(self, [90], [r['id'] for r in resp.data])

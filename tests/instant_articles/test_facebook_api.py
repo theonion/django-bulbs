@@ -1,6 +1,5 @@
 import requests_mock
 
-from django.conf import settings
 from django.utils import timezone
 from django.test.utils import override_settings
 
@@ -49,7 +48,8 @@ class FacebookAPITestCase(BaseIndexableTestCase):
                 "https://graph.facebook.com/v2.6?id=http://www.theonion.com{0}&fields=instant_article&access_token=TOKEN".format(
                     content.get_absolute_url()),
                 status_code=200,
-                json={"instant_article": {
+                json={
+                    "instant_article": {
                         "id": "420"
                     },
                     "id": "http://www.theonion.com/article/blaze-it-420"
@@ -100,7 +100,8 @@ class FacebookAPITestCase(BaseIndexableTestCase):
                 "https://graph.facebook.com/v2.6?id=http://www.theonion.com{0}&fields=instant_article&access_token=TOKEN".format(
                     content.get_absolute_url()),
                 status_code=200,
-                json={"instant_article": {
+                json={
+                    "instant_article": {
                         "id": "420"
                     },
                     "id": "http://www.theonion.com/article/blaze-it-420"
@@ -156,7 +157,8 @@ class FacebookAPITestCase(BaseIndexableTestCase):
                 "https://graph.facebook.com/v2.6?id=http://www.theonion.com{0}&fields=instant_article&access_token=TOKEN".format(
                     content.get_absolute_url()),
                 status_code=200,
-                json={"instant_article": {
+                json={
+                    "instant_article": {
                         "id": "420"
                     },
                     "id": "http://www.theonion.com/article/blaze-it-420"

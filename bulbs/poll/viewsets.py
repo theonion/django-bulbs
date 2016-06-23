@@ -19,15 +19,18 @@ class PollViewSet(viewsets.ModelViewSet):
     serializer_class = PollSerializer
     paginate_by = 20
     filter_backends = (
-            filters.OrderingFilter,
-            filters.SearchFilter,)
+        filters.OrderingFilter,
+        filters.SearchFilter,
+    )
     ordering_fields = (
-            "title",
-            "published",
-            "end_date",)
+        "title",
+        "published",
+        "end_date",
+    )
     search_fields = [
-            "answers",
-            "title",]
+        "answers",
+        "title",
+    ]
 
     class Meta:
         exclude = ('thumbnail_override',)
