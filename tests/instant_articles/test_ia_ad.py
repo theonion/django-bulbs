@@ -43,7 +43,7 @@ class InstantArticleAdViewTests(BaseIndexableTestCase):
     def test_ad_unit_additional_targeting(self):
         self.client.login(username="admin", password="secret")
 
-        response = self.client.get(self.url+"?dfp_position=first")
+        response = self.client.get(self.url + "?dfp_position=first")
         targeting = response.context_data.get("targeting")
 
         self.assertEqual(response.status_code, 200)

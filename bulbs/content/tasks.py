@@ -87,15 +87,15 @@ def post_article(content, body, fb_page_id, fb_api_url, fb_token_path, fb_dev_mo
 
     if not post.ok:
         logger.error('''
-            Error in posting Instant Article.\n
-            Content ID: {0}\n
-            IA ID: {1}\n
-            Status Code: {2}
-            Request: {3}'''.format(
-                content.id,
-                content.instant_article_id,
-                post.status_code,
-                post.__dict__))
+                     Error in posting Instant Article.\n
+                     Content ID: {0}\n
+                     IA ID: {1}\n
+                     Status Code: {2}
+                     Request: {3}'''.format(
+                         content.id,
+                         content.instant_article_id,
+                         post.status_code,
+                         post.__dict__))
         return
 
     # Poll for status of article
@@ -166,15 +166,15 @@ def delete_article(content, fb_api_url, fb_token_path):
 
     if not delete.ok:
         logger.error('''
-            Error in deleting Instant Article.\n
-            Content ID: {0}\n
-            IA ID: {1}\n
-            Status Code: {2}
-            Request: {3}'''.format(
-                content.id,
-                content.instant_article_id,
-                delete.status_code,
-                delete.__dict__))
+                     Error in deleting Instant Article.\n
+                     Content ID: {0}\n
+                     IA ID: {1}\n
+                     Status Code: {2}
+                     Request: {3}'''.format(
+                         content.id,
+                         content.instant_article_id,
+                         delete.status_code,
+                         delete.__dict__))
     else:
         status = delete.json().get('success')
         if bool(status) is not True:
@@ -202,13 +202,13 @@ def post_to_instant_articles_api(content_pk):
 
     if not fb_page_id or not fb_api_url or not fb_token_path:
         logger.error('''
-            Error in Django Settings.\n
-            FACEBOOK_PAGE_ID: {0}\n
-            FACEBOOK_API_BASE_URL: {1}\n
-            FACEBOOK_TOKEN_VAULT_PATH: {2}'''.format(
-                fb_page_id,
-                fb_api_url,
-                fb_token_path))
+                     Error in Django Settings.\n
+                     FACEBOOK_PAGE_ID: {0}\n
+                     FACEBOOK_API_BASE_URL: {1}\n
+                     FACEBOOK_TOKEN_VAULT_PATH: {2}'''.format(
+                         fb_page_id,
+                         fb_api_url,
+                         fb_token_path))
         return
 
     # if feature type is IA approved & content is published

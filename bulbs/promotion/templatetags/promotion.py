@@ -1,5 +1,3 @@
-import operator
-
 from django import template
 from django.template.base import parse_bits, Variable, VariableDoesNotExist
 from django.template.defaulttags import ForNode
@@ -28,7 +26,7 @@ class PZoneSequence(object):
         self.apply = apply
 
     def resolve(self, context, ignore_failures=False):
-        
+
         try:
             when = Variable("pzone_preview").resolve(context)
             pzone = PZone.objects.preview(name=self.pzone_name, when=when)
@@ -59,7 +57,7 @@ def do_pzone(parser, token):
         raise TemplateSyntaxError("'pzone' statements should have at least two"
                                   " words: %s" % token.contents)
 
-    nodelist_loop = parser.parse(("endforpzone","empty"))
+    nodelist_loop = parser.parse(("endforpzone", "empty"))
     token = parser.next_token()
     if token.contents == 'empty':
         nodelist_empty = parser.parse(('endfor',))
@@ -69,7 +67,7 @@ def do_pzone(parser, token):
 
     params = ["slice", "name", "apply"]
     args, kwargs = parse_bits(parser, bits, params, None, None, [], False, "forpzone")
-    
+
     pzone_name = kwargs["name"].resolve({})
 
     slice_string = None

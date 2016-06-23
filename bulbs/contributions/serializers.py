@@ -4,7 +4,6 @@ import six
 
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from django.template.defaultfilters import slugify
 from django.utils import dateparse, timezone
 
 from rest_framework import serializers
@@ -24,6 +23,7 @@ class PaymentTypeField(serializers.Field):
     """
     payment type objects serialized to/from label/identifer
     """
+
     def to_representation(self, obj):
         data = dict(RATE_PAYMENT_TYPES)[obj]
         return data
@@ -121,6 +121,7 @@ class NestedRateSerializer(serializers.ModelSerializer):
     """
     ModelSerializer that lookups the user role from the url kwargs.
     """
+
     def create(self, validated_data):
         lookup_kwargs = self.context["request"].parser_context["kwargs"]
         role_pk = lookup_kwargs.get("role_pk", 0)
@@ -156,6 +157,7 @@ class RateField(serializers.Field):
     Returns the appropriate rate to represent
     Creates a new rate
     """
+
     def get_attribute(self, obj):
         return obj.get_rate()
 
@@ -585,7 +587,6 @@ class ContentReportingSerializer(serializers.ModelSerializer):
 
     def get_authors(self, obj):
         return ",".join([author.get_full_name() for author in obj.authors.all()])
-
 
 
 class ContributorReportSerializer(serializers.Serializer):

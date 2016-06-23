@@ -1,4 +1,3 @@
-import contextdecorator
 import json
 import logging
 import random
@@ -142,5 +141,3 @@ class BaseAPITestCase(BaseIndexableTestCase):
 
     def remove_permissions(self):
         self.admin.user_permissions.clear()
-
-

@@ -390,7 +390,6 @@ class Content(PolymorphicModel, Indexable):
         return dict(TEMPLATE_CHOICES).get(self.template_choice)
 
     def percolate_special_coverage(self, max_size=10, sponsored_only=False):
-
         """gets list of active, sponsored special coverages containing this content via
         Elasticsearch Percolator (see SpecialCoverage._save_percolator)
 
