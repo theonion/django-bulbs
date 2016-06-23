@@ -2,9 +2,25 @@
 
 ## Development
 
+## Version 2.9.4
+
+- Fixed issue with incorrect targeting passed into special coverage landing page
+
+## Version 2.9.3
+
+- Added `content.filters.AllSponsored` for elasticsearch queries.
+
 ## Version 2.9.2
 
 - Added mobile ad placer static files to bulbs ads
+
+## Version 2.9.1
+
+- No changes -- borked tag and release
+
+## Version 2.9.0
+
+- No changes -- borked tag and release
 
 ## Version 2.8.4
 
