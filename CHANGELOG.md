@@ -2,9 +2,10 @@
 
 ## Development
 
-## Version 3.0.1
+## Version 3.1.0
 
 - Added `AbstractInfographic` model to refer to all infographic specific attributes.
+- Rename Infographic.data,items to Infographic.data.objects due to
 
 ## Version 3.0.0
 
