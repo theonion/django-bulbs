@@ -47,4 +47,3 @@ class BaseInfographic(Content, AbstractInfographic):
     def get_serializer_class(cls):
         from .serializers import InfographicSerializer
         return InfographicSerializer
-
