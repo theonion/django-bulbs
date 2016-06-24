@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 3.0.1
+
+- Added `AbstractInfographic` model to refer to all infographic specific attributes.
+
 ## Version 3.0.0
 
 - All code passes flake8 linter (ignoring line length). No functionality changes.
