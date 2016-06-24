@@ -28,12 +28,12 @@ class ComparisonKeySerializer(serializers.Serializer):
 class ComparisonSerializer(serializers.Serializer):
     key_x = ComparisonKeySerializer()
     key_y = ComparisonKeySerializer()
-    items = XYItemSerializer(many=True)
+    objects = XYItemSerializer(many=True)
 
 
 class ListInfographicDataSerializer(serializers.Serializer):
     is_numbered = serializers.BooleanField(default=False)
-    items = ItemSerializer(many=True, required=False)
+    objects = ItemSerializer(many=True, required=False)
 
 
 class ProConSerializer(serializers.Serializer):
@@ -49,4 +49,4 @@ class StrongSideWeakSideSerializer(serializers.Serializer):
 
 
 class TimelineSerializer(serializers.Serializer):
-    items = ItemSerializer(many=True, required=False)
+    objects = ItemSerializer(many=True, required=False)
