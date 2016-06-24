@@ -1,3 +1,5 @@
+from django.db import models
+
 import jsonfield
 from django_enumfield import enum
 from elasticsearch_dsl import field
@@ -7,10 +9,31 @@ from .enum import InfographicType
 from .utils import get_data_serializer
 
 
-class BaseInfographic(Content):
+class AbstractInfographic(models.Model):
 
     infographic_type = enum.EnumField(InfographicType)
     data = jsonfield.JSONField()
+
+    class Meta:
+        abstract = True
+
+    def get_data_serializer(self):
+        return get_data_serializer(self.infographic_type)
+
+    def validate_data_field(self):
+        Serializer = self.get_data_serializer()  # NOQA
+        Serializer(data=self.data).is_valid(raise_exception=True)
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super(AbstractInfographic, self).save(*args, **kwargs)
+
+    def clean(self, *args, **kwargs):
+        self.validate_data_field()
+        return super(AbstractInfographic, self).clean(*args, **kwargs)
+
+
+class BaseInfographic(Content, AbstractInfographic):
 
     class Mapping(Content.Mapping):
         data = field.Object()
@@ -20,22 +43,8 @@ class BaseInfographic(Content):
             # A potential alternative could be storing as a string., we should assess the value.
             dynamic = False
 
-    def save(self, *args, **kwargs):
-        self.full_clean()
-        return super(BaseInfographic, self).save(*args, **kwargs)
-
-    def clean(self, *args, **kwargs):
-        self.validate_data_field()
-        return super(BaseInfographic, self).clean(*args, **kwargs)
-
-    def get_data_serializer(self):
-        return get_data_serializer(self.infographic_type)
-
-    def validate_data_field(self):
-        Serializer = self.get_data_serializer()  # NOQA
-        Serializer(data=self.data).is_valid(raise_exception=True)
-
     @classmethod
     def get_serializer_class(cls):
         from .serializers import InfographicSerializer
         return InfographicSerializer
+
