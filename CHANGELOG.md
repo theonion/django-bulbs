@@ -5,7 +5,7 @@
 ## Version 3.1.0
 
 - Added `AbstractInfographic` model to refer to all infographic specific attributes.
-- Rename Infographic.data,items to Infographic.data.objects due to
+- Rename Infographic.data.items to Infographic.data.entries due to namespace conflict.
 
 ## Version 3.0.0
 
