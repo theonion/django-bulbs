@@ -6,7 +6,7 @@ from rest_framework.utils.field_mapping import ClassLookupDict
 
 from djbetty.serializers import ImageFieldSerializer
 
-from .data_serializers import CopySerializer, ItemSerializer, XYItemSerializer
+from .data_serializers import CopySerializer, EntrySerializer, XYEntrySerializer
 from .fields import ColorField, RichTextField
 from .serializers import InfographicSerializer, InfographicDataField
 
@@ -28,8 +28,8 @@ class InfographicMetadata(SimpleMetadata):
         mapping.update({
             ColorField: "color",
             CopySerializer: "array",
-            ItemSerializer: "array",
-            XYItemSerializer: "array",
+            EntrySerializer: "array",
+            XYEntrySerializer: "array",
             ImageFieldSerializer: "image",
             RichTextField: "richtext"
         })

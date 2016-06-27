@@ -2,6 +2,7 @@ from mock import patch
 
 import contextdecorator
 
+
 class mock_vault(contextdecorator.ContextDecorator):
     """Decorator + context manager for mocking Vault secrets in unit tests.
 

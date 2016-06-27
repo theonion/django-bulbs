@@ -14,7 +14,6 @@ from bulbs.special_coverage.models import SpecialCoverage
 from bulbs.utils.test import BaseIndexableTestCase
 
 
-
 def days(count):
     return timezone.now() + timezone.timedelta(days=count)
 
@@ -57,7 +56,7 @@ def make_section(tag='test'):
     section = Section.objects.create(
         id=(Section.objects.count() + 1),  # Fixed ID ordering for easier asserts
         name="Test Section {}".format(Section.objects.count()),
-        query= {
+        query={
             'groups': [{
                 'conditions': [{
                     'field': 'tag',
@@ -179,7 +178,8 @@ class PercolateSpecialCoverageTestCase(BaseIndexableTestCase):
         # Manually added
         make_special_coverage(included=[self.content], start=-10, end=1)
         # Manually added but unsponsored
-        make_special_coverage(included=[self.content], tag='white', start=-9, end=1, sponsored=False)
+        make_special_coverage(included=[self.content], tag='white', start=-9, end=1,
+                              sponsored=False)
         # Manually added + tagged
         make_special_coverage(included=[self.content], tag='white', start=-5, end=1)
         # Query match

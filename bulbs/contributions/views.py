@@ -25,14 +25,14 @@ from .csv_serializers import ContributionCSVSerializer, LineItemCSVSerializer
 from .serializers import (
     ContributorRoleSerializer, ContributionReportingSerializer, ContentReportingSerializer,
     FeatureTypeRateSerializer, FlatRateSerializer, FreelanceProfileSerializer,
-    HourlyRateSerializer, LineItemSerializer, OverrideProfileSerializer
+    HourlyRateSerializer, LineEntrySerializer, OverrideProfileSerializer
 )
 from .utils import get_forced_payment_contributions
 
 
 class LineItemViewSet(viewsets.ModelViewSet):
     queryset = LineItem.objects.all()
-    serializer_class = LineItemSerializer
+    serializer_class = LineEntrySerializer
     start_fields = ("payment_date",)
     end_fields = ("payment_date",)
     filter_backends = (StartEndFilterBackend,)

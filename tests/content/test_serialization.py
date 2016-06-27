@@ -138,7 +138,7 @@ class SerializerTestCase(BaseIndexableTestCase):
 
         some_other_tag = Tag.objects.get(slug="some-other-tag")
 
-        ## Let's remove one of the tags from the object
+        # Let's remove one of the tags from the object
         data = {
             "tags": [
                 {

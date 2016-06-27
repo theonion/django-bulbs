@@ -1,11 +1,5 @@
 import sys
 
-if sys.version_info.major >= 3:
-    from io import StringIO
-else:
-    from StringIO import StringIO
-
-
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
 from django.core.urlresolvers import reverse
@@ -14,6 +8,11 @@ from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
 from bulbs.utils.test import BaseIndexableTestCase
+
+if sys.version_info.major >= 3:
+    from io import StringIO
+else:
+    from StringIO import StringIO
 
 
 User = get_user_model()

@@ -7,6 +7,7 @@ from bulbs.content.models import Content
 from bulbs.sections.models import Section
 from bulbs.utils.test import BaseIndexableTestCase
 
+
 class CommandsTestCase(BaseIndexableTestCase):
     def test_index_sections(self):
         """Tests the command located in `index_sections.py`
@@ -51,7 +52,7 @@ class CommandsTestCase(BaseIndexableTestCase):
 
         empty_sections = mommy.make(Section, _quantity=50)
         db_empty_section_ids = [s.id for s in Section.objects.all() if s.query == {} or s.query is None]
-        
+
         assert len(db_empty_section_ids) == len(empty_sections)
         with self.assertRaises(TransportError):
             section = empty_sections[0]
@@ -60,7 +61,7 @@ class CommandsTestCase(BaseIndexableTestCase):
                 index=Content.search_objects.mapping.index,
                 doc_type='.percolator',
                 id=_id,
-            )        
+            )
 
         call_command('index_sections')
         query_sections = Section.objects.exclude(id__in=db_empty_section_ids)

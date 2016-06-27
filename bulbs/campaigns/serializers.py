@@ -10,6 +10,7 @@ class PixelTypeField(serializers.Field):
     """
     Pixel 'type' objects serialized to/from label/identifier
     """
+
     def to_representation(self, obj):
         return dict(CampaignPixel.PIXEL_TYPES)[obj]
 
@@ -17,7 +18,7 @@ class PixelTypeField(serializers.Field):
         if isinstance(data, int):
             return data
         return dict((label, value)
-                for value, label in CampaignPixel.PIXEL_TYPES)[data]
+                    for value, label in CampaignPixel.PIXEL_TYPES)[data]
 
 
 class CampaignPixelField(serializers.ModelSerializer):

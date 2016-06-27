@@ -92,7 +92,7 @@ class BaseInfographicTestCase(BaseAPITestCase):
                     ("required", False),
                     ("read_only", False)
                 ]),
-                "items": OrderedDict([
+                "entries": OrderedDict([
                     ("type", "array"),
                     ("fields", OrderedDict([(
                         "copy",
@@ -136,7 +136,7 @@ class BaseInfographicTestCase(BaseAPITestCase):
         data_field = fields.get("data")
         self.assertEqual(data_field, {
             "fields": {
-                "items": OrderedDict([
+                "entries": OrderedDict([
                     ("type", "array"),
                     ("fields", OrderedDict([(
                         "copy", OrderedDict([
@@ -269,7 +269,7 @@ class BaseInfographicTestCase(BaseAPITestCase):
         data_field = fields.get("data")
         self.assertEqual(data_field, {
             "fields": {
-                "items": OrderedDict([
+                "entries": OrderedDict([
                     ("type", "array"),
                     ("fields", OrderedDict([
                         (
@@ -362,7 +362,7 @@ class BaseInfographicTestCase(BaseAPITestCase):
             "infographic_type": InfographicType.LIST,
             "data": {
                 "is_numbered": True,
-                "items": [{
+                "entries": [{
                     "title": "Michael Bayless",
                     "copy": "How did he do that?",
                     "image": {"id": 1}
@@ -376,7 +376,7 @@ class BaseInfographicTestCase(BaseAPITestCase):
             "title": "KILL ME",
             "infographic_type": InfographicType.TIMELINE,
             "data": {
-                "items": [{
+                "entries": [{
                     "title": "Michael Bayless",
                     "copy": "How did he do that?",
                     "image": {"id": 1}
@@ -424,7 +424,7 @@ class BaseInfographicTestCase(BaseAPITestCase):
                     "color": "BLUE!",
                     "initial": "A!"
                 },
-                "items": [{
+                "entries": [{
                     "title": "Michael Bayless",
                     "copy_x": "How did he do that?",
                     "copy_y": "How didn't he do that?"

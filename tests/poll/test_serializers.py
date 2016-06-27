@@ -32,7 +32,7 @@ class PollSerializerTestCase(BaseIndexableTestCase):
             title=random_title(),
             published=timezone.now(),
             end_date=timezone.now() + timedelta(1),
-         )
+        )
         serializer = PollSerializer(poll)
         self.assertEqual(serializer.data['id'], poll.id)
         self.assertEqual(serializer.data['question_text'], poll.question_text)
@@ -43,10 +43,10 @@ class PollSerializerTestCase(BaseIndexableTestCase):
     @mock_vault(SECRETS)
     def test_poll_image_serialization(self):
         poll = Poll.objects.create(
-                question_text='Where are we?',
-                title=random_title(),
-                end_date=timezone.now() + timedelta(hours=9),
-                )
+            question_text='Where are we?',
+            title=random_title(),
+            end_date=timezone.now() + timedelta(hours=9),
+        )
         serializer = PollSerializer(poll)
         self.assertTrue(serializer['poll_image'])
 
@@ -176,10 +176,10 @@ class AnswerSerializerTestCase(BaseIndexableTestCase):
     @mock_vault(SECRETS)
     def test_answer_image_serialization(self):
         poll = Poll.objects.create(
-                question_text='Where are we?',
-                title=random_title(),
-                end_date=timezone.now() + timedelta(hours=9),
-                )
+            question_text='Where are we?',
+            title=random_title(),
+            end_date=timezone.now() + timedelta(hours=9),
+        )
         answer = Answer.objects.create(poll=poll, answer_text='woop')
         serializer = AnswerSerializer(answer)
         self.assertTrue(serializer['answer_image'])

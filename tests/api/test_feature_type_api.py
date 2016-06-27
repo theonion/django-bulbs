@@ -21,8 +21,10 @@ class FeatureTypeApiTestCase(BaseAPITestCase):
         response = client.get(reverse("feature-type-list"), content_type="application/json")
         self.assertEqual(response.data["count"], 3)
 
-        response = client.get(reverse("feature-type-list"), {"search": "blec"}, content_type="application/json")
+        response = client.get(reverse("feature-type-list"),
+                              {"search": "blec"}, content_type="application/json")
         self.assertEqual(response.data["results"][0]["name"], "Blech")
 
-        response = client.get(reverse("feature-type-list"), {"search": "Blemish"}, content_type="application/json")
+        response = client.get(reverse("feature-type-list"),
+                              {"search": "Blemish"}, content_type="application/json")
         self.assertEqual(response.data["results"][0]["name"], "Blemish")

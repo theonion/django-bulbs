@@ -3,6 +3,7 @@ import datetime
 from bulbs.cms_notifications.models import CmsNotification
 from bulbs.utils.test import BaseIndexableTestCase
 
+
 class TestModels(BaseIndexableTestCase):
 
     def test_create(self):
