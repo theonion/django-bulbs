@@ -12,7 +12,7 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
             "Video", "Politics", "Sports", "Local", "Business", "Entertainment",
             "Science & Technology",
         )
-        
+
         tags = []
         for name in section_type_names:
             tags.append(Tag.objects.create(name=name))
@@ -20,27 +20,27 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
         content_data = (
             dict(
                 title="Must watch",
-                tags=[0,],
+                tags=[0],
             ),
             dict(
                 title="I can't bloody believe Mitt Romney dang it!",
-                tags=[1,],
+                tags=[1],
             ),
             dict(
                 title="Jebbin it",
-                tags=[1,],
+                tags=[1],
             ),
             dict(
                 title="Derrick Rose found healthy",
-                tags=[2,],
+                tags=[2],
             ),
             dict(
                 title="Chill Area Man",
-                tags=[3,],
+                tags=[3],
             ),
             dict(
                 title="Exelon goes green",
-                tags=[4,],
+                tags=[4],
             ),
             dict(
                 title="Koch Brothers fund area man's rock opera",
@@ -48,11 +48,11 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
             ),
             dict(
                 title="Shania Twain unimpressed",
-                tags=[5,],
+                tags=[5],
             ),
             dict(
                 title="Tiny microbug",
-                tags=[6,],
+                tags=[6],
             ),
         )
 
@@ -84,7 +84,7 @@ class BaseCustomSearchFilterTests(BaseIndexableTestCase):
                                                 'label': t.slug
                                             }
                                         ]
-                                    }         
+                                    }
                                 ]
                             },
                         ]
@@ -114,8 +114,8 @@ class SectionQueryTests(BaseCustomSearchFilterTests):
         section = Section.objects.create(
             name="Video",
             description="meh",
-            query = query
-        
+            query=query
+
         )
         res = section.get_content()
         self.assertEqual(res.count(), 1)
@@ -127,8 +127,8 @@ class SectionQueryTests(BaseCustomSearchFilterTests):
         section = Section.objects.create(
             name="Politics",
             description="meh",
-            query = query
-        
+            query=query
+
         )
         res = section.get_content()
         self.assertEqual(res.count(), 2)
@@ -140,8 +140,8 @@ class SectionQueryTests(BaseCustomSearchFilterTests):
         section = Section.objects.create(
             name="Sports",
             description="meh",
-            query = query
-        
+            query=query
+
         )
         res = section.get_content()
         self.assertEqual(res.count(), 1)
@@ -153,8 +153,8 @@ class SectionQueryTests(BaseCustomSearchFilterTests):
         section = Section.objects.create(
             name="Local",
             description="meh",
-            query = query
-        
+            query=query
+
         )
         res = section.get_content()
         self.assertEqual(res.count(), 2)
@@ -166,8 +166,8 @@ class SectionQueryTests(BaseCustomSearchFilterTests):
         section = Section.objects.create(
             name="Business",
             description="meh",
-            query = query
-        
+            query=query
+
         )
         res = section.get_content()
         self.assertEqual(res.count(), 2)
@@ -179,8 +179,8 @@ class SectionQueryTests(BaseCustomSearchFilterTests):
         section = Section.objects.create(
             name="Entertainment",
             description="meh",
-            query = query
-        
+            query=query
+
         )
         res = section.get_content()
         self.assertEqual(res.count(), 1)
@@ -192,8 +192,8 @@ class SectionQueryTests(BaseCustomSearchFilterTests):
         section = Section.objects.create(
             name="Science & Technology",
             description="meh",
-            query = query
-        
+            query=query
+
         )
         res = section.get_content()
         self.assertEqual(res.count(), 1)

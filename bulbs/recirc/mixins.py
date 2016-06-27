@@ -49,12 +49,12 @@ class BaseQueryMixin(models.Model):
         if not query.get('included_ids'):
             qs = Content.search_objects.search()
             qs = qs.query(
-                    TagBoost(slugs=self.tags.values_list("slug", flat=True))
-                ).filter(
-                    ~Ids(values=[self.id])
-                ).sort(
-                    "_score"
-                )
+                TagBoost(slugs=self.tags.values_list("slug", flat=True))
+            ).filter(
+                ~Ids(values=[self.id])
+            ).sort(
+                "_score"
+            )
             return qs[:count]
 
         # NOTE: set included_ids to just be the first 3 ids,
@@ -81,14 +81,14 @@ class BaseQueryMixin(models.Model):
     def get_inline_recirc_content(self, published=True, count=3):
         qs = Content.search_objects.search()
         qs = qs.query(
-                TagBoost(slugs=self.tags.values_list("slug", flat=True))
-            ).query(
-                FeatureTypeBoost(slugs=["video"])
-            ).filter(
-                ~Ids(values=[self.id])
-            ).sort(
-                "_score"
-            )
+            TagBoost(slugs=self.tags.values_list("slug", flat=True))
+        ).query(
+            FeatureTypeBoost(slugs=["video"])
+        ).filter(
+            ~Ids(values=[self.id])
+        ).sort(
+            "_score"
+        )
 
         return qs[:count]
 

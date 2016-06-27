@@ -2,7 +2,6 @@ from datetime import timedelta
 
 from django.utils import timezone
 from elasticsearch.exceptions import TransportError
-from model_mommy import mommy
 
 from bulbs.content.models import Content
 from bulbs.special_coverage.models import SpecialCoverage

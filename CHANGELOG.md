@@ -2,6 +2,24 @@
 
 ## Development
 
+## Version 3.1.0
+
+- Added `AbstractInfographic` model to refer to all infographic specific attributes.
+- Rename Infographic.data.items to Infographic.data.entries due to namespace conflict.
+
+## Version 3.0.0
+
+- All code passes flake8 linter (ignoring line length). No functionality changes.
+- Added lint to Travis build
+
+## Version 2.9.4
+
+- Fixed issue with incorrect targeting passed into special coverage landing page
+
+## Version 2.9.3
+
+- Added `content.filters.AllSponsored` for elasticsearch queries.
+
 ## Version 2.9.2
 
 - Added mobile ad placer static files to bulbs ads

@@ -19,7 +19,7 @@ class BaseInfographicTestCase(BaseIndexableTestCase):
             infographic_type=InfographicType.LIST,
             data={
                 "is_numbered": True,
-                "items": [{
+                "entries": [{
                     "title": "Michael Bayless",
                     "copy": "How did he do that?",
                     "image": {"id": 1}
@@ -59,7 +59,7 @@ class BaseInfographicTestCase(BaseIndexableTestCase):
             title="A GOD BOY ADVENTURE",
             infographic_type=InfographicType.TIMELINE,
             data={
-                "items": [{
+                "entries": [{
                     "title": "Sickass",
                     "copy": "heya",
                     "image": {"id": 50}

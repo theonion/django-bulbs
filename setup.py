@@ -52,7 +52,8 @@ dev_requires = [
     "freezegun",
     "vcrpy",
     "ipdb",
-    "requests-mock"
+    "requests-mock",
+    "flake8",
 ]
 
 

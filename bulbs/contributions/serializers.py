@@ -4,8 +4,7 @@ import six
 
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from django.template.defaultfilters import slugify
-from django.utils import dateparse, timezone
+from django.utils import timezone
 
 from rest_framework import serializers
 from rest_framework.utils import model_meta
@@ -24,6 +23,7 @@ class PaymentTypeField(serializers.Field):
     """
     payment type objects serialized to/from label/identifer
     """
+
     def to_representation(self, obj):
         data = dict(RATE_PAYMENT_TYPES)[obj]
         return data
@@ -100,7 +100,7 @@ class FreelanceProfileSerializer(serializers.Serializer):
         return obj.contributor.contributions.count()
 
 
-class LineItemSerializer(serializers.ModelSerializer):
+class LineEntrySerializer(serializers.ModelSerializer):
 
     contributor = ContributorField()
     payment_date = serializers.DateTimeField()
@@ -121,6 +121,7 @@ class NestedRateSerializer(serializers.ModelSerializer):
     """
     ModelSerializer that lookups the user role from the url kwargs.
     """
+
     def create(self, validated_data):
         lookup_kwargs = self.context["request"].parser_context["kwargs"]
         role_pk = lookup_kwargs.get("role_pk", 0)
@@ -156,6 +157,7 @@ class RateField(serializers.Field):
     Returns the appropriate rate to represent
     Creates a new rate
     """
+
     def get_attribute(self, obj):
         return obj.get_rate()
 
@@ -536,19 +538,22 @@ class ContentReportingSerializer(serializers.ModelSerializer):
         except:
             contributions = obj.contributions.instances
         request = self.context.get("request")
-        now = timezone.now()
-        start_date = datetime.datetime(
-            year=now.year,
-            month=now.month,
-            day=1,
-            tzinfo=now.tzinfo
-        )
-        if "start" in request.QUERY_PARAMS:
-            start_date = dateparse.parse_date(request.QUERY_PARAMS["start"])
 
-        end_date = now
-        if "end" in request.GET:
-            end_date = dateparse.parse_date(request.QUERY_PARAMS["end"])
+        # mparent(2016-06-23): Commented-out due to "unused variables", but Cam wants to keep this
+        # around for future fixes.
+        # now = timezone.now()
+        # start_date = datetime.datetime(
+        #     year=now.year,
+        #     month=now.month,
+        #     day=1,
+        #     tzinfo=now.tzinfo
+        # )
+        # if "start" in request.QUERY_PARAMS:
+        #     start_date = dateparse.parse_date(request.QUERY_PARAMS["start"])
+
+        # end_date = now
+        # if "end" in request.GET:
+        #     end_date = dateparse.parse_date(request.QUERY_PARAMS["end"])
 
         if "contributors" in request.QUERY_PARAMS:
             contributors = request.QUERY_PARAMS.getlist("contributors")
@@ -585,7 +590,6 @@ class ContentReportingSerializer(serializers.ModelSerializer):
 
     def get_authors(self, obj):
         return ",".join([author.get_full_name() for author in obj.authors.all()])
-
 
 
 class ContributorReportSerializer(serializers.Serializer):
