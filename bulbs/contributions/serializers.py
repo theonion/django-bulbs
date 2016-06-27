@@ -100,7 +100,7 @@ class FreelanceProfileSerializer(serializers.Serializer):
         return obj.contributor.contributions.count()
 
 
-class LineItemSerializer(serializers.ModelSerializer):
+class LineEntrySerializer(serializers.ModelSerializer):
 
     contributor = ContributorField()
     payment_date = serializers.DateTimeField()
