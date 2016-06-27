@@ -45,7 +45,8 @@
             {# TODO implement /v/2323 redirect route in urls.py #}
             {# see: https://trello.com/c/3bT7Xuc9/60 #}
             share-url="http{% if request.is_secure %}s{% endif %}://{{ request.META.HTTP_HOST }}/v/{{ video.id }}"
-            src="{{ VIDEOHUB_BASE_URL }}/video/{{ video.videohub_ref.id }}.json"
+            video-url="{{ VIDEOHUB_BASE_URL }}/video/{{ video.videohub_ref.id }}.json"
+            campaign-url="{# TODO: insert per-item campaign url here. It is okay if this attribute is a blank string. #}"
           >
             <bulbs-video-summary
               class="video-carousel-summary"
