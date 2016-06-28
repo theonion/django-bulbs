@@ -7,4 +7,8 @@ class Status(enum.Enum):
 
 
 class TemplateType(enum.Enum):
-    pass
+    GLOSSARY = 0
+    TWO_TYPES = 1
+    TIMELINE = 2
+    GUIDE_TO = 3
+    CUSTOM = 4
