@@ -511,7 +511,8 @@ class ContributionApiTestCase(BaseAPITestCase):
             role=self.roles["editor"]
         )
 
-        override = FlatRateOverride.objects.create(
+        # Override
+        FlatRateOverride.objects.create(
             rate=100,
             profile=profile
         )
@@ -1635,7 +1636,7 @@ class FeatureTypeRateAPITestCase(BaseAPITestCase):
         resp = self.api_client.get(self.list_endpoint)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data["count"], FeatureType.objects.count())
-        
+
         ordered_feature_types = [
             feature_type.name for feature_type in FeatureType.objects.all().order_by('name')
         ]
@@ -1646,7 +1647,7 @@ class FeatureTypeRateAPITestCase(BaseAPITestCase):
                 pass
             else:
                 self.assertGreater(
-                    ordered_feature_types.index(new_feature_type), 
+                    ordered_feature_types.index(new_feature_type),
                     ordered_feature_types.index(feature_type)
                 )
             feature_type = new_feature_type

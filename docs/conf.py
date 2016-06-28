@@ -176,16 +176,16 @@ htmlhelp_basename = 'django-bulbsdoc'
 # -- Options for LaTeX output --------------------------------------------------
 
 latex_elements = {
-  'papersize': 'letterpaper',  # The paper size ('letterpaper' or 'a4paper').
-  'pointsize': '10pt',  # The font size ('10pt', '11pt' or '12pt').
-  'preamble': '',  # Additional stuff for the LaTeX preamble.
+    'papersize': 'letterpaper',  # The paper size ('letterpaper' or 'a4paper').
+    'pointsize': '10pt',  # The font size ('10pt', '11pt' or '12pt').
+    'preamble': '',  # Additional stuff for the LaTeX preamble.
 }
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'django-bulbs.tex', u'django-bulbs Documentation',
-   u'Onion Tech Team', 'manual'),
+    ('index', 'django-bulbs.tex', u'django-bulbs Documentation',
+     u'Onion Tech Team', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -228,9 +228,9 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'django-bulbs', u'django-bulbs Documentation',
-   u'Onion Tech Team', 'django-bulbs', 'One line description of project.',
-   'Miscellaneous'),
+    ('index', 'django-bulbs', u'django-bulbs Documentation',
+     u'Onion Tech Team', 'django-bulbs', 'One line description of project.',
+     'Miscellaneous'),
 ]
 
 # Documents to append as an appendix to all manuals.

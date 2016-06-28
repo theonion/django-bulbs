@@ -8,12 +8,12 @@ class CopySerializer(serializers.Serializer):
     copy = RichTextField(required=True, field_size="long")
 
 
-class ItemSerializer(CopySerializer):
+class EntrySerializer(CopySerializer):
     title = RichTextField(field_size="short")
     image = ImageFieldSerializer(required=False)
 
 
-class XYItemSerializer(serializers.Serializer):
+class XYEntrySerializer(serializers.Serializer):
     title = RichTextField(field_size="short")
     copy_x = RichTextField(field_size="long")
     copy_y = RichTextField(field_size="long")
@@ -28,12 +28,12 @@ class ComparisonKeySerializer(serializers.Serializer):
 class ComparisonSerializer(serializers.Serializer):
     key_x = ComparisonKeySerializer()
     key_y = ComparisonKeySerializer()
-    items = XYItemSerializer(many=True)
+    entries = XYEntrySerializer(many=True)
 
 
 class ListInfographicDataSerializer(serializers.Serializer):
     is_numbered = serializers.BooleanField(default=False)
-    items = ItemSerializer(many=True, required=False)
+    entries = EntrySerializer(many=True, required=False)
 
 
 class ProConSerializer(serializers.Serializer):
@@ -49,4 +49,4 @@ class StrongSideWeakSideSerializer(serializers.Serializer):
 
 
 class TimelineSerializer(serializers.Serializer):
-    items = ItemSerializer(many=True, required=False)
+    entries = EntrySerializer(many=True, required=False)

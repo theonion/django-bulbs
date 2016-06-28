@@ -1,4 +1,3 @@
-import contextdecorator
 import json
 import logging
 import random
@@ -46,13 +45,14 @@ def random_title():
 
 
 class JsonEncoder(json.JSONEncoder):
+
     def default(self, value):
         """Convert more Python data types to ES-understandable JSON."""
         iso = _iso_datetime(value)
         if iso:
             return iso
         if PY2 and isinstance(value, str):
-            return unicode(value, errors='replace')  # TODO: Be stricter.
+            return unicode(value, errors='replace')  # NOQA  TODO: Be stricter.
         if isinstance(value, set):
             return list(value)
         return super(JsonEncoder, self).default(value)
@@ -142,5 +142,3 @@ class BaseAPITestCase(BaseIndexableTestCase):
 
     def remove_permissions(self):
         self.admin.user_permissions.clear()
-
-

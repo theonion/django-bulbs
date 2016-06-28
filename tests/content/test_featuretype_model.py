@@ -76,4 +76,3 @@ class FeatureTypeModelTestCase(BaseIndexableFeatureTypeTestCase):
 
         existing_feature_type = FeatureType.objects.get(id=existing_feature_type.id)
         self.assertFalse(existing_feature_type.is_new)
-
