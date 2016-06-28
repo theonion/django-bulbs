@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 3.1.1
+
+- Updated InfographicMetadata to exclude expensive `RelatedField` `ManyRelated` choice queries.
+
 ## Version 3.1.0
 
 - Added `AbstractInfographic` model to refer to all infographic specific attributes.
