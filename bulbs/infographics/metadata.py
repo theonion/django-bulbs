@@ -51,6 +51,14 @@ class InfographicMetadata(SimpleMetadata):
         return field_type
 
     def get_field_info(self, field):
+        """
+        This method is basically a mirror from rest_framework==3.3.3
+
+        We are currently pinned to rest_framework==3.1.1. If we upgrade,
+        this can be refactored and simplified to rely more heavily on
+        rest_framework's built in logic.
+        """
+
         field_info = OrderedDict()
         field_info["type"] = self.get_label_lookup(field)
         field_info["required"] = getattr(field, "required", False)
