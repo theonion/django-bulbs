@@ -7,3 +7,11 @@ class InfographicType(enum.Enum):
     STRONGSIDE_WEAKSIDE = 2
     PRO_CON = 3
     COMPARISON = 4
+
+    labels = {
+        LIST: "List",
+        TIMELINE: "Timeline",
+        STRONGSIDE_WEAKSIDE: "Strongside_Weakside",
+        PRO_CON: "Pro_Con",
+        COMPARISON: "Comparison"
+    }
