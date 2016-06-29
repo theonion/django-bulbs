@@ -1,11 +1,14 @@
 from collections import OrderedDict
 
+from django.utils.encoding import force_text
+
 from rest_framework import serializers
 from rest_framework.metadata import SimpleMetadata
 from rest_framework.utils.field_mapping import ClassLookupDict
 
 from djbetty.serializers import ImageFieldSerializer
 
+from bulbs.content.serializers import AuthorField
 from .data_serializers import CopySerializer, EntrySerializer, XYEntrySerializer
 from .fields import ColorField, RichTextField
 from .serializers import InfographicSerializer, InfographicDataField
@@ -20,12 +23,11 @@ def get_and_check_attribute(obj, attr_name):
 
 class InfographicMetadata(SimpleMetadata):
 
-    additional_attributes = ["field_size"]
-
     @property
     def label_lookup(self):
         mapping = SimpleMetadata.label_lookup.mapping
         mapping.update({
+            AuthorField: "string",
             ColorField: "color",
             CopySerializer: "array",
             EntrySerializer: "array",
@@ -42,12 +44,50 @@ class InfographicMetadata(SimpleMetadata):
             return data
         return super(InfographicMetadata, self).determine_metadata(request, view)
 
+    def get_label_lookup(self, field):
+        field_type = self.label_lookup[field]
+        if field_type == "field" and hasattr(field, "child_relation"):
+            return self.get_label_lookup(field.child_relation)
+        return field_type
+
     def get_field_info(self, field):
-        field_info = super(InfographicMetadata, self).get_field_info(field)
-        for attr in self.additional_attributes:
-            meta = getattr(field, attr, None)
-            if meta:
-                field_info.update({attr: meta})
+        """
+        This method is basically a mirror from rest_framework==3.3.3
+
+        We are currently pinned to rest_framework==3.1.1. If we upgrade,
+        this can be refactored and simplified to rely more heavily on
+        rest_framework's built in logic.
+        """
+
+        field_info = OrderedDict()
+        field_info["type"] = self.get_label_lookup(field)
+        field_info["required"] = getattr(field, "required", False)
+
+        attrs = [
+            "field_size", "read_only", "label", "help_text", "min_length", "max_length",
+            "min_value", "max_value"
+        ]
+
+        for attr in attrs:
+            value = getattr(field, attr, None)
+            if value is not None and value != "":
+                field_info[attr] = force_text(value, strings_only=True)
+
+        if getattr(field, "child", None):
+            field_info["child"] = self.get_field_info(field.child)
+        elif getattr(field, "fields", None):
+            field_info["children"] = self.get_serializer_info(field)
+
+        if (not isinstance(field, (serializers.RelatedField, serializers.ManyRelatedField)) and
+                hasattr(field, "choices")):
+            field_info["choices"] = [
+                {
+                    "value": choice_value,
+                    "display_name": force_text(choice_name, strings_only=True)
+                }
+                for choice_value, choice_name in field.choices.items()
+            ]
+
         return field_info
 
     def get_serializer_info(self, serializer):

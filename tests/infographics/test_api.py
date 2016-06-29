@@ -99,17 +99,17 @@ class BaseInfographicTestCase(BaseAPITestCase):
                         OrderedDict([
                             ("type", "richtext"),
                             ("required", True),
+                            ("field_size", "long"),
                             ("read_only", False),
-                            ("label", "Copy"),
-                            ("field_size", "long")
+                            ("label", "Copy")
                         ]),
                     ), (
                         "title", OrderedDict([
                             ("type", "richtext"),
                             ("required", True),
+                            ("field_size", "short"),
                             ("read_only", False),
                             ("label", "Title"),
-                            ("field_size", "short")
                         ]),
                     ), (
                         "image", OrderedDict([
@@ -142,16 +142,16 @@ class BaseInfographicTestCase(BaseAPITestCase):
                         "copy", OrderedDict([
                             ("type", "richtext"),
                             ("required", True),
+                            ("field_size", "long"),
                             ("read_only", False),
                             ("label", "Copy"),
-                            ("field_size", "long")
                         ])), (
                         "title", OrderedDict([
                             ("type", "richtext"),
                             ("required", True),
+                            ("field_size", "short"),
                             ("read_only", False),
                             ("label", "Title"),
-                            ("field_size", "short")
                         ])), (
                         "image", OrderedDict([
                             ("type", "image"),
@@ -180,8 +180,8 @@ class BaseInfographicTestCase(BaseAPITestCase):
                 "body": OrderedDict([
                     ("type", "richtext"),
                     ("required", True),
+                    ("field_size", "long"),
                     ("read_only", False),
-                    ("field_size", "long")
                 ]),
                 "strong": OrderedDict([
                     ("type", "array"),
@@ -189,9 +189,9 @@ class BaseInfographicTestCase(BaseAPITestCase):
                         "copy", OrderedDict([
                             ("type", "richtext"),
                             ("required", True),
+                            ("field_size", "long"),
                             ("read_only", False),
                             ("label", "Copy"),
-                            ("field_size", "long")
                         ]))
                     ]))
                 ]),
@@ -201,9 +201,9 @@ class BaseInfographicTestCase(BaseAPITestCase):
                         "copy", OrderedDict([
                             ("type", "richtext"),
                             ("required", True),
+                            ("field_size", "long"),
                             ("read_only", False),
                             ("label", "Copy"),
-                            ("field_size", "long")
                         ]))
                     ]))
                 ]),
@@ -226,8 +226,9 @@ class BaseInfographicTestCase(BaseAPITestCase):
                 "body": OrderedDict([
                     ("type", "richtext"),
                     ("required", True),
-                    ("read_only", False),
-                    ("field_size", "long")
+                    ("field_size", "long"),
+                    ("read_only", False)
+
                 ]),
                 "con": OrderedDict([
                     ("type", "array"),
@@ -235,9 +236,10 @@ class BaseInfographicTestCase(BaseAPITestCase):
                         ("copy", OrderedDict([
                             ("type", "richtext"),
                             ("required", True),
+                            ("field_size", "long"),
                             ("read_only", False),
                             ("label", "Copy"),
-                            ("field_size", "long")
+
                         ]))
                     ]))
                 ]),
@@ -247,9 +249,9 @@ class BaseInfographicTestCase(BaseAPITestCase):
                         ("copy", OrderedDict([
                             ("type", "richtext"),
                             ("required", True),
+                            ("field_size", "long"),
                             ("read_only", False),
                             ("label", "Copy"),
-                            ("field_size", "long")
                         ]))
                     ]))
                 ])
@@ -276,25 +278,25 @@ class BaseInfographicTestCase(BaseAPITestCase):
                             "title", OrderedDict([
                                 ("type", "richtext"),
                                 ("required", True),
+                                ("field_size", "short"),
                                 ("read_only", False),
                                 ("label", "Title"),
-                                ("field_size", "short")
                             ])
                         ), (
                             "copy_x", OrderedDict([
                                 ("type", "richtext"),
                                 ("required", True),
+                                ("field_size", "long"),
                                 ("read_only", False),
                                 ("label", "Copy x"),
-                                ("field_size", "long")
                             ])
                         ), (
                             "copy_y", OrderedDict([
                                 ("type", "richtext"),
                                 ("required", True),
+                                ("field_size", "long"),
                                 ("read_only", False),
                                 ("label", "Copy y"),
-                                ("field_size", "long")
                             ])
                         )
                     ]))
@@ -304,9 +306,9 @@ class BaseInfographicTestCase(BaseAPITestCase):
                         "title", OrderedDict([
                             ("type", "richtext"),
                             ("required", True),
+                            ("field_size", "short"),
                             ("read_only", False),
                             ("label", "Title"),
-                            ("field_size", "short")
                         ])
                     ), (
                         "color", OrderedDict([
@@ -329,9 +331,9 @@ class BaseInfographicTestCase(BaseAPITestCase):
                         "title", OrderedDict([
                             ("type", "richtext"),
                             ("required", True),
+                            ("field_size", "short"),
                             ("read_only", False),
-                            ("label", "Title"),
-                            ("field_size", "short")
+                            ("label", "Title")
                         ])
                     ), (
                         "color", OrderedDict([
