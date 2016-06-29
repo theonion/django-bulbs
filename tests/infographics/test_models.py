@@ -66,3 +66,17 @@ class BaseInfographicTestCase(BaseIndexableTestCase):
                 }]
             }
         )
+
+    def test_get_infographic_type_name(self):
+        instance = BaseInfographic.objects.create(
+            title="A GOD BOY ADVENTURE",
+            infographic_type=InfographicType.TIMELINE,
+            data={
+                "entries": [{
+                    "title": "Sickass",
+                    "copy": "heya",
+                    "image": {"id": 50}
+                }]
+            }
+        )
+        self.assertEqual(instance.get_infographic_type_name(), "Timeline")
