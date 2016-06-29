@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 3.1.2
+
+- Added styling for mobile ads in bulbs-styles
+
 ## Version 3.1.1
 
 - Updated InfographicMetadata to exclude expensive `RelatedField` `ManyRelated` choice queries.
