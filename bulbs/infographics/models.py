@@ -17,6 +17,9 @@ class AbstractInfographic(models.Model):
     class Meta:
         abstract = True
 
+    def get_infographic_type_name(self):
+        return InfographicType.label(self.infographic_type)
+
     def get_data_serializer(self):
         return get_data_serializer(self.infographic_type)
 

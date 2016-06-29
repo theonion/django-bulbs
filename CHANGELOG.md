@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 3.1.3
+
+- Added `AbstractInfographic.get_infographic_type_name` method.
+
 ## Version 3.1.2
 
 - Added styling for mobile ads in bulbs-styles
