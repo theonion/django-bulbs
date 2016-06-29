@@ -5,10 +5,10 @@ from django.template.defaultfilters import slugify
 
 from djes.models import Indexable
 
-from .enum import Status, TemplateType
+from bulbs.super_features.enum import Status, TemplateType
 
 
-class Page(Indexable):
+class SuperFeature(Indexable):
 
     name = models.CharField(max_length=255)
     slug = models.SlugField(unique=True)
@@ -20,4 +20,4 @@ class Page(Indexable):
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)[:50]
-        return super(Page, self).save(*args, **kwargs)
+        return super(SuperFeature, self).save(*args, **kwargs)
