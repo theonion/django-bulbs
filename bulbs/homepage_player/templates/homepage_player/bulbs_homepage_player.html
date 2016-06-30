@@ -13,6 +13,7 @@
       <bulbs-video
         no-endcard
         src="{{ VIDEOHUB_BASE_URL }}/video/{{ videos.0.videohub_ref.id }}.json"
+        data-track-action="HP: Main Video Play"
       >
       </bulbs-video>
     </div>
@@ -33,6 +34,7 @@
         share-url="http{% if request.is_secure %}s{% endif %}://{{ request.META.HTTP_HOST }}/v/{{ video.id }}"
         share-email-message="{{share_message}}"
         share-twitter-handle="{{twitter_handle}}"
+        data-track-action="HP: Main: Share"
       >
       </bulbs-video-meta>
     </div>
@@ -45,8 +47,16 @@
           Up Next
         </span>
 
-        <bulbs-carousel-previous class="video-carousel-previous"></bulbs-carousel-previous>
-        <bulbs-carousel-next class="video-carousel-next"></bulbs-carousel-next>
+        <bulbs-carousel-previous 
+          class="video-carousel-previous"
+          data-track-action="HP: Carousel Prev"
+          data-track-label="#">
+        </bulbs-carousel-previous>
+        <bulbs-carousel-next 
+          class="video-carousel-next" 
+          data-track-action="HP: Carousel Next"
+          data-track-label="#">
+        </bulbs-carousel-next>
       </header>
 
       <bulbs-carousel-slider>
@@ -57,6 +67,8 @@
             share-url="http{% if request.is_secure %}s{% endif %}://{{ request.META.HTTP_HOST }}/v/{{ video.id }}"
             video-url="{{ VIDEOHUB_BASE_URL }}/video/{{ video.videohub_ref.id }}.json"
             campaign-url="{% if video.tunic_campaign_id %}{% content_tunic_campaign_url video.tunic_campaign_id %}{% endif %}"
+            data-track-action="HP: Carousel Item"
+            data-track-label="Item: {{forloop.counter}}"
           >
             <bulbs-video-summary
               class="video-carousel-summary"
