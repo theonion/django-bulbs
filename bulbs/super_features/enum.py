@@ -6,7 +6,7 @@ class Status(enum.Enum):
     PUBLISHED = 1
 
 
-class TemplateType(enum.Enum):
+class SuperFeatureTemplate(enum.Enum):
     GLOSSARY = 0
     TWO_TYPES = 1
     TIMELINE = 2
