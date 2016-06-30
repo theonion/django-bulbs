@@ -24,7 +24,7 @@
         data-track-category=""
         placement="detail"
         preamble-text="Presented by"
-        src=""
+        src="{% if video.tunic_campaign_id %}{% content_tunic_campaign_url videos.0.tunic_campaign_id %}{% endif %}"
         name-only
       >
       </campaign-display>-->
@@ -56,7 +56,7 @@
             {# see: https://trello.com/c/3bT7Xuc9/60 #}
             share-url="http{% if request.is_secure %}s{% endif %}://{{ request.META.HTTP_HOST }}/v/{{ video.id }}"
             video-url="{{ VIDEOHUB_BASE_URL }}/video/{{ video.videohub_ref.id }}.json"
-            campaign-url="{# TODO: insert per-item campaign url here. It is okay if this attribute is a blank string. #}"
+            campaign-url="{% if video.tunic_campaign_id %}{% content_tunic_campaign_url video.tunic_campaign_id %}{% endif %}"
           >
             <bulbs-video-summary
               class="video-carousel-summary"
