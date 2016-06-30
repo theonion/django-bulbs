@@ -2,14 +2,14 @@ from datetime import timedelta
 
 from django.utils import timezone
 
-from bulbs.page.models import SuperFeature, Status, TemplateType
+from bulbs.super_features.models import SuperFeature, Status, TemplateType
 from bulbs.utils.test import BaseIndexableTestCase
 
 
 class SuperFeatureModelTestCase(BaseIndexableTestCase):
 
     def test_page_creation(self):
-        page = SuperFeature.objects.create(
+        sf = SuperFeature.objects.create(
             name="Guide to Cats",
             notes="This is the guide to cats",
             status=Status.DRAFT,
@@ -17,7 +17,7 @@ class SuperFeatureModelTestCase(BaseIndexableTestCase):
             template_type=TemplateType.GUIDE_TO,
             tunic_campaign_id=1
         )
-        db_page = SuperFeature.objects.get(pk=page.pk)
+        db_sf = SuperFeature.objects.get(pk=sf.pk)
 
-        self.assertEqual(db_page.pk, page.pk)
-        self.assertEqual(page.slug, 'guide-to-cats')
+        self.assertEqual(db_sf.pk, sf.pk)
+        self.assertEqual(sf.slug, 'guide-to-cats')

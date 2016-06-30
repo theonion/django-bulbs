@@ -52,10 +52,10 @@ INSTALLED_APPS = (
     "bulbs.cms_notifications",
     "bulbs.content",
     "bulbs.instant_articles",
-    "bulbs.page",
     "bulbs.promotion",
     "bulbs.special_coverage",
     "bulbs.sections",
+    "bulbs.super_features",
     "bulbs.videos",
     # local testing apps
     "example.testcontent",
