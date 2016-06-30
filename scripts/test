@@ -3,4 +3,4 @@
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-docker-compose run web py.test tests/
+docker-compose run web py.test "$@"
