@@ -112,7 +112,11 @@ $light-shade: #f4f4f4;
 
 .sc-video-carousel {
   background: $light-shade;
+  max-width: 970px;
   padding: 1em;
+  .bulbs-video-series-name {
+    display: none;
+  }
   .dfp {
     margin: 0;
   }
@@ -121,7 +125,9 @@ $light-shade: #f4f4f4;
 .sc-video-player {
   padding: 1em;
   background-color: $light-shade;
-
+  .bulbs-video-meta-series-name {
+    display: none;
+  }
   .dfp {
     margin: 0;
   }
@@ -220,6 +226,14 @@ $light-shade: #f4f4f4;
   .sc-carousel-meta {
     margin: 0;
   }
+}
+
+.video-carousel {
+  .video-carousel-carousel {
+    &.sc-video-carousel {
+      padding: 0 calc((100% - 970px) / 2);
+    }
+  } 
 }
 
 @media all and (min-width: $screen-md) {
