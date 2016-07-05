@@ -11,23 +11,5 @@ docker-compose run \
     -e PGUSER=postgres \
     -e PGPASSWORD=${PGPASSWORD} \
     web \
-    psql -c "CREATE ROLE ${SITE_ID} PASSWORD '${SITE_PASSWORD}' SUPERUSER LOGIN CREATEDB;" \
+    psql -c "CREATE ROLE bulbs PASSWORD 'testing' SUPERUSER LOGIN CREATEDB;" \
     || true
-
-docker-compose run \
-    -e PGHOST=postgres \
-    -e PGUSER=${SITE_ID} \
-    -e PGPASSWORD=${SITE_PASSWORD} \
-    web \
-    psql -d postgres -c "DROP DATABASE IF EXISTS ${SITE_DB};"
-
-docker-compose run \
-    -e PGHOST=postgres \
-    -e PGUSER=${SITE_ID} \
-    -e PGPASSWORD=${SITE_PASSWORD} \
-    web \
-    psql -d postgres -c "CREATE DATABASE ${SITE_DB};"
-
-docker-compose run \
-    web \
-    python manage.py migrate --noinput
