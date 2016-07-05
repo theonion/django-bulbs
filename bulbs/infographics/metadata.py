@@ -65,7 +65,7 @@ class InfographicMetadata(SimpleMetadata):
 
         attrs = [
             "field_size", "read_only", "label", "help_text", "min_length", "max_length",
-            "min_value", "max_value"
+            "min_value", "max_value", "child_label"
         ]
 
         for attr in attrs:
