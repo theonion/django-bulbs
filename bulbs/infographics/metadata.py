@@ -57,7 +57,6 @@ class InfographicMetadata(SimpleMetadata):
                 info[attr] = force_text(value, strings_only=True)
         return info
 
-
     def get_field_info(self, field):
         """
         This method is basically a mirror from rest_framework==3.3.3
