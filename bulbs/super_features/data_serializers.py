@@ -1,8 +1,10 @@
 from rest_framework import serializers
 
+from bulbs.super_features.fields import RichTextField
+
 
 class EntrySerializer(serializers.Serializer):
-    pass
+    copy = RichTextField(required=True, field_size="long")
 
 
 class GuideToSerializer(serializers.Serializer):
