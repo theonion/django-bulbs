@@ -1,9 +1,7 @@
-try:
-    from urllib.parse import urljoin
-except ImportError:
-    from urlparse import urljoin
+from collections import OrderedDict
 
 import requests
+from six.moves.urllib.parse import urljoin, urlencode
 
 from django.conf import settings
 
@@ -35,11 +33,19 @@ class TunicClient(object):
             url_base, settings.TUNIC_API_PATH.rstrip('/') + '/' + path.lstrip('/')
         )
 
-    def get_campaigns(self, filter_active=False):
+    def get_campaigns(self, filter_active=False, filter_weighted=False):
         campaigns = {}
         path = "/campaign/"
+
+        params = OrderedDict()
         if filter_active:
-            path += "?active=True"
+            params['active'] = True
+        if filter_weighted:
+            params['weighted'] = True
+
+        if params:
+            path += '?' + urlencode(params)
+
         while path:
             resp = self.get(path).json()
             campaigns.update({
