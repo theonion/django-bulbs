@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 3.2.1
+
+- Added `child_label` to entry serializers metadata.
+
 ## Version 3.2.0
 
 - Added `filter_weighted` flag to `TunicClient.get_campaigns()`
