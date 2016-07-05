@@ -51,6 +51,8 @@ class BaseSuperFeature(Content, AbstractSuperFeature):
         data = field.Object()
 
         class Meta:
+            # Necessary to allow for our data field to store appropriately in Elasticsearch.
+            # A potential alternative could be storing as a string., we should assess the value.
             dynamic = False
 
     @classmethod
