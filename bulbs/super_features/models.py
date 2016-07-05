@@ -43,3 +43,17 @@ class AbstractSuperFeature(models.Model):
     def clean(self, *args, **kwargs):
         self.validate_data_field()
         return super(AbstractSuperFeature, self).clean(*args, **kwargs)
+
+
+class BaseSuperFeature(Content, AbstractSuperFeature):
+
+    class Mapping(Content.Mapping):
+        data = field.Object()
+
+        class Meta:
+            dynamic = False
+
+    @classmethod
+    def get_serializer_class(cls):
+        from bulbs.super_features.serializers import SuperFeatureSerializer
+        return SuperFeatureSerializer
