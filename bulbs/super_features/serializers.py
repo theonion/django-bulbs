@@ -1,7 +1,7 @@
-from rest_framework import serializers
-
-from bulbs.content.serializers import ContentSerializer
-from bulbs.super_features.models import BaseSuperFeature
+# from rest_framework import serializers
+#
+# from bulbs.content.serializers import ContentSerializer
+# from bulbs.super_features.models import BaseSuperFeature
 
 
 # class SuperFeatureDataField(serializers.Field):
