@@ -14,11 +14,10 @@ from .fields import ColorField, RichTextField
 from .serializers import InfographicSerializer, InfographicDataField
 
 
-def get_and_check_attribute(obj, attr_name):
-    attribute = getattr(obj, attr_name, None)
-    if not attribute:
-        raise AttributeError("The provided object has no '{}' attribute.".format(attr_name))
-    return attribute
+METADATA_ATTRIBUTES = [
+    "field_size", "read_only", "label", "help_text", "min_length", "max_length",
+    "min_value", "max_value", "child_label"
+]
 
 
 class InfographicMetadata(SimpleMetadata):
@@ -50,6 +49,15 @@ class InfographicMetadata(SimpleMetadata):
             return self.get_label_lookup(field.child_relation)
         return field_type
 
+    def get_attributes(self, obj):
+        info = dict()
+        for attr in sorted(METADATA_ATTRIBUTES):
+            value = getattr(obj, attr, None)
+            if value is not None and value != "":
+                info[attr] = force_text(value, strings_only=True)
+        return info
+
+
     def get_field_info(self, field):
         """
         This method is basically a mirror from rest_framework==3.3.3
@@ -59,19 +67,9 @@ class InfographicMetadata(SimpleMetadata):
         rest_framework's built in logic.
         """
 
-        field_info = OrderedDict()
-        field_info["type"] = self.get_label_lookup(field)
+        field_info = self.get_attributes(field)
         field_info["required"] = getattr(field, "required", False)
-
-        attrs = [
-            "field_size", "read_only", "label", "help_text", "min_length", "max_length",
-            "min_value", "max_value", "child_label"
-        ]
-
-        for attr in attrs:
-            value = getattr(field, attr, None)
-            if value is not None and value != "":
-                field_info[attr] = force_text(value, strings_only=True)
+        field_info["type"] = self.get_label_lookup(field)
 
         if getattr(field, "child", None):
             field_info["child"] = self.get_field_info(field.child)
@@ -92,18 +90,23 @@ class InfographicMetadata(SimpleMetadata):
 
     def get_serializer_info(self, serializer):
         serializer_info = super(InfographicMetadata, self).get_serializer_info(serializer)
+        custom_params = OrderedDict()
 
         if hasattr(serializer, "child"):
             label = self.label_lookup[serializer.child]
+            if hasattr(serializer.child, "child_label"):
+                custom_params["child_label"] = serializer.child.child_label
         else:
             label = self.label_lookup[serializer]
 
-        # MIKE PARENT PAY ATTENTION: IDK IF THIS IS PRUDENT. LET'S DISCUSS.
-        if label != "field":
-            return OrderedDict([
+        if label != "field" and getattr(serializer, "many", False):
+            serializer_info = OrderedDict([
                 ("type", label),
                 ("fields", serializer_info)
             ])
+            for key, value in custom_params.items():
+                serializer_info[key] = value
+
         return serializer_info
 
     def get_custom_metadata(self, serializer, view):
