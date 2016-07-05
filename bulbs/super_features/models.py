@@ -1,13 +1,16 @@
 from django.db import models
 
 import jsonfield
-from django_enumfield import enum
 from elasticsearch_dsl import field
 
 from bulbs.content.models import Content
-from bulbs.super_features.enum import SuperFeatureType
 from bulbs.super_features.utils import get_superfeature_choices
 
+
+GUIDE_TO = 'GUIDE_TO'
+BASE_CHOICES = (
+    (GUIDE_TO, 'Guide To'),
+)
 
 SF_CHOICES = get_superfeature_choices()
 
