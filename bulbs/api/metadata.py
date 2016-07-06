@@ -7,7 +7,8 @@ from bulbs.infographics.serializers import InfographicSerializer
 class PolymorphicContentMetadata(SimpleMetadata):
 
     serializer_lookup = {
-        InfographicSerializer: InfographicMetadata()
+        InfographicSerializer: InfographicMetadata(),
+        # SuperFeatureSerializer: SuperFeatureMetadata()
     }
 
     def determine_metadata(self, request, view):
