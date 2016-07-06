@@ -33,3 +33,7 @@ def content_tunic_campaign_url(campaign_id,
         "{}?{}".format(url_base, url_params)
     )
     return urljoin(settings.TUNIC_BACKEND_ROOT, path)
+
+@register.simple_tag(takes_context=True)
+def build_video_share_uri(context, video_id):
+    return context["request"].build_absolute_uri("/v/" + format(video_id))

@@ -31,7 +31,7 @@
       </campaign-display>-->
       <bulbs-video-meta
         src="{{ VIDEOHUB_BASE_URL }}/video/{{ videos.0.videohub_ref.id }}.json"
-        share-url="http{% if request.is_secure %}s{% endif %}://{{ request.META.HTTP_HOST }}/v/{{ video.id }}"
+        share-url={% build_video_share_uri videos.0.id %}
         share-email-message="{{share_message}}"
         share-twitter-handle="{{twitter_handle}}"
         share-track-action="HP: Main: Share"
