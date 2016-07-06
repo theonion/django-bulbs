@@ -54,6 +54,17 @@ class GetActiveCampaignsTests(TestCase):
                               4: {'id': 4,
                                   'name': 'Enough with the campaigns already!'}})
 
+    def test_get_weighted_campaigns(self):
+        with requests_mock.mock() as mocker:
+            mocker.get('http://onion.local/api/v1/campaign/?weighted=true',
+                       status_code=200,
+                       json={'results': [{'id': 1,
+                                          'name': 'My Campaign'}]},
+                       headers={'Authorizaton': 'Token 12345'})
+            self.assertEqual(TunicClient().get_campaigns(filter_weighted=True),
+                             {1: {'id': 1,
+                                  'name': 'My Campaign'}})
+
     def test_backend_error(self):
         with self.assertRaises(RequestFailure):
             with requests_mock.mock() as mocker:
