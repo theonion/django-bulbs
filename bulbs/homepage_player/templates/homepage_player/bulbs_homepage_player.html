@@ -34,7 +34,8 @@
         share-url="http{% if request.is_secure %}s{% endif %}://{{ request.META.HTTP_HOST }}/v/{{ video.id }}"
         share-email-message="{{share_message}}"
         share-twitter-handle="{{twitter_handle}}"
-        data-track-action="HP: Main: Share"
+        share-track-action="HP: Main: Share"
+        title-track-action="HP: Main Series"
       >
       </bulbs-video-meta>
     </div>
