@@ -22,5 +22,4 @@ class RedirectViewTestCase(TestCase):
         self.assertEqual(url, "/v/2")
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 302)
-        self.assertIsNotNone(self.video.get_absolute_url() in resp['Location'])
-        
+        self.assertIn(self.video.get_absolute_url(), resp['Location'])
