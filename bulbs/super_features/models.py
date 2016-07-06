@@ -17,7 +17,7 @@ SF_CHOICES = get_superfeature_choices()
 
 class AbstractSuperFeature(models.Model):
     notes = models.TextField()
-    superfeature_type = models.CharField(choices=SF_CHOICES)
+    superfeature_type = models.CharField(choices=SF_CHOICES, max_length=255)
     data = jsonfield.JSONField()
 
     class Meta:
