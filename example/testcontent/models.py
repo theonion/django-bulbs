@@ -101,3 +101,7 @@ class TestRecircContentObject(Content, BaseQueryMixin):
 
 class TestVideoContentObj(Content, VideoMixin):
     """Fake video"""
+
+    def get_absolute_url(self):
+        return '/detail/%s/' % self.pk
+
