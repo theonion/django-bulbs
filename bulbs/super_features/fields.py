@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+# TODO: Move to common file
 class RichTextField(serializers.CharField):
 
     def __init__(self, *args, **kwargs):

@@ -45,17 +45,17 @@ class AbstractSuperFeature(models.Model):
         return super(AbstractSuperFeature, self).clean(*args, **kwargs)
 
 
-# class BaseSuperFeature(Content, AbstractSuperFeature):
-#
-#     class Mapping(Content.Mapping):
-#         data = field.Object()
-#
-#         class Meta:
-#             # Necessary to allow for our data field to store appropriately in Elasticsearch.
-#             # A potential alternative could be storing as a string., we should assess the value.
-#             dynamic = False
-#
-#     @classmethod
-#     def get_serializer_class(cls):
-#         from bulbs.super_features.serializers import SuperFeatureSerializer
-#         return SuperFeatureSerializer
+class BaseSuperFeature(Content, AbstractSuperFeature):
+
+    class Mapping(Content.Mapping):
+        data = field.Object()
+
+        class Meta:
+            # Necessary to allow for our data field to store appropriately in Elasticsearch.
+            # A potential alternative could be storing as a string., we should assess the value.
+            dynamic = False
+
+    @classmethod
+    def get_serializer_class(cls):
+        from bulbs.super_features.serializers import BaseSuperFeatureSerializer
+        return BaseSuperFeatureSerializer
