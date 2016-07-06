@@ -19,23 +19,17 @@
     </div>
 
     <div class="video-carousel-meta">
-      <!--<campaign-display
-        class="campaign-display-preamble"
-        data-track-action=""
-        data-track-category=""
-        placement="detail"
-        preamble-text="Presented by"
-        src="{% if video.tunic_campaign_id %}{% content_tunic_campaign_url videos.0.tunic_campaign_id %}{% endif %}"
-        name-only
-      >
-      </campaign-display>-->
       <bulbs-video-meta
         src="{{ VIDEOHUB_BASE_URL }}/video/{{ videos.0.videohub_ref.id }}.json"
         share-url={% build_video_share_uri videos.0.id %}
+        campaign-url="{% if video.tunic_campaign_id %}{% content_tunic_campaign_url videos.0.tunic_campaign_id %}{% endif %}"
+        campaign-placement="recirc"
+        campaign-preamble="Sponsored By"
+        campaign-track-action="HP: Main: Campaign"
         share-email-message="{{share_message}}"
         share-twitter-handle="{{twitter_handle}}"
         share-track-action="HP: Main: Share"
-        title-track-action="HP: Main Series"
+        title-track-action="HP: Main: Series"
       >
       </bulbs-video-meta>
     </div>
@@ -48,13 +42,13 @@
           Up Next
         </span>
 
-        <bulbs-carousel-previous 
+        <bulbs-carousel-previous
           class="video-carousel-previous"
           data-track-action="HP: Carousel Prev"
           data-track-label="#">
         </bulbs-carousel-previous>
-        <bulbs-carousel-next 
-          class="video-carousel-next" 
+        <bulbs-carousel-next
+          class="video-carousel-next"
           data-track-action="HP: Carousel Next"
           data-track-label="#">
         </bulbs-carousel-next>
