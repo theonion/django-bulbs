@@ -1,16 +1,7 @@
 from rest_framework import serializers
 
-from bulbs.super_features.fields import RichTextField
-
-
-# TODO: Move to common file
-class CopySerializer(serializers.Serializer):
-    copy = RichTextField(required=True, field_size="long")
-
-
-# TODO: Move to common file
-class EntrySerializer(CopySerializer, serializers.Serializer):
-    title = RichTextField(field_size="short")
+# TODO: Use common EntrySerializer
+from bulbs.infographics.data_serializers import EntrySerializer
 
 
 class GuideToSerializer(serializers.Serializer):

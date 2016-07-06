@@ -9,9 +9,9 @@ from rest_framework.utils.field_mapping import ClassLookupDict
 from djbetty.serializers import ImageFieldSerializer
 
 from bulbs.content.serializers import AuthorField
-from .data_serializers import CopySerializer, EntrySerializer, XYEntrySerializer
-from .fields import RichTextField
-from .serializers import BaseSuperFeatureSerializer, BaseSuperFeatureDataField
+from bulbs.infographics.data_serializers import CopySerializer, EntrySerializer, XYEntrySerializer
+from bulbs.infographics.fields import RichTextField
+from bulbs.super_features.serializers import BaseSuperFeatureSerializer, BaseSuperFeatureDataField
 
 
 def get_and_check_attribute(obj, attr_name):
