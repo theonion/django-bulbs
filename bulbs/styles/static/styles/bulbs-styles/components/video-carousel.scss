@@ -18,7 +18,7 @@ $light-shade: #f4f4f4;
   @include flex-direction(column);
 
   .video-carousel-player {
-    flex-grow: 1;
+    @include flex(1 auto);
   }
 
   .video-carousel-meta {
@@ -154,7 +154,7 @@ $light-shade: #f4f4f4;
       height: 36%;
 
       bulbs-video {
-        @include flex-grow(1);
+        @include flex(1 auto);
       }
     }
 
