@@ -23,10 +23,13 @@
         src="{{ VIDEOHUB_BASE_URL }}/video/{{ videos.0.videohub_ref.id }}.json"
         share-url="http{% if request.is_secure %}s{% endif %}://{{ request.META.HTTP_HOST }}/v/{{ video.id }}"
         campaign-url="{% if video.tunic_campaign_id %}{% content_tunic_campaign_url videos.0.tunic_campaign_id %}{% endif %}"
+        campaign-placement="recirc"
+        campaign-preamble="Sponsored By"
+        campaign-track-action="HP: Main: Campaign"
         share-email-message="{{share_message}}"
         share-twitter-handle="{{twitter_handle}}"
         share-track-action="HP: Main: Share"
-        title-track-action="HP: Main Series"
+        title-track-action="HP: Main: Series"
       >
       </bulbs-video-meta>
     </div>
