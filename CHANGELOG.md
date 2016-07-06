@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 3.2.2
+
+- Added `video_redirect` view for videohub reference.
+
 ## Version 3.2.1
 
 - Added `child_label` to entry serializers metadata.
