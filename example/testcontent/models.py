@@ -104,4 +104,3 @@ class TestVideoContentObj(Content, VideoMixin):
 
     def get_absolute_url(self):
         return '/detail/%s/' % self.pk
-
