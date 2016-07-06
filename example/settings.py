@@ -156,6 +156,7 @@ DEFAULT_CONTRIBUTOR_ROLE = 'Draft Writer'
 SODAHEAD_BASE_URL = 'https://onion.sodahead.com'
 SODAHEAD_TOKEN_VAULT_PATH = 'sodahead/token'
 
+VIDEO_MODEL = "testcontent.TestVideoContentObj"
 VIDEOHUB_BASE_URL = 'http://www.onionstudios.com'
 
 FACEBOOK_TOKEN_VAULT_PATH = 'facebook/onion_token'
