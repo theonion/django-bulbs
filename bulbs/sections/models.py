@@ -32,7 +32,8 @@ class Section(Indexable):
     search_objects = SectionIndexableManager()
 
     class Mapping:
-        name = field.String(analyzer="autocomplete", fields={"raw": field.String(index="not_analyzed")})
+        name = field.String(analyzer="autocomplete",
+                            fields={"raw": field.String(index="not_analyzed")})
         slug = field.String(index="not_analyzed")
         section_logo = ElasticsearchImageField()
         query = field.Object(enabled=False)
@@ -88,7 +89,7 @@ class Section(Indexable):
             "feature-type": "feature_type.slug",
             "tag": "tags.slug",
             "content-type": "_type",
-            })
+        })
         return search
 
     @property

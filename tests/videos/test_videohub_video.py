@@ -11,8 +11,8 @@ from bulbs.videos.serializers import VideohubVideoSerializer
 class VideohubVideoTests(TestCase):
 
     def setUp(self):
+        super(VideohubVideoTests, self).setUp()
         self.video = VideohubVideo.objects.create(
-            id=1,
             title="Lake Dredge Appraisal Episode 2",
             description="Revolting Silt",
             keywords="Lake Dredge Appraisal Revoling Silt Episode 2"

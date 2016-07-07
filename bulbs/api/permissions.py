@@ -17,7 +17,7 @@ class HasPermissionOrIsAuthor(permissions.BasePermission):
         :return: `bool`
         """
         # Give permission if we're not protecting this method
-        if self.protected_methods and not request.method in self.protected_methods:
+        if self.protected_methods and request.method not in self.protected_methods:
             return True
 
         user = getattr(request, "user", None)

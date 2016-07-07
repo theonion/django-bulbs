@@ -2,6 +2,76 @@
 
 ## Development
 
+## Version 3.2.2
+
+- Added `video_redirect` view for videohub reference.
+
+## Version 3.2.1
+
+- Added `child_label` to entry serializers metadata.
+
+## Version 3.2.0
+
+- Added `filter_weighted` flag to `TunicClient.get_campaigns()`
+
+## Version 3.1.3
+
+- Added `AbstractInfographic.get_infographic_type_name` method.
+
+## Version 3.1.2
+
+- Added styling for mobile ads in bulbs-styles
+
+## Version 3.1.1
+
+- Updated InfographicMetadata to exclude expensive `RelatedField` `ManyRelated` choice queries.
+
+## Version 3.1.0
+
+- Added `AbstractInfographic` model to refer to all infographic specific attributes.
+- Rename Infographic.data.items to Infographic.data.entries due to namespace conflict.
+
+## Version 3.0.0
+
+- All code passes flake8 linter (ignoring line length). No functionality changes.
+- Added lint to Travis build
+
+## Version 2.9.4
+
+- Fixed issue with incorrect targeting passed into special coverage landing page
+
+## Version 2.9.3
+
+- Added `content.filters.AllSponsored` for elasticsearch queries.
+
+## Version 2.9.2
+
+- Added mobile ad placer static files to bulbs ads
+
+## Version 2.9.1
+
+- No changes -- borked tag and release
+
+## Version 2.9.0
+
+- No changes -- borked tag and release
+
+## Version 2.8.4
+
+- Added `PolymorphicContentMetadata` to register custom metadata responses with given serializers.
+- Added `Infographic` models..
+- Added `InfographicSerializer` and `InfographicMetadata` to API.
+- Added Docker configurations for local testing.
+- Added Postgresql9.4 testing for .travis.yml builds.
+
+## Version 2.8.2
+
+- Changed `post_to_instant_articles_api` to get the Article ID based on its canonical url
+
+## Version 2.8.1
+
+- Reverted `AppConfig` changes released in 2.8.0. Decided to go another route with duplicate app names.
+
 ## Version 2.7.6
 
 - `migrate_to_ia` command now only migrates previously un-migrated content

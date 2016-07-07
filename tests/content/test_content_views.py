@@ -40,8 +40,10 @@ class TestContentViews(BaseIndexableTestCase):
 
     def test_content_list_views(self):
         ft = FeatureType.objects.create(name="Feature", slug="feature")
-        content = make_content(TestContentObj, feature_type=ft, published=timezone.now() - timedelta(hours=2))
-        content_two = make_content(TestContentObjTwo, feature_type=ft, published=timezone.now() - timedelta(hours=2))
+        make_content(TestContentObj, feature_type=ft,
+                     published=timezone.now() - timedelta(hours=2))
+        make_content(TestContentObjTwo, feature_type=ft,
+                     published=timezone.now() - timedelta(hours=2))
         Content.search_objects.refresh()
         # make sure we get all content with this list
         r = self.client.get(reverse("example.testcontent.views.test_all_content_list"))

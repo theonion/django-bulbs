@@ -1,0 +1,15 @@
+#!/bin/sh -e
+
+# Summary: Setup project database role, allowing other commands to create databases
+source "$(cd "$(dirname "$0")" && pwd)"/source-state
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+# Ensure database role exists (ignoring "already exists" errors)
+docker-compose run \
+    -e PGHOST=postgres \
+    -e PGUSER=postgres \
+    -e PGPASSWORD=${PGPASSWORD} \
+    web \
+    psql -c "CREATE ROLE bulbs PASSWORD 'testing' SUPERUSER LOGIN CREATEDB;" \
+    || true

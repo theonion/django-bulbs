@@ -390,7 +390,6 @@ class Content(PolymorphicModel, Indexable):
         return dict(TEMPLATE_CHOICES).get(self.template_choice)
 
     def percolate_special_coverage(self, max_size=10, sponsored_only=False):
-
         """gets list of active, sponsored special coverages containing this content via
         Elasticsearch Percolator (see SpecialCoverage._save_percolator)
 
@@ -611,9 +610,8 @@ def delete_from_instant_article_api(sender, instance=None, **kwargs):
             logger.error('''
                 Error in Django Settings.\n
                 FACEBOOK_API_BASE_URL: {0}\n
-                FACEBOOK_TOKEN_VAULT_PATH: {1}'''.format(
-                    fb_api_url,
-                    fb_token_path))
+                FACEBOOK_TOKEN_VAULT_PATH: {1}'''.format(fb_api_url,
+                                                         fb_token_path))
             return
 
         fb_access_token = vault.read(fb_token_path).get('authtoken')
@@ -633,11 +631,10 @@ def delete_from_instant_article_api(sender, instance=None, **kwargs):
                 Content ID: {0}\n
                 IA ID: {1}\n
                 Status Code: {2}
-                Request: {3}'''.format(
-                    instance.id,
-                    instance.instant_article_id,
-                    delete.status_code,
-                    delete.__dict__))
+                Request: {3}'''.format(instance.id,
+                                       instance.instant_article_id,
+                                       delete.status_code,
+                                       delete.__dict__))
         else:
             status = delete.json().get('success')
             if bool(status) is not True:
@@ -645,10 +642,7 @@ def delete_from_instant_article_api(sender, instance=None, **kwargs):
                     Error in deleting Instant Article.\n
                     Content ID: {0}\n
                     IA ID: {1}\n
-                    Error: {2}'''.format(
-                        instance.id,
-                        instance.instant_article_id,
-                        delete.json()))
+                    Error: {2}'''.format(instance.id, instance.instant_article_id, delete.json()))
 
 ##
 # signal hooks

@@ -1,6 +1,7 @@
 import datetime
 import json
 
+from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.contrib.auth import get_user_model
 from django.test.client import Client
@@ -8,7 +9,7 @@ from django.utils import timezone
 
 from bulbs.promotion.models import PZone, PZoneHistory
 from bulbs.promotion.operations import PZoneOperation, InsertOperation, DeleteOperation
-from bulbs.utils.test import  BaseAPITestCase, make_content
+from bulbs.utils.test import BaseAPITestCase, make_content
 
 
 class PromotionApiTestCase(BaseAPITestCase):
@@ -30,6 +31,10 @@ class PromotionApiTestCase(BaseAPITestCase):
 
         self.pzone.data = data
         self.pzone.save()
+
+    def tearDown(self):
+        super(PromotionApiTestCase, self).tearDown()
+        PZone.objects.all().delete()
 
     def test_pzone_api(self):
 
@@ -238,6 +243,7 @@ class PromotionApiTestCase(BaseAPITestCase):
         """Test that a new operation can be added to a pzone operations."""
 
         # test objects
+        content = make_content(title="kill me")
         test_time = (timezone.now() + datetime.timedelta(hours=1)).replace(microsecond=0)
 
         # setup and query endpoint
@@ -251,7 +257,7 @@ class PromotionApiTestCase(BaseAPITestCase):
                 "pzone": self.pzone.pk,
                 "when": test_time.isoformat(),
                 "index": 0,
-                "content": 1
+                "content": content.id
             }),
             content_type="application/json"
         )
@@ -269,7 +275,7 @@ class PromotionApiTestCase(BaseAPITestCase):
         self.assertEqual(operation["pzone"], self.pzone.pk)
         self.assertEqual(operation["when"], test_time.isoformat().replace("+00:00", "Z"))
         self.assertEqual(operation["index"], 0)
-        self.assertEqual(operation["content"], 1)
+        self.assertEqual(operation["content"], content.id)
 
     def test_post_operation_400(self):
         """Test that posting with bad data returns 400 and errors in json."""
@@ -485,8 +491,6 @@ class PromotionApiTestCase(BaseAPITestCase):
         self.pzone = PZone.objects.get(name=self.pzone.name)
         self.assertEqual(len(self.pzone), 0)
 
-
-
     def test_put_pzone_403(self):
         """Ensure that PUTing to a pzone without permission gives a 403."""
 
@@ -510,19 +514,18 @@ class PromotionApiTestCase(BaseAPITestCase):
         """Ensure retrieving a past pzone accesses pzone history."""
 
         # create history, then take timestamp to test again, this order is important for timing
-        content_id = 5
+        content_id = make_content(title="whatever").id
         history = self.pzone.history.create(
             data=[{"id": content_id}]
         )
         test_time = timezone.now()
 
-        # cache pzone
-        from django.core.cache import cache
         cache.set('pzone-history-' + self.pzone.name, history)
 
         # retrieve data
         endpoint = reverse("pzone-detail", kwargs={"pk": self.pzone.pk})
         self.give_permissions()
+
         response = self.client.get(endpoint, {"preview": test_time.isoformat()})
 
         # check that history was used
@@ -543,20 +546,22 @@ class PromotionApiTestCase(BaseAPITestCase):
         test_time_out_of_range = test_time_upper_bound + datetime.timedelta(hours=1)
 
         # set up some test operations)
-        op_past_1 = InsertOperation.objects.create(
+        # Past operations
+        InsertOperation.objects.create(
             pzone=self.pzone,
             when=test_time_past,
             index=0,
             content=make_content(),
             applied=True
         )
-        op_past_2 = InsertOperation.objects.create(
+        InsertOperation.objects.create(
             pzone=self.pzone,
             when=test_time_past,
             index=0,
             content=make_content(),
             applied=True
         )
+        # Future operations
         op_future_1 = InsertOperation.objects.create(
             pzone=self.pzone,
             when=test_time_future,
@@ -571,7 +576,8 @@ class PromotionApiTestCase(BaseAPITestCase):
             content=make_content(),
             applied=True
         )
-        op_out_of_range_1 = InsertOperation.objects.create(
+        # Out of range
+        InsertOperation.objects.create(
             pzone=self.pzone,
             when=test_time_out_of_range,
             index=0,

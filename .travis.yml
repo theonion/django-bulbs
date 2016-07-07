@@ -17,6 +17,8 @@ cache:
     - $HOME/.cache/pip
 services:
   - postgresql
+addons:
+  postgresql: "9.4"
 before_install:
   # Use same ES version as in production (also the Travis "elasticsearch" service setting fails to start)
   - travis_retry curl -OL https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-$ELASTICSEARCH_VERSION.deb
@@ -26,10 +28,12 @@ install:
   - travis_retry pip install -e .
   - travis_retry pip install "file://$(pwd)#egg=django-bulbs[dev]"
 before_script:
-  - psql -c 'create database bulbs;' -U postgres
+  - psql -c "create database bulbs_test;" -U postgres
+  - psql -c "create user bulbs WITH superuser PASSWORD 'testing';" -U postgres
   # Wait for ES startup
   - until curl http://localhost:9200/; do sleep 1; done
 script:
   - py.test --cov bulbs --cov-report term-missing
+  - scripts/lint
 after_success:
   - coveralls

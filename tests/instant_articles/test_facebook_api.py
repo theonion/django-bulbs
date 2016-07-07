@@ -1,6 +1,5 @@
 import requests_mock
 
-from django.conf import settings
 from django.utils import timezone
 from django.test.utils import override_settings
 
@@ -39,9 +38,24 @@ class FacebookAPITestCase(BaseIndexableTestCase):
                     "status": "SUCCESS"
                 })
 
+            # create content
             content = TestContentObjThree.objects.create(
                 body="<p>This is the body</p>",
                 feature_type=self.ft)
+
+            # get article ID
+            mocker.get(
+                "https://graph.facebook.com/v2.6?id=http://www.theonion.com{0}&fields=instant_article&access_token=TOKEN".format(
+                    content.get_absolute_url()),
+                status_code=200,
+                json={
+                    "instant_article": {
+                        "id": "420"
+                    },
+                    "id": "http://www.theonion.com/article/blaze-it-420"
+                }
+            )
+
             content.published = timezone.now()
             content.save()
 
@@ -49,8 +63,8 @@ class FacebookAPITestCase(BaseIndexableTestCase):
             c = Content.objects.get(id=content.id)
 
             # check that the ia_id is set & call count is correct
-            self.assertEqual(c.instant_article_id, 9876)
-            self.assertEqual(mocker.call_count, 2)
+            self.assertEqual(c.instant_article_id, 420)
+            self.assertEqual(mocker.call_count, 3)
 
     @override_settings(
         FACEBOOK_POST_TO_IA=True,
@@ -72,7 +86,7 @@ class FacebookAPITestCase(BaseIndexableTestCase):
                     "status": "SUCCESS"
                 })
             mocker.delete(
-                "https://graph.facebook.com/v2.6/9876?access_token=TOKEN",
+                "https://graph.facebook.com/v2.6/420?access_token=TOKEN",
                 status_code=204,
                 json={
                     "success": True
@@ -81,20 +95,33 @@ class FacebookAPITestCase(BaseIndexableTestCase):
             content = TestContentObjThree.objects.create(
                 body="<p>This is the body</p>",
                 feature_type=self.ft)
+
+            mocker.get(
+                "https://graph.facebook.com/v2.6?id=http://www.theonion.com{0}&fields=instant_article&access_token=TOKEN".format(
+                    content.get_absolute_url()),
+                status_code=200,
+                json={
+                    "instant_article": {
+                        "id": "420"
+                    },
+                    "id": "http://www.theonion.com/article/blaze-it-420"
+                }
+            )
+
             content.published = timezone.now()
             content.save()
 
             Content.search_objects.refresh()
             c = Content.objects.get(id=content.id)
 
-            self.assertEqual(c.instant_article_id, 9876)
-            self.assertEqual(mocker.call_count, 2)
+            self.assertEqual(c.instant_article_id, 420)
+            self.assertEqual(mocker.call_count, 3)
 
             # unpublish article and check that delete is called
             c.published = timezone.now() + timezone.timedelta(days=1)
             c.save()
 
-            self.assertEqual(mocker.call_count, 3)
+            self.assertEqual(mocker.call_count, 4)
 
     @override_settings(
         FACEBOOK_POST_TO_IA=True,
@@ -116,7 +143,7 @@ class FacebookAPITestCase(BaseIndexableTestCase):
                     "status": "SUCCESS"
                 })
             mocker.delete(
-                "https://graph.facebook.com/v2.6/9876?access_token=TOKEN",
+                "https://graph.facebook.com/v2.6/420?access_token=TOKEN",
                 status_code=204,
                 json={
                     "success": True
@@ -125,11 +152,24 @@ class FacebookAPITestCase(BaseIndexableTestCase):
             content = TestContentObjThree.objects.create(
                 body="<p>This is the body</p>",
                 feature_type=self.ft)
+
+            mocker.get(
+                "https://graph.facebook.com/v2.6?id=http://www.theonion.com{0}&fields=instant_article&access_token=TOKEN".format(
+                    content.get_absolute_url()),
+                status_code=200,
+                json={
+                    "instant_article": {
+                        "id": "420"
+                    },
+                    "id": "http://www.theonion.com/article/blaze-it-420"
+                }
+            )
+
             content.published = timezone.now()
             content.save()
 
-            self.assertEqual(mocker.call_count, 2)
+            self.assertEqual(mocker.call_count, 3)
 
             content.delete()
 
-            self.assertEqual(mocker.call_count, 3)
+            self.assertEqual(mocker.call_count, 4)

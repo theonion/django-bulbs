@@ -28,7 +28,6 @@ from rest_framework import (
     routers
 )
 from rest_framework.decorators import detail_route, list_route
-from rest_framework.metadata import BaseMetadata
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -48,15 +47,9 @@ from bulbs.special_coverage.models import SpecialCoverage
 from bulbs.special_coverage.serializers import SpecialCoverageSerializer
 from bulbs.utils.methods import get_query_params, get_request_data
 
+from .metadata import PolymorphicContentMetadata
 from .mixins import UncachedResponse
 from .permissions import CanEditContent, CanPublishContent
-
-
-class ContentViewMetaData(BaseMetadata):
-    def determine_metadata(self, request, view):
-        return {
-            'status': 'ok',
-        }
 
 
 class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
@@ -75,7 +68,7 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         "authors", "types"
     )
     permission_classes = [IsAdminUser, CanEditContent]
-    metadata_class = ContentViewMetaData
+    metadata_class = PolymorphicContentMetadata
 
     def get_serializer_class(self):
         """gets the class type of the serializer
@@ -430,11 +423,11 @@ class MeViewSet(UncachedResponse, viewsets.ReadOnlyModelViewSet):
         if secret:
             # use firebase auth to provide auth variables to firebase security api
             firebase_auth_payload = {
-                    'id': request.user.pk,
-                    'username': request.user.username,
-                    'email': request.user.email,
-                    'is_staff': request.user.is_staff
-                    }
+                'id': request.user.pk,
+                'username': request.user.username,
+                'email': request.user.email,
+                'is_staff': request.user.is_staff
+            }
             data['firebase_token'] = create_token(secret, firebase_auth_payload)
 
         return Response(data)
@@ -456,7 +449,7 @@ class ContentTypeViewSet(viewsets.ViewSet):
                 results.append(dict(
                     name=name,
                     doctype=doctype
-                    ))
+                ))
                 results.sort(key=lambda x: x["name"])
         return Response(dict(results=results))
 
@@ -646,9 +639,11 @@ api_v1_router.register(r"content", ContentViewSet, base_name="content")
 api_v1_router.register(r"content-resolve", ContentResolveViewSet, base_name="content-resolve")
 api_v1_router.register(r"content-type", ContentTypeViewSet, base_name="content-type")
 api_v1_router.register(r"contributor-email", SendContributorReport, base_name="contributor-email")
-api_v1_router.register(r"custom-search-content", CustomSearchContentViewSet, base_name="custom-search-content")
+api_v1_router.register(r"custom-search-content", CustomSearchContentViewSet,
+                       base_name="custom-search-content")
 api_v1_router.register(r"feature-type", FeatureTypeViewSet, base_name="feature-type")
 api_v1_router.register(r"log", LogEntryViewSet, base_name="logentry")
-api_v1_router.register(r"special-coverage-resolve", SpecialCoverageResolveViewSet, base_name="special-coverage-resolve")
+api_v1_router.register(r"special-coverage-resolve", SpecialCoverageResolveViewSet,
+                       base_name="special-coverage-resolve")
 api_v1_router.register(r"tag", TagViewSet, base_name="tag")
 api_v1_router.register(r"user", UserViewSet, base_name="user")

@@ -32,7 +32,7 @@ class PollSerializerTestCase(BaseIndexableTestCase):
             title=random_title(),
             published=timezone.now(),
             end_date=timezone.now() + timedelta(1),
-         )
+        )
         serializer = PollSerializer(poll)
         self.assertEqual(serializer.data['id'], poll.id)
         self.assertEqual(serializer.data['question_text'], poll.question_text)
@@ -43,10 +43,10 @@ class PollSerializerTestCase(BaseIndexableTestCase):
     @mock_vault(SECRETS)
     def test_poll_image_serialization(self):
         poll = Poll.objects.create(
-                question_text='Where are we?',
-                title=random_title(),
-                end_date=timezone.now() + timedelta(hours=9),
-                )
+            question_text='Where are we?',
+            title=random_title(),
+            end_date=timezone.now() + timedelta(hours=9),
+        )
         serializer = PollSerializer(poll)
         self.assertTrue(serializer['poll_image'])
 
@@ -57,18 +57,18 @@ class PollSerializerTestCase(BaseIndexableTestCase):
             question_text=u'good text',
             title=random_title(),
         )
-        Answer.objects.create(poll=poll, answer_text=u'this is some text')
-        Answer.objects.create(poll=poll, answer_text=u'forest path')
+        answer1 = Answer.objects.create(poll=poll, answer_text=u'this is some text')
+        answer2 = Answer.objects.create(poll=poll, answer_text=u'forest path')
         serializer = PollSerializer(poll)
         answers_data = serializer.data['answers']
 
-        self.assertEqual(answers_data[0]['id'], 1)
+        self.assertEqual(answers_data[0]['id'], answer1.id)
         self.assertEqual(answers_data[0]['answer_text'], u'this is some text')
-        self.assertEqual(answers_data[0]['poll'], 1)
+        self.assertEqual(answers_data[0]['poll'], poll.id)
 
-        self.assertEqual(answers_data[1]['id'], 2)
+        self.assertEqual(answers_data[1]['id'], answer2.id)
         self.assertEqual(answers_data[1]['answer_text'], u'forest path')
-        self.assertEqual(answers_data[1]['poll'], 1)
+        self.assertEqual(answers_data[1]['poll'], poll.id)
 
 
 class PollPublicSerializerTestCase(BaseIndexableTestCase):
@@ -111,9 +111,9 @@ class PollPublicSerializerTestCase(BaseIndexableTestCase):
             question_text='is it powerful?',
             title=random_title(),
         )
-        Answer.objects.create(poll=poll, answer_text=u'yes')
+        answer1 = Answer.objects.create(poll=poll, answer_text=u'yes')
         answer2 = Answer.objects.create(poll=poll, answer_text=u'no')
-        Answer.objects.create(poll=poll, answer_text=u'maybe')
+        answer3 = Answer.objects.create(poll=poll, answer_text=u'maybe')
 
         serializer = PollPublicSerializer(Poll.objects.get(id=poll.id))
         answers_data = serializer.data['answers']
@@ -121,22 +121,22 @@ class PollPublicSerializerTestCase(BaseIndexableTestCase):
         second_sodahead_id = answers_data[1]['sodahead_id']
         third_sodahead_id = answers_data[2]['sodahead_id']
 
-        self.assertEqual(answers_data[0]['id'], 1)
+        self.assertEqual(answers_data[0]['id'], answer1.id)
         self.assertEqual(answers_data[0]['sodahead_id'], first_sodahead_id)
         self.assertEqual(answers_data[0]['answer_text'], u'yes')
-        self.assertEqual(answers_data[0]['poll'], 1)
+        self.assertEqual(answers_data[0]['poll'], poll.id)
         self.assertEqual(answers_data[0]['total_votes'], 0)
 
-        self.assertEqual(answers_data[1]['id'], 2)
+        self.assertEqual(answers_data[1]['id'], answer2.id)
         self.assertEqual(answers_data[1]['sodahead_id'], second_sodahead_id)
         self.assertEqual(answers_data[1]['answer_text'], u'no')
-        self.assertEqual(answers_data[1]['poll'], 1)
+        self.assertEqual(answers_data[1]['poll'], poll.id)
         self.assertEqual(answers_data[1]['total_votes'], 0)
 
-        self.assertEqual(answers_data[2]['id'], 3)
+        self.assertEqual(answers_data[2]['id'], answer3.id)
         self.assertEqual(answers_data[2]['sodahead_id'], third_sodahead_id)
         self.assertEqual(answers_data[2]['answer_text'], u'maybe')
-        self.assertEqual(answers_data[2]['poll'], 1)
+        self.assertEqual(answers_data[2]['poll'], poll.id)
         self.assertEqual(answers_data[2]['total_votes'], 0)
 
         answer2.delete()
@@ -144,16 +144,16 @@ class PollPublicSerializerTestCase(BaseIndexableTestCase):
         serializer = PollPublicSerializer(Poll.objects.get(id=poll.id))
         answers_data = serializer.data['answers']
 
-        self.assertEqual(answers_data[0]['id'], 1)
+        self.assertEqual(answers_data[0]['id'], answer1.id)
         self.assertEqual(answers_data[0]['sodahead_id'], first_sodahead_id)
         self.assertEqual(answers_data[0]['answer_text'], u'yes')
-        self.assertEqual(answers_data[0]['poll'], 1)
+        self.assertEqual(answers_data[0]['poll'], poll.id)
         self.assertEqual(answers_data[0]['total_votes'], 0)
 
-        self.assertEqual(answers_data[1]['id'], 3)
+        self.assertEqual(answers_data[1]['id'], answer3.id)
         self.assertEqual(answers_data[1]['sodahead_id'], third_sodahead_id)
         self.assertEqual(answers_data[1]['answer_text'], u'maybe')
-        self.assertEqual(answers_data[1]['poll'], 1)
+        self.assertEqual(answers_data[1]['poll'], poll.id)
         self.assertEqual(answers_data[1]['total_votes'], 0)
 
 
@@ -176,10 +176,10 @@ class AnswerSerializerTestCase(BaseIndexableTestCase):
     @mock_vault(SECRETS)
     def test_answer_image_serialization(self):
         poll = Poll.objects.create(
-                question_text='Where are we?',
-                title=random_title(),
-                end_date=timezone.now() + timedelta(hours=9),
-                )
+            question_text='Where are we?',
+            title=random_title(),
+            end_date=timezone.now() + timedelta(hours=9),
+        )
         answer = Answer.objects.create(poll=poll, answer_text='woop')
         serializer = AnswerSerializer(answer)
         self.assertTrue(serializer['answer_image'])
