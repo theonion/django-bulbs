@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.contenttypes.fields import GenericForeignKey
 
 import jsonfield
 from elasticsearch_dsl import field
@@ -15,6 +16,12 @@ BASE_CHOICES = (
 SF_CHOICES = get_superfeature_choices()
 
 
+class SuperFeatureRelation(models.Model):
+    parent = GenericForeignKey('content_type', 'object_id')
+    child = GenericForeignKey('content_type', 'object_id')
+    ordering = models.IntegerField()
+
+
 class AbstractSuperFeature(models.Model):
     notes = models.TextField()
     superfeature_type = models.CharField(choices=SF_CHOICES, max_length=255)
@@ -22,6 +29,10 @@ class AbstractSuperFeature(models.Model):
 
     class Meta:
         abstract = True
+
+    @property
+    def is_child(self):
+        pass
 
     def get_data_serializer(self):
         from bulbs.super_features.data_serializers import GuideToSerializer
