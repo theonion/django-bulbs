@@ -30,5 +30,5 @@ class SuperFeatureModelTestCase(BaseIndexableTestCase):
                 data=[{
                     "title": "Cats",
                     "copy": "Everybody loves cats"
-                    }]
+                }]
             )
