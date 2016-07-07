@@ -2,6 +2,14 @@
 
 ## Development
 
+## Version 3.3.0
+
+- Added homepage video player and updates to bulbs-styles.
+- To install:
+* Add `bulbs.homepage_player` to installed apps
+* Add `styles/bulbs-styles/components/homepage-player.scss` to Pipeline
+* Add `styles/bulbs-styles/components/video-carousel.scss` to Pipeline
+
 ## Version 3.2.2
 
 - Added `video_redirect` view for videohub reference.
