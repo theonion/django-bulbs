@@ -1,0 +1,78 @@
+{% load betty humanize ads static content %}
+
+{% if videos.0 %}
+  <bulbs-video-carousel class="video-carousel homepage-player">
+    <div class="homepage-player-nav">
+      {% block homepage_player_nav %}
+        <div class="homepage-player-branding"></div>
+        <div>VIDEO</div>
+      {% endblock homepage_player_nav %}
+    </div>
+
+    <div class="video-carousel-player">
+      <bulbs-video
+        no-endcard
+        src="{{ VIDEOHUB_BASE_URL }}/video/{{ videos.0.videohub_ref.id }}.json"
+        data-track-action="HP: Main Video Play"
+      >
+      </bulbs-video>
+    </div>
+
+    <div class="video-carousel-meta">
+      <bulbs-video-meta
+        src="{{ VIDEOHUB_BASE_URL }}/video/{{ videos.0.videohub_ref.id }}.json"
+        share-url={% build_video_share_uri videos.0.id %}
+        campaign-url="{% if video.tunic_campaign_id %}{% content_tunic_campaign_url videos.0.tunic_campaign_id %}{% endif %}"
+        campaign-placement="recirc"
+        campaign-preamble="Sponsored By"
+        campaign-track-action="HP: Main: Campaign"
+        share-email-message="{{share_message}}"
+        share-twitter-handle="{{twitter_handle}}"
+        share-track-action="HP: Main: Share"
+        title-track-action="HP: Main: Series"
+      >
+      </bulbs-video-meta>
+    </div>
+
+    <hr class="video-carousel-divider"/>
+
+    <bulbs-carousel class="video-carousel-carousel">
+      <header class="video-carousel-header">
+        <span class="video-carousel-header-title">
+          Up Next
+        </span>
+
+        <bulbs-carousel-previous
+          class="video-carousel-previous"
+          data-track-action="HP: Carousel Prev"
+          data-track-label="#">
+        </bulbs-carousel-previous>
+        <bulbs-carousel-next
+          class="video-carousel-next"
+          data-track-action="HP: Carousel Next"
+          data-track-label="#">
+        </bulbs-carousel-next>
+      </header>
+
+      <bulbs-carousel-slider>
+        {% for video in videos %}
+          <bulbs-carousel-item
+            {# TODO implement /v/2323 redirect route in urls.py #}
+            {# see: https://trello.com/c/3bT7Xuc9/60 #}
+            share-url="http{% if request.is_secure %}s{% endif %}://{{ request.META.HTTP_HOST }}/v/{{ video.id }}"
+            video-url="{{ VIDEOHUB_BASE_URL }}/video/{{ video.videohub_ref.id }}.json"
+            campaign-url="{% if video.tunic_campaign_id %}{% content_tunic_campaign_url video.tunic_campaign_id %}{% endif %}"
+            data-track-action="HP: Carousel Item"
+            data-track-label="Item: {{forloop.counter}}"
+          >
+            <bulbs-video-summary
+              class="video-carousel-summary"
+              src="{{ VIDEOHUB_BASE_URL }}/video/{{ video.videohub_ref.id }}.json"
+            >
+            </bulbs-vido-summary>
+          </bulbs-carousel-item>
+        {% endfor %}
+      </bulbs-carousel-slider>
+    </bulbs-carousel>
+  </bulbs-video-carousel>
+{% endif %}

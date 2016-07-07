@@ -1,0 +1,167 @@
+///////////////////////////////////////
+// ********************************* //
+//           Video Carousel          //
+// ********************************* //
+///////////////////////////////////////
+
+@import "../mixins/flex-grid";
+@import "../mixins/flexbox";
+@import "../mixins/ease";
+@import "../mixins/figures";
+@import "../variables/breakpoints";
+
+$spacing: 20px;
+$light-shade: #f4f4f4;
+
+.video-carousel {
+  @include flexbox;
+  @include flex-direction(column);
+
+  .video-carousel-player {
+    @include flex(1 auto);
+  }
+
+  .video-carousel-meta {
+    @include flex-direction(column);
+    margin: 0 $spacing;
+  }
+
+  .video-carousel-carousel {
+    max-width: 100%;
+    min-width: 100%;
+    padding: $spacing $spacing 0;
+  }
+
+  .video-carousel-divider {
+    border-size: 2px;
+    width: 100%;
+    padding: 0 1em;
+    margin: 0 $spacing;
+    margin-top: $spacing;
+    background-color: $light-shade;
+
+    > hr {
+      border-width: 2px;
+    }
+  }
+
+  .video-carousel-summary {
+    cursor: pointer;
+    position: relative;
+    &:hover {
+      .bulbs-video-play-button {
+        opacity: 1;
+      }
+    }
+
+    .bulbs-video-summary-playing {
+      padding: 0 .5em;
+      text-transform: uppercase;
+    }
+
+    .bulbs-video-summary-title {
+      font-size: 1.5rem;
+      line-height: 1.3;
+      margin-bottom: 30px;
+    }
+  }
+
+  .bulbs-video-meta-title {
+    font-size: 2.5rem;
+    line-height: 1.3;
+    margin-top: 0;
+  }
+
+  bulbs-carousel-track {
+    @include transition(.5s all);
+    @include overflow-flexgrid(
+      $columns: 2,
+      $gutter: 20
+    );
+  }
+
+  .video-carousel-previous {
+    margin-left: auto; // flex push right
+    margin-right: .5em;
+  }
+
+  .bulbs-video-summary-playing {
+    padding: 0 .5em;
+    text-transform: uppercase;
+  }
+
+  .bulbs-video-summary-title {
+    font-size: 1.5rem;
+    line-height: 1.3;
+    margin-bottom: 30px;
+  }
+
+  .bulbs-video-play-button {
+    bottom: 10px;
+    height: 40px;
+    left: 10px;
+    opacity: .8;
+    width: 40px;
+  }
+
+  .bulbs-video-poster {
+    max-width: 100%;
+  }
+
+  .video-carousel-header {
+    @include flexbox;
+    @include flex-direction(row);
+    width: 100%;
+    padding-bottom: $spacing;
+  }
+
+  .video-carousel-header-title {
+    font-size: 1.5em;
+    margin-right: .5em;
+    font-family: serif;
+  }
+
+  .video-carousel-meta {
+    .share-button-label {
+      display: none;
+    }
+    background-color: white;
+    padding: $spacing;
+  }
+}
+
+@media all and (min-width: $screen-md) {
+  .video-carousel {
+    @include flex-direction(row);
+    @include flex-wrap(wrap);
+
+    .video-carousel-meta {
+      max-width: 200px;
+      min-width: 350px;
+    }
+
+    bulbs-carousel-track {
+      @include overflow-flexgrid(
+        $columns: 4,
+        $gutter: 20
+      );
+    }
+
+    .video-carousel-player {
+      @include flexbox;
+      @include flex-flow(row wrap);
+      @include align-items(center);
+      height: 36%;
+
+      bulbs-video {
+        @include flex(1 auto);
+      }
+    }
+
+    .video-carousel-meta {
+      @include align-self(stretch);
+      width: 36%;
+    }
+  }
+}
+

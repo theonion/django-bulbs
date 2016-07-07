@@ -1,0 +1,21 @@
+////////////////////////////////
+// ************************** //
+//     Multi Line Truncate    //
+// ************************** //
+////////////////////////////////
+
+@mixin multiLineTruncate($lineHeight: 1.2em, $lineCount: 3, $bg-color: white){
+  line-height: $lineHeight;
+  height: $lineHeight * $lineCount;
+  overflow: hidden;
+  position: relative;
+  &:after {
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), $bg-color 50%);
+    content: '';
+    height: $lineHeight;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 30%;
+  }
+}
