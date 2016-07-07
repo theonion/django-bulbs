@@ -21,7 +21,7 @@
     <div class="video-carousel-meta">
       <bulbs-video-meta
         src="{{ VIDEOHUB_BASE_URL }}/video/{{ videos.0.videohub_ref.id }}.json"
-        share-url={% build_video_share_uri videos.0.id %}
+        share-url={% build_video_share_uri videos.0.videohub_ref.id %}
         campaign-url="{% if video.tunic_campaign_id %}{% content_tunic_campaign_url videos.0.tunic_campaign_id %}{% endif %}"
         campaign-placement="recirc"
         campaign-preamble="Sponsored By"
@@ -59,7 +59,7 @@
           <bulbs-carousel-item
             {# TODO implement /v/2323 redirect route in urls.py #}
             {# see: https://trello.com/c/3bT7Xuc9/60 #}
-            share-url="http{% if request.is_secure %}s{% endif %}://{{ request.META.HTTP_HOST }}/v/{{ video.id }}"
+            share-url="{% build_video_share_uri video.videohub_ref.id %}"
             video-url="{{ VIDEOHUB_BASE_URL }}/video/{{ video.videohub_ref.id }}.json"
             campaign-url="{% if video.tunic_campaign_id %}{% content_tunic_campaign_url video.tunic_campaign_id %}{% endif %}"
             data-track-action="HP: Carousel Item"
