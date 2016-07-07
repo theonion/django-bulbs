@@ -85,7 +85,7 @@ def get_overridable_template_name(parent_name, child_name):
         bad_inheritance_message = "{} MUST extend {}".format(child_name, parent_name)
 
         extends_node = child_template.template.nodelist.get_nodes_by_type(
-                template.loader_tags.ExtendsNode)
+            template.loader_tags.ExtendsNode)
 
         if not extends_node[0]:
             raise Exception(bad_inheritance_message)
