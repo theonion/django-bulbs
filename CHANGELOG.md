@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 3.3.1
+
+- Fixed issue with video id reference 
+
 ## Version 3.3.0
 
 - Added homepage video player and updates to bulbs-styles.
