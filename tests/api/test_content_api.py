@@ -615,7 +615,7 @@ class TestContentTypeSearchAPI(BaseAPITestCase):
         # no query gives us all types
         r = self.api_client.get(url, format="json")
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(len(r.data["results"]), 10)
+        self.assertEqual(len(r.data["results"]), 11)
 
 
 class TestContentResolveAPI(BaseAPITestCase):
