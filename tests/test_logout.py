@@ -11,7 +11,6 @@ class TestLogoutApi(BaseIndexableTestCase):
     """Test logout API endpoint."""
 
     def test_logout(self):
-        import pdb; pdb.set_trace()
         User = get_user_model()
 
         # create and get a test user
