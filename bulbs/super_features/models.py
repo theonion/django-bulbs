@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 
 import jsonfield
 from elasticsearch_dsl import field
@@ -16,9 +17,9 @@ BASE_CHOICES = (
 SF_CHOICES = get_superfeature_choices()
 
 
-class SuperFeatureRelation(models.Model):
-    parent = GenericForeignKey('content_type', 'object_id')
-    child = GenericForeignKey('content_type', 'object_id')
+class ContentRelation(models.Model):
+    parent = models.ForeignKey(Content, related_name="parent")
+    child = models.ForeignKey(Content, related_name="child")
     ordering = models.IntegerField()
 
 
@@ -29,10 +30,6 @@ class AbstractSuperFeature(models.Model):
 
     class Meta:
         abstract = True
-
-    @property
-    def is_child(self):
-        pass
 
     def get_data_serializer(self):
         from bulbs.super_features.data_serializers import GuideToSerializer
@@ -65,6 +62,10 @@ class BaseSuperFeature(Content, AbstractSuperFeature):
             # Necessary to allow for our data field to store appropriately in Elasticsearch.
             # A potential alternative could be storing as a string., we should assess the value.
             dynamic = False
+
+    @property
+    def is_child(self):
+        return ContentRelation.objects.filter(child=self).exists()
 
     @classmethod
     def get_serializer_class(cls):
