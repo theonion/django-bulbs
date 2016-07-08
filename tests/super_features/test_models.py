@@ -1,8 +1,6 @@
-from django.contrib.contenttypes.models import ContentType
-
 from rest_framework.serializers import ValidationError
 
-from bulbs.super_features.models import AbstractSuperFeature, ContentRelation, BaseSuperFeature, GUIDE_TO
+from bulbs.super_features.models import ContentRelation, BaseSuperFeature, GUIDE_TO
 from bulbs.utils.test import BaseIndexableTestCase
 
 
