@@ -2,9 +2,13 @@
 
 ## Development
 
+## Version 3.3.2
+
+- Added `dfp_instant_article` value.
+
 ## Version 3.3.1
 
-- Fixed issue with video id reference 
+- Fixed issue with video id reference
 
 ## Version 3.3.0
 
