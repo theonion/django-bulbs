@@ -47,6 +47,7 @@
 
 
   > * {
+    max-width: calc(#{$item-percent} - ((#{$gutter} * #{$gutters}) / #{$columns}));
     min-width: calc(#{$item-percent} - ((#{$gutter} * #{$gutters}) / #{$columns}));
     margin-right: $gutter;
   }
