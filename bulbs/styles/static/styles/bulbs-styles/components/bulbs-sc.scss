@@ -14,81 +14,15 @@
 
 $light-shade: #f4f4f4;
 
-.sc-hero {
-  @include flexbox;
-  @include flex-direction(column);
-  background: rgb(33, 33, 33);
-  color: white;
-  margin: auto;
-  max-width: 1425px;
-  position: relative;
-  width: 100%;
-  .hero-img {
-    width: 100%;
-    .image {
-      @include crop-16x9;
-    }
-  }
-
-  .sc-label {
-    background: rgba(33, 33, 33, .8);
-    color: white;
-    display: none;
-    font-size: 1.15em;
-    left: 0;
-    padding: 10px 30px;
-    position: absolute;
-    text-transform: uppercase;
-    top: 60px;
-  }
-  .billboard {
-    @include flexbox;
-    @include flex-direction(column);
-    @include align-items(center);
-    @include justify-content(center);
-    padding: 1em;
-    text-align: center;
-  }
-  .sponsor {
-    @include flexbox;
-    text-transform: uppercase;
-    figure {
-      margin: auto;
-      max-width: 100px;
-      padding-top: 20px;
-      width: 100%;
-      img {
-        display: block;
-        position: relative;
-        width: 100%;
-      }
-    }
-  }
-  &.full-bleed {
-    .billboard {
-      width: 100%;
-    }
-  }
+body {
+  background: $light-shade;
 }
 
-.sc-hero-campaign {
-  a {
-    @include flexbox;
-    @include flex-direction(column);
-  }
-  .campaign-display-logo {
-    max-width: 100px;
-    margin-top: 1em;
-    img {
-      max-width: 100%;
-    }
-  }
-}
+// SC Campaigns
 
 %sc-campaign {
   font-size: .8em;
   text-transform: uppercase;
-
   .campaign-display-preamble {
     color: rgb(120, 120, 120);
     // need whitespace between preamble and sponsor name
@@ -96,7 +30,6 @@ $light-shade: #f4f4f4;
       content: " ";
     }
   }
-
   .campaign-display-sponsor-name {
     color: rgb(0, 87, 159);
   }
@@ -110,9 +43,11 @@ $light-shade: #f4f4f4;
   @extend %sc-campaign;
 }
 
+// SC Video Carousel / PLayer
+
 .sc-video-carousel {
-  background: $light-shade;
-  max-width: 970px;
+  background: white;
+  max-width: 1024px;
   padding: 1em;
   .bulbs-video-series-name {
     display: none;
@@ -124,7 +59,7 @@ $light-shade: #f4f4f4;
 
 .sc-video-player {
   padding: 1em;
-  background-color: $light-shade;
+  background-color: white;
   .bulbs-video-meta-series-name {
     display: none;
   }
@@ -133,44 +68,60 @@ $light-shade: #f4f4f4;
   }
 }
 
-.sc-grid {
-  display: none;
-  @include flexbox;
-  @include flex-flow(row wrap);
-  @include justify-content(space-between);
-  margin: 3em auto;
-  max-width: 970px;
-  padding: 0;
-  width: 95%;
-  &.two-up {
-    .sc-item {
-      width: 100%;
-    }
-    .sc-item.large {
-      width: 100%;
-    }
-  }
-  .dfp {
-    -webkit-transition: width 0.5s, height 0.5s, transform 0.5s;
-    -moz-transition: width 0.5s, height 0.5s, transform 0.5s;
-    -ms-transition: width 0.5s, height 0.5s, transform 0.5s;
-    -o-transition: width 0.5s, height 0.5s, transform 0.5s;
-    display: table;
-    margin: auto;
-    min-width: 50px;
-    margin-bottom: 3em;
-    position: relative;
-    z-index: 1;
+.sc-carousel {
+  .sc-carousel-meta {
+    margin: 0;
   }
 }
 
-.sc-item {
+.video-carousel {
+  .video-carousel-carousel {
+    &.sc-video-carousel {
+      padding: 0 calc((100% - 1024px) / 2);
+    }
+  } 
+}
+
+// SC Landing
+
+.sc-landing-billboard {
+  width: 100%;
+}
+
+.sc-landing-billboard-img {
+  width: 100%;
+  .image {
+    @include crop-3x1;
+  }
+}
+
+.sc-landing-body {
+  @include flexbox;
+  margin: 3em auto;
+  max-width: 1024px;
+  width: 100%;
+}
+
+.sc-landing-rail {
+  max-width: 250px;
+  width: 100%;
+}
+
+.sc-landing-list {
   @include flexbox;
   @include flex-direction(column);
-  @include align-items(center);
-  background: $light-shade;
-  margin-bottom: 3em;
+  margin: 0;
+  width: calc(100% - 250px);
+}
+
+.sc-landing-list-item {
+  @include flexbox;
+  @include flex-direction(column);
+  border-left: 1px solid black;
+  padding-bottom: 3em;
+  padding-left: 50px;
   text-align: center;
+  width: 100%;
   .thumb {
     width: 100%;
     .image {
@@ -178,6 +129,7 @@ $light-shade: #f4f4f4;
     }
   }
   .meta {
+    background: white;
     padding: 10%;
     h2 {
       font-size: 1.3em;
@@ -198,110 +150,20 @@ $light-shade: #f4f4f4;
       color: black;
     }
   }
-  &.large {
-    @include flex-direction(row);
-    background: transparent;
-    position: relative;
-    a {
-      @include flexbox;
-      @include flex-direction(column);
-    }
-    .thumb {
-      width: 100%;
-    }
-    .meta {
-      @include flexbox;
-      @include flex-direction(column);
-      @include align-items(center);
-      @include justify-content(center);
-      background: #eaeaea;
-      color: black;
-      position: relative;
-      width: 100%;
-    }
-  }
-}
-
-.sc-carousel {
-  .sc-carousel-meta {
-    margin: 0;
-  }
-}
-
-.video-carousel {
-  .video-carousel-carousel {
-    &.sc-video-carousel {
-      padding: 0 calc((100% - 970px) / 2);
-    }
-  } 
 }
 
 @media all and (min-width: $screen-md) {
-  .sc-grid {
-    &.two-up {
-      .sc-item {
-        width: 48%;
-      }
-      .sc-item.large {
-        width: 100%;
-      }
-    }
-  }
-  .sc-item {
-    &.large {
-      @include flex-direction(row);
-      background: transparent;
-      position: relative;
-      a {
-        @include flexbox;
-      }
-      .thumb {
-        width: 70%;
-      }
-      .meta {
-        @include flexbox;
-        @include flex-direction(column);
-        @include align-items(center);
-        @include justify-content(center);
-        background: rgba(0,0,0,.8);
-        bottom: 15%;
-        color: white;
-        max-width: 400px;
-        padding: 5%;
-        position: absolute;
-        right: 0;
-        top: 15%;
-      }
-    }
-  }
-  .sc-hero {
-    .sc-label {
-      display: inline-block;
-    }
-  }
+
 }
 
 @media all and (min-width: $screen-xlg) {
-  .sc-hero {
-    @include flex-direction(row);
-    .hero-img {
-      width: 65%;
-    }
-    .billboard {
-      padding: 1.5em;
-      width: 35%;
-    }
-  }
-
   .sc-carousel {
     .sc-video-player {
       padding: 2em calc((100% - 970px) / 2);
     }
-
     .sc-video-carousel {
       padding: 0 calc((100% - 970px) / 2);
     }
-
     .sc-divider {
       padding: 0  calc((100% - 970px) / 2);
       background-color: $light-shade;

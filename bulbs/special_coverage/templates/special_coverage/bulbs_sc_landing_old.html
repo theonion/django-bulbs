@@ -1,9 +1,32 @@
 {% load betty humanize ads static content %}
 
-  <div class="sc-landing-billboard">
-    <figure class="sc-landing-billboard-img">
+  <div class="sc-hero">
+    <figure class="hero-img">
       {% cropped special_coverage.image %}
     </figure>
+    <div class="sc-label">Special Coverage</div>
+    <div class="billboard">
+      <h1>{{ special_coverage.name }}</h1>
+      {% if special_coverage.description %}
+        <p>{{ special_coverage.description }}</p>
+      {% endif %}
+      {% if special_coverage.tunic_campaign_id %}
+        {% comment %}
+          TODO bulbs-elements dependency should be explicitly set by this repo.
+          At this point, we are pushing this responsibility downstream.
+        {% endcomment %}
+        <campaign-display
+          class="sc-hero-campaign"
+          data-track-action="Feature: Sponsor"
+          data-track-category="Special Coverage Landing"
+          placement="detail"
+          preamble-text="Presented by"
+          src="{% content_tunic_campaign_url special_coverage.tunic_campaign_id %}"
+          logo-only
+        >
+        </campaign-display>
+      {% endif %}
+    </div>
   </div>
 
 {% if current_video %}
@@ -98,32 +121,27 @@
   </bulbs-video-carousel>
 {% endif %}
 
-
-<section class="sc-landing-body">
-  <div class="sc-landing-rail">
-    <h1>{{ special_coverage.name }}</h1>
-  </div>
-  <ul class="sc-landing-list">
-    {% for content in content_list  %}
-      <li class="sc-landing-list-item">
-        <a
-          data-track-category="Special Coverage Landing"
-          data-track-action="Article: "
-          data-track-label="{{ content.get_absolute_url }}"
-          href="{{ content.get_absolute_url }}"
-        >
-          <figure class="thumb">
-            {% cropped content.thumbnail %}
-          </figure>
-          <div class="meta">
-            <span class="feature-type">{{ content.feature_type }}</span>
-            <h2>{{ content.title|safe }}</h2>
-            <span class="pub">{{ content.published|naturalday|capfirst }}</span>
-          </div>
-        </a>
-      </li>
-    {% endfor %}
-  </ul>
-</section>
-
-
+<ul class="sc-grid two-up">
+  {% for content in content_list  %}
+    <li class="sc-item {% if forloop.counter|divisibleby:"5" %}large{% endif %}">
+      <a
+        data-track-category="Special Coverage Landing"
+        data-track-action="Article: {% if forloop.counter|divisibleby:"5" %}Large{% else %}Small{% endif %}"
+        data-track-label="{{ content.get_absolute_url }}"
+        href="{{ content.get_absolute_url }}"
+      >
+        <figure class="thumb">
+          {% cropped content.thumbnail %}
+        </figure>
+        <div class="meta">
+          <span class="feature-type">{{ content.feature_type }}</span>
+          <h2>{{ content.title }}</h2>
+          <span class="pub">{{ content.published|naturalday|capfirst }}</span>
+        </div>
+      </a>
+    </li>
+    {% if forloop.counter == 4 %}
+      {% dfp_ad "sidebar-primary" %}
+    {% endif %}
+  {% endfor %}
+</ul>
