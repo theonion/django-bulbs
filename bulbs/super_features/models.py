@@ -38,7 +38,11 @@ class AbstractSuperFeature(models.Model):
         from bulbs.super_features.data_serializers import (GuideToChildSerializer,
                                                            GuideToParentSerializer)
 
-        sf_type = getattr(self, 'superfeature_type', '')
+        if type(self) is str:
+            sf_type = self
+        else:
+            sf_type = getattr(self, 'superfeature_type', '')
+
         if sf_type == GUIDE_TO:
             if self.is_parent:
                 serializer = GuideToParentSerializer

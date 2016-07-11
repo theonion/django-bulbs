@@ -3,7 +3,7 @@ from collections import OrderedDict
 
 from django.core.urlresolvers import reverse
 
-from bulbs.super_features.models import BaseSuperFeature
+from bulbs.super_features.models import BaseSuperFeature, GUIDE_TO
 from bulbs.utils.test import BaseAPITestCase
 
 
@@ -22,7 +22,23 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
         self.assertEqual(resp.status_code, 200)
 
     def test_post_guide_to(self):
-        pass
+        data = {
+            "title": "Guide to Summer",
+            "superfeature_type": GUIDE_TO,
+            "data": {
+                "sponsor_text": "Presented by Reds",
+                "sponsor_image": 123
+            }
+        }
+        resp = self.api_client.post(
+            self.list_endpoint,
+            data=json.dumps(data),
+            content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, 201)
+
+        superfeature = BaseSuperFeature.objects.get(id=resp.data["id"])
+        self.assertEqual(superfeature.data, self.list_data.get("data"))
 
     def test_options_guide_to(self):
         pass
