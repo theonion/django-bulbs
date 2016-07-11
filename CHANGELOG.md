@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 3.4.0
+
+- moved share tools for homepage player outside of bulbs-video-meta, this effects styling
+
 ## Version 3.3.2
 
 - Added `dfp_instant_article` value.
