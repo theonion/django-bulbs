@@ -7,9 +7,11 @@ from bulbs.content.models import Content
 from bulbs.super_features.utils import get_superfeature_choices
 
 
-GUIDE_TO = 'GUIDE_TO'
+GUIDE_TO_HOME = 'GUIDE_TO_HOME'
+GUIDE_TO_PAGE = 'GUIDE_TO_PAGE'
 BASE_CHOICES = (
-    (GUIDE_TO, 'Guide To'),
+    (GUIDE_TO_HOME, 'Guide To Home'),
+    (GUIDE_TO_PAGE, 'Guide To Page'),
 )
 
 SF_CHOICES = get_superfeature_choices()
@@ -37,13 +39,12 @@ class AbstractSuperFeature(models.Model):
                                                            GuideToParentSerializer)
 
         sf_type = getattr(self, 'superfeature_type', self)
+        serializer = {
+            GUIDE_TO_HOME: GuideToParentSerializer,
+            GUIDE_TO_PAGE: GuideToChildSerializer
+        }.get(sf_type, None)
 
-        if sf_type == GUIDE_TO:
-            if self.is_parent:
-                serializer = GuideToParentSerializer
-            else:
-                serializer = GuideToChildSerializer
-        else:
+        if serializer is None:
             raise KeyError('The requested SuperFeature does not have a registered serializer')
 
         return serializer
@@ -56,7 +57,7 @@ class AbstractSuperFeature(models.Model):
         self.full_clean()
         if self.is_child:
             self.index(save=False)
-            
+
         return super(AbstractSuperFeature, self).save(*args, **kwargs)
 
     def clean(self, *args, **kwargs):

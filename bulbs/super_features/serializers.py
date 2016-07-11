@@ -10,7 +10,7 @@ class BaseSuperFeatureDataField(serializers.Field):
         serializer = BaseSuperFeature.get_data_serializer(self.parent.initial_data.get("superfeature_type"))
         return serializer().to_internal_value(data)
 
-    def to_reprensentation(self, obj):
+    def to_representation(self, obj):
         serializer_class = BaseSuperFeature.get_data_serializer(self.parent.initial_data.get("superfeature_type"))
         serializer = serializer_class(data=obj)
         serializer.is_valid(raise_exception=True)
