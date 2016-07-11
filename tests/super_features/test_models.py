@@ -39,12 +39,11 @@ class SuperFeatureModelTestCase(BaseIndexableTestCase):
             notes="This is the guide to cats",
             superfeature_type=GUIDE_TO,
             data={
-                "entries": [{
-                    "title": "Cats",
-                    "copy": "Everybody loves cats"
-                }]
+                "sponsor_text": "Fancy Feast",
+                "sponsor_image": 1
             }
         )
+
         child = BaseSuperFeature.objects.create(
             title="Guide to Cats",
             notes="This is the guide to cats",

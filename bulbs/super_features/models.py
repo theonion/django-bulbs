@@ -20,6 +20,11 @@ class ContentRelation(models.Model):
     child = models.ForeignKey(Content, related_name="child")
     ordering = models.IntegerField()
 
+    def save(self, *args, **kwargs):
+        self.full_clean()
+
+        return super(ContentRelation, self).save(*args, **kwargs)
+
 
 class AbstractSuperFeature(models.Model):
     notes = models.TextField()
@@ -30,11 +35,17 @@ class AbstractSuperFeature(models.Model):
         abstract = True
 
     def get_data_serializer(self):
-        from bulbs.super_features.data_serializers import GuideToSerializer
+        from bulbs.super_features.data_serializers import (GuideToChildSerializer,
+                                                           GuideToParentSerializer)
 
-        serializer = {
-            "GUIDE_TO": GuideToSerializer
-        }.get(self.superfeature_type, None)
+        sf_type = getattr(self, 'superfeature_type', '')
+        if sf_type == GUIDE_TO:
+            if self.is_parent:
+                serializer = GuideToParentSerializer
+            else:
+                serializer = GuideToChildSerializer
+        else:
+            raise KeyError('The requested SuperFeature does not have a registered serializer')
 
         return serializer
 
@@ -60,6 +71,10 @@ class BaseSuperFeature(Content, AbstractSuperFeature):
             # Necessary to allow for our data field to store appropriately in Elasticsearch.
             # A potential alternative could be storing as a string., we should assess the value.
             dynamic = False
+
+    @property
+    def is_parent(self):
+        return ContentRelation.objects.filter(parent=self).exists()
 
     @property
     def is_child(self):
