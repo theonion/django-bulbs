@@ -31,7 +31,6 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
             data=json.dumps(data),
             content_type="application/json"
         )
-        import pdb; pdb.set_trace()
         self.assertEqual(resp.status_code, 201)
 
     def test_post_guide_to(self):
