@@ -54,6 +54,9 @@ class AbstractSuperFeature(models.Model):
 
     def save(self, *args, **kwargs):
         self.full_clean()
+        if self.is_child:
+            self.index(save=False)
+            
         return super(AbstractSuperFeature, self).save(*args, **kwargs)
 
     def clean(self, *args, **kwargs):
