@@ -27,7 +27,7 @@ class ContentRelation(models.Model):
 
 
 class AbstractSuperFeature(models.Model):
-    notes = models.TextField()
+    notes = models.TextField(null=True, blank=True, default='')
     superfeature_type = models.CharField(choices=SF_CHOICES, max_length=255)
     data = jsonfield.JSONField()
 
@@ -38,10 +38,7 @@ class AbstractSuperFeature(models.Model):
         from bulbs.super_features.data_serializers import (GuideToChildSerializer,
                                                            GuideToParentSerializer)
 
-        if type(self) is str:
-            sf_type = self
-        else:
-            sf_type = getattr(self, 'superfeature_type', '')
+        sf_type = getattr(self, 'superfeature_type', self)
 
         if sf_type == GUIDE_TO:
             if self.is_parent:

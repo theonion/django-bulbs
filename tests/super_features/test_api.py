@@ -21,6 +21,18 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
         resp = self.api_client.options(self.list_endpoint)
         self.assertEqual(resp.status_code, 200)
 
+    def test_post_no_data(self):
+        data = {
+            "title": "Guide to Summer",
+            "superfeature_type": GUIDE_TO
+        }
+        resp = self.api_client.post(
+            self.list_endpoint,
+            data=json.dumps(data),
+            content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, 201)
+
     def test_post_guide_to(self):
         data = {
             "title": "Guide to Summer",
