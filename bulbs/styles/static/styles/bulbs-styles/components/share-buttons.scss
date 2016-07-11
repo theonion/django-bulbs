@@ -1,0 +1,77 @@
+///////////////////////////////
+// ************************* //
+//       SHARE BUTTONS       //
+// ************************* //
+///////////////////////////////
+
+@import "../mixins/flexbox";
+@import "../variables/global-colors";
+@import "../variables/breakpoints";
+
+@mixin border-radius($radius) {
+  -webkit-border-radius: $radius;
+  border-radius: $radius;
+  background-clip: padding-box;  /* stops bg color from leaking outside the border: */
+}
+
+.bulbs-share {
+  @include flexbox;
+  text-align: center;
+  > * {
+    margin-left: 0.75em;
+    &:first-child { margin-left: 0; }
+  }
+  &.circle {
+    a {
+      @include border-radius(50%);
+    }
+  }
+  a {
+    @include flexbox;
+    @include align-items(center);
+    @include justify-content(center);
+    border: 1px solid $avc-blue;
+    color: $avc-blue;
+    height: 50px;
+    font-size: 1.4em;
+    width: 50px;
+    &:hover {
+      background: $avc-blue;
+      color: white!important;
+    }
+    .fa {
+      width: 1.28571429em;
+    }
+  }
+  a.share-via-facebook {
+    border-color: $color-facebook;
+    color: $color-facebook;
+    &:hover {
+      background: $color-facebook;
+    }
+  }
+
+  a.share-via-twitter {
+    border-color: $color-twitter;
+    color: $color-twitter;
+    &:hover {
+      background: $color-twitter;
+    }
+  }
+
+  a.share-via-email {
+    border-color: $color-mail;
+    color: $color-mail;
+    &:hover {
+      background: $color-mail;
+    }
+  }
+
+  a.share-comments {
+    border-color: $color-comments;
+    color: $color-comments;
+    &:hover {
+      background: $color-comments;
+    }
+  }
+}

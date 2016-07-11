@@ -9,14 +9,14 @@
 @import "../mixins/flexbox";
 @import "../mixins/ease";
 @import "../mixins/figures";
+@import "../mixins/multi-line-truncate";
 @import "../variables/breakpoints";
 
+$sc-mobile-margin: 15px;
+$sc-tablet-margin: 30px;
+$sc-desktop-margin: 50px;
 
 $light-shade: #f4f4f4;
-
-body {
-  background: $light-shade;
-}
 
 // SC Campaigns
 
@@ -91,72 +91,197 @@ body {
 .sc-landing-billboard-img {
   width: 100%;
   .image {
-    @include crop-3x1;
+    @include crop-16x9;
   }
 }
 
 .sc-landing-body {
   @include flexbox;
-  margin: 3em auto;
+  @include flex-direction(column);
+  margin: 0 auto;
   max-width: 1024px;
+  padding: $sc-mobile-margin;
   width: 100%;
 }
 
+.sc-landing-description {
+  color: #4a4a4a;
+  line-height: 1.71;
+  margin: 1em 0;
+}
+
 .sc-landing-rail {
-  max-width: 250px;
   width: 100%;
+  h1 {
+    font-size: 2.25em;
+    margin: 0;
+    padding: 0;
+  }
+  campaign-display {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 10px;
+    margin-top: 1em;
+    .inner a {
+      @include flexbox;
+      @include align-items(center);
+      text-transform: uppercase;
+    }
+    .campaign-display-preamble {
+      margin-right: 12px;
+    }
+    .campaign-display-logo {
+      max-width: 90px;
+    }
+  }
 }
 
 .sc-landing-list {
   @include flexbox;
   @include flex-direction(column);
   margin: 0;
-  width: calc(100% - 250px);
+  padding-top: $sc-desktop-margin;
+  width: 100%;
 }
 
 .sc-landing-list-item {
-  @include flexbox;
-  @include flex-direction(column);
-  border-left: 1px solid black;
-  padding-bottom: 3em;
-  padding-left: 50px;
-  text-align: center;
+  list-style: none;
+  padding-bottom: $sc-mobile-margin;
+  position: relative;
   width: 100%;
-  .thumb {
-    width: 100%;
+}
+
+.sc-landing-list-item-link {
+  @include flexbox;
+  @include flex-direction(row);
+  width: 100%;
+  figure {
+    width: 100px;
     .image {
-      @include crop-16x9;
+      @include crop-1x1;
     }
   }
   .meta {
+    @include flexbox;
+    @include flex-direction(column);
     background: white;
-    padding: 10%;
+    padding: $sc-mobile-margin;
+    width: 100%;
     h2 {
-      font-size: 1.3em;
+      @include multiLineTruncate(1.33em, 3, white);
+      font-size: 12px;
+      font-weight: bold;
+      line-height: 1.33;
+      margin: 0;
+      padding: 0;
     }
     .feature-type {
+      @include multiLineTruncate(1.33em, 1, white);
       color: black;
+      font-size: 10px;
+      margin-bottom: .5em;
       text-transform: uppercase;
     }
     .pub {
       color: rgb(122, 135, 129);
+      display: none;
       font-size: .75em;
-    }
-  }
-  a {
-    color: black;
-    width: 100%;
-    &:hover {
-      color: black;
+      margin-top: auto;
+      &:before  {
+        content: '\f017';
+        font-family: FontAwesome;
+        margin-right: .5em;
+      }
     }
   }
 }
 
 @media all and (min-width: $screen-md) {
-
+  .sc-landing-billboard-img {
+    .image {
+      @include crop-3x1;
+    }
+  }
+  .sc-landing-body {
+    margin: 0 auto;
+    padding: 0 $sc-tablet-margin;
+  }
+  .sc-landing-list {
+    border-left: 2px solid #e2e2e2;
+  }
+  .sc-landing-list-item {
+    padding-left: $sc-tablet-margin;
+  }
+  .sc-landing-list-item-link {
+    figure {
+      width: 300px;
+      .image {
+        @include crop-16x9;
+      }
+    }
+    .feature-type {
+      font-size: .9em;
+    }
+    .meta {
+      padding: 1.5em;
+      h2 {
+        font-size: 1.3em;
+        line-height: 24px;
+      }
+      .pub {
+        display: block;
+      }
+    }
+  }
+  .sc-landing-rail {
+    border-left: 2px solid #e2e2e2;
+    padding-left: $sc-tablet-margin;
+    padding-top: $sc-tablet-margin;
+  }
 }
 
 @media all and (min-width: $screen-xlg) {
+  .sc-landing-body {
+    @include flex-direction(row);
+  }
+  .sc-landing-list {
+    border-left: 2px solid #e2e2e2;
+    width: calc(100% - 250px);
+  }
+  .sc-landing-list-item {
+    padding-bottom: $sc-desktop-margin;
+    padding-left: $sc-desktop-margin;
+    position: relative;
+    width: 100%;
+    &:before {
+      background: #1c263c;
+      border-radius: 10px;
+      content: '';
+      display: block;
+      height: 10px;
+      position: absolute;
+      left: -6px;
+      top: 80px;
+      width: 10px; 
+    }
+    &:after {
+      background: #e2e2e2;
+      content: '';
+      display: block;
+      height: 1px;
+      position: absolute;
+      left: 0;
+      top: 85px;
+      width: $sc-desktop-margin;
+      z-index: -1; 
+    }
+  }
+  .sc-landing-rail {
+    border-left: 0;
+    margin-right: $sc-desktop-margin;
+    max-width: 250px;
+    padding-left: 0;
+    padding-top: $sc-desktop-margin;
+  }
   .sc-carousel {
     .sc-video-player {
       padding: 2em calc((100% - 970px) / 2);
