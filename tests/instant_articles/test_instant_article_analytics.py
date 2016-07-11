@@ -41,3 +41,4 @@ class AnalyticsViewTests(BaseIndexableTestCase):
         self.assertEqual(self.content.id, targeting.get("dfp_contentid"))
         self.assertEqual(self.content.__class__.__name__.lower(), targeting.get("dfp_pagetype"))
         self.assertEqual(self.content.slug, targeting.get("dfp_slug"))
+        self.assertTrue(targeting.get("dfp_instant_article"))
