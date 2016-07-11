@@ -20,10 +20,8 @@ class ContentRelation(models.Model):
     child = models.ForeignKey(Content, related_name="child")
     ordering = models.IntegerField()
 
-    def save(self, *args, **kwargs):
-        self.full_clean()
-
-        return super(ContentRelation, self).save(*args, **kwargs)
+    class Meta:
+        unique_together = ('parent', 'ordering')
 
 
 class AbstractSuperFeature(models.Model):
