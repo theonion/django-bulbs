@@ -1,0 +1,46 @@
+//////////////////////////////////////
+// ******************************** //
+//          Homepage Player         //
+// ******************************** //
+//////////////////////////////////////
+
+@import "../mixins/flex-grid";
+@import "../mixins/flexbox";
+@import "../mixins/ease";
+@import "../mixins/figures";
+@import "../variables/breakpoints";
+
+$spacing: 20px;
+$light-shade: #f4f4f4;
+
+.homepage-player {
+  background-color: #F5F7F7;
+  padding-top: $spacing;
+}
+
+.homepage-player-nav {
+  margin: 0 $spacing;
+}
+
+@media all and (min-width: $screen-md) {
+  .homepage-player-nav {
+    max-width: 200px;
+    min-width: 200px;
+  }
+
+  .homepage-player bulbs-carousel-track {
+    @include overflow-flexgrid(
+      $columns: 3,
+      $gutter: 20
+    );
+  }
+}
+
+@media all and (min-width: $screen-xlg) {
+  .homepage-player bulbs-carousel-track {
+    @include overflow-flexgrid(
+      $columns: 5,
+      $gutter: 20
+    );
+  }
+}

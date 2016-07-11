@@ -2,6 +2,7 @@ from datetime import date, datetime
 from dateutil import tz
 from six import string_types, text_type, binary_type
 
+from django import template
 from django.conf import settings
 from django.utils import timezone
 
@@ -70,3 +71,31 @@ def get_template_choices():
         elif type(choice[0]) != int:
             raise ValueError(INVALID_TEMPLATE_CHOICE.format(choice))
     return ((0, None),) + configured_templates
+
+
+def get_overridable_template_name(parent_name, child_name):
+    get_template = template.loader.get_template
+
+    try:
+        child_template = get_template(child_name)
+    except template.loader.TemplateDoesNotExist:
+        child_template = None
+
+    if child_template:
+        bad_inheritance_message = "{} MUST extend {}".format(child_name, parent_name)
+
+        extends_node = child_template.template.nodelist.get_nodes_by_type(
+            template.loader_tags.ExtendsNode)
+
+        if not extends_node[0]:
+            raise Exception(bad_inheritance_message)
+
+        if str(extends_node[0].parent_name) != "'{}'".format(parent_name):
+            raise Exception(bad_inheritance_message)
+
+    if child_template:
+        template_name = child_name
+    else:
+        template_name = parent_name
+
+    return template_name

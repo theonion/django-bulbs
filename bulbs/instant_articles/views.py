@@ -95,7 +95,8 @@ class InstantArticleAnalyticsView(InstantArticleContentView):
         context["fire_pageview"] = True
         context["platform"] = "Instant Articles"
         context["path"] = self.request.GET.get("path", "")
-
+        if context["targeting"]:
+            context["targeting"]["dfp_instant_article"] = True
         return context
 
 
