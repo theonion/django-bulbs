@@ -21,24 +21,21 @@
 
     <div class="video-carousel-meta">
       <bulbs-video-meta
-        src="{{ VIDEOHUB_BASE_URL }}/video/{{ videos.0.videohub_ref.id }}.json"
-        campaign-url="{% if video.tunic_campaign_id %}{% content_tunic_campaign_url videos.0.tunic_campaign_id %}{% endif %}"
-        campaign-placement="recirc"
-        campaign-preamble="Sponsored By"
-        campaign-track-action="HP: Main: Campaign"
-        title-track-action="HP: Main: Series"
-      >
+          src="{{ VIDEOHUB_BASE_URL }}/video/{{ videos.0.videohub_ref.id }}.json"
+          campaign-url="{% if video.tunic_campaign_id %}{% content_tunic_campaign_url videos.0.tunic_campaign_id %}{% endif %}"
+          campaign-placement="recirc"
+          campaign-preamble="Sponsored By"
+          campaign-track-action="HP: Main: Campaign"
+          title-track-action="HP: Main: Series">
       </bulbs-video-meta>
         <share-tools
             class="video-carousel-share-tools"
-            share-title={{ videos.0.videohub_ref.title }}
+            share-title="{{ videos.0.videohub_ref.title }}"
             share-url={% build_video_share_uri videos.0.videohub_ref.id %}
-            share-email-message="{{share_message}}"
-            share-twitter-handle="{{twitter_handle}}"
             share-track-action="HP: Main: Share">
             {% block homepage_player_share_tools %}
             {% endblock homepage_player_share_tools %}
-          </share-tools>
+        </share-tools>
     </div>
 
     <hr class="video-carousel-divider"/>
@@ -50,32 +47,30 @@
         </span>
 
         <bulbs-carousel-previous
-          class="video-carousel-previous"
-          data-track-action="HP: Carousel Prev"
-          data-track-label="#">
+            class="video-carousel-previous"
+            data-track-action="HP: Carousel Prev"
+            data-track-label="#">
         </bulbs-carousel-previous>
         <bulbs-carousel-next
-          class="video-carousel-next"
-          data-track-action="HP: Carousel Next"
-          data-track-label="#">
+            class="video-carousel-next"
+            data-track-action="HP: Carousel Next"
+            data-track-label="#">
         </bulbs-carousel-next>
       </header>
 
       <bulbs-carousel-slider>
         {% for video in videos %}
           <bulbs-carousel-item
-            {# TODO implement /v/2323 redirect route in urls.py #}
-            {# see: https://trello.com/c/3bT7Xuc9/60 #}
-            share-url="{% build_video_share_uri video.videohub_ref.id %}"
-            video-url="{{ VIDEOHUB_BASE_URL }}/video/{{ video.videohub_ref.id }}.json"
-            campaign-url="{% if video.tunic_campaign_id %}{% content_tunic_campaign_url video.tunic_campaign_id %}{% endif %}"
-            data-track-action="HP: Carousel Item"
-            data-track-label="Item: {{forloop.counter}}"
-          >
+              {# TODO implement /v/2323 redirect route in urls.py #}
+              {# see: https://trello.com/c/3bT7Xuc9/60 #}
+              share-url="{% build_video_share_uri video.videohub_ref.id %}"
+              video-url="{{ VIDEOHUB_BASE_URL }}/video/{{ video.videohub_ref.id }}.json"
+              campaign-url="{% if video.tunic_campaign_id %}{% content_tunic_campaign_url video.tunic_campaign_id %}{% endif %}"
+              data-track-action="HP: Carousel Item"
+              data-track-label="Item: {{forloop.counter}}">
             <bulbs-video-summary
-              class="video-carousel-summary"
-              src="{{ VIDEOHUB_BASE_URL }}/video/{{ video.videohub_ref.id }}.json"
-            >
+                class="video-carousel-summary"
+                src="{{ VIDEOHUB_BASE_URL }}/video/{{ video.videohub_ref.id }}.json">
             </bulbs-vido-summary>
           </bulbs-carousel-item>
         {% endfor %}

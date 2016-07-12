@@ -63,12 +63,10 @@
         >
         </bulbs-video-meta>
         <share-tools
-          class="video-carousel-share-tools"
-          share-url={% build_video_share_uri current_video %}
-          share-title={{current_video.title}}
-          share-email-message="{{share_message}}"
-          share-twitter-handle="{{twitter_handle}}"
-          share-track-action="Video: Main: Share">
+            class="video-carousel-share-tools"
+            share-url={% build_video_share_uri current_video %}
+            share-track-action="Video: Main: Share"
+            share-title="{{video_title}}">
           <div class="video-carousel-share-tools">
             <share-via-facebook label icon></share-via-facebook>
             <share-via-twitter label icon twitter-handle={{twitter_handle}}></share-via-twitter>
