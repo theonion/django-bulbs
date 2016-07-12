@@ -14,6 +14,7 @@
         no-endcard
         src="{{ VIDEOHUB_BASE_URL }}/video/{{ videos.0.videohub_ref.id }}.json"
         data-track-action="HP: Main Video Play"
+        twitter-handle="{{twitter_handle}}"
       >
       </bulbs-video>
     </div>
@@ -21,17 +22,23 @@
     <div class="video-carousel-meta">
       <bulbs-video-meta
         src="{{ VIDEOHUB_BASE_URL }}/video/{{ videos.0.videohub_ref.id }}.json"
-        share-url={% build_video_share_uri videos.0.videohub_ref.id %}
         campaign-url="{% if video.tunic_campaign_id %}{% content_tunic_campaign_url videos.0.tunic_campaign_id %}{% endif %}"
         campaign-placement="recirc"
         campaign-preamble="Sponsored By"
         campaign-track-action="HP: Main: Campaign"
-        share-email-message="{{share_message}}"
-        share-twitter-handle="{{twitter_handle}}"
-        share-track-action="HP: Main: Share"
         title-track-action="HP: Main: Series"
       >
       </bulbs-video-meta>
+        <share-tools
+            class="video-carousel-share-tools"
+            share-title={{ videos.0.videohub_ref.title }}
+            share-url={% build_video_share_uri videos.0.videohub_ref.id %}
+            share-email-message="{{share_message}}"
+            share-twitter-handle="{{twitter_handle}}"
+            share-track-action="HP: Main: Share">
+            {% block homepage_player_share_tools %}
+            {% endblock homepage_player_share_tools %}
+          </share-tools>
     </div>
 
     <hr class="video-carousel-divider"/>
