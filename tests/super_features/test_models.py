@@ -45,7 +45,6 @@ class SuperFeatureModelTestCase(BaseIndexableTestCase):
                 "sponsor_image": {"id": 1}
             }
         )
-
         child = BaseSuperFeature.objects.create(
             title="Guide to Cats",
             notes="This is the guide to cats",
@@ -57,7 +56,6 @@ class SuperFeatureModelTestCase(BaseIndexableTestCase):
                 }]
             }
         )
-
         ContentRelation.objects.create(parent=parent, child=child, ordering=1)
 
         self.assertFalse(parent.is_child)
@@ -73,7 +71,6 @@ class SuperFeatureModelTestCase(BaseIndexableTestCase):
                 "sponsor_image": {"id": 1}
             }
         )
-
         child1 = BaseSuperFeature.objects.create(
             title="Guide to Cats",
             notes="This is the guide to cats",
@@ -96,7 +93,6 @@ class SuperFeatureModelTestCase(BaseIndexableTestCase):
                 }]
             }
         )
-
         ContentRelation.objects.create(parent=parent, child=child1, ordering=1)
 
         with self.assertRaises(IntegrityError):

@@ -3,7 +3,7 @@ from collections import OrderedDict
 
 from django.core.urlresolvers import reverse
 
-from bulbs.super_features.models import BaseSuperFeature, GUIDE_TO_HOME
+from bulbs.super_features.models import BaseSuperFeature, GUIDE_TO_HOME, GUIDE_TO_PAGE
 from bulbs.utils.test import BaseAPITestCase
 
 
@@ -83,3 +83,48 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
                 ])
             }
         })
+
+    def test_post_content_relation(self):
+        parent = BaseSuperFeature.objects.create(
+            title="Guide to Cats",
+            notes="This is the guide to cats",
+            superfeature_type=GUIDE_TO_HOME,
+            data={
+                "sponsor_text": "Fancy Feast",
+                "sponsor_image": {"id": 1}
+            }
+        )
+        child = BaseSuperFeature.objects.create(
+            title="Guide to Cats",
+            notes="This is the guide to cats",
+            superfeature_type=GUIDE_TO_PAGE
+        )
+
+        # link child to parent
+        # POST /relate BODY: {'parent_id': 1, 'child_id': 2}
+
+        self.assertTrue(child.is_child())
+        self.assertFalse(parent.is_child())
+
+    def test_parent_get_children(self):
+        parent = BaseSuperFeature.objects.create(
+            title="Guide to Cats",
+            notes="This is the guide to cats",
+            superfeature_type=GUIDE_TO_HOME,
+            data={
+                "sponsor_text": "Fancy Feast",
+                "sponsor_image": {"id": 1}
+            }
+        )
+        child = BaseSuperFeature.objects.create(
+            title="Guide to Cats",
+            notes="This is the guide to cats",
+            superfeature_type=GUIDE_TO_PAGE,
+            data={
+                "entries": [{
+                    "title": "Cats",
+                    "copy": "Everybody loves cats"
+                }]
+            }
+        )
+        ContentRelation.objects.create(parent=parent, child=child, ordering=1)
