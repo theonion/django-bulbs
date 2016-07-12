@@ -100,9 +100,15 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
             superfeature_type=GUIDE_TO_PAGE
         )
 
-        # link child to parent
-        # POST /relate BODY: {'parent_id': 1, 'child_id': 2}
+        data = {
+            'parent_id': parent.id,
+            'child_id': child.id,
+            'ordering': 1
+        }
+        url = reverse('whatever')
+        resp = self.api_client.post(url, data=json.dumps(data), content_type='application/json')
 
+        self.assertEqual(resp.status_code, 201)
         self.assertTrue(child.is_child())
         self.assertFalse(parent.is_child())
 
@@ -128,3 +134,10 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
             }
         )
         ContentRelation.objects.create(parent=parent, child=child, ordering=1)
+
+        # GET parent_id/children
+        url = reverse('whatever')
+        resp = self.api_client.get(url)
+
+        self.assertEqual(resp.status_code, 200)
+        # Check resp.data
