@@ -69,9 +69,11 @@
           share-email-message="{{share_message}}"
           share-twitter-handle="{{twitter_handle}}"
           share-track-action="Video: Main: Share">
-          <share-via-facebook label icon></share-via-facebook>
-          <share-via-twitter label icon twitter-handle={{twitter_handle}}></share-via-twitter>
-          <share-via-email label icon message={{share_message}}></share-via-twitter>
+          <div class="video-carousel-share-tools">
+            <share-via-facebook label icon></share-via-facebook>
+            <share-via-twitter label icon twitter-handle={{twitter_handle}}></share-via-twitter>
+            <share-via-email label icon message={{share_message}}></share-via-twitter>
+          </div>
         </share-tools>
       </div>
     </div>
