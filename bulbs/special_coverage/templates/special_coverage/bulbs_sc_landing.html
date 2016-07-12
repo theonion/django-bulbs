@@ -138,9 +138,9 @@
           href="{{ content.get_absolute_url }}"
           class="sc-landing-list-item-link"
         >
-          <div class="thumb">
-            {% cropped content.thumbnail %}
-          </div>
+          <figure>
+            {% cropped content.image %}
+          </figure>
           <div class="meta">
             <span class="feature-type">{{ content.feature_type }}</span>
             <h2>{{ content.title|safe }}</h2>

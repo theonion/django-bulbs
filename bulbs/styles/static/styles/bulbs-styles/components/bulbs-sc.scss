@@ -140,6 +140,7 @@ $light-shade: #f4f4f4;
   @include flexbox;
   @include flex-direction(column);
   margin: 0;
+  padding: 0;
   padding-top: $sc-desktop-margin;
   width: 100%;
 }
@@ -156,9 +157,9 @@ $light-shade: #f4f4f4;
   @include flex-direction(row);
   width: 100%;
   figure {
-    width: 100px;
-    .image {
+    .image {     
       @include crop-1x1;
+      width: 100px; 
     }
   }
   .meta {
@@ -194,6 +195,10 @@ $light-shade: #f4f4f4;
       }
     }
   }
+  .thumb {
+    display: block;
+    width: 100%;
+  }
 }
 
 @media all and (min-width: $screen-md) {
@@ -215,9 +220,9 @@ $light-shade: #f4f4f4;
   .sc-landing-list-item-link {
     border-top: 5px solid $avc-blue;
     figure {
-      width: 300px;
       .image {
         @include crop-16x9;
+        width: 300px;
       }
     }
     .feature-type {
