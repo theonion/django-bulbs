@@ -4,7 +4,7 @@ import jsonfield
 from elasticsearch_dsl import field
 
 from bulbs.content.models import Content
-from bulbs.super_features.utils import get_superfeature_choices
+from bulbs.super_features.utils import get_superfeature_choices, get_data_serializer
 
 
 GUIDE_TO_HOME = 'GUIDE_TO_HOME'
@@ -35,19 +35,7 @@ class AbstractSuperFeature(models.Model):
         abstract = True
 
     def get_data_serializer(self):
-        from bulbs.super_features.data_serializers import (GuideToChildSerializer,
-                                                           GuideToParentSerializer)
-
-        sf_type = getattr(self, 'superfeature_type', self)
-        serializer = {
-            GUIDE_TO_HOME: GuideToParentSerializer,
-            GUIDE_TO_PAGE: GuideToChildSerializer
-        }.get(sf_type, None)
-
-        if serializer is None:
-            raise KeyError('The requested SuperFeature does not have a registered serializer')
-
-        return serializer
+        return get_data_serializer(self.superfeature_type)
 
     def validate_data_field(self):
         Serializer = self.get_data_serializer()  # NOQA
