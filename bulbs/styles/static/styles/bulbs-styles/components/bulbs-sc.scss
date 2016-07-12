@@ -157,6 +157,8 @@ $light-shade: #f4f4f4;
   @include flex-direction(row);
   width: 100%;
   figure {
+    max-width: 100px;
+    width: 100%;
     .image {     
       @include crop-1x1;
       width: 100px; 
@@ -169,10 +171,8 @@ $light-shade: #f4f4f4;
     padding: $sc-mobile-margin;
     width: 100%;
     h2 {
-      @include multiLineTruncate(1.33em, 3, white);
-      font-size: 12px;
-      font-weight: bold;
-      line-height: 1.33;
+      @include multiLineTruncate(1.1em, 3, white);
+      font-size: 1.1em;
       margin: 0;
       padding: 0;
     }
@@ -220,6 +220,7 @@ $light-shade: #f4f4f4;
   .sc-landing-list-item-link {
     border-top: 5px solid $avc-blue;
     figure {
+      max-width: 300px;
       .image {
         @include crop-16x9;
         width: 300px;
@@ -231,8 +232,8 @@ $light-shade: #f4f4f4;
     .meta {
       padding: 1.5em;
       h2 {
-        font-size: 1.3em;
-        line-height: 24px;
+        @include multiLineTruncate(1.33em, 3, white);
+        font-size: 1.33em;
       }
       .pub {
         display: block;
@@ -280,7 +281,7 @@ $light-shade: #f4f4f4;
       left: 0;
       top: 85px;
       width: $sc-desktop-margin;
-      z-index: -1; 
+      z-index: -1;
     }
   }
   .sc-landing-list-item-link {
