@@ -6,7 +6,6 @@ from django import template
 from django.conf import settings
 from django.utils import timezone
 from django.apps import apps
-from django.shortcuts import get_object_or_404
 
 
 INVALID_TEMPLATE_CHOICE = """Choices for template values must be non-zero integers."""
