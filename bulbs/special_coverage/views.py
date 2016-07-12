@@ -1,3 +1,5 @@
+from django.apps import apps
+from django.conf import settings
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.views.decorators.cache import cache_control
@@ -30,10 +32,17 @@ class SpecialCoverageView(BaseContentDetailView):
         context["content_list"] = self.special_coverage.get_content()
         context["special_coverage"] = self.special_coverage
         context["targeting"] = {}
+
+        video_model_name = getattr(settings, "VIDEO_MODEL", "")
+        video_model = apps.get_model(video_model_name)
         try:
-            context["current_video"] = self.special_coverage.videos[0]
+            current_video = self.special_coverage.videos[0]
+            video = get_object_or_404(video_model, videohub_ref_id=int(current_video))
+            context["current_video"] = current_video
+            context["video_title"] = video.title
         except IndexError:
             context["current_video"] = None
+            context["video_title"] = None
 
         if self.special_coverage:
             context["targeting"]["dfp_specialcoverage"] = self.special_coverage.slug
