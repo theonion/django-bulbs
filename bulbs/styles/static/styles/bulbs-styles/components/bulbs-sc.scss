@@ -11,6 +11,7 @@
 @import "../mixins/figures";
 @import "../mixins/multi-line-truncate";
 @import "../variables/breakpoints";
+@import "../variables/global-colors";
 
 $sc-mobile-margin: 15px;
 $sc-tablet-margin: 30px;
@@ -212,6 +213,7 @@ $light-shade: #f4f4f4;
     padding-left: $sc-tablet-margin;
   }
   .sc-landing-list-item-link {
+    border-top: 5px solid $avc-blue;
     figure {
       width: 300px;
       .image {
@@ -242,6 +244,7 @@ $light-shade: #f4f4f4;
 @media all and (min-width: $screen-xlg) {
   .sc-landing-body {
     @include flex-direction(row);
+    padding: 0;
   }
   .sc-landing-list {
     border-left: 2px solid #e2e2e2;
@@ -274,6 +277,9 @@ $light-shade: #f4f4f4;
       width: $sc-desktop-margin;
       z-index: -1; 
     }
+  }
+  .sc-landing-list-item-link {
+    border-top: 0;
   }
   .sc-landing-rail {
     border-left: 0;
