@@ -1,11 +1,10 @@
-from django.apps import apps
-from django.conf import settings
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.views.decorators.cache import cache_control
 
 from bulbs.special_coverage.models import SpecialCoverage
 from bulbs.content.views import BaseContentDetailView
+from bulbs.utils.methods import get_video_object
 
 
 class SpecialCoverageView(BaseContentDetailView):
@@ -33,13 +32,10 @@ class SpecialCoverageView(BaseContentDetailView):
         context["special_coverage"] = self.special_coverage
         context["targeting"] = {}
 
-        video_model_name = getattr(settings, "VIDEO_MODEL", "")
-        video_model = apps.get_model(video_model_name)
         try:
             current_video = self.special_coverage.videos[0]
-            video = get_object_or_404(video_model, videohub_ref_id=int(current_video))
             context["current_video"] = current_video
-            context["video_title"] = video.title
+            context["video_title"] = get_video_object(current_video).title
         except IndexError:
             context["current_video"] = None
             context["video_title"] = None
@@ -60,6 +56,7 @@ class SpecialCoverageVideoView(SpecialCoverageView):
             raise Http404('Video with id={} not in SpecialCoverage'.format(video_id))
 
         context['current_video'] = video_id
+        context['video_title'] = get_video_object(video_id).title
 
         return context
 
