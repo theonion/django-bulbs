@@ -33,12 +33,9 @@ class SpecialCoverageView(BaseContentDetailView):
         context["targeting"] = {}
 
         try:
-            current_video = self.special_coverage.videos[0]
-            context["current_video"] = current_video
-            context["video_title"] = get_video_object(current_video).title
+            context["video"] = get_video_object(self.special_coverage.videos[0])
         except IndexError:
-            context["current_video"] = None
-            context["video_title"] = None
+            context["video"] = None
 
         if self.special_coverage:
             context["targeting"]["dfp_specialcoverage"] = self.special_coverage.slug
@@ -55,8 +52,7 @@ class SpecialCoverageVideoView(SpecialCoverageView):
         if video_id not in self.special_coverage.videos:
             raise Http404('Video with id={} not in SpecialCoverage'.format(video_id))
 
-        context['current_video'] = video_id
-        context['video_title'] = get_video_object(video_id).title
+        context['video'] = get_video_object(video_id).title
 
         return context
 

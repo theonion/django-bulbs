@@ -102,8 +102,10 @@ def get_overridable_template_name(parent_name, child_name):
 
     return template_name
 
-def get_video_object(video_id):
-    video_model_name = getattr(settings, "VIDEO_MODEL", "")
-    video_model = apps.get_model(video_model_name)
-    video = get_object_or_404(video_model, videohub_ref_id=int(video_id))
+def get_video_object(videohub_id):
+    video_model = apps.get_model(settings.VIDEO_MODEL)
+    try:
+        video = video_model.objects.get(videohub_ref_id=int(videohub_id))
+    except:
+        video = None
     return video
