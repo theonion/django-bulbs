@@ -59,12 +59,20 @@
         {% endif %}
         <bulbs-video-meta
           src='{{ VIDEOHUB_BASE_URL }}/video/{{current_video}}.json'
-          share-email-message="{{share_message}}"
-          share-twitter-handle="{{twitter_handle}}"
           data-track-category="Special Coverage Landing"
-          share-track-action="Video: Main: Share"
         >
         </bulbs-video-meta>
+        <share-tools
+          class="video-carousel-share-tools"
+          share-url={% build_video_share_uri current_video %}
+          share-title={{current_video.title}}
+          share-email-message="{{share_message}}"
+          share-twitter-handle="{{twitter_handle}}"
+          share-track-action="Video: Main: Share">
+          <share-via-facebook label icon></share-via-facebook>
+          <share-via-twitter label icon twitter-handle={{twitter_handle}}></share-via-twitter>
+          <share-via-email label icon message={{share_message}}></share-via-twitter>
+        </share-tools>
       </div>
     </div>
   {% endif %}
