@@ -25,10 +25,10 @@ class RelationViewSet(views.APIView):
 
     def get(self, request, pk):
         child_ids = ContentRelation.objects.filter(
-                parent_id=pk
-            ).values_list(
-                'child_id', flat=True
-            ).order_by('ordering')
+            parent_id=pk
+        ).values_list(
+            'child_id', flat=True
+        ).order_by('ordering')
         children = SUPERFEATURE_MODEL.objects.filter(id__in=child_ids)
         result = SUPERFEATURE_PARTIAL_SERIALIZER(children, many=True)
 
