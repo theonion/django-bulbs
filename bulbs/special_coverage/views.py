@@ -52,7 +52,7 @@ class SpecialCoverageVideoView(SpecialCoverageView):
         if video_id not in self.special_coverage.videos:
             raise Http404('Video with id={} not in SpecialCoverage'.format(video_id))
 
-        context['video'] = get_video_object(video_id).title
+        context['video'] = get_video_object_from_videohub_id(video_id).title
 
         return context
 
