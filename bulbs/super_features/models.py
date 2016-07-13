@@ -7,10 +7,10 @@ from bulbs.content.models import Content
 from bulbs.super_features.utils import get_superfeature_choices, get_data_serializer
 
 
-GUIDE_TO_HOMEPAGEPAGE = 'GUIDE_TO_HOMEPAGEPAGE'
+GUIDE_TO_HOMEPAGE = 'GUIDE_TO_HOMEPAGE'
 GUIDE_TO_ENTRY = 'GUIDE_TO_ENTRY'
 BASE_CHOICES = (
-    (GUIDE_TO_HOMEPAGEPAGE, 'Guide To Homepage'),
+    (GUIDE_TO_HOMEPAGE, 'Guide To Homepage'),
     (GUIDE_TO_ENTRY, 'Guide To Entry'),
 )
 
@@ -29,7 +29,7 @@ class ContentRelation(models.Model):
 class AbstractSuperFeature(models.Model):
     notes = models.TextField(null=True, blank=True, default='')
     superfeature_type = models.CharField(choices=SF_CHOICES, max_length=255)
-    default_child_type = models.CharField(choices=SF_CHOICES, max_lenth=255, null=True, blank=True)
+    default_child_type = models.CharField(choices=SF_CHOICES, max_length=255, null=True, blank=True)
     data = jsonfield.JSONField()
 
     class Meta:
