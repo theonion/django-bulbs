@@ -2,7 +2,9 @@ from django.db import IntegrityError
 
 from rest_framework.serializers import ValidationError
 
-from bulbs.super_features.models import (ContentRelation, BaseSuperFeature, GUIDE_TO_HOME, GUIDE_TO_PAGE)
+from bulbs.super_features.models import (
+    ContentRelation, BaseSuperFeature, GUIDE_TO_HOME, GUIDE_TO_PAGE
+)
 from bulbs.utils.test import BaseIndexableTestCase
 
 

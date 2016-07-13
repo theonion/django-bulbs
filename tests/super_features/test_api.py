@@ -3,7 +3,9 @@ from collections import OrderedDict
 
 from django.core.urlresolvers import reverse
 
-from bulbs.super_features.models import BaseSuperFeature, GUIDE_TO_HOME, GUIDE_TO_PAGE
+from bulbs.super_features.models import (
+    BaseSuperFeature, GUIDE_TO_HOME, GUIDE_TO_PAGE, ContentRelation
+)
 from bulbs.utils.test import BaseAPITestCase
 
 
@@ -105,12 +107,12 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
             'child_id': child.id,
             'ordering': 1
         }
-        url = reverse('whatever')
+        url = reverse('content-relation-list')
         resp = self.api_client.post(url, data=json.dumps(data), content_type='application/json')
 
         self.assertEqual(resp.status_code, 201)
-        self.assertTrue(child.is_child())
-        self.assertFalse(parent.is_child())
+        self.assertTrue(child.is_child)
+        self.assertFalse(parent.is_child)
 
     def test_parent_get_children(self):
         parent = BaseSuperFeature.objects.create(

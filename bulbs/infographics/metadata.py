@@ -9,8 +9,8 @@ from rest_framework.utils.field_mapping import ClassLookupDict
 from djbetty.serializers import ImageFieldSerializer
 
 from bulbs.content.serializers import AuthorField
+from bulbs.utils.fields import ColorField, RichTextField
 from .data_serializers import CopySerializer, EntrySerializer, XYEntrySerializer
-from .fields import ColorField, RichTextField
 from .serializers import InfographicSerializer, InfographicDataField
 
 

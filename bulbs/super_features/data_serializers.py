@@ -2,8 +2,7 @@ from rest_framework import serializers
 
 from djbetty.serializers import ImageFieldSerializer
 
-# TODO: Use common EntrySerializer
-from bulbs.infographics.data_serializers import EntrySerializer
+from bulbs.utils.data_serializers import EntrySerializer
 
 
 class GuideToChildSerializer(serializers.Serializer):
