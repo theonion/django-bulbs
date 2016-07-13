@@ -44,43 +44,61 @@ $light-shade: #f4f4f4;
   @extend %sc-campaign;
 }
 
-// SC Video Carousel / PLayer
+// SC Video Carousel Overrides
 
-.sc-video-carousel {
-  background: white;
-  max-width: 1024px;
-  padding: 1em;
-  .bulbs-video-series-name {
-    display: none;
-  }
-  .dfp {
-    margin: 0;
-  }
-}
-
-.sc-video-player {
-  padding: 1em;
-  background-color: white;
-  .bulbs-video-meta-series-name {
-    display: none;
-  }
-  .dfp {
-    margin: 0;
-  }
-}
-
-.sc-carousel {
-  .sc-carousel-meta {
-    margin: 0;
-  }
-}
-
-.video-carousel {
-  .video-carousel-carousel {
-    &.sc-video-carousel {
-      padding: 0 calc((100% - 1024px) / 2);
+.sc-landing-carousel {
+  .sc-carousel {
+    @include flexbox;
+    @include flex-direction(column);
+    background: $light-shade;
+    margin-bottom: $sc-tablet-margin;
+    padding: 15px;
+    bulbs-video {
+      width: 100%;
     }
-  } 
+  }
+  .sc-video-player {
+    height: 100%;
+    margin: 0;
+    width: 100%;
+  }
+  .sc-video-carousel {
+    padding: 0;
+  }
+  .sc-carousel-meta {
+    @include align-self(flex-start);
+    margin: 20px 0;
+    padding: 20px;
+    max-width: 100%;
+    width: 100%;
+    .bulbs-video-meta {
+      @include flex-direction(row);
+      @include justify-content(center);
+      width: 100%;
+    }
+    .bulbs-video-meta-copy {
+      border-right: 1px solid #f0f0f0;
+      width: 50%;
+    }
+    share-tools {
+      @include flexbox;
+      @include align-items(center);
+      @include justify-content(center);
+      border: 0;
+      margin: 0;
+      padding: 0;
+      width: 50%;
+    }
+  }
+  .video-carousel-header {
+    campaign-display {
+      //display: none;
+    }
+  }
+  .bulbs-video-meta-series-name,
+  .bulbs-video-series-name {
+    //display: none;
+  }
 }
 
 // SC Landing
@@ -139,6 +157,7 @@ $light-shade: #f4f4f4;
 .sc-landing-list {
   @include flexbox;
   @include flex-direction(column);
+  list-style: none;
   margin: 0;
   padding: 0;
   padding-top: $sc-desktop-margin;
@@ -146,7 +165,6 @@ $light-shade: #f4f4f4;
 }
 
 .sc-landing-list-item {
-  list-style: none;
   padding-bottom: $sc-mobile-margin;
   position: relative;
   width: 100%;
@@ -171,13 +189,13 @@ $light-shade: #f4f4f4;
     padding: $sc-mobile-margin;
     width: 100%;
     h2 {
-      @include multiLineTruncate(1.1em, 3, white);
+      @include multiLineTruncate(1.1em, 3);
       font-size: 1.1em;
       margin: 0;
       padding: 0;
     }
     .feature-type {
-      @include multiLineTruncate(1.33em, 1, white);
+      @include multiLineTruncate(1.33em, 1);
       color: black;
       font-size: 10px;
       margin-bottom: .5em;
@@ -202,6 +220,13 @@ $light-shade: #f4f4f4;
 }
 
 @media all and (min-width: $screen-md) {
+  .sc-landing-carousel {
+    margin-bottom: $sc-tablet-margin;
+    padding-left: $sc-tablet-margin;
+    .sc-carousel {
+      padding: 20px;
+    }
+  }
   .sc-landing-billboard-img {
     .image {
       @include crop-3x1;
@@ -232,7 +257,7 @@ $light-shade: #f4f4f4;
     .meta {
       padding: 1.5em;
       h2 {
-        @include multiLineTruncate(1.33em, 3, white);
+        @include multiLineTruncate(1.33em, 3);
         font-size: 1.33em;
       }
       .pub {
@@ -248,6 +273,10 @@ $light-shade: #f4f4f4;
 }
 
 @media all and (min-width: $screen-xlg) {
+  .sc-landing-carousel {
+    margin-bottom: $sc-desktop-margin;
+    padding-left: $sc-desktop-margin;
+  }
   .sc-landing-body {
     @include flex-direction(row);
     padding: 0;
@@ -293,19 +322,5 @@ $light-shade: #f4f4f4;
     max-width: 250px;
     padding-left: 0;
     padding-top: $sc-desktop-margin;
-  }
-  .sc-carousel {
-    .sc-video-player {
-      padding: 2em calc((100% - 970px) / 2);
-    }
-    .sc-video-carousel {
-      padding: 0 calc((100% - 970px) / 2);
-    }
-    .sc-divider {
-      padding: 0  calc((100% - 970px) / 2);
-      background-color: $light-shade;
-      padding-bottom: 1em;
-      width: 100%;
-    }
   }
 }
