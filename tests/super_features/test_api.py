@@ -4,7 +4,7 @@ from collections import OrderedDict
 from django.core.urlresolvers import reverse
 
 from bulbs.super_features.models import (
-    BaseSuperFeature, GUIDE_TO_HOME, GUIDE_TO_PAGE, ContentRelation
+    BaseSuperFeature, GUIDE_TO_HOMEPAGE, GUIDE_TO_ENTRY, ContentRelation
 )
 from bulbs.utils.test import BaseAPITestCase
 
@@ -26,7 +26,7 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
     def test_post_no_data(self):
         data = {
             "title": "Guide to Summer",
-            "superfeature_type": GUIDE_TO_HOME
+            "superfeature_type": GUIDE_TO_HOMEPAGE
         }
         resp = self.api_client.post(
             self.list_endpoint,
@@ -38,7 +38,7 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
     def test_post_guide_to(self):
         data = {
             "title": "Guide to Summer",
-            "superfeature_type": GUIDE_TO_HOME,
+            "superfeature_type": GUIDE_TO_HOMEPAGE,
             "data": {
                 "sponsor_text": "Presented by Reds",
                 "sponsor_image": {"id": 1}
@@ -58,7 +58,7 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
         base = BaseSuperFeature.objects.create(
             title="Guide to Cats",
             notes="This is the guide to cats",
-            superfeature_type=GUIDE_TO_HOME,
+            superfeature_type=GUIDE_TO_HOMEPAGE,
             data={
                 "sponsor_text": "Fancy Feast",
                 "sponsor_image": {"id": 1}
@@ -90,7 +90,7 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
         parent = BaseSuperFeature.objects.create(
             title="Guide to Cats",
             notes="This is the guide to cats",
-            superfeature_type=GUIDE_TO_HOME,
+            superfeature_type=GUIDE_TO_HOMEPAGE,
             data={
                 "sponsor_text": "Fancy Feast",
                 "sponsor_image": {"id": 1}
@@ -99,7 +99,7 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
         child = BaseSuperFeature.objects.create(
             title="Guide to Cats",
             notes="This is the guide to cats",
-            superfeature_type=GUIDE_TO_PAGE
+            superfeature_type=GUIDE_TO_ENTRY
         )
 
         data = {
@@ -118,7 +118,7 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
         parent = BaseSuperFeature.objects.create(
             title="Guide to Cats",
             notes="This is the guide to cats",
-            superfeature_type=GUIDE_TO_HOME,
+            superfeature_type=GUIDE_TO_HOMEPAGE,
             data={
                 "sponsor_text": "Fancy Feast",
                 "sponsor_image": {"id": 1}
@@ -127,7 +127,7 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
         child = BaseSuperFeature.objects.create(
             title="Guide to Cats",
             notes="This is the guide to cats",
-            superfeature_type=GUIDE_TO_PAGE,
+            superfeature_type=GUIDE_TO_ENTRY,
             data={
                 "entries": [{
                     "title": "Cats",

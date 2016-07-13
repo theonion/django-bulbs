@@ -2,12 +2,12 @@ from django.conf import settings
 
 
 def get_data_serializer(name):
-    from bulbs.super_features.models import GUIDE_TO_HOME, GUIDE_TO_PAGE
+    from bulbs.super_features.models import GUIDE_TO_HOMEPAGE, GUIDE_TO_ENTRY
     from bulbs.super_features.data_serializers import (GuideToChildSerializer,
                                                        GuideToParentSerializer)
     serializer = {
-        GUIDE_TO_HOME: GuideToParentSerializer,
-        GUIDE_TO_PAGE: GuideToChildSerializer
+        GUIDE_TO_HOMEPAGE: GuideToParentSerializer,
+        GUIDE_TO_ENTRY: GuideToChildSerializer
     }.get(name, None)
     if serializer is None:
         raise KeyError('The requested SuperFeature does not have a registered serializer')

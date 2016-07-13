@@ -3,7 +3,7 @@ from django.db import IntegrityError
 from rest_framework.serializers import ValidationError
 
 from bulbs.super_features.models import (
-    ContentRelation, BaseSuperFeature, GUIDE_TO_HOME, GUIDE_TO_PAGE
+    ContentRelation, BaseSuperFeature, GUIDE_TO_HOMEPAGE, GUIDE_TO_ENTRY
 )
 from bulbs.utils.test import BaseIndexableTestCase
 
@@ -14,7 +14,7 @@ class SuperFeatureModelTestCase(BaseIndexableTestCase):
         sf = BaseSuperFeature.objects.create(
             title="Guide to Cats",
             notes="This is the guide to cats",
-            superfeature_type=GUIDE_TO_PAGE,
+            superfeature_type=GUIDE_TO_ENTRY,
             data={
                 "entries": [{
                     "title": "Cats",
@@ -30,7 +30,7 @@ class SuperFeatureModelTestCase(BaseIndexableTestCase):
             BaseSuperFeature.objects.create(
                 title="Guide to Cats",
                 notes="This is the guide to cats",
-                superfeature_type=GUIDE_TO_PAGE,
+                superfeature_type=GUIDE_TO_ENTRY,
                 data=[{
                     "title": "Cats",
                     "copy": "Everybody loves cats"
@@ -41,7 +41,8 @@ class SuperFeatureModelTestCase(BaseIndexableTestCase):
         parent = BaseSuperFeature.objects.create(
             title="Guide to Cats",
             notes="This is the guide to cats",
-            superfeature_type=GUIDE_TO_HOME,
+            superfeature_type=GUIDE_TO_HOMEPAGE,
+            default_child_type=GUIDE_TO_ENTRY,
             data={
                 "sponsor_text": "Fancy Feast",
                 "sponsor_image": {"id": 1}
@@ -50,7 +51,7 @@ class SuperFeatureModelTestCase(BaseIndexableTestCase):
         child = BaseSuperFeature.objects.create(
             title="Guide to Cats",
             notes="This is the guide to cats",
-            superfeature_type=GUIDE_TO_PAGE,
+            superfeature_type=GUIDE_TO_ENTRY,
             data={
                 "entries": [{
                     "title": "Cats",
@@ -67,7 +68,7 @@ class SuperFeatureModelTestCase(BaseIndexableTestCase):
         parent = BaseSuperFeature.objects.create(
             title="Guide to Cats",
             notes="This is the guide to cats",
-            superfeature_type=GUIDE_TO_HOME,
+            superfeature_type=GUIDE_TO_HOMEPAGE,
             data={
                 "sponsor_text": "Fancy Feast",
                 "sponsor_image": {"id": 1}
@@ -76,7 +77,7 @@ class SuperFeatureModelTestCase(BaseIndexableTestCase):
         child1 = BaseSuperFeature.objects.create(
             title="Guide to Cats",
             notes="This is the guide to cats",
-            superfeature_type=GUIDE_TO_PAGE,
+            superfeature_type=GUIDE_TO_ENTRY,
             data={
                 "entries": [{
                     "title": "Cats",
@@ -87,7 +88,7 @@ class SuperFeatureModelTestCase(BaseIndexableTestCase):
         child2 = BaseSuperFeature.objects.create(
             title="Guide to Cats",
             notes="This is the guide to cats",
-            superfeature_type=GUIDE_TO_PAGE,
+            superfeature_type=GUIDE_TO_ENTRY,
             data={
                 "entries": [{
                     "title": "Cats",
