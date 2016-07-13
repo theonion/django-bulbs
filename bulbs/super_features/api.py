@@ -11,11 +11,6 @@ api_v1_router.register(
     ContentRelationViewSet,
     base_name="content-relation"
 )
-api_v1_router.register(
-    r"relations",
-    RelationViewSet,
-    base_name="relations"
-)
 
 urlpatterns = [
     url(
