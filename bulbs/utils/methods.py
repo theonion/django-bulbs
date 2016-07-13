@@ -101,6 +101,7 @@ def get_overridable_template_name(parent_name, child_name):
 
     return template_name
 
+
 def get_video_object(videohub_id):
     video_model = apps.get_model(settings.VIDEO_MODEL)
     try:
