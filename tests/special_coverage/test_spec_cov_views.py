@@ -5,6 +5,8 @@ from django.utils import timezone
 
 from bulbs.utils.test import BaseIndexableTestCase, make_content
 from bulbs.special_coverage.models import SpecialCoverage
+from bulbs.videos.models import VideohubVideo
+from mock import patch
 
 
 class TestSpecialCoverageViews(BaseIndexableTestCase):
@@ -39,15 +41,19 @@ class TestSpecialCoverageViews(BaseIndexableTestCase):
         self.assertEqual(response.context['special_coverage'], sc)
         self.assertEqual(response.context['content_list'].count(), sc.get_content().count())
         self.assertEqual(response.context['content_list'][0].id, content.id)
-        self.assertEqual(response.context['current_video'], None)
+        self.assertEqual(response.context['video'], None)
         self.assertEqual(response.context['targeting'], {
             'dfp_specialcoverage': 'test-coverage',
         })
         self.assertEqual(response.template_name[0], 'special_coverage/landing.html')
 
-    def test_sets_first_video_to_current_video(self):
+    def test_sets_first_video_to_video(self):
         content = make_content(published=timezone.now())
         content.__class__.search_objects.refresh()
+
+        video = VideohubVideo.objects.create(id=4348)
+        # model mommy
+        # import ipdb; ipdb.set_trace()
 
         sc = SpecialCoverage.objects.create(
             name="Test Coverage",
@@ -60,9 +66,10 @@ class TestSpecialCoverageViews(BaseIndexableTestCase):
             start_date=timezone.now() - timezone.timedelta(days=10),
             end_date=timezone.now() + timezone.timedelta(days=10)
         )
-        response = self.client.get(reverse("special", kwargs={"slug": sc.slug}))
-
-        self.assertEqual(response.context['current_video'], 4348)
+        with patch("bulbs.special_coverage.views.get_video_object") as mock_get_vid:
+            mock_get_vid.return_value = video
+            response = self.client.get(reverse("special", kwargs={"slug": sc.slug}))
+            self.assertEqual(response.context['video'], video)
 
     def test_inactive_special_coverage_view(self):
         content = make_content(published=timezone.now())
