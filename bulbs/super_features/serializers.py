@@ -37,8 +37,14 @@ class BaseSuperFeatureDataField(serializers.Field):
 
 
 class BaseSuperFeatureSerializer(ContentSerializer):
-
     data = BaseSuperFeatureDataField(required=False)
 
     class Meta:
         model = BaseSuperFeature
+
+
+class BaseSuperFeaturePartialSerializer(ContentSerializer):
+
+    class Meta:
+        model = BaseSuperFeature
+        fields = ('id', 'internal_name', 'title')

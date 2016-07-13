@@ -137,9 +137,14 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
         )
         ContentRelation.objects.create(parent=parent, child=child, ordering=1)
 
-        # GET parent_id/children
-        url = reverse('whatever')
+        url = reverse('content-relations', kwargs={'pk': parent.pk})
         resp = self.api_client.get(url)
 
         self.assertEqual(resp.status_code, 200)
-        # Check resp.data
+        self.assertEqual(resp.data, [
+            OrderedDict([
+                ('id', 3),
+                ('internal_name', None),
+                ('title', 'Guide to Cats')
+            ])
+        ])

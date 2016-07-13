@@ -28,6 +28,7 @@ class ContentRelation(models.Model):
 
 class AbstractSuperFeature(models.Model):
     notes = models.TextField(null=True, blank=True, default='')
+    internal_name = models.CharField(null=True, blank=True, max_length=255)
     superfeature_type = models.CharField(choices=SF_CHOICES, max_length=255)
     default_child_type = models.CharField(choices=SF_CHOICES, max_length=255, null=True, blank=True)
     data = jsonfield.JSONField()
