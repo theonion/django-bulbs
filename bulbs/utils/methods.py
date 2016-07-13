@@ -6,6 +6,7 @@ from django import template
 from django.conf import settings
 from django.utils import timezone
 from django.apps import apps
+from django.shortcuts import get_object_or_404
 
 
 INVALID_TEMPLATE_CHOICE = """Choices for template values must be non-zero integers."""
@@ -102,10 +103,6 @@ def get_overridable_template_name(parent_name, child_name):
     return template_name
 
 
-def get_video_object(videohub_id):
+def get_video_object_from_videohub_id(videohub_id):
     video_model = apps.get_model(settings.VIDEO_MODEL)
-    try:
-        video = video_model.objects.get(videohub_ref_id=int(videohub_id))
-    except:
-        video = None
-    return video
+    return get_object_or_404(video_model, videohub_ref_id=int(videohub_id))

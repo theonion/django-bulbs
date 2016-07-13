@@ -4,7 +4,7 @@ from django.views.decorators.cache import cache_control
 
 from bulbs.special_coverage.models import SpecialCoverage
 from bulbs.content.views import BaseContentDetailView
-from bulbs.utils.methods import get_video_object
+from bulbs.utils.methods import get_video_object_from_videohub_id
 
 
 class SpecialCoverageView(BaseContentDetailView):
@@ -33,7 +33,7 @@ class SpecialCoverageView(BaseContentDetailView):
         context["targeting"] = {}
 
         try:
-            context["video"] = get_video_object(self.special_coverage.videos[0])
+            context["video"] = get_video_object_from_videohub_id(self.special_coverage.videos[0])
         except IndexError:
             context["video"] = None
 

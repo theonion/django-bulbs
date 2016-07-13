@@ -52,8 +52,6 @@ class TestSpecialCoverageViews(BaseIndexableTestCase):
         content.__class__.search_objects.refresh()
 
         video = VideohubVideo.objects.create(id=4348)
-        # model mommy
-        # import ipdb; ipdb.set_trace()
 
         sc = SpecialCoverage.objects.create(
             name="Test Coverage",
@@ -66,7 +64,7 @@ class TestSpecialCoverageViews(BaseIndexableTestCase):
             start_date=timezone.now() - timezone.timedelta(days=10),
             end_date=timezone.now() + timezone.timedelta(days=10)
         )
-        with patch("bulbs.special_coverage.views.get_video_object") as mock_get_vid:
+        with patch("bulbs.special_coverage.views.get_video_object_from_videohub_id") as mock_get_vid:
             mock_get_vid.return_value = video
             response = self.client.get(reverse("special", kwargs={"slug": sc.slug}))
             self.assertEqual(response.context['video'], video)
