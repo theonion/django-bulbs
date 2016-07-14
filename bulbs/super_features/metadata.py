@@ -41,7 +41,8 @@ class BaseSuperFeatureMetadata(BaseSimpleMetadata):
         for field_name, field in serializer_instance.get_fields().items():
             if isinstance(field, BaseSuperFeatureDataField):
                 if view.suffix != "List":
-                    serializer = view.get_object().get_data_serializer()
+                    obj = view.get_object()
+                    serializer = obj.get_data_serializer(obj.superfeature_type)
                     fields_metadata[field_name] = self.get_custom_metadata(serializer, view)
             elif isinstance(field, serializers.BaseSerializer):
                 fields_metadata[field_name] = self.get_serializer_info(field)

@@ -36,11 +36,12 @@ class AbstractSuperFeature(models.Model):
     class Meta:
         abstract = True
 
-    def get_data_serializer(self):
-        return get_data_serializer(self.superfeature_type)
+    @classmethod
+    def get_data_serializer(cls, name):
+        return get_data_serializer(name)
 
     def validate_data_field(self):
-        Serializer = self.get_data_serializer()  # NOQA
+        Serializer = self.get_data_serializer(self.superfeature_type)  # NOQA
         Serializer(data=self.data).is_valid(raise_exception=True)
 
     def save(self, *args, **kwargs):
