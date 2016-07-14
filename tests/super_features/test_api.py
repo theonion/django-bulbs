@@ -143,7 +143,7 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data, [
             OrderedDict([
-                ('id', 3),
+                ('id', child.id),
                 ('internal_name', None),
                 ('title', 'Guide to Cats')
             ])
