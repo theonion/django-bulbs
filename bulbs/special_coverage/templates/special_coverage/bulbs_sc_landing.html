@@ -25,10 +25,10 @@
       <p class="sc-landing-description">{{ special_coverage.description }}</p>
     {% endif %}
     <share-tools
-      class="bulbs-share circle"
+      class="{{ share_style }}"
       data-track-action="Special Coverage Landing: Share"
       share-title="{{ special_coverage.name }}"
-      share-url="{{ EXTERNAL_URL }}/special/{{ special_coverage.slug }}">
+      share-url="http://{{ EXTERNAL_URL }}/special/{{ special_coverage.slug }}">
       <share-via-facebook icon></share-via-facebook>
       <share-via-twitter icon twitter-handle="{{ twitter_handle }}"></share-via-twitter>
       <share-via-email icon message="{{ share_message }}"></share-via-email>
