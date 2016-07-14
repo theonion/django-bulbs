@@ -2,21 +2,8 @@ from rest_framework import serializers
 
 from bulbs.content.models import Content
 from bulbs.content.serializers import ContentSerializer
-from bulbs.super_features.models import BaseSuperFeature, ContentRelation
+from bulbs.super_features.models import BaseSuperFeature
 from bulbs.super_features.utils import get_data_serializer
-
-
-class ContentRelationSerializer(serializers.ModelSerializer):
-    parent_id = serializers.PrimaryKeyRelatedField(
-        source='parent', queryset=Content.objects.all()
-    )
-    child_id = serializers.PrimaryKeyRelatedField(
-        source='child', queryset=Content.objects.all()
-    )
-
-    class Meta:
-        model = ContentRelation
-        fields = ('id', 'parent_id', 'child_id', 'ordering')
 
 
 class BaseSuperFeatureDataField(serializers.Field):
@@ -38,8 +25,12 @@ class BaseSuperFeatureDataField(serializers.Field):
 
 class BaseSuperFeatureSerializer(ContentSerializer):
     data = BaseSuperFeatureDataField(required=False)
+    parent_id = serializers.PrimaryKeyRelatedField(
+        source='parent', queryset=BaseSuperFeature.objects.all(), required=False
+    )
 
     class Meta:
+        exclude = ('parent', 'ordering')
         model = BaseSuperFeature
 
 

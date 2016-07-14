@@ -21,23 +21,13 @@ class Migration(migrations.Migration):
                 ('superfeature_type', models.CharField(max_length=255, choices=[(b'GUIDE_TO_HOMEPAGE', b'Guide To Homepage'), (b'GUIDE_TO_ENTRY', b'Guide To Entry')])),
                 ('default_child_type', models.CharField(blank=True, max_length=255, null=True, choices=[(b'GUIDE_TO_HOMEPAGE', b'Guide To Homepage'), (b'GUIDE_TO_ENTRY', b'Guide To Entry')])),
                 ('data', jsonfield.fields.JSONField(default=dict)),
+                ('ordering', models.IntegerField(default=None, null=True, blank=True)),
+                ('parent', models.ForeignKey(blank=True, to='super_features.BaseSuperFeature', null=True)),
             ],
-            options={
-                'abstract': False,
-            },
             bases=('content.content', models.Model),
         ),
-        migrations.CreateModel(
-            name='ContentRelation',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('ordering', models.IntegerField()),
-                ('child', models.ForeignKey(related_name='child', to='content.Content')),
-                ('parent', models.ForeignKey(related_name='parent', to='content.Content')),
-            ],
-        ),
         migrations.AlterUniqueTogether(
-            name='contentrelation',
+            name='basesuperfeature',
             unique_together=set([('parent', 'ordering')]),
         ),
     ]

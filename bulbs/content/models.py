@@ -358,6 +358,10 @@ class Content(PolymorphicModel, Indexable):
         """
         return strip_tags(self.title)
 
+    @property
+    def is_indexed(self):
+        return self.indexed
+
     def save(self, *args, **kwargs):
         """creates the slug, queues up for indexing and saves the instance
 
@@ -365,9 +369,11 @@ class Content(PolymorphicModel, Indexable):
         :param kwargs: keyword arguments
         :return: `bulbs.content.Content`
         """
+        # import pdb; pdb.set_trace()
         if not self.slug:
             self.slug = slugify(self.build_slug())[:self._meta.get_field("slug").max_length]
-        if self.indexed is False:
+
+        if self.is_indexed is False:
             if kwargs is None:
                 kwargs = {}
             kwargs["index"] = False

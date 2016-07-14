@@ -4,7 +4,7 @@ from collections import OrderedDict
 from django.core.urlresolvers import reverse
 
 from bulbs.super_features.models import (
-    BaseSuperFeature, GUIDE_TO_HOMEPAGE, GUIDE_TO_ENTRY, ContentRelation
+    BaseSuperFeature, GUIDE_TO_HOMEPAGE, GUIDE_TO_ENTRY
 )
 from bulbs.utils.test import BaseAPITestCase
 
@@ -54,6 +54,54 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
         superfeature = BaseSuperFeature.objects.get(id=resp.data["id"])
         self.assertEqual(superfeature.data, data.get("data"))
 
+    def test_post_child_feature(self):
+        data = {
+            "title": "Guide to Summer",
+            "superfeature_type": GUIDE_TO_HOMEPAGE,
+            "data": {
+                "sponsor_text": "Presented by Reds",
+                "sponsor_image": {"id": 1}
+            }
+        }
+        resp = self.api_client.post(
+            self.list_endpoint,
+            data=json.dumps(data),
+            content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, 201)
+        parent_id = resp.data["id"]
+
+        data = {
+            "title": "Guide to Summer",
+            "superfeature_type": GUIDE_TO_ENTRY,
+            "parent_id": parent_id,
+            "ordering": 1
+        }
+        resp = self.api_client.post(
+            self.list_endpoint,
+            data=json.dumps(data),
+            content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, 201)
+        child_id = resp.data["id"]
+
+        # check that only the parent was indexed
+        BaseSuperFeature.search_objects.refresh()
+        results = self.es.search(
+            BaseSuperFeature.search_objects.mapping.index,
+            BaseSuperFeature.search_objects.mapping.doc_type
+        )
+        self.assertEqual(results['hits']['total'], 1)
+
+        child = BaseSuperFeature.objects.get(id=child_id)
+        parent = BaseSuperFeature.objects.get(id=parent_id)
+
+        # CHECK IF PARENT AND ARE SETTING
+        self.assertTrue(child.is_child)
+        self.assertFalse(child.is_parent)
+        self.assertFalse(parent.is_child)
+        self.assertTrue(parent.is_parent)
+
     def test_options_guide_to(self):
         base = BaseSuperFeature.objects.create(
             title="Guide to Cats",
@@ -86,34 +134,6 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
             }
         })
 
-    def test_post_content_relation(self):
-        parent = BaseSuperFeature.objects.create(
-            title="Guide to Cats",
-            notes="This is the guide to cats",
-            superfeature_type=GUIDE_TO_HOMEPAGE,
-            data={
-                "sponsor_text": "Fancy Feast",
-                "sponsor_image": {"id": 1}
-            }
-        )
-        child = BaseSuperFeature.objects.create(
-            title="Guide to Cats",
-            notes="This is the guide to cats",
-            superfeature_type=GUIDE_TO_ENTRY
-        )
-
-        data = {
-            'parent_id': parent.id,
-            'child_id': child.id,
-            'ordering': 1
-        }
-        url = reverse('content-relation-list')
-        resp = self.api_client.post(url, data=json.dumps(data), content_type='application/json')
-
-        self.assertEqual(resp.status_code, 201)
-        self.assertTrue(child.is_child)
-        self.assertFalse(parent.is_child)
-
     def test_parent_get_children(self):
         parent = BaseSuperFeature.objects.create(
             title="Guide to Cats",
@@ -128,6 +148,8 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
             title="Guide to Cats",
             notes="This is the guide to cats",
             superfeature_type=GUIDE_TO_ENTRY,
+            parent=parent,
+            ordering=1,
             data={
                 "entries": [{
                     "title": "Cats",
@@ -135,7 +157,6 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
                 }]
             }
         )
-        ContentRelation.objects.create(parent=parent, child=child, ordering=1)
 
         url = reverse('content-relations', kwargs={'pk': parent.pk})
         resp = self.api_client.get(url)

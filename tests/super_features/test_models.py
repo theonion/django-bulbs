@@ -1,9 +1,9 @@
-from django.db import IntegrityError
+from django.core.exceptions import ValidationError as DBValidationError
 
 from rest_framework.serializers import ValidationError
 
 from bulbs.super_features.models import (
-    ContentRelation, BaseSuperFeature, GUIDE_TO_HOMEPAGE, GUIDE_TO_ENTRY
+    BaseSuperFeature, GUIDE_TO_HOMEPAGE, GUIDE_TO_ENTRY
 )
 from bulbs.utils.test import BaseIndexableTestCase
 
@@ -52,6 +52,8 @@ class SuperFeatureModelTestCase(BaseIndexableTestCase):
             title="Guide to Cats",
             notes="This is the guide to cats",
             superfeature_type=GUIDE_TO_ENTRY,
+            parent=parent,
+            ordering=1,
             data={
                 "entries": [{
                     "title": "Cats",
@@ -59,10 +61,11 @@ class SuperFeatureModelTestCase(BaseIndexableTestCase):
                 }]
             }
         )
-        ContentRelation.objects.create(parent=parent, child=child, ordering=1)
 
+        self.assertTrue(parent.is_parent)
         self.assertFalse(parent.is_child)
         self.assertTrue(child.is_child)
+        self.assertFalse(child.is_parent)
 
     def test_content_relation_uniqueness(self):
         parent = BaseSuperFeature.objects.create(
@@ -74,10 +77,12 @@ class SuperFeatureModelTestCase(BaseIndexableTestCase):
                 "sponsor_image": {"id": 1}
             }
         )
-        child1 = BaseSuperFeature.objects.create(
+        BaseSuperFeature.objects.create(
             title="Guide to Cats",
             notes="This is the guide to cats",
             superfeature_type=GUIDE_TO_ENTRY,
+            parent=parent,
+            ordering=1,
             data={
                 "entries": [{
                     "title": "Cats",
@@ -85,18 +90,53 @@ class SuperFeatureModelTestCase(BaseIndexableTestCase):
                 }]
             }
         )
-        child2 = BaseSuperFeature.objects.create(
-            title="Guide to Cats",
-            notes="This is the guide to cats",
-            superfeature_type=GUIDE_TO_ENTRY,
-            data={
-                "entries": [{
-                    "title": "Cats",
-                    "copy": "Everybody loves cats"
-                }]
-            }
-        )
-        ContentRelation.objects.create(parent=parent, child=child1, ordering=1)
 
-        with self.assertRaises(IntegrityError):
-            ContentRelation.objects.create(parent=parent, child=child2, ordering=1)
+        with self.assertRaises(DBValidationError):
+            BaseSuperFeature.objects.create(
+                title="Guide to Cats",
+                notes="This is the guide to cats",
+                superfeature_type=GUIDE_TO_ENTRY,
+                parent=parent,
+                ordering=1,
+                data={
+                    "entries": [{
+                        "title": "Cats",
+                        "copy": "Everybody loves cats"
+                    }]
+                }
+            )
+
+    def test_child_not_indexed(self):
+        parent = BaseSuperFeature.objects.create(
+            title="Guide to Cats",
+            notes="This is the guide to cats",
+            superfeature_type=GUIDE_TO_HOMEPAGE,
+            default_child_type=GUIDE_TO_ENTRY,
+            data={
+                "sponsor_text": "Fancy Feast",
+                "sponsor_image": {"id": 1}
+            }
+        )
+        child = BaseSuperFeature.objects.create(
+            title="Owning a cat",
+            notes="this is a child page for the guide to cats feature",
+            superfeature_type=GUIDE_TO_ENTRY,
+            parent=parent,
+            ordering=1,
+            data={
+                "entries": [{
+                    "title": "Cats",
+                    "copy": "Everybody loves cats"
+                }]
+            }
+        )
+
+        print(child.id)
+        BaseSuperFeature.search_objects.refresh()
+        results = self.es.search(
+            BaseSuperFeature.search_objects.mapping.index,
+            BaseSuperFeature.search_objects.mapping.doc_type
+        )
+
+        # check that child id is not in index
+        self.assertEqual(results['hits']['total'], 1)

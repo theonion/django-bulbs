@@ -17,15 +17,6 @@ BASE_CHOICES = (
 SF_CHOICES = get_superfeature_choices()
 
 
-class ContentRelation(models.Model):
-    parent = models.ForeignKey(Content, related_name="parent")
-    child = models.ForeignKey(Content, related_name="child")
-    ordering = models.IntegerField()
-
-    class Meta:
-        unique_together = ('parent', 'ordering')
-
-
 class AbstractSuperFeature(models.Model):
     notes = models.TextField(null=True, blank=True, default='')
     internal_name = models.CharField(null=True, blank=True, max_length=255)
@@ -46,9 +37,6 @@ class AbstractSuperFeature(models.Model):
 
     def save(self, *args, **kwargs):
         self.full_clean()
-        if self.is_child:
-            self.index(save=False)
-
         return super(AbstractSuperFeature, self).save(*args, **kwargs)
 
     def clean(self, *args, **kwargs):
@@ -57,8 +45,14 @@ class AbstractSuperFeature(models.Model):
 
 
 class BaseSuperFeature(Content, AbstractSuperFeature):
+    parent = models.ForeignKey('self', blank=True, null=True)
+    ordering = models.IntegerField(blank=True, null=True, default=None)
+
+    class Meta:
+        unique_together = ('parent', 'ordering')
 
     class Mapping(Content.Mapping):
+        parent = field.Integer()
         data = field.Object()
 
         class Meta:
@@ -67,12 +61,19 @@ class BaseSuperFeature(Content, AbstractSuperFeature):
             dynamic = False
 
     @property
+    def is_indexed(self):
+        if self.parent:
+            return False
+
+        return self.indexed
+
+    @property
     def is_parent(self):
-        return ContentRelation.objects.filter(parent=self).exists()
+        return self.parent is None
 
     @property
     def is_child(self):
-        return ContentRelation.objects.filter(child=self).exists()
+        return self.parent is not None
 
     @classmethod
     def get_serializer_class(cls):
