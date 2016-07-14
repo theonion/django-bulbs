@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 3.5.1
+
+- Update homepage_player template and pull in entire video object in special coverage context
+
 ## Version 3.4.1
 
 - removed `dfp_instant_article`
