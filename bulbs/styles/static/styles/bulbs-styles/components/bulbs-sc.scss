@@ -16,7 +16,6 @@
 $sc-mobile-margin: 15px;
 $sc-tablet-margin: 30px;
 $sc-desktop-margin: 50px;
-
 $light-shade: #f4f4f4;
 
 // SC Campaigns
@@ -71,33 +70,24 @@ $light-shade: #f4f4f4;
     padding: 20px;
     max-width: 100%;
     width: 100%;
-    .bulbs-video-meta {
-      @include flex-direction(row);
-      @include justify-content(center);
+    .bulbs-video-meta-container {
+      @include flexbox;
+      @include flex-direction(column);
+      @include justify-content(flex-start);
       width: 100%;
     }
-    .bulbs-video-meta-copy {
-      border-right: 1px solid #f0f0f0;
-      width: 50%;
+    bulbs-video-meta {
+      width: 100%;
     }
     share-tools {
       @include flexbox;
       @include align-items(center);
-      @include justify-content(center);
+      @include justify-content(flex-start);
       border: 0;
       margin: 0;
       padding: 0;
-      width: 50%;
+      width: 100%;
     }
-  }
-  .video-carousel-header {
-    campaign-display {
-      //display: none;
-    }
-  }
-  .bulbs-video-meta-series-name,
-  .bulbs-video-series-name {
-    //display: none;
   }
 }
 
@@ -226,6 +216,25 @@ $light-shade: #f4f4f4;
     .sc-carousel {
       margin-bottom: 0;
       padding: 20px;
+    }
+    .sc-carousel-meta {
+      @include align-self(flex-start);
+      margin: 20px 0;
+      padding: 20px;
+      max-width: 100%;
+      width: 100%;
+      .bulbs-video-meta-container {
+        @include flex-direction(row);
+        width: 100%;
+      }
+      bulbs-video-meta {
+        border-right: 1px solid #f0f0f0;
+        width: 50%;
+      }
+      share-tools {
+        @include justify-content(center);
+        width: 50%;
+      }
     }
   }
   .sc-landing-billboard-img {
