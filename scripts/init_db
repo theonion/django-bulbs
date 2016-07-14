@@ -9,7 +9,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 docker-compose run \
     -e PGHOST=postgres \
     -e PGUSER=postgres \
-    -e PGPASSWORD=${PGPASSWORD} \
+    -e PGPASSWORD=onion321 \
     web \
     psql -c "CREATE ROLE bulbs PASSWORD 'testing' SUPERUSER LOGIN CREATEDB;" \
     || true
