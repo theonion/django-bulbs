@@ -1,10 +1,10 @@
 {% load betty humanize ads static content %}
 
-{% if current_video %}
-  <bulbs-video-carousel class="video-carousel sc-carousel">
+<bulbs-video-carousel class="video-carousel sc-carousel">
+  {% if video %}
     <div class='video-carousel-player sc-video-player'>
       <bulbs-video
-        src='{{ VIDEOHUB_BASE_URL }}/video/{{current_video}}.json'
+        src='{{ VIDEOHUB_BASE_URL }}/video/{{video.videohub_ref_id}}.json'
         data-play-track-action="Video: Main: Play"
         data-play-track-category="Special Coverage Landing"
         data-play-track-label="#"
@@ -29,11 +29,8 @@
           </campaign-display>
         {% endif %}
         <bulbs-video-meta
-          src='{{ VIDEOHUB_BASE_URL }}/video/{{current_video}}.json'
-          share-email-message="{{share_message}}"
-          share-twitter-handle="{{twitter_handle}}"
+          src='{{ VIDEOHUB_BASE_URL }}/video/{{video.videohub_ref_id}}.json'
           data-track-category="Special Coverage Landing"
-          share-track-action="Video: Main: Share"
         >
         </bulbs-video-meta>
         <share-tools
@@ -41,18 +38,14 @@
             share-url={% build_video_share_uri video.videohub_ref_id %}
             share-track-action="Video: Main: Share"
             share-title="{{video.title}}">
-          <div class="video-carousel-share-tools">
             <share-via-facebook label icon></share-via-facebook>
             <share-via-twitter label icon twitter-handle={{twitter_handle}}></share-via-twitter>
-            <share-via-email label icon message={{share_message}}></share-via-twitter>
-          </div>
+            <share-via-email label icon message={{share_message}}></share-via-email>
         </share-tools>
       </div>
     </div>
   {% endif %}
-
   {% if special_coverage.videos.1 %}
-
     <bulbs-carousel class='video-carousel-carousel sc-video-carousel'>
       <div class='video-carousel-header'>
         <span class='video-carousel-header-title'>
@@ -73,7 +66,6 @@
         <bulbs-carousel-previous class="video-carousel-previous"></bulbs-carousel-previous>
         <bulbs-carousel-next class="video-carousel-next"></bulbs-carousel-next>
       </div>
-
       <bulbs-carousel-slider>
         {% for video_id in special_coverage.videos %}
           <bulbs-carousel-item
@@ -81,14 +73,14 @@
             data-track-action="Video: Recirc: {{forloop.counter}}"
             data-track-label='{% url 'special-video' slug=special_coverage.slug video_id=video_id %}'
             href='{% url 'special-video' slug=special_coverage.slug video_id=video_id %}'
-            {% if video_id == current_video %}
+            {% if video_id == video.videohub_ref_id %}
               now-playing
             {% endif %}
           >
             <bulbs-video-summary
               class="video-carousel-summary"
               src='{{ VIDEOHUB_BASE_URL }}/video/{{video_id}}.json'
-              {% if video_id == current_video %}
+              {% if video_id == video.videohub_ref_id %}
                 now-playing
               {% endif %}
             >
@@ -97,5 +89,5 @@
         {% endfor %}
       </bulbs-carousel-slider>
     </bulbs-carousel>
-  </bulbs-video-carousel>
-{% endif %}
+  {% endif %}
+</bulbs-video-carousel>

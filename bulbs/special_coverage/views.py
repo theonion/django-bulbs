@@ -32,10 +32,13 @@ class SpecialCoverageView(BaseContentDetailView):
         context["special_coverage"] = self.special_coverage
         context["targeting"] = {}
 
-        try:
-            context["video"] = get_video_object_from_videohub_id(self.special_coverage.videos[0])
-        except IndexError:
-            context["video"] = None
+        if self.special_coverage.videos:
+            context["video"] = self.special_coverage.videos[0]
+
+        # try:
+        #     context["video"] = get_video_object_from_videohub_id(self.special_coverage.videos[0])
+        # except IndexError:
+        #     context["video"] = None
 
         if self.special_coverage:
             context["targeting"]["dfp_specialcoverage"] = self.special_coverage.slug
