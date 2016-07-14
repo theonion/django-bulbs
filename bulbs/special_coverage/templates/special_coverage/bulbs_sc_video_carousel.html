@@ -36,6 +36,17 @@
           share-track-action="Video: Main: Share"
         >
         </bulbs-video-meta>
+        <share-tools
+            class="video-carousel-share-tools"
+            share-url={% build_video_share_uri video.videohub_ref_id %}
+            share-track-action="Video: Main: Share"
+            share-title="{{video.title}}">
+          <div class="video-carousel-share-tools">
+            <share-via-facebook label icon></share-via-facebook>
+            <share-via-twitter label icon twitter-handle={{twitter_handle}}></share-via-twitter>
+            <share-via-email label icon message={{share_message}}></share-via-twitter>
+          </div>
+        </share-tools>
       </div>
     </div>
   {% endif %}

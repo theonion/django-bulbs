@@ -2,6 +2,18 @@
 
 ## Development
 
+## Version 3.5.1
+
+- Update homepage_player template and pull in entire video object in special coverage context
+
+## Version 3.4.1
+
+- removed `dfp_instant_article`
+
+## Version 3.4.0
+
+- moved share tools for homepage player outside of bulbs-video-meta, this effects styling
+
 ## Version 3.3.2
 
 - Added `dfp_instant_article` value.
