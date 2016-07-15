@@ -29,7 +29,7 @@ def get_superfeature_serializer():
     if serializer is None:
         from bulbs.super_features.serializers import BaseSuperFeatureSerializer
         return BaseSuperFeatureSerializer
-    return serializer
+    return eval(serializer)
 
 
 def get_superfeature_partial_serializer():
@@ -37,7 +37,7 @@ def get_superfeature_partial_serializer():
     if serializer is None:
         from bulbs.super_features.serializers import BaseSuperFeaturePartialSerializer
         return BaseSuperFeaturePartialSerializer
-    return serializer
+    return eval(serializer)
 
 
 def get_superfeature_metadata():
@@ -45,7 +45,7 @@ def get_superfeature_metadata():
     if metadata is None:
         from bulbs.super_features.metadata import BaseSuperFeatureMetadata
         return BaseSuperFeatureMetadata
-    return metadata
+    return eval(metadata)
 
 
 def get_superfeature_choices():
