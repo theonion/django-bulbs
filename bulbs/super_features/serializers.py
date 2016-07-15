@@ -1,6 +1,5 @@
 from rest_framework import serializers
 
-from bulbs.content.models import Content
 from bulbs.content.serializers import ContentSerializer
 from bulbs.super_features.models import BaseSuperFeature
 from bulbs.super_features.utils import get_data_serializer
