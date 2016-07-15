@@ -52,6 +52,7 @@ class BaseSuperFeature(Content, AbstractSuperFeature):
         unique_together = ('parent', 'ordering')
 
     class Mapping(Content.Mapping):
+        # NOTE: parent is set to integer so DJES doesn't recurse
         parent = field.Integer()
         data = field.Object()
 

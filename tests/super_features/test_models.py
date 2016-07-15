@@ -131,7 +131,6 @@ class SuperFeatureModelTestCase(BaseIndexableTestCase):
             }
         )
 
-        print(child.id)
         BaseSuperFeature.search_objects.refresh()
         results = self.es.search(
             BaseSuperFeature.search_objects.mapping.index,
@@ -140,3 +139,4 @@ class SuperFeatureModelTestCase(BaseIndexableTestCase):
 
         # check that child id is not in index
         self.assertEqual(results['hits']['total'], 1)
+        self.assertTrue(child.id not in results['hits'])
