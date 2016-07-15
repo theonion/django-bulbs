@@ -2,6 +2,11 @@
 
 ## Development
 
+## Version 3.5.2
+
+- Added `custom_template` to `SpecialCoverageView` template hierarchy.
+- Added `reading_list` to `SpecialCoverageView` context.
+
 ## Version 3.5.1
 
 - Update homepage_player template and pull in entire video object in special coverage context
