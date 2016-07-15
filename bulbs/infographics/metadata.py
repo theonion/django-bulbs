@@ -34,7 +34,7 @@ class InfographicMetadata(BaseSimpleMetadata):
             return data
         return super(InfographicMetadata, self).determine_metadata(request, view)
 
-    def get_custom_metadata(self, serializer, view, type):
+    def get_custom_metadata(self, serializer, view):
         fields_metadata = dict()
         if hasattr(serializer, "__call__"):
             serializer_instance = serializer()
