@@ -4,7 +4,7 @@
 
 ## Version 3.5.2
 
-- Added `custom_template` to `SpecialCoverageView` template hierarchy.
+- Added `custom_template_name` to `SpecialCoverageView` template hierarchy.
 - Added `reading_list` to `SpecialCoverageView` context.
 
 ## Version 3.5.1
