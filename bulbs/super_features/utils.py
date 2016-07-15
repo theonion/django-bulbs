@@ -17,37 +17,33 @@ def get_data_serializer(name):
 
 
 def get_superfeature_model():
-    from bulbs.super_features.models import BaseSuperFeature
-
     model_name = getattr(settings, "BULBS_SUPERFEATURE_MODEL", None)
     if model_name is None:
+        from bulbs.super_features.models import BaseSuperFeature
         return BaseSuperFeature
     return apps.get_model(model_name)
 
 
 def get_superfeature_serializer():
-    from bulbs.super_features.serializers import BaseSuperFeatureSerializer
-
     serializer = getattr(settings, "BULBS_SUPERFEATURE_SERIALIZER", None)
     if serializer is None:
+        from bulbs.super_features.serializers import BaseSuperFeatureSerializer
         return BaseSuperFeatureSerializer
     return serializer
 
 
 def get_superfeature_partial_serializer():
-    from bulbs.super_features.serializers import BaseSuperFeaturePartialSerializer
-
     serializer = getattr(settings, "BULBS_SUPERFEATURE_PARTIAL_SERIALIZER", None)
     if serializer is None:
+        from bulbs.super_features.serializers import BaseSuperFeaturePartialSerializer
         return BaseSuperFeaturePartialSerializer
     return serializer
 
 
 def get_superfeature_metadata():
-    from bulbs.super_features.metadata import BaseSuperFeatureMetadata
-
     metadata = getattr(settings, "BULBS_SUPERFEATURE_METADATA", None)
     if metadata is None:
+        from bulbs.super_features.metadata import BaseSuperFeatureMetadata
         return BaseSuperFeatureMetadata
     return metadata
 
