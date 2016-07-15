@@ -4,6 +4,7 @@ from django.views.decorators.cache import cache_control
 
 from bulbs.special_coverage.models import SpecialCoverage
 from bulbs.content.views import BaseContentDetailView
+from bulbs.utils.methods import get_video_object_from_videohub_id
 
 
 class SpecialCoverageView(BaseContentDetailView):
@@ -30,10 +31,11 @@ class SpecialCoverageView(BaseContentDetailView):
         context["content_list"] = self.special_coverage.get_content()
         context["special_coverage"] = self.special_coverage
         context["targeting"] = {}
+
         try:
-            context["current_video"] = self.special_coverage.videos[0]
+            context["video"] = get_video_object_from_videohub_id(self.special_coverage.videos[0])
         except IndexError:
-            context["current_video"] = None
+            context["video"] = None
 
         if self.special_coverage:
             context["targeting"]["dfp_specialcoverage"] = self.special_coverage.slug
@@ -50,7 +52,7 @@ class SpecialCoverageVideoView(SpecialCoverageView):
         if video_id not in self.special_coverage.videos:
             raise Http404('Video with id={} not in SpecialCoverage'.format(video_id))
 
-        context['current_video'] = video_id
+        context['video'] = get_video_object_from_videohub_id(video_id)
 
         return context
 
