@@ -57,7 +57,6 @@ $light-shade: #f4f4f4;
     }
   }
   .sc-video-player {
-    height: 100%;
     margin: 0;
     width: 100%;
   }
@@ -214,6 +213,7 @@ $light-shade: #f4f4f4;
     margin-bottom: $sc-tablet-margin;
     padding-left: $sc-tablet-margin;
     .sc-carousel {
+      @include flex-direction(row);
       margin-bottom: 0;
       padding: 20px;
     }
@@ -253,7 +253,7 @@ $light-shade: #f4f4f4;
     padding-left: $sc-tablet-margin;
   }
   .sc-landing-list-item-link {
-    border-top: 5px solid $avc-blue;
+    border-top: 5px solid black;
     figure {
       max-width: 300px;
       .image {
