@@ -1,4 +1,3 @@
-from rest_framework import serializers
 from rest_framework.metadata import SimpleMetadata
 from rest_framework.utils.field_mapping import ClassLookupDict
 
