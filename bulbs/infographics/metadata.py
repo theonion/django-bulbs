@@ -28,11 +28,9 @@ class InfographicMetadata(BaseSimpleMetadata):
         return ClassLookupDict(mapping)
 
     def determine_metadata(self, request, view):
-        serializer_class = view.get_serializer_class()
-        if issubclass(serializer_class, InfographicSerializer):
-            data = self.get_custom_metadata(serializer_class, view)
-            return data
-        return super(InfographicMetadata, self).determine_metadata(request, view)
+        return super(InfographicMetadata, self).determine_metadata(
+            request, view, InfographicSerializer
+        )
 
     def get_custom_metadata(self, serializer, view):
         fields_metadata = dict()

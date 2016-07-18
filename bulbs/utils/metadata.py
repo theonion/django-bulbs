@@ -28,11 +28,12 @@ class BaseSimpleMetadata(SimpleMetadata):
                 info[attr] = force_text(value, strings_only=True)
         return info
 
-    def determine_metadata(self, request, view):
-        raise NotImplementedError
-
-    def get_custom_metadata(self, serializer, view):
-        raise NotImplementedError
+    def determine_metadata(self, request, view, klass):
+        serializer_class = view.get_serializer_class()
+        if issubclass(serializer_class, klass):
+            data = self.get_custom_metadata(serializer_class, view)
+            return data
+        return super(BaseSimpleMetadata, self).determine_metadata(request, view)
 
     def get_field_info(self, field):
         """
