@@ -28,6 +28,12 @@ class BaseSimpleMetadata(SimpleMetadata):
                 info[attr] = force_text(value, strings_only=True)
         return info
 
+    def determine_metadata(self, request, view):
+        raise NotImplementedError
+
+    def get_custom_metadata(self, serializer, view):
+        raise NotImplementedError
+
     def get_field_info(self, field):
         """
         This method is basically a mirror from rest_framework==3.3.3
