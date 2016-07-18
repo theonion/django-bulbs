@@ -74,7 +74,7 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
         data = {
             "title": "Guide to Summer",
             "superfeature_type": GUIDE_TO_ENTRY,
-            "parent_id": parent_id,
+            "parent": parent_id,
             "ordering": 1
         }
         resp = self.api_client.post(
@@ -99,6 +99,7 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
         # CHECK IF PARENT AND ARE SETTING
         self.assertTrue(child.is_child)
         self.assertFalse(child.is_parent)
+        self.assertEqual(child.ordering, 1)
         self.assertFalse(parent.is_child)
         self.assertTrue(parent.is_parent)
 

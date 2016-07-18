@@ -24,12 +24,12 @@ class BaseSuperFeatureDataField(serializers.Field):
 
 class BaseSuperFeatureSerializer(ContentSerializer):
     data = BaseSuperFeatureDataField(required=False)
-    parent_id = serializers.PrimaryKeyRelatedField(
-        source='parent', queryset=BaseSuperFeature.objects.all(), required=False
+    ordering = serializers.IntegerField(required=False, allow_null=True, default=None)
+    parent = serializers.PrimaryKeyRelatedField(
+        queryset=BaseSuperFeature.objects.all(), required=False, allow_null=True, default=None
     )
 
     class Meta:
-        exclude = ('parent', 'ordering')
         model = BaseSuperFeature
 
 
