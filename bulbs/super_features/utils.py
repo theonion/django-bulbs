@@ -19,11 +19,15 @@ def get_data_serializer(name):
 
 
 def get_superfeature_model():
-    model_name = getattr(settings, "BULBS_SUPERFEATURE_MODEL", None)
-    if model_name is None:
+    module = getattr(settings, "BULBS_SUPERFEATURE_MODEL_MODULE", None)
+    model = getattr(settings, "BULBS_SUPERFEATURE_MODEL", None)
+    if model is None or module is None:
         from bulbs.super_features.models import BaseSuperFeature
         return BaseSuperFeature
-    return apps.get_model(model_name)
+    else:
+        # NOTE: import serializer module & then evaluate based on serializer name
+        mod = import_module(module)  # NOQA
+        return eval("{0}.{1}".format('mod', model))
 
 
 def get_superfeature_serializer():
