@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 3.5.3
+
+- Fixed `content-list` infographic issue
+
 ## Version 3.5.2
 
 - Added `custom_template_name` to `SpecialCoverageView` template hierarchy.
