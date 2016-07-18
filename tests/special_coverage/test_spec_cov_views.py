@@ -45,7 +45,10 @@ class TestSpecialCoverageViews(BaseIndexableTestCase):
         self.assertEqual(response.context['targeting'], {
             'dfp_specialcoverage': 'test-coverage',
         })
-        self.assertEqual(response.template_name[0], 'special_coverage/landing.html')
+        self.assertEqual(
+            response.template_name[0], 'special_coverage/custom/test_coverage_custom.html'
+        )
+        self.assertEqual(response.template_name[1], 'special_coverage/landing.html')
 
     def test_sets_first_video_to_video(self):
         content = make_content(published=timezone.now())
