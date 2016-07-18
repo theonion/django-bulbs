@@ -14,6 +14,21 @@ class BaseInfographicTestCase(BaseAPITestCase):
         resp = self.api_client.options(self.list_endpoint)
         self.assertEqual(resp.status_code, 200)
 
+    def test_list_view_get(self):
+        """
+        checks for `initial_data` bug.
+
+        If infographic data exists, a 500 is raised for content-list `GET`.
+        """
+        BaseInfographic.objects.create(
+            title='Money cammy baby',
+            infographic_type=InfographicType.LIST,
+            data=self.list_data
+        )
+        endpoint = reverse('content-list') + "?page=1"
+        resp = self.api_client.get(endpoint)
+        self.assertEqual(resp.status_code, 200)
+
     def test_post_list_no_data(self):
         data = self.list_data
         data.pop("data")
