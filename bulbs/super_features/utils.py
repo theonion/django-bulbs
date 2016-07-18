@@ -1,6 +1,5 @@
 from importlib import import_module
 
-from django.apps import apps
 from django.conf import settings
 
 
