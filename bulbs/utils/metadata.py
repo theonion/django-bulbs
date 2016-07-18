@@ -65,6 +65,27 @@ class BaseSimpleMetadata(SimpleMetadata):
 
         return field_info
 
+    def get_custom_field_name(self, view):
+        raise NotImplementedError
+
+    def get_custom_metadata(self, serializer, view, klass):
+        fields_metadata = dict()
+        if hasattr(serializer, "__call__"):
+            serializer_instance = serializer()
+        else:
+            serializer_instance = serializer
+        for field_name, field in serializer_instance.get_fields().items():
+            if isinstance(field, klass):
+                if view.suffix != "List":
+                    fields_metadata[field_name] = self.get_custom_field_name(view)
+            elif isinstance(field, serializers.BaseSerializer):
+                fields_metadata[field_name] = self.get_serializer_info(field)
+            else:
+                fields_metadata[field_name] = self.get_field_info(field)
+        return {
+            "fields": fields_metadata
+        }
+
     def get_serializer_info(self, serializer):
         serializer_info = super(BaseSimpleMetadata, self).get_serializer_info(serializer)
         custom_params = OrderedDict()

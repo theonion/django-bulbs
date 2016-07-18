@@ -30,22 +30,12 @@ class BaseSuperFeatureMetadata(BaseSimpleMetadata):
             request, view, BaseSuperFeatureSerializer
         )
 
+    def get_custom_field_name(self, view):
+        obj = view.get_object()
+        serializer = obj.get_data_serializer(obj.superfeature_type)
+        return self.get_custom_metadata(serializer, view)
+
     def get_custom_metadata(self, serializer, view):
-        fields_metadata = dict()
-        if hasattr(serializer, "__call__"):
-            serializer_instance = serializer()
-        else:
-            serializer_instance = serializer
-        for field_name, field in serializer_instance.get_fields().items():
-            if isinstance(field, BaseSuperFeatureDataField):
-                if view.suffix != "List":
-                    obj = view.get_object()
-                    serializer = obj.get_data_serializer(obj.superfeature_type)
-                    fields_metadata[field_name] = self.get_custom_metadata(serializer, view)
-            elif isinstance(field, serializers.BaseSerializer):
-                fields_metadata[field_name] = self.get_serializer_info(field)
-            else:
-                fields_metadata[field_name] = self.get_field_info(field)
-        return {
-            "fields": fields_metadata
-        }
+        return super(BaseSuperFeatureMetadata, self).get_custom_metadata(
+            serializer, view, BaseSuperFeatureDataField
+        )
