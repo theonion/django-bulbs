@@ -4,7 +4,6 @@ from django.views.decorators.cache import cache_control
 
 from bulbs.special_coverage.models import SpecialCoverage
 from bulbs.content.views import BaseContentDetailView
-from bulbs.utils.methods import get_video_object_from_videohub_id
 
 
 class SpecialCoverageView(BaseContentDetailView):
