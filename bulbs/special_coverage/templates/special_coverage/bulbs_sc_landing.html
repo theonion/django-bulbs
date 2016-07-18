@@ -35,9 +35,11 @@
     </share-tools>
   </div>
   <ul class="sc-landing-list">
+    {% if special_coverage.videos %}
     <li class="sc-landing-carousel">
       {% include "special_coverage/bulbs_sc_video_carousel.html" %}
     </li>
+    {% endif %}
     {% for content in content_list  %}
       <li class="sc-landing-list-item">
         <a
