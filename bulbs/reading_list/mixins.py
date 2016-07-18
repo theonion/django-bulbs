@@ -130,7 +130,7 @@ class ReadingListMixin(object):
 
         return reading_list
 
-    def get_reading_list_context(self):
+    def get_reading_list_context(self, **kwargs):
         """Returns the context dictionary for a given reading list."""
         reading_list = None
         context = {
