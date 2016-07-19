@@ -4,6 +4,7 @@ from django.views.decorators.cache import cache_control
 
 from bulbs.special_coverage.models import SpecialCoverage
 from bulbs.content.views import BaseContentDetailView
+from bulbs.utils.methods import get_video_object_from_videohub_id
 
 
 class SpecialCoverageView(BaseContentDetailView):
@@ -11,6 +12,7 @@ class SpecialCoverageView(BaseContentDetailView):
 
     def get_template_names(self):
         template_names = ["special_coverage/landing.html"]
+        template_names.insert(0, getattr(self.special_coverage, "custom_template_name", ""))
         return template_names
 
     def get_object(self, *args, **kwargs):
@@ -28,12 +30,15 @@ class SpecialCoverageView(BaseContentDetailView):
     def get_context_data(self, *args, **kwargs):
         context = super(SpecialCoverageView, self).get_context_data()
         context["content_list"] = self.special_coverage.get_content()
+        if hasattr(self.object, "get_reading_list"):
+            context["reading_list"] = self.object.get_reading_list()
         context["special_coverage"] = self.special_coverage
         context["targeting"] = {}
+
         try:
-            context["current_video"] = self.special_coverage.videos[0]
+            context["video"] = get_video_object_from_videohub_id(self.special_coverage.videos[0])
         except IndexError:
-            context["current_video"] = None
+            context["video"] = None
 
         if self.special_coverage:
             context["targeting"]["dfp_specialcoverage"] = self.special_coverage.slug
@@ -50,7 +55,7 @@ class SpecialCoverageVideoView(SpecialCoverageView):
         if video_id not in self.special_coverage.videos:
             raise Http404('Video with id={} not in SpecialCoverage'.format(video_id))
 
-        context['current_video'] = video_id
+        context['video'] = get_video_object_from_videohub_id(video_id)
 
         return context
 
