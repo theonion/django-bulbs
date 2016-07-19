@@ -4,6 +4,7 @@ import jsonfield
 from elasticsearch_dsl import field
 
 from bulbs.content.models import Content
+from bulbs.recirc.mixins import BaseQueryMixin
 from bulbs.super_features.utils import get_superfeature_choices, get_data_serializer
 
 
@@ -44,7 +45,7 @@ class AbstractSuperFeature(models.Model):
         return super(AbstractSuperFeature, self).clean(*args, **kwargs)
 
 
-class BaseSuperFeature(Content, AbstractSuperFeature):
+class BaseSuperFeature(Content, AbstractSuperFeature, BaseQueryMixin):
     parent = models.ForeignKey('self', blank=True, null=True)
     ordering = models.IntegerField(blank=True, null=True, default=None)
 
