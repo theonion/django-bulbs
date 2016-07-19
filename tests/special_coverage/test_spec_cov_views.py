@@ -70,6 +70,7 @@ class TestSpecialCoverageViews(BaseIndexableTestCase):
         self.assertEqual(response.context['special_coverage'], sc)
         self.assertEqual(response.context['content_list'].count(), sc.get_content().count())
         self.assertEqual(response.context['content_list'][0].id, content.id)
+
         self.assertEqual(response.context['current_video'], None)
         self.assertEqual(response.context['targeting'], {
             'dfp_specialcoverage': 'test-coverage',
