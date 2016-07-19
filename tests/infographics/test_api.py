@@ -198,7 +198,7 @@ class BaseInfographicTestCase(BaseAPITestCase):
                 "body": OrderedDict([
                     ("field_size", "long"),
                     ("read_only", False),
-                    ("required", True),
+                    ("required", False),
                     ("type", "richtext"),
                 ]),
                 "strong": OrderedDict([
@@ -243,7 +243,7 @@ class BaseInfographicTestCase(BaseAPITestCase):
             "fields": {
                 "body": OrderedDict([
                     ("type", "richtext"),
-                    ("required", True),
+                    ("required", False),
                     ("field_size", "long"),
                     ("read_only", False)
 

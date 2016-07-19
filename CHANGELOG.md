@@ -2,6 +2,11 @@
 
 ## Development
 
+## Version 3.6.0
+
+- Made infographic serializer reference configurable for site specific loading.
+- Removed prohibiting required fields for `POST` requests.
+
 ## Version 3.5.4
 
 - update special coverage to allow unpublished content to be viewed in preview
