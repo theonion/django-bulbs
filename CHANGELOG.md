@@ -2,11 +2,10 @@
 
 ## Development
 
-## Version 3.6.0
+## Version 3.5.4
 
-- Added `super_features` app
-- Created common `utils/metadata.py` for options requests
-- Moved all JSONB related `*/fields.py` to common `utils/fields.py`
+- update special coverage to allow unpublished content to be viewed in preview
+- fix bug associated with querying for a special coverage video object that doesn't have a videohub_ref_id
 
 ## Version 3.5.3
 
