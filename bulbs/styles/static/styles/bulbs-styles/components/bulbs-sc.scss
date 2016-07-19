@@ -178,13 +178,13 @@ $light-shade: #f4f4f4;
     padding: $sc-mobile-margin;
     width: 100%;
     h2 {
-      @include multiLineTruncate(1.1em, 3);
+      @include multiLineTruncate(1.2em, 3, white);
       font-size: 1.1em;
       margin: 0;
       padding: 0;
     }
     .feature-type {
-      @include multiLineTruncate(1.33em, 1);
+      @include multiLineTruncate(1.33em, 1, white);
       color: black;
       font-size: 10px;
       margin-bottom: .5em;
@@ -267,7 +267,7 @@ $light-shade: #f4f4f4;
     .meta {
       padding: 1.5em;
       h2 {
-        @include multiLineTruncate(1.33em, 3);
+        @include multiLineTruncate(1.33em, 3, white);
         font-size: 1.33em;
       }
       .pub {
