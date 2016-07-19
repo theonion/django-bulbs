@@ -2,6 +2,12 @@
 
 ## Development
 
+## Version 3.6.0
+
+- Added `super_features` app
+- Created common `utils/metadata.py` for options requests
+- Moved all JSONB related `*/fields.py` to common `utils/fields.py`
+
 ## Version 3.5.3
 
 - Fixed `content-list` infographic issue
