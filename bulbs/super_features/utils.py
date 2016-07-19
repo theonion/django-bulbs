@@ -26,7 +26,8 @@ def get_superfeature_model():
     else:
         # NOTE: import serializer module & then evaluate based on serializer name
         mod = import_module(module)  # NOQA
-        return eval("{0}.{1}".format('mod', model))
+        return getattr(mod, model)
+        # return eval("{0}.{1}".format('mod', model))
 
 
 def get_superfeature_serializer():
@@ -38,7 +39,8 @@ def get_superfeature_serializer():
     else:
         # NOTE: import serializer module & then evaluate based on serializer name
         mod = import_module(module)  # NOQA
-        return eval("{0}.{1}".format('mod', serializer))
+        return getattr(mod, serializer)
+        # return eval("{0}.{1}".format('mod', serializer))
 
 
 def get_superfeature_partial_serializer():
@@ -50,7 +52,8 @@ def get_superfeature_partial_serializer():
     else:
         # NOTE: import serializer module & then evaluate based on serializer name
         mod = import_module(module)  # NOQA
-        return eval("{0}.{1}".format('mod', serializer))
+        return getattr(mod, serializer)
+        # return eval("{0}.{1}".format('mod', serializer))
 
 
 def get_superfeature_metadata():
@@ -62,7 +65,8 @@ def get_superfeature_metadata():
     else:
         # NOTE: import metadata module & then evaluate based on metadata name
         mod = import_module(module)  # NOQA
-        return eval("{0}.{1}".format('mod', metadata))
+        return getattr(mod, metadata)
+        # return eval("{0}.{1}".format('mod', metadata))
 
 
 def get_superfeature_choices():
