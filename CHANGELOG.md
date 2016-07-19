@@ -2,6 +2,11 @@
 
 ## Development
 
+## Version 3.5.4
+
+- update special coverage to allow unpublished content to be viewed in preview
+- fix bug associated with querying for a special coverage video object that doesn't have a videohub_ref_id
+
 ## Version 3.5.3
 
 - Fixed `content-list` infographic issue
