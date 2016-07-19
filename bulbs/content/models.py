@@ -369,7 +369,6 @@ class Content(PolymorphicModel, Indexable):
         :param kwargs: keyword arguments
         :return: `bulbs.content.Content`
         """
-        # import pdb; pdb.set_trace()
         if not self.slug:
             self.slug = slugify(self.build_slug())[:self._meta.get_field("slug").max_length]
 
