@@ -96,7 +96,6 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
         child = BaseSuperFeature.objects.get(id=child_id)
         parent = BaseSuperFeature.objects.get(id=parent_id)
 
-        # CHECK IF PARENT AND ARE SETTING
         self.assertTrue(child.is_child)
         self.assertFalse(child.is_parent)
         self.assertEqual(child.ordering, 1)

@@ -372,7 +372,7 @@ class Content(PolymorphicModel, Indexable):
         if not self.slug:
             self.slug = slugify(self.build_slug())[:self._meta.get_field("slug").max_length]
 
-        if self.is_indexed is False:
+        if not self.is_indexed:
             if kwargs is None:
                 kwargs = {}
             kwargs["index"] = False
