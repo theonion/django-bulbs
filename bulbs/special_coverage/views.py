@@ -11,6 +11,7 @@ class SpecialCoverageView(BaseContentDetailView):
 
     def get_template_names(self):
         template_names = ["special_coverage/landing.html"]
+        template_names.insert(0, getattr(self.special_coverage, "custom_template_name", ""))
         return template_names
 
     def get_object(self, *args, **kwargs):
@@ -28,6 +29,8 @@ class SpecialCoverageView(BaseContentDetailView):
     def get_context_data(self, *args, **kwargs):
         context = super(SpecialCoverageView, self).get_context_data()
         context["content_list"] = self.special_coverage.get_content()
+        if hasattr(self.object, "get_reading_list"):
+            context["reading_list"] = self.object.get_reading_list()
         context["special_coverage"] = self.special_coverage
         context["targeting"] = {}
 
