@@ -47,7 +47,13 @@ class BaseInfographicTestCase(BaseAPITestCase):
         )
         self.assertEqual(resp.status_code, 201)
         infographic = BaseInfographic.objects.get(id=resp.data["id"])
-        self.assertEqual(infographic.data, self.list_data.get("data"))
+        expected_data = self.list_data.get('data')
+        expected_data['entries'][1] = {
+            'title': expected_data['entries'][1]['title'],
+            'image': None,
+            'copy': expected_data['entries'][1]['copy']
+        }
+        self.assertEqual(infographic.data, expected_data)
 
     def test_post_timeline(self):
         resp = self.api_client.post(
@@ -387,6 +393,9 @@ class BaseInfographicTestCase(BaseAPITestCase):
                     "title": "Michael Bayless",
                     "copy": "How did he do that?",
                     "image": {"id": 1}
+                }, {
+                    "title": "Skip Bayless",
+                    "copy": "How he do that?"
                 }]
             }
         }
