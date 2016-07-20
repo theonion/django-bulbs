@@ -14,9 +14,15 @@ class BaseSuperFeatureDataField(serializers.Field):
         return serializer_class().to_internal_value(data)
 
     def to_representation(self, obj):
-        serializer_class = get_data_serializer(
-            self.parent.initial_data.get("superfeature_type")
-        )
+        if hasattr(self.parent, 'initial_data'):
+            sf_type = self.parent.initial_data.get('superfeature_type', None)
+        else:
+            sf_type = getattr(self.parent, 'superfeature_type')
+        serializer_class = get_data_serializer(sf_type)
+
+        # TODO: figure out a more elegant transition for elasticsearch calls.
+        if type(obj).__name__ == 'InnerObjectWrapper':
+            obj = obj.__dict__.get('_d_')
         serializer = serializer_class(data=obj)
         serializer.is_valid(raise_exception=True)
         return serializer.data
