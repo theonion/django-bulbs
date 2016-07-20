@@ -2,11 +2,15 @@
 
 ## Development
 
-## Version 3.6.0
+## Version 3.7.0
 
 - Added `super_features` app
 - Created common `utils/metadata.py` for options requests
 - Moved all JSONB related `*/fields.py` to common `utils/fields.py`
+
+## Version 3.6.0
+- Made infographic serializer reference configurable for site specific loading.
+- Removed prohibiting required fields for `POST` requests.
 
 ## Version 3.5.4
 
