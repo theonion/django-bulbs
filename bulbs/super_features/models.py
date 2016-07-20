@@ -6,6 +6,7 @@ from elasticsearch_dsl import field
 from bulbs.content.models import Content
 from bulbs.recirc.mixins import BaseQueryMixin
 from bulbs.super_features.utils import get_superfeature_choices, get_data_serializer
+from bulbs.utils.mixins import ParentOrderingMixin
 
 
 GUIDE_TO_HOMEPAGE = 'GUIDE_TO_HOMEPAGE'
@@ -45,9 +46,7 @@ class AbstractSuperFeature(models.Model):
         return super(AbstractSuperFeature, self).clean(*args, **kwargs)
 
 
-class BaseSuperFeature(Content, AbstractSuperFeature, BaseQueryMixin):
-    parent = models.ForeignKey('self', blank=True, null=True)
-    ordering = models.IntegerField(blank=True, null=True, default=None)
+class BaseSuperFeature(Content, AbstractSuperFeature, BaseQueryMixin, ParentOrderingMixin):
 
     class Meta:
         unique_together = ('parent', 'ordering')
