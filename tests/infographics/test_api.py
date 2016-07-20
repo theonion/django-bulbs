@@ -47,7 +47,13 @@ class BaseInfographicTestCase(BaseAPITestCase):
         )
         self.assertEqual(resp.status_code, 201)
         infographic = BaseInfographic.objects.get(id=resp.data["id"])
-        self.assertEqual(infographic.data, self.list_data.get("data"))
+        expected_data = self.list_data.get('data')
+        expected_data['entries'][1] = {
+            'title': expected_data['entries'][1]['title'],
+            'image': None,
+            'copy': expected_data['entries'][1]['copy']
+        }
+        self.assertEqual(infographic.data, expected_data)
 
     def test_post_timeline(self):
         resp = self.api_client.post(
@@ -288,88 +294,88 @@ class BaseInfographicTestCase(BaseAPITestCase):
         fields = resp.data.get("fields")
         data_field = fields.get("data")
         self.assertEqual(data_field, {
-            "fields": {
-                "entries": OrderedDict([
-                    ("type", "array"),
-                    ("fields", OrderedDict([
-                        (
-                            "title", OrderedDict([
-                                ("type", "richtext"),
-                                ("required", True),
-                                ("field_size", "short"),
-                                ("read_only", False),
-                                ("label", "Title"),
-                            ])
-                        ), (
-                            "copy_x", OrderedDict([
-                                ("type", "richtext"),
-                                ("required", True),
-                                ("field_size", "long"),
-                                ("read_only", False),
-                                ("label", "Copy x"),
-                            ])
-                        ), (
-                            "copy_y", OrderedDict([
-                                ("type", "richtext"),
-                                ("required", True),
-                                ("field_size", "long"),
-                                ("read_only", False),
-                                ("label", "Copy y"),
-                            ])
-                        )
-                    ])),
-                    ("child_label", "entry")
+            'fields': {
+                'key_x': OrderedDict([
+                    ('type', 'object'),
+                    ('fields', OrderedDict([(
+                        'title', {
+                            'label': 'Title',
+                            'read_only': False,
+                            'type': 'richtext',
+                            'field_size': 'short',
+                            'required': True
+                        }
+                    ), (
+                        'color', {
+                            'label': 'Color',
+                            'read_only': False,
+                            'type': 'color',
+                            'required': False
+                        }
+                    ), (
+                        'initial', {
+                            'label': 'Initial',
+                            'read_only': False,
+                            'type': 'string',
+                            'required': True
+                        }
+                    )]))
                 ]),
-                "key_x": OrderedDict([
-                    (
-                        "title", OrderedDict([
-                            ("type", "richtext"),
-                            ("required", True),
-                            ("field_size", "short"),
-                            ("read_only", False),
-                            ("label", "Title"),
-                        ])
+                'key_y': OrderedDict([
+                    ('type', 'object'),
+                    ('fields', OrderedDict([(
+                        'title', {
+                            'label': 'Title',
+                            'read_only': False,
+                            'type': 'richtext',
+                            'field_size': 'short',
+                            'required': True
+                        }
                     ), (
-                        "color", OrderedDict([
-                            ("type", "string"),
-                            ("required", True),
-                            ("read_only", False),
-                            ("label", "Color")
-                        ]),
+                        'color', {
+                            'label': 'Color',
+                            'read_only': False,
+                            'type': 'color',
+                            'required': False
+                        }
                     ), (
-                        "initial", OrderedDict([
-                            ("type", "string"),
-                            ("required", True),
-                            ("read_only", False),
-                            ("label", "Initial")
-                        ])
-                    )
+                        'initial', {
+                            'label': 'Initial',
+                            'read_only': False,
+                            'type': 'string',
+                            'required': True
+                        }
+                    )]))
                 ]),
-                "key_y": OrderedDict([
-                    (
-                        "title", OrderedDict([
-                            ("type", "richtext"),
-                            ("required", True),
-                            ("field_size", "short"),
-                            ("read_only", False),
-                            ("label", "Title")
-                        ])
+                'entries': OrderedDict([
+                    ('type', 'array'),
+                    ('fields', OrderedDict([(
+                        'title', {
+                            'label': 'Title',
+                            'read_only': False,
+                            'type': 'richtext',
+                            'field_size': 'short',
+                            'required': True
+                        }
                     ), (
-                        "color", OrderedDict([
-                            ("type", "string"),
-                            ("required", True),
-                            ("read_only", False),
-                            ("label", "Color")
-                        ]),
+                        'copy_x', {
+                            'label': 'Copy x',
+                            'read_only': False,
+                            'type': 'richtext',
+                            'field_size': 'long',
+                            'required': True
+                        }
                     ), (
-                        "initial", OrderedDict([
-                            ("type", "string"),
-                            ("required", True),
-                            ("read_only", False),
-                            ("label", "Initial")
-                        ])
-                    )
-                ]),
+                        'copy_y', {
+                            'label': 'Copy y',
+                            'read_only': False,
+                            'type': 'richtext',
+                            'field_size': 'long',
+                            'required': True
+                        }
+                    )])),
+                    ('child_label', 'entry')
+                ])
             }
         })
 
@@ -387,6 +393,9 @@ class BaseInfographicTestCase(BaseAPITestCase):
                     "title": "Michael Bayless",
                     "copy": "How did he do that?",
                     "image": {"id": 1}
+                }, {
+                    "title": "Skip Bayless",
+                    "copy": "How he do that?"
                 }]
             }
         }
@@ -437,12 +446,12 @@ class BaseInfographicTestCase(BaseAPITestCase):
             "data": {
                 "key_x": {
                     "title": "Yassss queen",
-                    "color": "BLUE!",
+                    "color": "#F0F8FF",
                     "initial": "A!"
                 },
                 "key_y": {
                     "title": "Yassss queen",
-                    "color": "BLUE!",
+                    "color": "#F0F8EF",
                     "initial": "A!"
                 },
                 "entries": [{

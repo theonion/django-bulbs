@@ -1,10 +1,6 @@
 from rest_framework import serializers
 
 
-class ColorField(serializers.CharField):
-    pass
-
-
 class RichTextField(serializers.CharField):
 
     def __init__(self, *args, **kwargs):

@@ -2,11 +2,12 @@
 
 ## Development
 
-## Version 3.7.0
+## Version 3.6.1
 
-- Added `super_features` app
-- Created common `utils/metadata.py` for options requests
-- Moved all JSONB related `*/fields.py` to common `utils/fields.py`
+- Infographics: Update type name for color fields.
+- Infographics: Added hex validation to color fields.
+- Infographics: Updated ComparisonKey objects to match json data structure.
+- Infograhpics: Make sure `image` field is available and `null` in all entry payloads.
 
 ## Version 3.6.0
 - Made infographic serializer reference configurable for site specific loading.

@@ -17,5 +17,5 @@ class CopySerializer(serializers.Serializer):
 
 
 class EntrySerializer(BaseEntrySerializer, CopySerializer):
-    title = RichTextField(field_size="short", required=False)
-    image = ImageFieldSerializer(required=False)
+    title = RichTextField(field_size="short")
+    image = ImageFieldSerializer(required=False, default=None, allow_null=True)

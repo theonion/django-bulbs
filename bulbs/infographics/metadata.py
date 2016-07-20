@@ -4,10 +4,14 @@ from rest_framework.utils.field_mapping import ClassLookupDict
 from djbetty.serializers import ImageFieldSerializer
 
 from bulbs.content.serializers import AuthorField
-from bulbs.utils.fields import ColorField, RichTextField
+
+from bulbs.utils.fields import RichTextField
 from bulbs.utils.metadata import BaseSimpleMetadata
 from bulbs.utils.data_serializers import CopySerializer, EntrySerializer
-from .data_serializers import XYEntrySerializer
+from .data_serializers import (
+    ComparisonKeySerializer, XYEntrySerializer
+)
+from .fields import ColorField
 from .serializers import InfographicSerializer, InfographicDataField
 
 
@@ -21,6 +25,7 @@ class InfographicMetadata(BaseSimpleMetadata):
         mapping.update({
             AuthorField: "string",
             ColorField: "color",
+            ComparisonKeySerializer: "object",
             CopySerializer: "array",
             EntrySerializer: "array",
             XYEntrySerializer: "array",
