@@ -6,7 +6,8 @@ from djbetty.serializers import ImageFieldSerializer
 from bulbs.content.serializers import AuthorField
 from bulbs.utils.fields import ColorField, RichTextField
 from bulbs.utils.metadata import BaseSimpleMetadata
-from .data_serializers import CopySerializer, EntrySerializer, XYEntrySerializer
+from bulbs.utils.data_serializers import CopySerializer, EntrySerializer
+from .data_serializers import XYEntrySerializer
 from .serializers import InfographicSerializer, InfographicDataField
 
 
