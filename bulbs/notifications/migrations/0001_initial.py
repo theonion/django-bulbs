@@ -14,15 +14,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Notification',
             fields=[
-                ('id', models.AutoField(auto_created=True, serialize=False, primary_key=True, verbose_name='ID')),
+                ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True, serialize=False)),
                 ('internal_title', models.CharField(max_length=512)),
                 ('created_on', models.DateTimeField(auto_now_add=True)),
                 ('headline', models.CharField(max_length=512)),
                 ('is_published', models.BooleanField(default=False)),
                 ('body', models.TextField(blank=True, null=True)),
-                ('image', djbetty.fields.ImageField(blank=True, null=True, default=None)),
+                ('image', djbetty.fields.ImageField(blank=True, default=None, null=True)),
                 ('clickthrough_url', models.URLField(blank=True, null=True)),
-                ('clickthrough_cta', models.CharField(max_length=256)),
+                ('clickthrough_cta', models.CharField(blank=True, max_length=256, null=True)),
             ],
             options={
                 'abstract': False,
