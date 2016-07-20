@@ -288,88 +288,88 @@ class BaseInfographicTestCase(BaseAPITestCase):
         fields = resp.data.get("fields")
         data_field = fields.get("data")
         self.assertEqual(data_field, {
-            "fields": {
-                "entries": OrderedDict([
-                    ("type", "array"),
-                    ("fields", OrderedDict([
-                        (
-                            "title", {
-                                'field_size': 'short',
-                                'label': 'Title',
-                                'read_only': False,
-                                'required': True,
-                                'type': 'richtext'
-                            }
-                        ), (
-                            "copy_x", {
-                                'field_size': 'long',
-                                'label': 'Copy x',
-                                'read_only': False,
-                                'required': True,
-                                'type': 'richtext'
-                            },
-                        ), (
-                            "copy_y", {
-                                'field_size': 'long',
-                                'label': 'Copy y',
-                                'read_only': False,
-                                'required': True,
-                                'type': 'richtext'
-                            }
-                        )
-                    ])),
-                    ("child_label", "entry")
-                ]),
-                "key_x": OrderedDict([
-                    (
-                        "title", {
-                            'field_size': 'short',
+            'fields': {
+                'key_x': OrderedDict([
+                    ('type', 'object'),
+                    ('fields', OrderedDict([(
+                        'title', {
                             'label': 'Title',
                             'read_only': False,
-                            'required': True,
-                            'type': 'richtext'
+                            'type': 'richtext',
+                            'field_size': 'short',
+                            'required': True
                         }
                     ), (
-                        "color", {
+                        'color', {
                             'label': 'Color',
                             'read_only': False,
-                            'required': False,
-                            'type': 'color'
+                            'type': 'color',
+                            'required': False
                         }
                     ), (
-                        "initial", {
+                        'initial', {
                             'label': 'Initial',
                             'read_only': False,
-                            'required': True,
-                            'type': 'string'
+                            'type': 'string',
+                            'required': True
                         }
-                    )
+                    )]))
                 ]),
-                "key_y": OrderedDict([
-                    (
-                        "title", {
-                            'field_size': 'short',
+                'key_y': OrderedDict([
+                    ('type', 'object'),
+                    ('fields', OrderedDict([(
+                        'title', {
                             'label': 'Title',
                             'read_only': False,
-                            'required': True,
-                            'type': 'richtext'
+                            'type': 'richtext',
+                            'field_size': 'short',
+                            'required': True
                         }
                     ), (
-                        "color", {
+                        'color', {
                             'label': 'Color',
                             'read_only': False,
-                            'required': False,
-                            'type': 'color'
+                            'type': 'color',
+                            'required': False
                         }
                     ), (
-                        "initial", {
+                        'initial', {
                             'label': 'Initial',
                             'read_only': False,
-                            'required': True,
-                            'type': 'string'
+                            'type': 'string',
+                            'required': True
                         }
-                    )
+                    )]))
                 ]),
+                'entries': OrderedDict([
+                    ('type', 'array'),
+                    ('fields', OrderedDict([(
+                        'title', {
+                            'label': 'Title',
+                            'read_only': False,
+                            'type': 'richtext',
+                            'field_size': 'short',
+                            'required': True
+                        }
+                    ), (
+                        'copy_x', {
+                            'label': 'Copy x',
+                            'read_only': False,
+                            'type': 'richtext',
+                            'field_size': 'long',
+                            'required': True
+                        }
+                    ), (
+                        'copy_y', {
+                            'label': 'Copy y',
+                            'read_only': False,
+                            'type': 'richtext',
+                            'field_size': 'long',
+                            'required': True
+                        }
+                    )])),
+                    ('child_label', 'entry')
+                ])
             }
         })
 
