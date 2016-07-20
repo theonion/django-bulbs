@@ -5,7 +5,7 @@ from elasticsearch_dsl import field
 
 from bulbs.content.models import Content
 from bulbs.recirc.mixins import BaseQueryMixin
-from bulbs.super_features.utils import get_superfeature_choices, get_data_serializer
+from bulbs.super_features.utils import get_superfeature_choices
 from bulbs.utils.mixins import ParentOrderingMixin
 
 
@@ -31,7 +31,17 @@ class AbstractSuperFeature(models.Model):
 
     @classmethod
     def get_data_serializer(cls, name):
-        return get_data_serializer(name)
+        from bulbs.super_features.data_serializers import (GuideToChildSerializer,
+                                                           GuideToParentSerializer)
+                                                           
+        serializer = {
+            GUIDE_TO_HOMEPAGE: GuideToParentSerializer,
+            GUIDE_TO_ENTRY: GuideToChildSerializer
+        }.get(name, None)
+        if serializer is None:
+            raise KeyError('The requested SuperFeature does not have a registered serializer')
+
+        return serializer
 
     def validate_data_field(self):
         Serializer = self.get_data_serializer(self.superfeature_type)  # NOQA

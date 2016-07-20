@@ -2,13 +2,16 @@ from rest_framework import serializers
 
 from bulbs.content.serializers import ContentSerializer
 from bulbs.super_features.models import BaseSuperFeature
-from bulbs.super_features.utils import get_data_serializer
+from bulbs.super_features.utils import get_superfeature_model
+
+
+SUPERFEATURE_MODEL = get_superfeature_model()
 
 
 class BaseSuperFeatureDataField(serializers.Field):
 
     def to_internal_value(self, data):
-        serializer_class = get_data_serializer(
+        serializer_class = SUPERFEATURE_MODEL.get_data_serializer(
             self.parent.initial_data.get("superfeature_type")
         )
         return serializer_class().to_internal_value(data)
@@ -18,7 +21,7 @@ class BaseSuperFeatureDataField(serializers.Field):
             sf_type = self.parent.initial_data.get('superfeature_type', None)
         else:
             sf_type = getattr(self.parent, 'superfeature_type')
-        serializer_class = get_data_serializer(sf_type)
+        serializer_class = SUPERFEATURE_MODEL.get_data_serializer(sf_type)
 
         # TODO: figure out a more elegant transition for elasticsearch calls.
         if type(obj).__name__ == 'InnerObjectWrapper':

@@ -3,20 +3,6 @@ from importlib import import_module
 from django.conf import settings
 
 
-def get_data_serializer(name):
-    from bulbs.super_features.models import GUIDE_TO_HOMEPAGE, GUIDE_TO_ENTRY
-    from bulbs.super_features.data_serializers import (GuideToChildSerializer,
-                                                       GuideToParentSerializer)
-    serializer = {
-        GUIDE_TO_HOMEPAGE: GuideToParentSerializer,
-        GUIDE_TO_ENTRY: GuideToChildSerializer
-    }.get(name, None)
-    if serializer is None:
-        raise KeyError('The requested SuperFeature does not have a registered serializer')
-
-    return serializer
-
-
 def get_superfeature_model():
     module = getattr(settings, "BULBS_SUPERFEATURE_MODEL_MODULE", None)
     model = getattr(settings, "BULBS_SUPERFEATURE_MODEL", None)
