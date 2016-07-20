@@ -99,7 +99,7 @@ class BaseSimpleMetadata(SimpleMetadata):
         else:
             label = self.label_lookup[serializer]
 
-        if label != "field" and getattr(serializer, "many", False):
+        if label != "field":
             serializer_info = OrderedDict([
                 ("type", label),
                 ("fields", serializer_info)

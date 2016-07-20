@@ -127,7 +127,7 @@ class BaseInfographicTestCase(BaseAPITestCase):
                     ), (
                         "title", OrderedDict([
                             ("type", "richtext"),
-                            ("required", False),
+                            ("required", True),
                             ("field_size", "short"),
                             ("read_only", False),
                             ("label", "Title"),
@@ -170,7 +170,7 @@ class BaseInfographicTestCase(BaseAPITestCase):
                         ])), (
                         "title", OrderedDict([
                             ("type", "richtext"),
-                            ("required", False),
+                            ("required", True),
                             ("read_only", False),
                             ("label", "Title"),
                             ("field_size", "short"),
