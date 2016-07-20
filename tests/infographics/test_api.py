@@ -293,81 +293,81 @@ class BaseInfographicTestCase(BaseAPITestCase):
                     ("type", "array"),
                     ("fields", OrderedDict([
                         (
-                            "title", OrderedDict([
-                                ("type", "richtext"),
-                                ("required", True),
-                                ("field_size", "short"),
-                                ("read_only", False),
-                                ("label", "Title"),
-                            ])
+                            "title", {
+                                'field_size': 'short',
+                                'label': 'Title',
+                                'read_only': False,
+                                'required': True,
+                                'type': 'richtext'
+                            }
                         ), (
-                            "copy_x", OrderedDict([
-                                ("type", "richtext"),
-                                ("required", True),
-                                ("field_size", "long"),
-                                ("read_only", False),
-                                ("label", "Copy x"),
-                            ])
+                            "copy_x", {
+                                'field_size': 'long',
+                                'label': 'Copy x',
+                                'read_only': False,
+                                'required': True,
+                                'type': 'richtext'
+                            },
                         ), (
-                            "copy_y", OrderedDict([
-                                ("type", "richtext"),
-                                ("required", True),
-                                ("field_size", "long"),
-                                ("read_only", False),
-                                ("label", "Copy y"),
-                            ])
+                            "copy_y", {
+                                'field_size': 'long',
+                                'label': 'Copy y',
+                                'read_only': False,
+                                'required': True,
+                                'type': 'richtext'
+                            }
                         )
                     ])),
                     ("child_label", "entry")
                 ]),
                 "key_x": OrderedDict([
                     (
-                        "title", OrderedDict([
-                            ("type", "richtext"),
-                            ("required", True),
-                            ("field_size", "short"),
-                            ("read_only", False),
-                            ("label", "Title"),
-                        ])
+                        "title", {
+                            'field_size': 'short',
+                            'label': 'Title',
+                            'read_only': False,
+                            'required': True,
+                            'type': 'richtext'
+                        }
                     ), (
-                        "color", OrderedDict([
-                            ("type", "string"),
-                            ("required", True),
-                            ("read_only", False),
-                            ("label", "Color")
-                        ]),
+                        "color", {
+                            'label': 'Color',
+                            'read_only': False,
+                            'required': False,
+                            'type': 'color'
+                        }
                     ), (
-                        "initial", OrderedDict([
-                            ("type", "string"),
-                            ("required", True),
-                            ("read_only", False),
-                            ("label", "Initial")
-                        ])
+                        "initial", {
+                            'label': 'Initial',
+                            'read_only': False,
+                            'required': True,
+                            'type': 'string'
+                        }
                     )
                 ]),
                 "key_y": OrderedDict([
                     (
-                        "title", OrderedDict([
-                            ("type", "richtext"),
-                            ("required", True),
-                            ("field_size", "short"),
-                            ("read_only", False),
-                            ("label", "Title")
-                        ])
+                        "title", {
+                            'field_size': 'short',
+                            'label': 'Title',
+                            'read_only': False,
+                            'required': True,
+                            'type': 'richtext'
+                        }
                     ), (
-                        "color", OrderedDict([
-                            ("type", "color"),
-                            ("required", True),
-                            ("read_only", False),
-                            ("label", "Color")
-                        ]),
+                        "color", {
+                            'label': 'Color',
+                            'read_only': False,
+                            'required': False,
+                            'type': 'color'
+                        }
                     ), (
-                        "initial", OrderedDict([
-                            ("type", "string"),
-                            ("required", True),
-                            ("read_only", False),
-                            ("label", "Initial")
-                        ])
+                        "initial", {
+                            'label': 'Initial',
+                            'read_only': False,
+                            'required': True,
+                            'type': 'string'
+                        }
                     )
                 ]),
             }
