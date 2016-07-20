@@ -6,7 +6,7 @@ from elasticsearch_dsl import field
 from bulbs.content.models import Content
 from bulbs.recirc.mixins import BaseQueryMixin
 from bulbs.super_features.utils import get_superfeature_choices
-from bulbs.utils.mixins import ParentOrderingMixin
+from bulbs.super_features.mixins import SuperFeatureMixin
 
 
 GUIDE_TO_HOMEPAGE = 'GUIDE_TO_HOMEPAGE'
@@ -56,7 +56,9 @@ class AbstractSuperFeature(models.Model):
         return super(AbstractSuperFeature, self).clean(*args, **kwargs)
 
 
-class BaseSuperFeature(Content, AbstractSuperFeature, BaseQueryMixin, ParentOrderingMixin):
+class BaseSuperFeature(SuperFeatureMixin, Content, AbstractSuperFeature, BaseQueryMixin):
+    parent = models.ForeignKey('self', blank=True, null=True)
+    ordering = models.IntegerField(blank=True, null=True, default=None)
 
     class Meta:
         unique_together = ('parent', 'ordering')
@@ -70,21 +72,6 @@ class BaseSuperFeature(Content, AbstractSuperFeature, BaseQueryMixin, ParentOrde
             # Necessary to allow for our data field to store appropriately in Elasticsearch.
             # A potential alternative could be storing as a string., we should assess the value.
             dynamic = False
-
-    @property
-    def is_indexed(self):
-        if self.parent:
-            return False
-
-        return self.indexed
-
-    @property
-    def is_parent(self):
-        return self.parent is None
-
-    @property
-    def is_child(self):
-        return self.parent is not None
 
     @classmethod
     def get_serializer_class(cls):
