@@ -11,6 +11,8 @@ from .serializers import InfographicSerializer, InfographicDataField
 
 
 class InfographicMetadata(BaseSimpleMetadata):
+    custom_serializer = InfographicSerializer
+    custom_data_field = InfographicDataField
 
     @property
     def label_lookup(self):
@@ -26,16 +28,6 @@ class InfographicMetadata(BaseSimpleMetadata):
         })
         return ClassLookupDict(mapping)
 
-    def determine_metadata(self, request, view):
-        return super(InfographicMetadata, self).determine_metadata(
-            request, view, InfographicSerializer
-        )
-
     def get_custom_field_name(self, view):
         serializer = view.get_object().get_data_serializer()
         return self.get_custom_metadata(serializer, view)
-
-    def get_custom_metadata(self, serializer, view):
-        return super(InfographicMetadata, self).get_custom_metadata(
-            serializer, view, InfographicDataField
-        )

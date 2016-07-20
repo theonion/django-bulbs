@@ -13,6 +13,8 @@ METADATA_ATTRIBUTES = [
 
 
 class BaseSimpleMetadata(SimpleMetadata):
+    custom_serializer = None
+    custom_data_field = None
 
     def get_label_lookup(self, field):
         field_type = self.label_lookup[field]
@@ -28,9 +30,9 @@ class BaseSimpleMetadata(SimpleMetadata):
                 info[attr] = force_text(value, strings_only=True)
         return info
 
-    def determine_metadata(self, request, view, klass):
+    def determine_metadata(self, request, view):
         serializer_class = view.get_serializer_class()
-        if issubclass(serializer_class, klass):
+        if issubclass(serializer_class, self.custom_serializer):
             data = self.get_custom_metadata(serializer_class, view)
             return data
         return super(BaseSimpleMetadata, self).determine_metadata(request, view)
@@ -68,14 +70,14 @@ class BaseSimpleMetadata(SimpleMetadata):
     def get_custom_field_name(self, view):
         raise NotImplementedError
 
-    def get_custom_metadata(self, serializer, view, klass):
+    def get_custom_metadata(self, serializer, view):
         fields_metadata = dict()
         if hasattr(serializer, "__call__"):
             serializer_instance = serializer()
         else:
             serializer_instance = serializer
         for field_name, field in serializer_instance.get_fields().items():
-            if isinstance(field, klass):
+            if isinstance(field, self.custom_data_field):
                 if view.suffix != "List":
                     fields_metadata[field_name] = self.get_custom_field_name(view)
             elif isinstance(field, serializers.BaseSerializer):
