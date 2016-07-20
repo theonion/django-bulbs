@@ -6,7 +6,7 @@ from .validators import ColorValidator
 class ColorField(serializers.CharField):
 
     default_error_messages = {
-        'invalid': _('Enter a valid hex value. e.g., #F0F8FF ')
+        'invalid': ('Enter a valid hex value. e.g., #F0F8FF ')
     }
 
     def __init__(self, **kwargs):

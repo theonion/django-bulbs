@@ -356,7 +356,7 @@ class BaseInfographicTestCase(BaseAPITestCase):
                         ])
                     ), (
                         "color", OrderedDict([
-                            ("type", "string"),
+                            ("type", "color"),
                             ("required", True),
                             ("read_only", False),
                             ("label", "Color")
@@ -437,12 +437,12 @@ class BaseInfographicTestCase(BaseAPITestCase):
             "data": {
                 "key_x": {
                     "title": "Yassss queen",
-                    "color": "BLUE!",
+                    "color": "#F0F8FF",
                     "initial": "A!"
                 },
                 "key_y": {
                     "title": "Yassss queen",
-                    "color": "BLUE!",
+                    "color": "#F0F8EF",
                     "initial": "A!"
                 },
                 "entries": [{
