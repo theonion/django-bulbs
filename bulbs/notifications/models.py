@@ -4,6 +4,8 @@ from django.db import models
 from djbetty import ImageField
 from djes.models import Indexable
 
+from bulbs.content.models import ElasticsearchImageField
+
 
 class Notification(Indexable):
     """Model for site notifications."""
@@ -19,6 +21,9 @@ class Notification(Indexable):
     image = ImageField(blank=True, null=True)
     clickthrough_url = models.URLField(blank=True, null=True)
     clickthrough_cta = models.CharField(max_length=256)
+
+    class Mapping:
+        image = ElasticsearchImageField()
 
     def get_clickthrough_cta(self):
         """Return fallback cta, configured by the given property cms."""
