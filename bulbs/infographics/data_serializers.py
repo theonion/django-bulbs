@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from bulbs.utils.fields import RichTextField
 from bulbs.utils.data_serializers import CopySerializer, EntrySerializer, BaseEntrySerializer
+from .fields import ColorField
 
 
 class XYEntrySerializer(BaseEntrySerializer):
