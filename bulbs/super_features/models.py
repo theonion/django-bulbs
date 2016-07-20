@@ -33,7 +33,7 @@ class AbstractSuperFeature(models.Model):
     def get_data_serializer(cls, name):
         from bulbs.super_features.data_serializers import (GuideToChildSerializer,
                                                            GuideToParentSerializer)
-                                                           
+
         serializer = {
             GUIDE_TO_HOMEPAGE: GuideToParentSerializer,
             GUIDE_TO_ENTRY: GuideToChildSerializer
