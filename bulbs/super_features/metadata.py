@@ -7,11 +7,14 @@ from bulbs.content.serializers import AuthorField
 from bulbs.utils.fields import RichTextField
 from bulbs.utils.metadata import BaseSimpleMetadata
 from bulbs.utils.data_serializers import CopySerializer, EntrySerializer
-from bulbs.super_features.serializers import BaseSuperFeatureSerializer, BaseSuperFeatureDataField
+from bulbs.super_features.serializers import BaseSuperFeatureDataField
+from bulbs.super_features.utils import get_superfeature_serializer
+
+SUPERFEATURE_SERIALIZER = get_superfeature_serializer()
 
 
 class BaseSuperFeatureMetadata(BaseSimpleMetadata):
-    custom_serializer = BaseSuperFeatureSerializer
+    custom_serializer = SUPERFEATURE_SERIALIZER
     custom_data_field = BaseSuperFeatureDataField
 
     @property
