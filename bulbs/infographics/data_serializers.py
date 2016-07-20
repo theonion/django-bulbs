@@ -33,9 +33,9 @@ class ComparisonKeySerializer(serializers.Serializer):
 
 
 class ComparisonSerializer(serializers.Serializer):
-    key_x = ComparisonKeySerializer()
-    key_y = ComparisonKeySerializer()
-    entries = XYEntrySerializer(many=True, child_label="entry")
+    key_x = ComparisonKeySerializer(required=False)
+    key_y = ComparisonKeySerializer(required=False)
+    entries = XYEntrySerializer(required=False, many=True, child_label="entry")
 
 
 class ListInfographicDataSerializer(serializers.Serializer):
@@ -44,15 +44,15 @@ class ListInfographicDataSerializer(serializers.Serializer):
 
 
 class ProConSerializer(serializers.Serializer):
-    body = RichTextField(required=True, field_size="long")
-    pro = CopySerializer(many=True)
-    con = CopySerializer(many=True)
+    body = RichTextField(required=False, field_size="long")
+    pro = CopySerializer(required=False, many=True)
+    con = CopySerializer(required=False, many=True)
 
 
 class StrongSideWeakSideSerializer(serializers.Serializer):
-    body = RichTextField(required=True, field_size="long")
-    strong = CopySerializer(many=True)
-    weak = CopySerializer(many=True)
+    body = RichTextField(required=False, field_size="long")
+    strong = CopySerializer(required=False, many=True)
+    weak = CopySerializer(required=False, many=True)
 
 
 class TimelineSerializer(serializers.Serializer):

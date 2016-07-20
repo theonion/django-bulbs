@@ -4,7 +4,6 @@ from django.views.decorators.cache import cache_control
 
 from bulbs.special_coverage.models import SpecialCoverage
 from bulbs.content.views import BaseContentDetailView
-from bulbs.utils.methods import get_video_object_from_videohub_id
 
 
 class SpecialCoverageView(BaseContentDetailView):
@@ -29,22 +28,31 @@ class SpecialCoverageView(BaseContentDetailView):
 
     def get_context_data(self, *args, **kwargs):
         context = super(SpecialCoverageView, self).get_context_data()
-        context["content_list"] = self.special_coverage.get_content()
+        context["content_list"] = self.special_coverage.get_content(
+            published=self.show_published_only()
+        )
         if hasattr(self.object, "get_reading_list"):
             context["reading_list"] = self.object.get_reading_list()
         context["special_coverage"] = self.special_coverage
         context["targeting"] = {}
 
         try:
-            context["video"] = get_video_object_from_videohub_id(self.special_coverage.videos[0])
+            context["current_video"] = self.special_coverage.videos[0]
         except IndexError:
-            context["video"] = None
+            context["current_video"] = None
 
         if self.special_coverage:
             context["targeting"]["dfp_specialcoverage"] = self.special_coverage.slug
             if self.special_coverage.tunic_campaign_id:
                 context["targeting"]["dfp_campaign_id"] = self.special_coverage.tunic_campaign_id
         return context
+
+    def show_published_only(self):
+        """
+        Returns True if `full_preview` is not a query_parameter.
+        Used to determine unpublished preview state.
+        """
+        return bool("full_preview" not in self.request.GET)
 
 
 class SpecialCoverageVideoView(SpecialCoverageView):
@@ -55,7 +63,7 @@ class SpecialCoverageVideoView(SpecialCoverageView):
         if video_id not in self.special_coverage.videos:
             raise Http404('Video with id={} not in SpecialCoverage'.format(video_id))
 
-        context['video'] = get_video_object_from_videohub_id(video_id)
+        context['current_video'] = video_id
 
         return context
 
