@@ -27,7 +27,6 @@ $light-shade: #f4f4f4;
     max-width: 200px;
     min-width: 200px;
   }
-
   .homepage-player bulbs-carousel-track {
     @include overflow-flexgrid(
       $columns: 3,

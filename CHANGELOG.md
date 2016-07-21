@@ -4,9 +4,16 @@
 
 ## Version 3.7.0
 
-- Notifications: Added Notification model
-- Notifications: Added Notification cms endpoint (GET/POST/PUT)
-- Notifications: Added Notification public endpoint (GET)
+- Notifications: Added Notification model.
+- Notifications: Added Notification cms endpoint (GET/POST/PUT).
+- Notifications: Added search by `internal_title` functionality to cms endpoint.
+- Notifications: Added descending `created_on` ordering to cms endpoint.
+- Notifications: Added Notification public endpoint (GET).
+
+
+## Version 3.6.2
+
+- Infographics: removed title requirement for json entries.
 
 ## Version 3.6.1
 
