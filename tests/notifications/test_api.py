@@ -6,12 +6,31 @@ from bulbs.notifications.models import Notification
 from bulbs.utils.test import BaseAPITestCase
 
 
+DEFAULT_NOTIFICATION_DATA = {
+    'internal_title': 'rio: part 1.',
+    'headline': 'You can do it nicky!',
+    'body': 'Little Nicky is the greatest movie of all time.',
+    'image': {'id': 1},
+    'clickthrough_url': 'https://www.clickhole.com'
+}
+
+
+def create_notifications(quantity=60):
+    for i in range(quantity):
+        if i % 2:
+            is_published = True
+        else:
+            is_published = False
+        Notification.objects.create(is_published=is_published, **DEFAULT_NOTIFICATION_DATA)
+
+
 class NotificationAPITestCase(BaseAPITestCase):
 
     def setUp(self):
         super(NotificationAPITestCase, self).setUp()
         self.list_endpoint = reverse('notification-list')
-        self.create_notifications()
+        self.notification_data = DEFAULT_NOTIFICATION_DATA
+        create_notifications()
 
     def test_list_endpoint(self):
         self.assertEqual(self.list_endpoint, '/api/v1/notification/')
@@ -30,6 +49,10 @@ class NotificationAPITestCase(BaseAPITestCase):
         self.assertIn('page=2', resp.data['next'])
         results = resp.data.get('results')
         self.assertEqual(len(results), 20)
+
+    def test_public_list_view_failure(self):
+        resp = self.client.get(self.list_endpoint)
+        self.assertEqual(resp.status_code, 403)
 
     def test_post_list_view_success(self):
         resp = self.api_client.post(
@@ -66,7 +89,6 @@ class NotificationAPITestCase(BaseAPITestCase):
         )
         notification = Notification.objects.get(id=notification.id)
         self.assertEqual(notification.internal_title, data['internal_title'])
-        self.assertNotEqual(notification.internal_title, self.notification_data['internal_title'])
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data['headline'], notification.headline)
         self.assertEqual(resp.data['body'], notification.body)
@@ -79,20 +101,28 @@ class NotificationAPITestCase(BaseAPITestCase):
     def get_detail_endpoint(self, pk):
         return reverse('notification-detail', kwargs={'pk': pk})
 
-    def create_notifications(self, quantity=60):
-        for i in range(quantity):
-            if i % 2:
-                is_published = True
-            else:
-                is_published = False
-            Notification.objects.create(is_published=is_published, **self.notification_data)
 
-    @property
-    def notification_data(self):
-        return {
-            'internal_title': 'rio: part 1.',
-            'headline': 'You can do it nicky!',
-            'body': 'Little Nicky is the greatest movie of all time.',
-            'image': {'id': 1},
-            'clickthrough_url': 'https://www.clickhole.com'
-        }
+class ReadOnlyNotificationAPITestCase(BaseAPITestCase):
+
+    def setUp(self):
+        super(ReadOnlyNotificationAPITestCase, self).setUp()
+        self.list_endpoint = reverse('notification-all-list')
+        self.notification_data = DEFAULT_NOTIFICATION_DATA
+        create_notifications()
+
+    def test_list_endpoint(self):
+        self.assertEqual(self.list_endpoint, '/api/v1/notification-all/')
+
+    def test_public_list_success(self):
+        resp = self.client.get(self.list_endpoint)
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn(resp['next'], 'page=2')
+        self.assertEqual(resp['count'], 30)
+
+    def test_public_post_list_failure(self):
+        resp = self.client.post(
+            self.list_endpoint,
+            data=json.dumps(self.notification_data),
+            content_type='application/json'
+        )
+        self.assertEqual(resp.status_code, 405)
