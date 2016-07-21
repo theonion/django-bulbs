@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 3.6.2
+
+- Infographics: removed title requirement for json entries.
+
 ## Version 3.6.1
 
 - Infographics: Update type name for color fields.
