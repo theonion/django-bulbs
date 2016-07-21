@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                 ('body', models.TextField(blank=True, null=True)),
                 ('image', djbetty.fields.ImageField(blank=True, default=None, null=True)),
                 ('clickthrough_url', models.URLField(blank=True, null=True)),
-                ('clickthrough_cta', models.CharField(blank=True, max_length=256, null=True)),
+                ('clickthrough_cta', models.CharField(blank=True, max_length=30, null=True)),
             ],
             options={
                 'abstract': False,

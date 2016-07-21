@@ -20,7 +20,7 @@ class Notification(Indexable):
     body = models.TextField(null=True, blank=True)
     image = ImageField(blank=True, null=True)
     clickthrough_url = models.URLField(blank=True, null=True)
-    clickthrough_cta = models.CharField(blank=True, null=True, max_length=256)
+    clickthrough_cta = models.CharField(blank=True, null=True, max_length=30)
 
     class Mapping:
         image = ElasticsearchImageField()
