@@ -177,7 +177,7 @@ $light-shade: #f4f4f4;
     @include flexbox;
     @include flex-direction(column);
     background: white;
-    padding: $sc-mobile-margin;
+    padding: 4%;
     width: 100%;
     h2 {
       @include multiLineTruncate(1.2em, 3, white);
