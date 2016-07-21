@@ -50,6 +50,21 @@ class NotificationAPITestCase(BaseAPITestCase):
         results = resp.data.get('results')
         self.assertEqual(len(results), 20)
 
+    def test_list_view_filter_success(self):
+        # Assert is_published=True filters accurately.
+        resp = self.api_client.get(self.list_endpoint + '?is_published=True')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data['count'], 30)
+        for result in resp.data['results']:
+            self.assertTrue(result['is_published'])
+
+        # Assert is_published=False filters accurately.
+        resp = self.api_client.get(self.list_endpoint + '?is_published=False')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data['count'], 30)
+        for result in resp.data['results']:
+            self.assertFalse(result['is_published'])
+
     def test_public_list_view_failure(self):
         resp = self.client.get(self.list_endpoint)
         self.assertEqual(resp.status_code, 403)
@@ -116,7 +131,7 @@ class ReadOnlyNotificationAPITestCase(BaseAPITestCase):
     def test_public_list_success(self):
         resp = self.client.get(self.list_endpoint)
         self.assertEqual(resp.status_code, 200)
-        self.assertIn(resp.data['next'], 'page=2')
+        self.assertIn('page=2', resp.data['next'])
         self.assertEqual(resp.data['count'], 30)
 
     def test_public_post_list_failure(self):
