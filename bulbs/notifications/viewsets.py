@@ -1,7 +1,6 @@
 from rest_framework import viewsets
 from rest_framework.permissions import IsAdminUser
 
-from bulbs.api.permissions import CanEditContent
 from .models import Notification
 from .serializers import NotificationSerializer
 
