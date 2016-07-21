@@ -62,6 +62,13 @@ $light-shade: #f4f4f4;
   }
   .sc-video-carousel {
     padding: 0;
+    .video-carousel-header {
+      @include justify-content(center);
+      @include align-items(center);
+      campaign-display {
+        display: none;
+      }
+    } 
   }
   .sc-carousel-meta {
     @include align-self(flex-start);
@@ -280,6 +287,13 @@ $light-shade: #f4f4f4;
     border-left: 2px solid #e2e2e2;
     padding-left: $sc-tablet-margin;
     padding-top: $sc-tablet-margin;
+  }
+  .sc-video-carousel {
+    .video-carousel-header {
+      campaign-display {
+        display: block;
+      }
+    } 
   }
 }
 
