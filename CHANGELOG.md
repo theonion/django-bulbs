@@ -2,8 +2,12 @@
 
 ## Development
 
-## Version 3.6.1
+## Version 3.7.0
+- Added `super_features` app
+- Created a common `BaseSimpleMetadata` in `util/metadata.py`
+- Moved common fields and data serializers to `util/fields.py` and `util/data_serializers.py`
 
+## Version 3.6.1
 - Infographics: Update type name for color fields.
 - Infographics: Added hex validation to color fields.
 - Infographics: Updated ComparisonKey objects to match json data structure.
