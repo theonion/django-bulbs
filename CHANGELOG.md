@@ -2,6 +2,13 @@
 
 ## Development
 
+## Version 3.6.1
+
+- Infographics: Update type name for color fields.
+- Infographics: Added hex validation to color fields.
+- Infographics: Updated ComparisonKey objects to match json data structure.
+- Infograhpics: Make sure `image` field is available and `null` in all entry payloads.
+
 ## Version 3.6.0
 
 - Made infographic serializer reference configurable for site specific loading.
