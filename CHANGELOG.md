@@ -2,10 +2,9 @@
 
 ## Development
 
-## Version 3.7.0
-- Added `super_features` app
-- Created a common `BaseSimpleMetadata` in `util/metadata.py`
-- Moved common fields and data serializers to `util/fields.py` and `util/data_serializers.py`
+## Version 3.6.2
+
+- Infographics: removed title requirement for json entries.
 
 ## Version 3.6.1
 - Infographics: Update type name for color fields.
