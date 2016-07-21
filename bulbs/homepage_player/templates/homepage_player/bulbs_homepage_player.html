@@ -28,14 +28,14 @@
           campaign-track-action="HP: Main: Campaign"
           title-track-action="HP: Main: Series">
       </bulbs-video-meta>
-        <share-tools
-            class="video-carousel-share-tools"
-            share-title="{{ videos.0.videohub_ref.title }}"
-            share-url={% build_video_share_uri videos.0.videohub_ref.id %}
-            share-track-action="HP: Main: Share">
-            {% block homepage_player_share_tools %}
-            {% endblock homepage_player_share_tools %}
-        </share-tools>
+      <share-tools
+          class="video-carousel-share-tools {{ share_style }}"
+          share-title="{{ videos.0.videohub_ref.title }}"
+          share-url={% build_video_share_uri videos.0.videohub_ref.id %}
+          share-track-action="HP: Main: Share">
+          {% block homepage_player_share_tools %}
+          {% endblock homepage_player_share_tools %}
+      </share-tools>
     </div>
 
     <hr class="video-carousel-divider"/>

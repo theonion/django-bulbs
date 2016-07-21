@@ -1,0 +1,95 @@
+{% load betty humanize ads static content %}
+
+<bulbs-video-carousel class="video-carousel sc-carousel">
+  {% if current_video %}
+    <div class='video-carousel-player sc-video-player'>
+      <bulbs-video
+        src='{{ VIDEOHUB_BASE_URL }}/video/{{current_video}}.json'
+        data-play-track-action="Video: Main: Play"
+        data-play-track-category="Special Coverage Landing"
+        data-play-track-label="#"
+        target-host-channel="specialcoverage_main"
+        target-special-coverage="{{ special_coverage.slug }}"
+        target-campaign-id="{{ special_coverage.tunic_campaign_id }}"
+        autoplay
+        no-endcard
+      >
+      </bulbs-video>
+      <div class="video-carousel-meta sc-carousel-meta">
+        {% if special_coverage.tunic_campaign_id %}
+          <campaign-display
+            class="campaign-display-preamble"
+            data-track-action="Video: Main: Sponsor"
+            data-track-category="Special Coverage Landing"
+            placement="detail"
+            preamble-text="Presented by"
+            src="{% content_tunic_campaign_url special_coverage.tunic_campaign_id %}"
+            name-only
+          >
+          </campaign-display>
+        {% endif %}
+        <div class="bulbs-video-meta-container">
+          <bulbs-video-meta
+            src='{{ VIDEOHUB_BASE_URL }}/video/{{current_video}}.json'
+            data-track-category="Special Coverage Landing"
+          >
+          </bulbs-video-meta>
+          <share-tools
+              class="{{ share_style }}"
+              share-url={% build_video_share_uri current_video %}
+              share-track-action="Video: Main: Share"
+              share-title="{{video.title}}">
+              <share-via-facebook label icon></share-via-facebook>
+              <share-via-twitter label icon twitter-handle={{twitter_handle}}></share-via-twitter>
+              <share-via-email label icon message={{share_message}}></share-via-email>
+          </share-tools>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+  {% if special_coverage.videos.1 %}
+    <bulbs-carousel class='video-carousel-carousel sc-video-carousel'>
+      <div class='video-carousel-header'>
+        <span class='video-carousel-header-title'>
+          UP NEXT
+        </span>
+        {% if special_coverage.tunic_campaign_id %}
+          <campaign-display
+            class="campaign-display-preamble"
+            data-track-action="Video: Recirc: Sponsor"
+            data-track-category="Special Coverage Landing"
+            placement="detail"
+            preamble-text="Presented by"
+            src="{% content_tunic_campaign_url special_coverage.tunic_campaign_id %}"
+            name-only
+          >
+          </campaign-display>
+        {% endif %}
+        <bulbs-carousel-previous class="video-carousel-previous"></bulbs-carousel-previous>
+        <bulbs-carousel-next class="video-carousel-next"></bulbs-carousel-next>
+      </div>
+      <bulbs-carousel-slider>
+        {% for video_id in special_coverage.videos %}
+          <bulbs-carousel-item
+            data-track-category="Special Coverage Landing"
+            data-track-action="Video: Recirc: {{forloop.counter}}"
+            data-track-label='{% url 'special-video' slug=special_coverage.slug video_id=video_id %}'
+            href='{% url 'special-video' slug=special_coverage.slug video_id=video_id %}'
+            {% if video_id == current_video %}
+              now-playing
+            {% endif %}
+          >
+            <bulbs-video-summary
+              class="video-carousel-summary"
+              src='{{ VIDEOHUB_BASE_URL }}/video/{{video_id}}.json'
+              {% if video_id == current_video %}
+                now-playing
+              {% endif %}
+            >
+            </bulbs-video-summary>
+          </bulbs-carousel-item>
+        {% endfor %}
+      </bulbs-carousel-slider>
+    </bulbs-carousel>
+  {% endif %}
+</bulbs-video-carousel>
