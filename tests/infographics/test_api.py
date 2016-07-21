@@ -53,6 +53,7 @@ class BaseInfographicTestCase(BaseAPITestCase):
             'image': None,
             'copy': expected_data['entries'][1]['copy']
         }
+        expected_data['entries'][2]['image'] = None
         self.assertEqual(infographic.data, expected_data)
 
     def test_post_timeline(self):
@@ -108,39 +109,39 @@ class BaseInfographicTestCase(BaseAPITestCase):
         data_field = fields.get("data")
         self.assertEqual(data_field, {
             "fields": {
-                "is_numbered": OrderedDict([
-                    ("type", "boolean"),
-                    ("required", False),
-                    ("read_only", False)
-                ]),
                 "entries": OrderedDict([
                     ("type", "array"),
                     ("fields", OrderedDict([(
                         "copy",
                         OrderedDict([
-                            ("type", "richtext"),
-                            ("required", True),
                             ("field_size", "long"),
+                            ("label", "Copy"),
                             ("read_only", False),
-                            ("label", "Copy")
+                            ("required", True),
+                            ("type", "richtext")
                         ]),
                     ), (
                         "title", OrderedDict([
-                            ("type", "richtext"),
-                            ("required", True),
                             ("field_size", "short"),
-                            ("read_only", False),
                             ("label", "Title"),
+                            ("read_only", False),
+                            ("required", False),
+                            ("type", "richtext")
                         ]),
                     ), (
                         "image", OrderedDict([
-                            ("type", "image"),
-                            ("required", False),
+                            ("label", "Image"),
                             ("read_only", False),
-                            ("label", "Image")
+                            ("required", False),
+                            ("type", "image")
                         ]),
                     )])),
                     ("child_label", "entry")
+                ]),
+                "is_numbered": OrderedDict([
+                    ("read_only", False),
+                    ("required", False),
+                    ("type", "boolean")
                 ]),
             }
         })
@@ -162,25 +163,24 @@ class BaseInfographicTestCase(BaseAPITestCase):
                     ("type", "array"),
                     ("fields", OrderedDict([(
                         "copy", OrderedDict([
-                            ("type", "richtext"),
+                            ("field_size", "long"),
+                            ("label", "Copy"),
                             ("required", True),
                             ("read_only", False),
-                            ("label", "Copy"),
-                            ("field_size", "long"),
+                            ("type", "richtext")
                         ])), (
                         "title", OrderedDict([
-                            ("type", "richtext"),
-                            ("required", True),
-                            ("read_only", False),
-                            ("label", "Title"),
                             ("field_size", "short"),
-
+                            ("label", "Title"),
+                            ("read_only", False),
+                            ("required", False),
+                            ("type", "richtext"),
                         ])), (
                         "image", OrderedDict([
-                            ("type", "image"),
-                            ("required", False),
-                            ("read_only", False),
                             ("label", "Image"),
+                            ("read_only", False),
+                            ("required", False),
+                            ("type", "image")
                         ]))
                     ])),
                     ("child_label", "entry")
@@ -295,29 +295,58 @@ class BaseInfographicTestCase(BaseAPITestCase):
         data_field = fields.get("data")
         self.assertEqual(data_field, {
             'fields': {
+                'entries': OrderedDict([
+                    ('type', 'array'),
+                    ('fields', OrderedDict([(
+                        'title', {
+                            'field_size': 'short',
+                            'label': 'Title',
+                            'read_only': False,
+                            'required': False,
+                            'type': 'richtext',
+                        }
+                    ), (
+                        'copy_x', {
+                            'field_size': 'long',
+                            'label': 'Copy x',
+                            'read_only': False,
+                            'required': True,
+                            'type': 'richtext',
+                        }
+                    ), (
+                        'copy_y', {
+                            'field_size': 'long',
+                            'label': 'Copy y',
+                            'read_only': False,
+                            'required': True,
+                            'type': 'richtext'
+                        }
+                    )])),
+                    ('child_label', 'entry')
+                ]),
                 'key_x': OrderedDict([
                     ('type', 'object'),
                     ('fields', OrderedDict([(
                         'title', {
+                            'field_size': 'short',
                             'label': 'Title',
                             'read_only': False,
-                            'type': 'richtext',
-                            'field_size': 'short',
-                            'required': True
+                            'required': False,
+                            'type': 'richtext'
                         }
                     ), (
                         'color', {
                             'label': 'Color',
                             'read_only': False,
+                            'required': False,
                             'type': 'color',
-                            'required': False
                         }
                     ), (
                         'initial', {
                             'label': 'Initial',
                             'read_only': False,
+                            'required': True,
                             'type': 'string',
-                            'required': True
                         }
                     )]))
                 ]),
@@ -325,57 +354,28 @@ class BaseInfographicTestCase(BaseAPITestCase):
                     ('type', 'object'),
                     ('fields', OrderedDict([(
                         'title', {
+                            'field_size': 'short',
                             'label': 'Title',
                             'read_only': False,
-                            'type': 'richtext',
-                            'field_size': 'short',
-                            'required': True
+                            'required': False,
+                            'type': 'richtext'
                         }
                     ), (
                         'color', {
                             'label': 'Color',
                             'read_only': False,
-                            'type': 'color',
-                            'required': False
+                            'required': False,
+                            'type': 'color'
                         }
                     ), (
                         'initial', {
                             'label': 'Initial',
                             'read_only': False,
-                            'type': 'string',
-                            'required': True
+                            'required': True,
+                            'type': 'string'
                         }
                     )]))
                 ]),
-                'entries': OrderedDict([
-                    ('type', 'array'),
-                    ('fields', OrderedDict([(
-                        'title', {
-                            'label': 'Title',
-                            'read_only': False,
-                            'type': 'richtext',
-                            'field_size': 'short',
-                            'required': True
-                        }
-                    ), (
-                        'copy_x', {
-                            'label': 'Copy x',
-                            'read_only': False,
-                            'type': 'richtext',
-                            'field_size': 'long',
-                            'required': True
-                        }
-                    ), (
-                        'copy_y', {
-                            'label': 'Copy y',
-                            'read_only': False,
-                            'type': 'richtext',
-                            'field_size': 'long',
-                            'required': True
-                        }
-                    )])),
-                    ('child_label', 'entry')
-                ])
             }
         })
 
@@ -396,6 +396,8 @@ class BaseInfographicTestCase(BaseAPITestCase):
                 }, {
                     "title": "Skip Bayless",
                     "copy": "How he do that?"
+                }, {
+                    "copy": "AYYYY LMAO"
                 }]
             }
         }
