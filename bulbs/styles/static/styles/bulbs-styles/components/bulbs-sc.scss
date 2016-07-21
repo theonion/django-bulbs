@@ -9,86 +9,20 @@
 @import "../mixins/flexbox";
 @import "../mixins/ease";
 @import "../mixins/figures";
+@import "../mixins/multi-line-truncate";
 @import "../variables/breakpoints";
+@import "../variables/global-colors";
 
-
+$sc-mobile-margin: 15px;
+$sc-tablet-margin: 30px;
+$sc-desktop-margin: 50px;
 $light-shade: #f4f4f4;
 
-.sc-hero {
-  @include flexbox;
-  @include flex-direction(column);
-  background: rgb(33, 33, 33);
-  color: white;
-  margin: auto;
-  max-width: 1425px;
-  position: relative;
-  width: 100%;
-  .hero-img {
-    width: 100%;
-    .image {
-      @include crop-16x9;
-    }
-  }
-
-  .sc-label {
-    background: rgba(33, 33, 33, .8);
-    color: white;
-    display: none;
-    font-size: 1.15em;
-    left: 0;
-    padding: 10px 30px;
-    position: absolute;
-    text-transform: uppercase;
-    top: 60px;
-  }
-  .billboard {
-    @include flexbox;
-    @include flex-direction(column);
-    @include align-items(center);
-    @include justify-content(center);
-    padding: 1em;
-    text-align: center;
-  }
-  .sponsor {
-    @include flexbox;
-    text-transform: uppercase;
-    figure {
-      margin: auto;
-      max-width: 100px;
-      padding-top: 20px;
-      width: 100%;
-      img {
-        display: block;
-        position: relative;
-        width: 100%;
-      }
-    }
-  }
-  &.full-bleed {
-    .billboard {
-      width: 100%;
-    }
-  }
-}
-
-.sc-hero-campaign {
-  a {
-    @include flexbox;
-    @include flex-direction(column);
-  }
-  .campaign-display-logo {
-    max-width: 100px;
-    margin-top: 1em;
-    img {
-      max-width: 100%;
-    }
-  }
-}
+// SC Campaigns
 
 %sc-campaign {
   font-size: .8em;
   text-transform: uppercase;
-
   .campaign-display-preamble {
     color: rgb(120, 120, 120);
     // need whitespace between preamble and sponsor name
@@ -96,7 +30,6 @@ $light-shade: #f4f4f4;
       content: " ";
     }
   }
-
   .campaign-display-sponsor-name {
     color: rgb(0, 87, 159);
   }
@@ -110,203 +43,309 @@ $light-shade: #f4f4f4;
   @extend %sc-campaign;
 }
 
-.sc-video-carousel {
-  background: $light-shade;
-  max-width: 970px;
-  padding: 1em;
-  .bulbs-video-series-name {
-    display: none;
-  }
-  .dfp {
-    margin: 0;
-  }
-}
+// SC Video Carousel Overrides
 
-.sc-video-player {
-  padding: 1em;
-  background-color: $light-shade;
-  .bulbs-video-meta-series-name {
-    display: none;
-  }
-  .dfp {
-    margin: 0;
-  }
-}
-
-.sc-grid {
-  display: none;
-  @include flexbox;
-  @include flex-flow(row wrap);
-  @include justify-content(space-between);
-  margin: 3em auto;
-  max-width: 970px;
-  padding: 0;
-  width: 95%;
-  &.two-up {
-    .sc-item {
-      width: 100%;
-    }
-    .sc-item.large {
+.sc-landing-carousel {
+  .sc-carousel {
+    @include flexbox;
+    @include flex-direction(column);
+    background: $light-shade;
+    margin-bottom: $sc-tablet-margin;
+    padding: 15px;
+    bulbs-video {
       width: 100%;
     }
   }
-  .dfp {
-    -webkit-transition: width 0.5s, height 0.5s, transform 0.5s;
-    -moz-transition: width 0.5s, height 0.5s, transform 0.5s;
-    -ms-transition: width 0.5s, height 0.5s, transform 0.5s;
-    -o-transition: width 0.5s, height 0.5s, transform 0.5s;
-    display: table;
-    margin: auto;
-    min-width: 50px;
-    margin-bottom: 3em;
-    position: relative;
-    z-index: 1;
+  .sc-video-player {
+    margin: 0;
+    width: 100%;
+  }
+  .sc-video-carousel {
+    padding: 0;
+    .video-carousel-header {
+      @include justify-content(center);
+      @include align-items(center);
+      campaign-display {
+        display: none;
+      }
+    } 
+  }
+  .sc-carousel-meta {
+    @include align-self(flex-start);
+    @include flex-wrap(wrap);
+    margin: 20px 0;
+    padding: 20px;
+    max-width: 100%;
+    width: 100%;
+    .bulbs-video-meta-container {
+      @include flexbox;
+      @include flex-direction(column);
+      @include justify-content(flex-start);
+      width: 100%;
+    }
+    bulbs-video-meta {
+      width: 100%;
+    }
+    share-tools {
+      @include flexbox;
+      @include align-items(center);
+      @include justify-content(flex-start);
+      border: 0;
+      margin: 0;
+      padding: 0;
+      padding-top: 20px;
+      width: 100%;
+    }
   }
 }
 
-.sc-item {
+// SC Landing
+
+.sc-landing-billboard {
+  width: 100%;
+}
+
+.sc-landing-billboard-img {
+  width: 100%;
+  .image {
+    @include crop-16x9;
+  }
+}
+
+.sc-landing-body {
   @include flexbox;
   @include flex-direction(column);
-  @include align-items(center);
-  background: $light-shade;
-  margin-bottom: 3em;
-  text-align: center;
-  .thumb {
+  margin: 0 auto;
+  max-width: 1024px;
+  padding: $sc-mobile-margin;
+  width: 100%;
+}
+
+.sc-landing-description {
+  color: #4a4a4a;
+  line-height: 1.71;
+  margin: 1em 0;
+}
+
+.sc-landing-rail {
+  width: 100%;
+  h1 {
+    font-size: 2.25em;
+    margin: 0;
+    padding: 0;
+  }
+  campaign-display {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 10px;
+    margin-top: 1em;
+    .inner a {
+      @include flexbox;
+      @include align-items(center);
+      text-transform: uppercase;
+    }
+    .campaign-display-preamble {
+      margin-right: 12px;
+    }
+    .campaign-display-logo {
+      max-width: 90px;
+    }
+  }
+}
+
+.sc-landing-list {
+  @include flexbox;
+  @include flex-direction(column);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  padding-top: $sc-desktop-margin;
+  width: 100%;
+}
+
+.sc-landing-list-item {
+  padding-bottom: $sc-mobile-margin;
+  position: relative;
+  width: 100%;
+}
+
+.sc-landing-list-item-link {
+  @include flexbox;
+  @include flex-direction(row);
+  width: 100%;
+  figure {
+    max-width: 100px;
     width: 100%;
-    .image {
-      @include crop-16x9;
+    .image {     
+      @include crop-1x1;
+      width: 100px; 
     }
   }
   .meta {
-    padding: 10%;
+    @include flexbox;
+    @include flex-direction(column);
+    background: white;
+    padding: 4%;
+    width: 100%;
     h2 {
-      font-size: 1.3em;
+      @include multiLineTruncate(1.2em, 3, white);
+      font-size: 1.1em;
+      margin: 0;
+      padding: 0;
     }
     .feature-type {
+      @include multiLineTruncate(1.33em, 1, white);
       color: black;
+      font-size: 10px;
+      margin-bottom: .5em;
       text-transform: uppercase;
     }
     .pub {
       color: rgb(122, 135, 129);
+      display: none;
       font-size: .75em;
+      margin-top: auto;
+      &:before  {
+        content: '\f017';
+        font-family: FontAwesome;
+        margin-right: .5em;
+      }
     }
   }
-  a {
-    color: black;
+  .thumb {
+    display: block;
     width: 100%;
-    &:hover {
-      color: black;
-    }
   }
-  &.large {
-    @include flex-direction(row);
-    background: transparent;
-    position: relative;
-    a {
-      @include flexbox;
-      @include flex-direction(column);
-    }
-    .thumb {
-      width: 100%;
-    }
-    .meta {
-      @include flexbox;
-      @include flex-direction(column);
-      @include align-items(center);
-      @include justify-content(center);
-      background: #eaeaea;
-      color: black;
-      position: relative;
-      width: 100%;
-    }
-  }
-}
-
-.sc-carousel {
-  .sc-carousel-meta {
-    margin: 0;
-  }
-}
-
-.video-carousel {
-  .video-carousel-carousel {
-    &.sc-video-carousel {
-      padding: 0 calc((100% - 970px) / 2);
-    }
-  } 
 }
 
 @media all and (min-width: $screen-md) {
-  .sc-grid {
-    &.two-up {
-      .sc-item {
-        width: 48%;
-      }
-      .sc-item.large {
+  .sc-landing-carousel {
+    margin-bottom: $sc-tablet-margin;
+    padding-left: $sc-tablet-margin;
+    .sc-carousel {
+      margin-bottom: 0;
+      padding: 20px;
+    }
+    .sc-carousel-meta {
+      margin: 20px 0;
+      padding: 20px;
+      max-width: 100%;
+      width: 100%;
+      .bulbs-video-meta-container {
+        @include flex-direction(row);
         width: 100%;
       }
-    }
-  }
-  .sc-item {
-    &.large {
-      @include flex-direction(row);
-      background: transparent;
-      position: relative;
-      a {
-        @include flexbox;
+      bulbs-video-meta {
+        border-right: 1px solid #f0f0f0;
+        width: 50%;
       }
-      .thumb {
-        width: 70%;
-      }
-      .meta {
-        @include flexbox;
-        @include flex-direction(column);
-        @include align-items(center);
+      share-tools {
         @include justify-content(center);
-        background: rgba(0,0,0,.8);
-        bottom: 15%;
-        color: white;
-        max-width: 400px;
-        padding: 5%;
-        position: absolute;
-        right: 0;
-        top: 15%;
+        padding-top: 0;
+        width: 50%;
       }
     }
   }
-  .sc-hero {
-    .sc-label {
-      display: inline-block;
+  .sc-landing-billboard-img {
+    .image {
+      @include crop-3x1;
     }
+  }
+  .sc-landing-body {
+    margin: 0 auto;
+    padding: 0 $sc-tablet-margin;
+  }
+  .sc-landing-list {
+    border-left: 2px solid #e2e2e2;
+  }
+  .sc-landing-list-item {
+    padding-left: $sc-tablet-margin;
+  }
+  .sc-landing-list-item-link {
+    border-top: 5px solid black;
+    figure {
+      max-width: 300px;
+      .image {
+        @include crop-16x9;
+        width: 300px;
+      }
+    }
+    .feature-type {
+      font-size: .9em;
+    }
+    .meta {
+      padding: 1.5em;
+      h2 {
+        @include multiLineTruncate(1.33em, 3, white);
+        font-size: 1.33em;
+      }
+      .pub {
+        display: block;
+      }
+    }
+  }
+  .sc-landing-rail {
+    border-left: 2px solid #e2e2e2;
+    padding-left: $sc-tablet-margin;
+    padding-top: $sc-tablet-margin;
+  }
+  .sc-video-carousel {
+    .video-carousel-header {
+      campaign-display {
+        display: block;
+      }
+    } 
   }
 }
 
 @media all and (min-width: $screen-xlg) {
-  .sc-hero {
+  .sc-landing-carousel {
+    margin-bottom: $sc-desktop-margin;
+    padding-left: $sc-desktop-margin;
+  }
+  .sc-landing-body {
     @include flex-direction(row);
-    .hero-img {
-      width: 65%;
+    padding: 0;
+  }
+  .sc-landing-list {
+    border-left: 2px solid #e2e2e2;
+    width: calc(100% - 250px);
+  }
+  .sc-landing-list-item {
+    padding-bottom: $sc-desktop-margin;
+    padding-left: $sc-desktop-margin;
+    position: relative;
+    width: 100%;
+    &:before {
+      background: #1c263c;
+      border-radius: 10px;
+      content: '';
+      display: block;
+      height: 10px;
+      position: absolute;
+      left: -6px;
+      top: 80px;
+      width: 10px; 
     }
-    .billboard {
-      padding: 1.5em;
-      width: 35%;
+    &:after {
+      background: #e2e2e2;
+      content: '';
+      display: block;
+      height: 1px;
+      position: absolute;
+      left: 0;
+      top: 85px;
+      width: $sc-desktop-margin;
+      z-index: -1;
     }
   }
-
-  .sc-carousel {
-    .sc-video-player {
-      padding: 2em calc((100% - 970px) / 2);
-    }
-
-    .sc-video-carousel {
-      padding: 0 calc((100% - 970px) / 2);
-    }
-
-    .sc-divider {
-      padding: 0  calc((100% - 970px) / 2);
-      background-color: $light-shade;
-      padding-bottom: 1em;
-      width: 100%;
-    }
+  .sc-landing-list-item-link {
+    border-top: 0;
+  }
+  .sc-landing-rail {
+    border-left: 0;
+    margin-right: $sc-desktop-margin;
+    max-width: 250px;
+    padding-left: 0;
+    padding-top: $sc-desktop-margin;
   }
 }
