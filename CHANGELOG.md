@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 3.7.0
+
+- Special Coverage Redesign
+
 ## Version 3.6.2
 
 - Infographics: removed title requirement for json entries.
