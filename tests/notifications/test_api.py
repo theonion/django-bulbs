@@ -116,8 +116,8 @@ class ReadOnlyNotificationAPITestCase(BaseAPITestCase):
     def test_public_list_success(self):
         resp = self.client.get(self.list_endpoint)
         self.assertEqual(resp.status_code, 200)
-        self.assertIn(resp['next'], 'page=2')
-        self.assertEqual(resp['count'], 30)
+        self.assertIn(resp.data['next'], 'page=2')
+        self.assertEqual(resp.data['count'], 30)
 
     def test_public_post_list_failure(self):
         resp = self.client.post(

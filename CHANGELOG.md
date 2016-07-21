@@ -2,6 +2,12 @@
 
 ## Development
 
+## Version 3.7.0
+
+- Notifications: Added Notification model
+- Notifications: Added Notification cms endpoint (GET/POST/PUT)
+- Notifications: Added Notification public endpoint (GET)
+
 ## Version 3.6.1
 
 - Infographics: Update type name for color fields.
