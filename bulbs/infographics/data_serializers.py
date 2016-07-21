@@ -1,7 +1,7 @@
 from djbetty.serializers import ImageFieldSerializer
 from rest_framework import serializers
 
-from .fields import RichTextField
+from .fields import ColorField, RichTextField
 
 
 class BaseEntrySerializer(serializers.Serializer):
@@ -16,19 +16,19 @@ class CopySerializer(serializers.Serializer):
 
 
 class EntrySerializer(BaseEntrySerializer, CopySerializer):
-    title = RichTextField(field_size="short")
-    image = ImageFieldSerializer(required=False)
+    title = RichTextField(required=False, field_size="short")
+    image = ImageFieldSerializer(required=False, default=None, allow_null=True)
 
 
 class XYEntrySerializer(BaseEntrySerializer):
-    title = RichTextField(field_size="short")
+    title = RichTextField(required=False, field_size="short")
     copy_x = RichTextField(field_size="long")
     copy_y = RichTextField(field_size="long")
 
 
 class ComparisonKeySerializer(serializers.Serializer):
-    title = RichTextField(field_size="short")
-    color = serializers.CharField()
+    title = RichTextField(required=False, field_size="short")
+    color = ColorField(required=False)
     initial = serializers.CharField()
 
 

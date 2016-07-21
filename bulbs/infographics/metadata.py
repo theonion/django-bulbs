@@ -9,7 +9,9 @@ from rest_framework.utils.field_mapping import ClassLookupDict
 from djbetty.serializers import ImageFieldSerializer
 
 from bulbs.content.serializers import AuthorField
-from .data_serializers import CopySerializer, EntrySerializer, XYEntrySerializer
+from .data_serializers import (
+    ComparisonKeySerializer, CopySerializer, EntrySerializer, XYEntrySerializer
+)
 from .fields import ColorField, RichTextField
 from .serializers import InfographicSerializer, InfographicDataField
 
@@ -28,6 +30,7 @@ class InfographicMetadata(SimpleMetadata):
         mapping.update({
             AuthorField: "string",
             ColorField: "color",
+            ComparisonKeySerializer: "object",
             CopySerializer: "array",
             EntrySerializer: "array",
             XYEntrySerializer: "array",
@@ -98,7 +101,7 @@ class InfographicMetadata(SimpleMetadata):
         else:
             label = self.label_lookup[serializer]
 
-        if label != "field" and getattr(serializer, "many", False):
+        if label != "field":
             serializer_info = OrderedDict([
                 ("type", label),
                 ("fields", serializer_info)
