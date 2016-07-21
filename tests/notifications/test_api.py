@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 from django.core.urlresolvers import reverse
 
@@ -49,6 +50,14 @@ class NotificationAPITestCase(BaseAPITestCase):
         self.assertIn('page=2', resp.data['next'])
         results = resp.data.get('results')
         self.assertEqual(len(results), 20)
+        old_created_on = None
+        for result in resp.data['results']:
+            if not old_created_on:
+                old_created_on = datetime.strptime(result['created_on'], '%Y-%m-%dT%H:%M:%S.%fZ')
+            else:
+                new_created_on = datetime.strptime(result['created_on'], '%Y-%m-%dT%H:%M:%S.%fZ')
+                self.assertGreaterEqual(old_created_on, new_created_on)
+                old_created_on = new_created_on
 
     def test_list_view_filter_success(self):
         # Assert is_published=True filters accurately.
@@ -64,6 +73,16 @@ class NotificationAPITestCase(BaseAPITestCase):
         self.assertEqual(resp.data['count'], 30)
         for result in resp.data['results']:
             self.assertFalse(result['is_published'])
+
+    def test_list_view_search_success(self):
+        # Assert search=cameron filters accurately.
+        data = self.notification_data
+        data['internal_title'] = 'just for cameron'
+        notification = Notification.objects.create(**data)
+        resp = self.api_client.get(self.list_endpoint + '?search=cameron')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data['count'], 1)
+        self.assertEqual(resp.data['results'][0]['id'], notification.id)
 
     def test_public_list_view_failure(self):
         resp = self.client.get(self.list_endpoint)

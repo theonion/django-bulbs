@@ -7,10 +7,11 @@ from .serializers import NotificationSerializer
 
 class NotificationViewSet(viewsets.ModelViewSet):
 
-    queryset = Notification.objects.all()
+    queryset = Notification.objects.all().order_by('-created_on')
     serializer_class = NotificationSerializer
-    filter_backends = (filters.DjangoFilterBackend,)
+    filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter)
     filter_fields = ('is_published',)
+    search_fields = ('internal_title',)
     paginate_by = 20
     permission_classes = [IsAdminUser]
 
