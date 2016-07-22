@@ -56,6 +56,7 @@ INSTALLED_APPS = (
     "bulbs.promotion",
     "bulbs.special_coverage",
     "bulbs.sections",
+    "bulbs.super_features",
     "bulbs.videos",
     # local testing apps
     "example.testcontent",
