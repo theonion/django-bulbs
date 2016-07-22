@@ -12,7 +12,8 @@ DEFAULT_NOTIFICATION_DATA = {
     'headline': 'You can do it nicky!',
     'body': 'Little Nicky is the greatest movie of all time.',
     'image': {'id': 1},
-    'clickthrough_url': 'https://www.clickhole.com'
+    'clickthrough_url': 'https://www.clickhole.com',
+    'clickthrough_cta': 'have at it!'
 }
 
 
