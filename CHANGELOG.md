@@ -2,6 +2,14 @@
 
 ## Development
 
+## Version 3.7.1
+
+- Notifications: Added Notification model.
+- Notifications: Added Notification cms endpoint (GET/POST/PUT).
+- Notifications: Added search by `internal_title` functionality to cms endpoint.
+- Notifications: Added descending `created_on` ordering to cms endpoint.
+- Notifications: Added Notification public endpoint (GET).
+
 ## Version 3.7.0
 
 - Special Coverage Redesign
