@@ -1,0 +1,53 @@
+///////////////////////////////
+// ************************* //
+//    VIDEO SERIES DETAIL    //
+// ************************* //
+///////////////////////////////
+
+@import '../mixins/flexbox';
+
+.video-series-content {
+  padding: 0px;
+
+  .series-logo {
+    & img {
+      height: 225px;
+    }
+  }
+
+  ul.series-meta {
+    list-style-type: none;
+    padding: 10px;
+    text-align: center;
+
+    .series-seasons {
+      display: inline-block;
+      &:after {
+        content: '\2022';
+        font-style: normal;
+        margin: 0 .5em;
+      }
+    }
+    .series-episodes {
+      display: inline-block;
+    }
+  }
+
+  .latest-episode-data {
+    margin-bottom: 20px;
+  }
+
+  .video-series-ad {
+    border-top: solid 1px #eaeaea;
+    border-bottom: solid 1px #eaeaea;
+
+    .ad-alert {
+      color: #c6c6c6;
+      font-family: ArialMT;
+      font-size: 9px;
+      padding: 5px;
+      text-align: center;
+      text-transform: uppercase;
+    }
+  }
+}
