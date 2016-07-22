@@ -2,6 +2,11 @@
 
 ## Development
 
+## Version 3.8.0
+
+- SuperFeatures: Added `super_features` w/ models, serializers & metadata
+- Infographics: Moved common `data_serializers.py` and `fields.py` to `utils/data_serializers.py` and `utils/fields.py`
+
 ## Version 3.7.1
 
 - Notifications: Added Notification model.
