@@ -48,6 +48,7 @@ INSTALLED_APPS = (
     "bulbs.campaigns",
     "bulbs.feeds",
     "bulbs.infographics",
+    "bulbs.notifications",
     "bulbs.redirects",
     "bulbs.cms_notifications",
     "bulbs.content",
