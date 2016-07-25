@@ -241,6 +241,7 @@ class ContentSerializer(serializers.ModelSerializer):
     thumbnail = ImageFieldSerializer(allow_null=True, read_only=True)
     first_image = ImageFieldSerializer(allow_null=True, read_only=True)
     thumbnail_override = ImageFieldSerializer(allow_null=True, required=False)
+    facebook_image = ImageFieldSerializer(allow_null=True, required=False)
     absolute_url = serializers.ReadOnlyField(source="get_absolute_url")
     status = serializers.ReadOnlyField(source="get_status")
     template_type = serializers.SlugRelatedField(

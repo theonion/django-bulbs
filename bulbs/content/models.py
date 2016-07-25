@@ -221,6 +221,8 @@ class Content(PolymorphicModel, Indexable):
     template_choice = models.IntegerField(default=0, choices=TEMPLATE_CHOICES)
     # Facebook Instant Article ID
     instant_article_id = models.BigIntegerField(blank=True, null=True, default=None)
+    facebook_description = models.TextField(max_length=1024, blank=True, default="")
+    facebook_image = ImageField(null=True, blank=True)
 
     # custom ES manager
     search_objects = ContentManager()
@@ -238,6 +240,7 @@ class Content(PolymorphicModel, Indexable):
         slug = field.String(index="not_analyzed")
         status = field.String(index="not_analyzed")
         thumbnail_override = ElasticsearchImageField()
+        facebook_image = ElasticsearchImageField()
 
     def __unicode__(self):
         """unicode friendly name

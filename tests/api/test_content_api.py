@@ -99,6 +99,8 @@ class TestCreateContentAPI(BaseAPITestCase):
             "description": "Testing out things with an article.",
             "foo": "Fighters",
             "feature_type": "Some Super Long String Probably",
+            "facebook_description": "this is the facebook description",
+            "facebook_image": {"id": 1},
             "authors": [{
                 "id": author.id,
                 "username": author.username,
