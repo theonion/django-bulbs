@@ -14,8 +14,8 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='content',
-            name='facebook_description',
-            field=models.TextField(default=b'', max_length=1024, blank=True),
+            name='_facebook_description',
+            field=models.TextField(max_length=1024, null=True, db_column='facebook_description', blank=True),
         ),
         migrations.AddField(
             model_name='content',

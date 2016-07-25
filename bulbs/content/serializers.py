@@ -244,6 +244,12 @@ class ContentSerializer(serializers.ModelSerializer):
     facebook_image = ImageFieldSerializer(allow_null=True, required=False)
     absolute_url = serializers.ReadOnlyField(source="get_absolute_url")
     status = serializers.ReadOnlyField(source="get_status")
+    facebook_description = serializers.CharField(
+        source="_facebook_description",
+        allow_null=True,
+        required=False
+    )
+
     template_type = serializers.SlugRelatedField(
         slug_field="slug",
         allow_null=True,

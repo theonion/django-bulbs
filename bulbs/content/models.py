@@ -221,7 +221,12 @@ class Content(PolymorphicModel, Indexable):
     template_choice = models.IntegerField(default=0, choices=TEMPLATE_CHOICES)
     # Facebook Instant Article ID
     instant_article_id = models.BigIntegerField(blank=True, null=True, default=None)
-    facebook_description = models.TextField(max_length=1024, blank=True, default="")
+    _facebook_description = models.TextField(
+        max_length=1024,
+        blank=True,
+        null=True,
+        db_column="facebook_description"
+    )
     facebook_image = ImageField(null=True, blank=True)
 
     # custom ES manager
@@ -290,6 +295,16 @@ class Content(PolymorphicModel, Indexable):
 
         # no non-none images, return None
         return None
+
+    @property
+    def facebook_description(self):
+        if self._facebook_description:
+            return self._facebook_description
+        return self.description
+
+    @facebook_description.setter
+    def facebook_description(self, value):
+        self._facebook_description = value
 
     def get_absolute_url(self):
         """produces a url to link directly to this instance, given the URL config

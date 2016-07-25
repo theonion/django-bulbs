@@ -43,6 +43,21 @@ class ContentModelTestCase(BaseIndexableTestCase):
         targeting = obj.get_targeting()
         self.assertEqual(obj.published.isoformat(), targeting.get("dfp_publishdate"))
 
+    def test_facebook_description_fallback(self):
+        obj = TestContentObj.objects.create(**self.default_data)
+        obj.description = "This is a description"
+        obj.save()
+        TestContentObj.search_objects.refresh()
+
+        self.assertEqual(obj.facebook_description, obj.description)
+
+        obj.facebook_description = "This is the facebook description"
+        obj.save()
+        TestContentObj.search_objects.refresh()
+
+        self.assertNotEqual(obj.facebook_description, obj.description)
+        self.assertEqual(obj.facebook_description, "This is the facebook description")
+
 
 class SerializerTestCase(BaseIndexableTestCase):
     def test_content_status(self):
