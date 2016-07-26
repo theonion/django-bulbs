@@ -56,6 +56,7 @@ class SpecialCoverageView(BaseContentDetailView):
 
 
 class SpecialCoverageVideoView(SpecialCoverageView):
+
     def get_context_data(self, *args, **kwargs):
         context = super(SpecialCoverageVideoView, self).get_context_data()
 

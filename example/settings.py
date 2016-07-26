@@ -48,6 +48,7 @@ INSTALLED_APPS = (
     "bulbs.campaigns",
     "bulbs.feeds",
     "bulbs.infographics",
+    "bulbs.notifications",
     "bulbs.redirects",
     "bulbs.cms_notifications",
     "bulbs.content",
@@ -55,6 +56,7 @@ INSTALLED_APPS = (
     "bulbs.promotion",
     "bulbs.special_coverage",
     "bulbs.sections",
+    "bulbs.super_features",
     "bulbs.videos",
     # local testing apps
     "example.testcontent",

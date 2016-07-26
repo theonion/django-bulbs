@@ -1,12 +1,16 @@
 from rest_framework import serializers
 
+from .validators import ColorValidator
+
 
 class ColorField(serializers.CharField):
-    pass
 
+    default_error_messages = {
+        'invalid': ('Enter a valid hex value. e.g., #F0F8FF ')
+    }
 
-class RichTextField(serializers.CharField):
-
-    def __init__(self, *args, **kwargs):
-        self.field_size = kwargs.pop("field_size", None)
-        super(RichTextField, self).__init__(*args, **kwargs)
+    def __init__(self, **kwargs):
+        super(ColorField, self).__init__(**kwargs)
+        self.validators.append(
+            ColorValidator(message=self.error_messages['invalid'])
+        )

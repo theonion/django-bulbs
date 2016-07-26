@@ -4,36 +4,32 @@ from rest_framework.utils.field_mapping import ClassLookupDict
 from djbetty.serializers import ImageFieldSerializer
 
 from bulbs.content.serializers import AuthorField
-
 from bulbs.utils.fields import RichTextField
 from bulbs.utils.metadata import BaseSimpleMetadata
 from bulbs.utils.data_serializers import CopySerializer, EntrySerializer
-from .data_serializers import (
-    ComparisonKeySerializer, XYEntrySerializer
-)
-from .fields import ColorField
-from .serializers import InfographicSerializer, InfographicDataField
+from bulbs.super_features.serializers import BaseSuperFeatureDataField
+from bulbs.super_features.utils import get_superfeature_serializer
+
+SUPERFEATURE_SERIALIZER = get_superfeature_serializer()
 
 
-class InfographicMetadata(BaseSimpleMetadata):
-    custom_serializer = InfographicSerializer
-    custom_data_field = InfographicDataField
+class BaseSuperFeatureMetadata(BaseSimpleMetadata):
+    custom_serializer = SUPERFEATURE_SERIALIZER
+    custom_data_field = BaseSuperFeatureDataField
 
     @property
     def label_lookup(self):
         mapping = SimpleMetadata.label_lookup.mapping
         mapping.update({
             AuthorField: "string",
-            ColorField: "color",
-            ComparisonKeySerializer: "object",
             CopySerializer: "array",
             EntrySerializer: "array",
-            XYEntrySerializer: "array",
             ImageFieldSerializer: "image",
             RichTextField: "richtext"
         })
         return ClassLookupDict(mapping)
 
     def get_custom_field_name(self, view):
-        serializer = view.get_object().get_data_serializer()
+        obj = view.get_object()
+        serializer = obj.get_data_serializer(obj.superfeature_type)
         return self.get_custom_metadata(serializer, view)

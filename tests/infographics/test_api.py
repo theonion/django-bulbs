@@ -47,7 +47,14 @@ class BaseInfographicTestCase(BaseAPITestCase):
         )
         self.assertEqual(resp.status_code, 201)
         infographic = BaseInfographic.objects.get(id=resp.data["id"])
-        self.assertEqual(infographic.data, self.list_data.get("data"))
+        expected_data = self.list_data.get('data')
+        expected_data['entries'][1] = {
+            'title': expected_data['entries'][1]['title'],
+            'image': None,
+            'copy': expected_data['entries'][1]['copy']
+        }
+        expected_data['entries'][2]['image'] = None
+        self.assertEqual(infographic.data, expected_data)
 
     def test_post_timeline(self):
         resp = self.api_client.post(
@@ -102,39 +109,39 @@ class BaseInfographicTestCase(BaseAPITestCase):
         data_field = fields.get("data")
         self.assertEqual(data_field, {
             "fields": {
-                "is_numbered": OrderedDict([
-                    ("type", "boolean"),
-                    ("required", False),
-                    ("read_only", False)
-                ]),
                 "entries": OrderedDict([
                     ("type", "array"),
                     ("fields", OrderedDict([(
                         "copy",
                         OrderedDict([
-                            ("type", "richtext"),
-                            ("required", True),
                             ("field_size", "long"),
+                            ("label", "Copy"),
                             ("read_only", False),
-                            ("label", "Copy")
+                            ("required", True),
+                            ("type", "richtext")
                         ]),
                     ), (
                         "title", OrderedDict([
-                            ("type", "richtext"),
-                            ("required", True),
                             ("field_size", "short"),
-                            ("read_only", False),
                             ("label", "Title"),
+                            ("read_only", False),
+                            ("required", False),
+                            ("type", "richtext")
                         ]),
                     ), (
                         "image", OrderedDict([
-                            ("type", "image"),
-                            ("required", False),
+                            ("label", "Image"),
                             ("read_only", False),
-                            ("label", "Image")
+                            ("required", False),
+                            ("type", "image")
                         ]),
                     )])),
                     ("child_label", "entry")
+                ]),
+                "is_numbered": OrderedDict([
+                    ("read_only", False),
+                    ("required", False),
+                    ("type", "boolean")
                 ]),
             }
         })
@@ -156,25 +163,24 @@ class BaseInfographicTestCase(BaseAPITestCase):
                     ("type", "array"),
                     ("fields", OrderedDict([(
                         "copy", OrderedDict([
-                            ("type", "richtext"),
+                            ("field_size", "long"),
+                            ("label", "Copy"),
                             ("required", True),
                             ("read_only", False),
-                            ("label", "Copy"),
-                            ("field_size", "long"),
+                            ("type", "richtext")
                         ])), (
                         "title", OrderedDict([
-                            ("type", "richtext"),
-                            ("required", True),
-                            ("read_only", False),
-                            ("label", "Title"),
                             ("field_size", "short"),
-
+                            ("label", "Title"),
+                            ("read_only", False),
+                            ("required", False),
+                            ("type", "richtext"),
                         ])), (
                         "image", OrderedDict([
-                            ("type", "image"),
-                            ("required", False),
-                            ("read_only", False),
                             ("label", "Image"),
+                            ("read_only", False),
+                            ("required", False),
+                            ("type", "image")
                         ]))
                     ])),
                     ("child_label", "entry")
@@ -198,7 +204,7 @@ class BaseInfographicTestCase(BaseAPITestCase):
                 "body": OrderedDict([
                     ("field_size", "long"),
                     ("read_only", False),
-                    ("required", True),
+                    ("required", False),
                     ("type", "richtext"),
                 ]),
                 "strong": OrderedDict([
@@ -243,7 +249,7 @@ class BaseInfographicTestCase(BaseAPITestCase):
             "fields": {
                 "body": OrderedDict([
                     ("type", "richtext"),
-                    ("required", True),
+                    ("required", False),
                     ("field_size", "long"),
                     ("read_only", False)
 
@@ -288,87 +294,87 @@ class BaseInfographicTestCase(BaseAPITestCase):
         fields = resp.data.get("fields")
         data_field = fields.get("data")
         self.assertEqual(data_field, {
-            "fields": {
-                "entries": OrderedDict([
-                    ("type", "array"),
-                    ("fields", OrderedDict([
-                        (
-                            "title", OrderedDict([
-                                ("type", "richtext"),
-                                ("required", True),
-                                ("field_size", "short"),
-                                ("read_only", False),
-                                ("label", "Title"),
-                            ])
-                        ), (
-                            "copy_x", OrderedDict([
-                                ("type", "richtext"),
-                                ("required", True),
-                                ("field_size", "long"),
-                                ("read_only", False),
-                                ("label", "Copy x"),
-                            ])
-                        ), (
-                            "copy_y", OrderedDict([
-                                ("type", "richtext"),
-                                ("required", True),
-                                ("field_size", "long"),
-                                ("read_only", False),
-                                ("label", "Copy y"),
-                            ])
-                        )
-                    ])),
-                    ("child_label", "entry")
+            'fields': {
+                'entries': OrderedDict([
+                    ('type', 'array'),
+                    ('fields', OrderedDict([(
+                        'title', {
+                            'field_size': 'short',
+                            'label': 'Title',
+                            'read_only': False,
+                            'required': False,
+                            'type': 'richtext',
+                        }
+                    ), (
+                        'copy_x', {
+                            'field_size': 'long',
+                            'label': 'Copy x',
+                            'read_only': False,
+                            'required': True,
+                            'type': 'richtext',
+                        }
+                    ), (
+                        'copy_y', {
+                            'field_size': 'long',
+                            'label': 'Copy y',
+                            'read_only': False,
+                            'required': True,
+                            'type': 'richtext'
+                        }
+                    )])),
+                    ('child_label', 'entry')
                 ]),
-                "key_x": OrderedDict([
-                    (
-                        "title", OrderedDict([
-                            ("type", "richtext"),
-                            ("required", True),
-                            ("field_size", "short"),
-                            ("read_only", False),
-                            ("label", "Title"),
-                        ])
+                'key_x': OrderedDict([
+                    ('type', 'object'),
+                    ('fields', OrderedDict([(
+                        'title', {
+                            'field_size': 'short',
+                            'label': 'Title',
+                            'read_only': False,
+                            'required': False,
+                            'type': 'richtext'
+                        }
                     ), (
-                        "color", OrderedDict([
-                            ("type", "string"),
-                            ("required", True),
-                            ("read_only", False),
-                            ("label", "Color")
-                        ]),
+                        'color', {
+                            'label': 'Color',
+                            'read_only': False,
+                            'required': False,
+                            'type': 'color',
+                        }
                     ), (
-                        "initial", OrderedDict([
-                            ("type", "string"),
-                            ("required", True),
-                            ("read_only", False),
-                            ("label", "Initial")
-                        ])
-                    )
+                        'initial', {
+                            'label': 'Initial',
+                            'read_only': False,
+                            'required': True,
+                            'type': 'string',
+                        }
+                    )]))
                 ]),
-                "key_y": OrderedDict([
-                    (
-                        "title", OrderedDict([
-                            ("type", "richtext"),
-                            ("required", True),
-                            ("field_size", "short"),
-                            ("read_only", False),
-                            ("label", "Title")
-                        ])
+                'key_y': OrderedDict([
+                    ('type', 'object'),
+                    ('fields', OrderedDict([(
+                        'title', {
+                            'field_size': 'short',
+                            'label': 'Title',
+                            'read_only': False,
+                            'required': False,
+                            'type': 'richtext'
+                        }
                     ), (
-                        "color", OrderedDict([
-                            ("type", "string"),
-                            ("required", True),
-                            ("read_only", False),
-                            ("label", "Color")
-                        ]),
+                        'color', {
+                            'label': 'Color',
+                            'read_only': False,
+                            'required': False,
+                            'type': 'color'
+                        }
                     ), (
-                        "initial", OrderedDict([
-                            ("type", "string"),
-                            ("required", True),
-                            ("read_only", False),
-                            ("label", "Initial")
-                        ])
-                    )
+                        'initial', {
+                            'label': 'Initial',
+                            'read_only': False,
+                            'required': True,
+                            'type': 'string'
+                        }
+                    )]))
                 ]),
             }
         })
@@ -387,6 +393,11 @@ class BaseInfographicTestCase(BaseAPITestCase):
                     "title": "Michael Bayless",
                     "copy": "How did he do that?",
                     "image": {"id": 1}
+                }, {
+                    "title": "Skip Bayless",
+                    "copy": "How he do that?"
+                }, {
+                    "copy": "AYYYY LMAO"
                 }]
             }
         }
@@ -437,12 +448,12 @@ class BaseInfographicTestCase(BaseAPITestCase):
             "data": {
                 "key_x": {
                     "title": "Yassss queen",
-                    "color": "BLUE!",
+                    "color": "#F0F8FF",
                     "initial": "A!"
                 },
                 "key_y": {
                     "title": "Yassss queen",
-                    "color": "BLUE!",
+                    "color": "#F0F8EF",
                     "initial": "A!"
                 },
                 "entries": [{

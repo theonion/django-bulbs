@@ -2,6 +2,37 @@
 
 ## Development
 
+## Version 3.8.0
+
+- SuperFeatures: Added `super_features` w/ models, serializers & metadata
+- Infographics: Moved common `data_serializers.py` and `fields.py` to `utils/data_serializers.py` and `utils/fields.py`
+
+## Version 3.7.1
+
+- Notifications: Added Notification model.
+- Notifications: Added Notification cms endpoint (GET/POST/PUT).
+- Notifications: Added search by `internal_title` functionality to cms endpoint.
+- Notifications: Added descending `created_on` ordering to cms endpoint.
+- Notifications: Added Notification public endpoint (GET).
+
+## Version 3.7.0
+
+- Special Coverage Redesign
+
+## Version 3.6.2
+
+- Infographics: removed title requirement for json entries.
+
+## Version 3.6.1
+- Infographics: Update type name for color fields.
+- Infographics: Added hex validation to color fields.
+- Infographics: Updated ComparisonKey objects to match json data structure.
+- Infograhpics: Make sure `image` field is available and `null` in all entry payloads.
+
+## Version 3.6.0
+- Made infographic serializer reference configurable for site specific loading.
+- Removed prohibiting required fields for `POST` requests.
+
 ## Version 3.5.4
 
 - update special coverage to allow unpublished content to be viewed in preview

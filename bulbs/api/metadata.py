@@ -1,13 +1,20 @@
 from rest_framework.metadata import SimpleMetadata
 
 from bulbs.infographics.metadata import InfographicMetadata
-from bulbs.infographics.serializers import InfographicSerializer
+from bulbs.infographics.utils import get_infographics_serializer
+from bulbs.super_features.metadata import BaseSuperFeatureMetadata
+from bulbs.super_features.utils import get_superfeature_serializer
+
+
+SUPERFEATURE_SERIALIZER = get_superfeature_serializer()
+INFOGRAPHICS_SERIALIZER = get_infographics_serializer()
 
 
 class PolymorphicContentMetadata(SimpleMetadata):
 
     serializer_lookup = {
-        InfographicSerializer: InfographicMetadata()
+        INFOGRAPHICS_SERIALIZER: InfographicMetadata(),
+        SUPERFEATURE_SERIALIZER: BaseSuperFeatureMetadata()
     }
 
     def determine_metadata(self, request, view):
