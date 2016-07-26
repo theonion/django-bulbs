@@ -79,7 +79,8 @@ def do_pzone(parser, token):
                 slice_bits.append(None)
             else:
                 slice_bits.append(int(x))
-        # slice_object = slice(*slice_bits)  # NOQA  mparent(2016-06-23): Variable not used, fix me
+        # mparent(2016-06-23): Variable not used, commented out for lint. FIX ME!
+        # slice_object = slice(*slice_bits)
 
     apply = False
     if "apply" in kwargs:
