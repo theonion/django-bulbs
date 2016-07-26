@@ -2,6 +2,12 @@
 
 ## Development
 
+## Version 3.9.0
+
+- Cleanup naming collisions between legacy **CMS Notifcations** and new **Notifications**. Now **CMS Notifications** are always referred to as `cms_notificiations`/`CmsNotifications`/etc.
+
+**Breaking change, will require `bulbs-cms` update**
+
 ## Version 3.8.0
 
 - SuperFeatures: Added `super_features` w/ models, serializers & metadata
