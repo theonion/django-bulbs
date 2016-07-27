@@ -50,4 +50,47 @@
       text-transform: uppercase;
     }
   }
+
+  .pagination-toggle {
+    @include flexbox;
+    margin: 8px 0 0 auto;
+
+    .disabled {
+      background-color: #f2f2f2;
+    }
+    video-series-next,
+    video-series-previous {
+      @include flexbox;
+      @include align-items(center);
+      @include justify-content(space-around);
+      background-color: #004263;
+      color: white;
+      cursor: pointer;
+      font-size: 1.5em;
+      height: 30.5px;
+      width: 29.3px;
+    }
+  }
+
+
+  video-series-previous {
+    margin-right: .5em;
+  }
+
+  .video-grid {
+    margin: 0 8px;
+
+    header {
+      @include inline-flex;
+      @include flex-direction(row);
+      border-bottom: solid 4px #eaeaea;
+      margin-bottom: 8px;
+      padding-bottom: 5px;
+      width: 100%;
+    }
+
+    .video-list {
+      border-bottom: solid 1px #eaeaea;
+    }
+  }
 }
