@@ -108,7 +108,7 @@ class NotificationAPITestCase(BaseAPITestCase):
         self.assertEqual(resp.data['body'], notification.body)
         self.assertEqual(resp.data['internal_title'], notification.internal_title)
         self.assertEqual(resp.data['is_published'], notification.is_published)
-        self.assertEqual(resp.data['image'], str(notification.image.id))
+        self.assertEqual(resp.data['image'], {'id': notification.image.id})
         self.assertEqual(resp.data['clickthrough_url'], notification.clickthrough_url)
         self.assertEqual(resp.data['clickthrough_cta'], notification.clickthrough_cta)
 
@@ -129,7 +129,7 @@ class NotificationAPITestCase(BaseAPITestCase):
         self.assertEqual(resp.data['body'], notification.body)
         self.assertEqual(resp.data['internal_title'], notification.internal_title)
         self.assertEqual(resp.data['is_published'], notification.is_published)
-        self.assertEqual(resp.data['image'], str(notification.image.id))
+        self.assertEqual(resp.data['image'], {'id': notification.image.id})
         self.assertEqual(resp.data['clickthrough_url'], notification.clickthrough_url)
         self.assertEqual(resp.data['clickthrough_cta'], notification.clickthrough_cta)
 
