@@ -8,6 +8,10 @@
 
 **Breaking change, will require `bulbs-cms` update**
 
+## Version 3.8.1
+
+- Added `ImageFieldSerializer` for `Notification.image`
+
 ## Version 3.8.0
 
 - SuperFeatures: Added `super_features` w/ models, serializers & metadata
