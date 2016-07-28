@@ -25,7 +25,8 @@ class SpecialCoverageView(BaseContentDetailView):
             if self.show_published_only():
                 raise Http404("Special Coverage does not exist.")
             elif not request.user.is_staff:
-                return redirect_unpublished_to_login_or_404(request=request, next_url=request.path)
+                return redirect_unpublished_to_login_or_404(request=request,
+                                                            next_url=request.get_full_path())
 
             # Never cache unpublished content
             add_never_cache_headers(response)
