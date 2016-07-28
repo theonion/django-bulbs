@@ -2,6 +2,15 @@
 
 ## Development
 
+## Version 3.8.2
+
+- Special Coverage honors `full_preview` query param when not `active`.
+
+## Version 3.8.1
+
+- Added `ImageFieldSerializer` for `Notification.image`
+- Added `Notification` endpoint sorting support
+
 ## Version 3.8.0
 
 - SuperFeatures: Added `super_features` w/ models, serializers & metadata
