@@ -6,7 +6,7 @@
 
 - Cleanup naming collisions between legacy **CMS Notifcations** and new **Notifications**. Now **CMS Notifications** are always referred to as `cms_notificiations`/`CmsNotifications`/etc.
 
-**Breaking change, will require `bulbs-cms` update if using original CMS Notifications**
+**Breaking change, will require `bulbs-cms` >= 2.2.0 if using original CMS Notifications**
 
 ## Version 3.8.1
 
