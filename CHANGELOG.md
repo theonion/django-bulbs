@@ -6,7 +6,9 @@
 
 - Cleanup naming collisions between legacy **CMS Notifcations** and new **Notifications**. Now **CMS Notifications** are always referred to as `cms_notificiations`/`CmsNotifications`/etc.
 
-**Breaking change, will require `bulbs-cms` >= 2.2.0 if using original CMS Notifications**
+## Version 3.8.2
+
+- Special Coverage honors `full_preview` query param when not `active`.
 
 ## Version 3.8.1
 

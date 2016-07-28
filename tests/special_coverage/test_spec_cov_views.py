@@ -126,8 +126,22 @@ class TestSpecialCoverageViews(BaseIndexableTestCase):
             end_date=timezone.now() - timezone.timedelta(days=10)
         )
 
-        response = self.client.get(reverse("special", kwargs={"slug": sc.slug}))
+        special_url = reverse("special", kwargs={"slug": sc.slug})
+
+        # Default - 404
+        response = self.client.get(special_url)
         self.assertEqual(response.status_code, 404)
+
+        # Full preview mode - non-Staff redirect
+        response = self.client.get(special_url + '?full_preview=true')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['Location'],
+                         'http://testserver/accounts/login/?next={}'.format(special_url))
+
+        # Full preview mode - Staff OK
+        self.client.login(username='admin', password='secret')
+        response = self.client.get(special_url + '?full_preview=true')
+        self.assertEqual(response.status_code, 200)
 
     def test_no_content_special_coverage_view(self):
         # create special coverage with no content
