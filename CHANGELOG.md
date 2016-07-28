@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 3.8.2
+
+- Special Coverage honors `full_preview` query param when not `active`.
+
 ## Version 3.8.1
 
 - Added `ImageFieldSerializer` for `Notification.image`
