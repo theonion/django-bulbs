@@ -6,6 +6,10 @@
 
 - Instant Articles: Preserve Betty image crop ratio, instead of forcing to "16x9"
 
+## Version 3.9.1
+
+- SuperFeatures: Exclude SuperFeature model from bulbs `make_content` utility function
+
 ## Version 3.9.0
 
 - Cleanup naming collisions between legacy **CMS Notifcations** and new **Notifications**. Now **CMS Notifications** are always referred to as `cms_notificiations`/`CmsNotifications`/etc.
