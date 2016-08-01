@@ -2,7 +2,7 @@
 
 ## Development
 
-## Version 3.9.1
+## Version 3.9.2
 
 - Instant Articles: Preserve Betty image crop ratio, instead of forcing to "16x9"
 
