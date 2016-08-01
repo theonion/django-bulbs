@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 3.9.1
+
+- SuperFeatures: Exclude SuperFeature model from bulbs `make_content` utility function
+
 ## Version 3.9.0
 
 - Cleanup naming collisions between legacy **CMS Notifcations** and new **Notifications**. Now **CMS Notifications** are always referred to as `cms_notificiations`/`CmsNotifications`/etc.
