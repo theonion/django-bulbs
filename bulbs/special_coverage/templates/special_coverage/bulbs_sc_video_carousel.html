@@ -47,27 +47,29 @@
       </div>
     </div>
   {% endif %}
-  {% if special_coverage.videos.1 %}
+
     <bulbs-carousel class='video-carousel-carousel sc-video-carousel'>
-      <div class='video-carousel-header'>
-        <span class='video-carousel-header-title'>
-          UP NEXT
-        </span>
-        {% if special_coverage.tunic_campaign_id %}
-          <campaign-display
-            class="campaign-display-preamble"
-            data-track-action="Video: Recirc: Sponsor"
-            data-track-category="Special Coverage Landing"
-            placement="detail"
-            preamble-text="Presented by"
-            src="{% content_tunic_campaign_url special_coverage.tunic_campaign_id %}"
-            name-only
-          >
-          </campaign-display>
-        {% endif %}
-        <bulbs-carousel-previous class="video-carousel-previous"></bulbs-carousel-previous>
-        <bulbs-carousel-next class="video-carousel-next"></bulbs-carousel-next>
-      </div>
+      {% if special_coverage.videos.1 %}
+        <div class='video-carousel-header'>
+          <span class='video-carousel-header-title'>
+            UP NEXT
+          </span>
+          {% if special_coverage.tunic_campaign_id %}
+            <campaign-display
+              class="campaign-display-preamble"
+              data-track-action="Video: Recirc: Sponsor"
+              data-track-category="Special Coverage Landing"
+              placement="detail"
+              preamble-text="Presented by"
+              src="{% content_tunic_campaign_url special_coverage.tunic_campaign_id %}"
+              name-only
+            >
+            </campaign-display>
+          {% endif %}
+          <bulbs-carousel-previous class="video-carousel-previous"></bulbs-carousel-previous>
+          <bulbs-carousel-next class="video-carousel-next"></bulbs-carousel-next>
+        </div>
+      {% endif %}
       <bulbs-carousel-slider>
         {% for video_id in special_coverage.videos %}
           <bulbs-carousel-item
@@ -91,5 +93,4 @@
         {% endfor %}
       </bulbs-carousel-slider>
     </bulbs-carousel>
-  {% endif %}
 </bulbs-video-carousel>
