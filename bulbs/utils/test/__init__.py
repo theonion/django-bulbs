@@ -35,7 +35,11 @@ def make_content(*args, **kwargs):
         models = indexable_registry.families[Content]
         model_keys = []
         for key in models.keys():
-            if key not in ['content_content', 'poll_poll', SUPERFEATURE_MODEL._meta.db_table]:
+            if key not in [
+                'content_content',
+                'poll_poll',
+                'super_features_basesuperfeature',
+                SUPERFEATURE_MODEL._meta.db_table]:
                 model_keys.append(key)
         key = random.choice(model_keys)
         klass = indexable_registry.all_models[key]
