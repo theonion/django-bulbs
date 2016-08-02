@@ -53,4 +53,9 @@ describe('MobileAdPlacer', function () {
     var ads = $('.article-text').find('.dfp-slot-inread');
     expect(ads.length).to.equal(4);
   });
+
+  it('does not call loadAds() if window.ads is undefined', function () {
+    window.ads = undefined;
+    expect(mobileAdPlacer.placeAds).to.not.throw(Error);
+  });
 });
