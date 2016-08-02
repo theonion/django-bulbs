@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 3.9.5
+
+- Fix adblock related bug window.ads no longer breaks mobile-ad-units.js
+
 ## Version 3.9.4
 
 - Fix to `bulbs/special_coverage/templates/special_coverage/bulbs_sc_video_carousel.html` to handle only one video in the carousel
