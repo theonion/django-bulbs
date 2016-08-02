@@ -41,9 +41,17 @@ class BaseSuperFeatureSerializer(ContentSerializer):
     class Meta:
         model = BaseSuperFeature
 
+    def to_representation(self, obj):
+        self.superfeature_type = getattr(obj, 'superfeature_type')
+        return super(BaseSuperFeatureSerializer, self).to_representation(obj)
+
 
 class BaseSuperFeaturePartialSerializer(ContentSerializer):
 
     class Meta:
         model = BaseSuperFeature
         fields = ('id', 'internal_name', 'title')
+
+    def to_representation(self, obj):
+        self.superfeature_type = getattr(obj, 'superfeature_type')
+        return super(BaseSuperFeaturePartialSerializer, self).to_representation(obj)
