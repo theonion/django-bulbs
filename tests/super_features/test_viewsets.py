@@ -1,5 +1,3 @@
-from collections import OrderedDict
-
 from django.core.urlresolvers import reverse
 
 from bulbs.super_features.models import (
