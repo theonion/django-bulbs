@@ -133,39 +133,3 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
                 ])
             }
         })
-
-    def test_parent_get_children(self):
-        parent = BaseSuperFeature.objects.create(
-            title="Guide to Cats",
-            notes="This is the guide to cats",
-            superfeature_type=GUIDE_TO_HOMEPAGE,
-            data={
-                "sponsor_text": "Fancy Feast",
-                "sponsor_image": {"id": 1}
-            }
-        )
-        child = BaseSuperFeature.objects.create(
-            title="Guide to Cats",
-            notes="This is the guide to cats",
-            superfeature_type=GUIDE_TO_ENTRY,
-            parent=parent,
-            ordering=1,
-            data={
-                "entries": [{
-                    "title": "Cats",
-                    "copy": "Everybody loves cats"
-                }]
-            }
-        )
-
-        url = reverse('content-relations', kwargs={'pk': parent.pk})
-        resp = self.api_client.get(url)
-
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.data, [
-            OrderedDict([
-                ('id', child.id),
-                ('internal_name', None),
-                ('title', 'Guide to Cats')
-            ])
-        ])

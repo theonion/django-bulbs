@@ -1,4 +1,4 @@
-from rest_framework import filters, routers, viewsets
+from rest_framework import filters, viewsets
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
@@ -14,7 +14,7 @@ SUPERFEATURE_SERIALIZER = get_superfeature_serializer()
 class SuperFeatureViewSet(viewsets.ModelViewSet):
 
     model = SUPERFEATURE_MODEL
-    queryset = SUPERFEATURE_MODEL.objects.filter(is_parent=True)
+    queryset = SUPERFEATURE_MODEL.objects.filter(parent__isnull=True)
     serializer_class = SUPERFEATURE_SERIALIZER
     permission_classes = [IsAdminUser, CanEditContent]
     filter_backends = (filters.SearchFilter, filters.OrderingFilter,)

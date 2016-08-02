@@ -136,7 +136,6 @@ class SuperFeatureModelTestCase(BaseIndexableTestCase):
             BaseSuperFeature.search_objects.mapping.index,
             BaseSuperFeature.search_objects.mapping.doc_type
         )
-        import pdb; pdb.set_trace()
 
         # check that child id is not in index
         self.assertEqual(results['hits']['total'], 1)

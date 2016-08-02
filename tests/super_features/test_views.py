@@ -1,14 +1,19 @@
+from collections import OrderedDict
+
+from django.core.urlresolvers import reverse
+
 from bulbs.super_features.models import (
     BaseSuperFeature, GUIDE_TO_HOMEPAGE, GUIDE_TO_ENTRY
 )
-from bulbs.utils.test import BaseIndexableTestCase
+from bulbs.utils.test import BaseAPITestCase
 
 
-class SuperFeatureViewsTestCase(BaseIndexableTestCase):
+class SuperFeatureViewsTestCase(BaseAPITestCase):
 
-    def set_up(self):
-        parent = BaseSuperFeature.objects.create(
-            title="A Guide to Cats",
+    def setUp(self):
+        super(SuperFeatureViewsTestCase, self).setUp()
+        self.parent = BaseSuperFeature.objects.create(
+            title="Guide to Cats",
             notes="This is the guide to cats",
             superfeature_type=GUIDE_TO_HOMEPAGE,
             data={
@@ -16,11 +21,11 @@ class SuperFeatureViewsTestCase(BaseIndexableTestCase):
                 "sponsor_image": {"id": 1}
             }
         )
-        BaseSuperFeature.objects.create(
-            title="Cats are cool",
-            notes="Child page 1",
+        self.child = BaseSuperFeature.objects.create(
+            title="Guide to Cats",
+            notes="This is the guide to cats",
             superfeature_type=GUIDE_TO_ENTRY,
-            parent=parent,
+            parent=self.parent,
             ordering=1,
             data={
                 "entries": [{
@@ -29,35 +34,16 @@ class SuperFeatureViewsTestCase(BaseIndexableTestCase):
                 }]
             }
         )
-        BaseSuperFeature.objects.create(
-            title="Cats are neat",
-            notes="Child page 2",
-            superfeature_type=GUIDE_TO_ENTRY,
-            parent=parent,
-            ordering=2,
-            data={
-                "entries": [{
-                    "title": "Cats",
-                    "copy": "Everybody loves cats"
-                }]
-            }
-        )
 
-        parent2 = BaseSuperFeature.objects.create(
-            title="ZZZZZZZ",
-            notes="what",
-            superfeature_type=GUIDE_TO_HOMEPAGE,
-            data={
-                "sponsor_text": "Fancy Feast",
-                "sponsor_image": {"id": 1}
-            }
-        )
+    def test_parent_get_children(self):
+        url = reverse('content-relations', kwargs={'pk': self.parent.pk})
+        resp = self.api_client.get(url)
 
-    def test_super_feature_view(self):
-        # hit list endpoint
-        # check that only parents are in there
-
-
-        # test search filter
-
-        # test ordering
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data, [
+            OrderedDict([
+                ('id', self.child.id),
+                ('internal_name', None),
+                ('title', 'Guide to Cats')
+            ])
+        ])
