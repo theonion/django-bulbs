@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 3.9.3
+
+- SuperFeatures: Also exclude SuperFeature model from bulbs `make_content` utility function
+
 ## Version 3.9.2
 
 - Instant Articles: Preserve Betty image crop ratio, instead of forcing to "16x9"
