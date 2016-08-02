@@ -2,6 +2,26 @@
 
 ## Development
 
+## Version 3.9.4
+
+- Fix to `bulbs/special_coverage/templates/special_coverage/bulbs_sc_video_carousel.html` to handle only one video in the carousel
+
+## Version 3.9.3
+
+- SuperFeatures: Also exclude SuperFeature model from bulbs `make_content` utility function
+
+## Version 3.9.2
+
+- Instant Articles: Preserve Betty image crop ratio, instead of forcing to "16x9"
+
+## Version 3.9.1
+
+- SuperFeatures: Exclude SuperFeature model from bulbs `make_content` utility function
+
+## Version 3.9.0
+
+- Cleanup naming collisions between legacy **CMS Notifcations** and new **Notifications**. Now **CMS Notifications** are always referred to as `cms_notificiations`/`CmsNotifications`/etc.
+
 ## Version 3.8.2
 
 - Special Coverage honors `full_preview` query param when not `active`.

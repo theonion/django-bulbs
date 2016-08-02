@@ -15,7 +15,10 @@ class InstantArticleRendererTests(TestCase):
 
     def test_render_betty(self):
         with patch('djbetty.storage.settings.BETTY_IMAGE_URL', '//images.onionstatic.com/onion'):
-            block = {"betty": {"image_id": 2349, "caption": "A really good caption", "format": "jpg"}}
+            block = {"betty": {"image_id": 2349,
+                               "caption": "A really good caption",
+                               "format": "jpg",
+                               "ratio": '16x9'}}
             name, data = list(block.items())[0]
 
             output = self.renderer.render_item(name, data)

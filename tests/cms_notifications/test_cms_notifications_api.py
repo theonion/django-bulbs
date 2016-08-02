@@ -23,7 +23,7 @@ class TestAPI(BaseIndexableTestCase):
         self.client = Client()
 
     def test_listing(self):
-        """Test creating and retrieving a list of notifications from the DB via the API."""
+        """Test creating and retrieving a list of CMS notifications from the DB via the API."""
 
         self.client.login(username=self.superuser.username, password=self.superuser_pass)
 
@@ -38,13 +38,13 @@ class TestAPI(BaseIndexableTestCase):
 
         # post new listing
         self.client.post(
-            reverse("notifications"),
+            reverse("cms_notifications"),
             json.dumps(data_cms_notification, cls=JsonEncoder),
             content_type="application/json"
         )
 
         # get new listing
-        response = self.client.get(reverse("notifications"))
+        response = self.client.get(reverse("cms_notifications"))
         self.assertEqual(response.status_code, 200)
 
         resp_cms_notification = json.loads(response.content.decode("utf8"))
@@ -57,12 +57,12 @@ class TestAPI(BaseIndexableTestCase):
         up_cms_notification = resp_cms_notification[0]
         up_cms_notification["title"] = "Updated title"
         self.client.put(
-            reverse("notifications", kwargs={"pk": up_cms_notification["id"]}),
+            reverse("cms_notifications", kwargs={"pk": up_cms_notification["id"]}),
             json.dumps(up_cms_notification, cls=JsonEncoder),
             content_type="application/json"
         )
 
-        response = self.client.get(reverse("notifications"))
+        response = self.client.get(reverse("cms_notifications"))
         self.assertEqual(response.status_code, 200)
 
         up_resp_cms_notification = json.loads(response.content.decode("utf8"))
@@ -86,7 +86,7 @@ class TestAPI(BaseIndexableTestCase):
 
         # post new listing
         self.client.post(
-            reverse("notifications"),
+            reverse("cms_notifications"),
             json.dumps(data_cms_notification, cls=JsonEncoder),
             content_type="application/json"
         )
@@ -94,7 +94,7 @@ class TestAPI(BaseIndexableTestCase):
         self.assertEqual(CmsNotification.objects.count(), 1)
 
         # delete listing
-        delete_response = self.client.delete(reverse("notifications",
+        delete_response = self.client.delete(reverse("cms_notifications",
                                                      kwargs={"pk": CmsNotification.objects.all()[0].id}))
 
         self.assertEqual(delete_response.status_code, 204)
@@ -115,7 +115,7 @@ class TestAPI(BaseIndexableTestCase):
 
         # post new listing
         response = self.client.post(
-            reverse("notifications"),
+            reverse("cms_notifications"),
             json.dumps(data_cms_notification, cls=JsonEncoder),
             content_type="application/json"
         )
@@ -124,7 +124,7 @@ class TestAPI(BaseIndexableTestCase):
 
         self.assertEquals(errors["non_field_errors"][0], "Post date must occur before promotion end date.")
 
-        response = self.client.get(reverse("notifications"))
+        response = self.client.get(reverse("cms_notifications"))
 
         self.assertEqual(len(json.loads(response.content.decode("utf8"))), 0)
 
@@ -134,10 +134,10 @@ class TestAPI(BaseIndexableTestCase):
         # test a regular user first
         self.client.login(username=self.regular_user.username, password=self.regular_user_pass)
 
-        post_response = self.client.post(reverse("notifications"))
-        put_response = self.client.put(reverse("notifications"))
-        get_response = self.client.get(reverse("notifications"))
-        delete_response = self.client.delete(reverse("notifications"))
+        post_response = self.client.post(reverse("cms_notifications"))
+        put_response = self.client.put(reverse("cms_notifications"))
+        get_response = self.client.get(reverse("cms_notifications"))
+        delete_response = self.client.delete(reverse("cms_notifications"))
 
         self.assertEqual(post_response.status_code, 403)
         self.assertEqual(put_response.status_code, 403)
@@ -155,15 +155,15 @@ class TestAPI(BaseIndexableTestCase):
             "notify_end_date": (time_now + datetime.timedelta(days=3)).isoformat()
         }, cls=JsonEncoder)
 
-        post_response = self.client.post(reverse("notifications"),
+        post_response = self.client.post(reverse("cms_notifications"),
                                          json_data,
                                          content_type="application/json")
         notification_id = post_response.data["id"]
-        put_response = self.client.put(reverse("notifications", kwargs={"pk": notification_id}),
+        put_response = self.client.put(reverse("cms_notifications", kwargs={"pk": notification_id}),
                                        json_data,
                                        content_type="application/json")
-        get_response = self.client.get(reverse("notifications"))
-        delete_response = self.client.delete(reverse("notifications", kwargs={"pk": notification_id}))
+        get_response = self.client.get(reverse("cms_notifications"))
+        delete_response = self.client.delete(reverse("cms_notifications", kwargs={"pk": notification_id}))
 
         self.assertEqual(post_response.status_code, 201)
         self.assertEqual(put_response.status_code, 200)
