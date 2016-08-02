@@ -36,7 +36,7 @@ class SuperFeatureViewsTestCase(BaseAPITestCase):
         )
 
     def test_parent_get_children(self):
-        url = reverse('content-relations', kwargs={'pk': self.parent.pk})
+        url = reverse('super-feature-relations', kwargs={'pk': self.parent.pk})
         resp = self.api_client.get(url)
 
         self.assertEqual(resp.status_code, 200)

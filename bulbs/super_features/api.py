@@ -14,9 +14,9 @@ api_v1_router.register(
 
 urlpatterns = [
     url(
-        r'content/(?P<pk>\d+)/relations/?$',
+        r'super-feature/(?P<pk>\d+)/relations/?$',
         RelationViewSet.as_view(),
-        name='content-relations'
+        name='super-feature-relations'
     ),
 ]
 
