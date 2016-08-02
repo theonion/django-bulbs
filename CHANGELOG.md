@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 3.9.4
+
+- Fix to `bulbs/special_coverage/templates/special_coverage/bulbs_sc_video_carousel.html` to handle only one video in the carousel
+
 ## Version 3.9.3
 
 - SuperFeatures: Also exclude SuperFeature model from bulbs `make_content` utility function
