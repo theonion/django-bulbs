@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 3.9.6
+
+- Login redirect (`BaseContentDetailView` and `SpecialCoverageView`) preserves original query params.
+
 ## Version 3.9.5
 
 - Fix adblock related bug window.ads no longer breaks mobile-ad-units.js

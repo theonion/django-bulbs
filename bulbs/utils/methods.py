@@ -1,6 +1,7 @@
 from datetime import date, datetime
 from dateutil import tz
 from six import string_types, text_type, binary_type
+from six.moves.urllib.parse import urlencode
 
 from django import template
 from django.conf import settings
@@ -109,9 +110,12 @@ def get_video_object_from_videohub_id(videohub_id):
     return get_object_or_404(video_model, videohub_ref_id=int(videohub_id))
 
 
-def redirect_unpublished_to_login_or_404(request, next_url):
+def redirect_unpublished_to_login_or_404(request, next_url, next_params=None):
     redirect_unpublished = getattr(settings, "REDIRECT_UNPUBLISHED_TO_LOGIN", True)
     if not request.user.is_authenticated() and redirect_unpublished:
-        return HttpResponseRedirect("{}?next={}".format(settings.LOGIN_URL, next_url))
+        if next_params:
+            next_url += '?' + urlencode(next_params)
+        return HttpResponseRedirect("{}?{}".format(settings.LOGIN_URL,
+                                                   urlencode({'next': next_url})))
     else:
         raise Http404

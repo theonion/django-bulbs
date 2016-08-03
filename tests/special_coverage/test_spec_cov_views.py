@@ -135,8 +135,9 @@ class TestSpecialCoverageViews(BaseIndexableTestCase):
         # Full preview mode - non-Staff redirect
         response = self.client.get(special_url + '?full_preview=true')
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['Location'],
-                         'http://testserver/accounts/login/?next={}'.format(special_url))
+        self.assertEqual(
+            response['Location'],
+            'http://testserver/accounts/login/?next=%2Fspecial%2Ftest-coverage%3Ffull_preview%3Dtrue')
 
         # Full preview mode - Staff OK
         self.client.login(username='admin', password='secret')
