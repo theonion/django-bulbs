@@ -134,6 +134,12 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
             authors = get_query_params(self.request).getlist("authors")
             queryset = queryset.filter(Authors(authors))
 
+        if "exclude" in get_query_params(self.request):
+            exclude = get_query_params(self.request).get("exclude")
+            queryset = queryset.filter(
+                es_filter.Not(es_filter.Type(**{'value': exclude}))
+            )
+
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)

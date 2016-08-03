@@ -134,9 +134,9 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
             }
         })
 
-    def test_parent_get_children(self):
+    def test_content_list_excludes_super_features(self):
         parent = BaseSuperFeature.objects.create(
-            title="Guide to Cats",
+            title="A Guide to Cats",
             notes="This is the guide to cats",
             superfeature_type=GUIDE_TO_HOMEPAGE,
             data={
@@ -144,9 +144,9 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
                 "sponsor_image": {"id": 1}
             }
         )
-        child = BaseSuperFeature.objects.create(
-            title="Guide to Cats",
-            notes="This is the guide to cats",
+        BaseSuperFeature.objects.create(
+            title="Cats are cool",
+            notes="Child page 1",
             superfeature_type=GUIDE_TO_ENTRY,
             parent=parent,
             ordering=1,
@@ -157,15 +157,9 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
                 }]
             }
         )
+        BaseSuperFeature.search_objects.refresh()
 
-        url = reverse('content-relations', kwargs={'pk': parent.pk})
-        resp = self.api_client.get(url)
-
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.data, [
-            OrderedDict([
-                ('id', child.id),
-                ('internal_name', None),
-                ('title', 'Guide to Cats')
-            ])
-        ])
+        resp = self.api_client.get(reverse('content-list') + "?page=1&exclude={}".format(
+            BaseSuperFeature.search_objects.mapping.doc_type
+        ))
+        self.assertEqual(resp.data['count'], 0)
