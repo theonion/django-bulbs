@@ -1,11 +1,12 @@
-var PaginateVideoGrid = function (selector) {
+var PaginateVideoGrid = function (selector, buttonClass, elementsPerPage = [ 6, 8, 10 ]) {
   this.$videoGrid = $(selector);
   this.currentPage = 1;
   this.$videos = this.$videoGrid.children();
   this.firstVideoItem = this.$videoGrid.children()[0];
   this.totalPages = this.getTotalPages();
-  this.previousButton = $('video-series-previous')[0];
-  this.nextButton = $('video-series-next')[0];
+  this.elementsPerPage = elementsPerPage;
+  this.previousButton = $(buttonClass).find('previous-button')[0];
+  this.nextButton = $(buttonClass).find('next-button')[0];
 
   this.previousPage = this.previousPage.bind(this);
   this.nextPage = this.nextPage.bind(this);
@@ -19,19 +20,19 @@ PaginateVideoGrid.prototype.init = function() {
   this.nextButton.addEventListener('click', this.nextPage);
   $(window).bind('resize', this.handleResize);
 
-  this.videosPerPage = this.getVideosPerPage();
+  this.videosPerPage = this.getVideosPerPage(this.elementsPerPage);
   this.updateCurrentPage(this.currentPage);
   this.updateButtons();
 };
 
-PaginateVideoGrid.prototype.getVideosPerPage = function() {
+PaginateVideoGrid.prototype.getVideosPerPage = function(elementsPerPage) {
   var viewportWidth = $(window).width();
   if (viewportWidth <= 450) {             // mobile
-    return 6;
+    return elementsPerPage[0];
   } else if (viewportWidth <= 600) {      // tablet
-    return 8;
+    return elementsPerPage[1];
   } else {
-    return 10;                           // desktop
+    return elementsPerPage[2];                           // desktop
   }
 };
 
@@ -87,7 +88,7 @@ PaginateVideoGrid.prototype.updateButtons = function () {
 };
 
 PaginateVideoGrid.prototype.handleResize = function() {
-  this.videosPerPage = this.getVideosPerPage();
+  this.videosPerPage = this.getVideosPerPage(this.elementsPerPage);
   this.updateCurrentPage(this.currentPage);
 };
 
