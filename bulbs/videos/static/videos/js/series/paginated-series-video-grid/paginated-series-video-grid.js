@@ -1,4 +1,4 @@
-var PaginateVideoGrid = function (selector, buttonClass, elementsPerPage = [ 6, 8, 10 ]) {
+var PaginateVideoGrid = function (selector, buttonClass, elementsPerPage) {
   this.$videoGrid = $(selector);
   this.currentPage = 1;
   this.$videos = this.$videoGrid.children();
