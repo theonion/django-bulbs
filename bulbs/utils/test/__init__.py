@@ -16,9 +16,13 @@ from djes.management.commands.sync_es import get_indexes, sync_index
 
 from model_mommy import mommy
 from rest_framework.test import APIClient
-from six import PY2
+import six
 
 from bulbs.content.models import Content
+from bulbs.super_features.utils import get_superfeature_model
+
+
+SUPERFEATURE_MODEL = get_superfeature_model()
 
 
 def make_content(*args, **kwargs):
@@ -31,7 +35,11 @@ def make_content(*args, **kwargs):
         models = indexable_registry.families[Content]
         model_keys = []
         for key in models.keys():
-            if key not in ['content_content', 'poll_poll']:
+            if key not in [
+                    'content_content',
+                    'poll_poll',
+                    'super_features_basesuperfeature',
+                    SUPERFEATURE_MODEL._meta.db_table]:
                 model_keys.append(key)
         key = random.choice(model_keys)
         klass = indexable_registry.all_models[key]
@@ -51,8 +59,8 @@ class JsonEncoder(json.JSONEncoder):
         iso = _iso_datetime(value)
         if iso:
             return iso
-        if PY2 and isinstance(value, str):
-            return unicode(value, errors='replace')  # NOQA  TODO: Be stricter.
+        if six.PY2 and isinstance(value, str):
+            return six.text_type(value, errors='replace')  # TODO: Be stricter.
         if isinstance(value, set):
             return list(value)
         return super(JsonEncoder, self).default(value)

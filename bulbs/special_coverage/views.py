@@ -1,9 +1,11 @@
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from django.utils.cache import add_never_cache_headers
 from django.views.decorators.cache import cache_control
 
-from bulbs.special_coverage.models import SpecialCoverage
 from bulbs.content.views import BaseContentDetailView
+from bulbs.special_coverage.models import SpecialCoverage
+from bulbs.utils.methods import redirect_unpublished_to_login_or_404
 
 
 class SpecialCoverageView(BaseContentDetailView):
@@ -14,11 +16,25 @@ class SpecialCoverageView(BaseContentDetailView):
         template_names.insert(0, getattr(self.special_coverage, "custom_template_name", ""))
         return template_names
 
+    def get(self, request, *args, **kwargs):
+        response = super(SpecialCoverageView, self).get(request, *args, **kwargs)
+
+        # Extra unpublished check on Special Coverage activation (BaseContentDetailView only checks
+        # first piece of content).
+        if not self.special_coverage.is_active:
+            if self.show_published_only():
+                raise Http404("Special Coverage does not exist.")
+            elif not request.user.is_staff:
+                return redirect_unpublished_to_login_or_404(request=request,
+                                                            next_url=request.get_full_path())
+
+            # Never cache unpublished content
+            add_never_cache_headers(response)
+
+        return response
+
     def get_object(self, *args, **kwargs):
         self.special_coverage = get_object_or_404(SpecialCoverage, slug=self.kwargs.get("slug"))
-
-        if not self.special_coverage.is_active:
-            raise Http404("Special Coverage does not exist.")
 
         qs = self.special_coverage.get_content(published=self.show_published_only()).full()
         if qs.count() == 0:

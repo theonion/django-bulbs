@@ -23,7 +23,9 @@ var MobileAdPlacer = {
         adsPlaced++;
       }
     }
-    window.ads.loadAds();
+    if (window.ads) {
+      window.ads.loadAds();
+    }
   },
 };
 

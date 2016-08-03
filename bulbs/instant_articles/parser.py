@@ -33,7 +33,8 @@ def parse_betty(tag):
         caption = tag.find('span', class_='caption')
         return {'betty': {'image_id': tag.attrs['data-image-id'],
                           'caption': caption.text if caption else '',
-                          'format': tag.attrs['data-format']}}
+                          'format': tag.attrs['data-format'],
+                          'ratio': tag.attrs.get('data-crop', '16x9')}}
 
 
 def parse_facebook(tag):
