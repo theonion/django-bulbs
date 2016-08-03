@@ -133,3 +133,33 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
                 ])
             }
         })
+
+    def test_content_list_excludes_super_features(self):
+        parent = BaseSuperFeature.objects.create(
+            title="A Guide to Cats",
+            notes="This is the guide to cats",
+            superfeature_type=GUIDE_TO_HOMEPAGE,
+            data={
+                "sponsor_text": "Fancy Feast",
+                "sponsor_image": {"id": 1}
+            }
+        )
+        BaseSuperFeature.objects.create(
+            title="Cats are cool",
+            notes="Child page 1",
+            superfeature_type=GUIDE_TO_ENTRY,
+            parent=parent,
+            ordering=1,
+            data={
+                "entries": [{
+                    "title": "Cats",
+                    "copy": "Everybody loves cats"
+                }]
+            }
+        )
+        BaseSuperFeature.search_objects.refresh()
+
+        resp = self.api_client.get(reverse('content-list') + "?page=1&exclude={}".format(
+            BaseSuperFeature.search_objects.mapping.doc_type
+        ))
+        self.assertEqual(resp.data['count'], 0)
