@@ -53,10 +53,10 @@
   <header>
     <h2>Episodes</h2>
     {% if channel.slug != 'the-av-club' %}
-    <div class="pagination-toggle">
-        <video-series-previous><i class="fa fa-angle-left"></i></video-series-previous>
-        <video-series-next><i class="fa fa-angle-right"></i></video-series-next>
-        </div>
+    <div class="video-grid-pagination-button">
+      <previous-button><i class="fa fa-angle-left"></i></previous-button>
+      <next-button><i class="fa fa-angle-right"></i></next-button>
+    </div>
     {% endif %}
   </header>
   <div class="video-list"
