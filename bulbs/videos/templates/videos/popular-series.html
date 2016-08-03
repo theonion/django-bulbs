@@ -1,0 +1,16 @@
+{% load betty %}
+
+<header>
+  <h2>Popular Series</h2>
+  <div class="popular-series-pagination-button">
+      <previous-button><i class="fa fa-angle-left"></i></previous-button>
+      <next-button><i class="fa fa-angle-right"></i></next-button>
+      </div>
+</header>
+<div
+    id="popular-series"
+    data-channel-series="{{ VIDEOHUB_BASE_URL }}/channel/{{ channel_slug }}/series.json"
+    data-videohub-base="{{ VIDEOHUB_BASE_URL }}"
+    data-series-slug="{{ series_slug }}"
+    >
+</div>
