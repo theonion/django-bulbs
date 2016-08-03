@@ -181,7 +181,8 @@ class BaseContentDetailView(DetailView):
             if not request.user.is_staff and not allow_anonymous:
                 response = redirect_unpublished_to_login_or_404(
                     request=request,
-                    next_url=self.object.get_absolute_url())
+                    next_url=self.object.get_absolute_url(),
+                    next_params=request.GET)
 
             # Never cache unpublished articles
             add_never_cache_headers(response)
