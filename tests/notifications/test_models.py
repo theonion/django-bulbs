@@ -10,6 +10,10 @@ class NotificationModelTestCase(BaseIndexableTestCase):
         obj = Notification.objects.create(**self.notification_data)
         self.assertIsNotNone(obj)
 
+    def test_create_no_headline(self):
+        obj = Notification.objects.create(body='hiya!')
+        self.assertIsNotNone(obj)
+
     def test_created_on_auto_now(self):
         obj = Notification.objects.create(**self.notification_data)
         self.assertIsNotNone(obj.created_on)

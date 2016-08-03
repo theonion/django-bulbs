@@ -15,7 +15,7 @@ class Notification(Indexable):
     created_on = models.DateTimeField(auto_now_add=True)
 
     # Editorial
-    headline = models.CharField(max_length=512)
+    headline = models.CharField(max_length=512, null=True, blank=True)
     is_published = models.BooleanField(default=False)
     body = models.TextField(null=True, blank=True)
     image = ImageField(blank=True, null=True)
