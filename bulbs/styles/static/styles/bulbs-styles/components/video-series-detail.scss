@@ -12,7 +12,7 @@
 
   .series-logo {
     & img {
-      height: 225px;
+      max-width: 100%;
     }
   }
 
@@ -52,9 +52,6 @@
     }
   }
 
-
-
-
   .video-grid {
     margin: 0 8px;
 
@@ -69,6 +66,12 @@
 
     .video-list {
       border-bottom: solid 1px #eaeaea;
+    }
+  }
+
+  .video-item {
+    img {
+      max-width: 100%;
     }
   }
 }
@@ -111,10 +114,6 @@
     width: 100%;
   }
 
-  #popular-series {
-    @include flexgrid($columns: 2, $gutter: 10, $padding: 0);
-  }
-
   .popular-series-item {
     height: auto;
     display: block;
@@ -126,3 +125,26 @@
     }
   }
 }
+
+#popular-series {
+  @include flexgrid($columns: 2, $gutter: 10, $padding: 0);
+
+  .series-logo {
+    height: 0;
+    overflow: hidden;
+    padding-bottom: 56.25%;
+  }
+  .popular-series-item-seasons {
+    display: inline-block;
+    &:after {
+      content: '\2022';
+      font-style: normal;
+      margin: 0 .5em;
+    }
+  }
+
+  .popular-series-item-episodes {
+    display: inline-block;
+  }
+}
+

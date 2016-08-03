@@ -41,7 +41,7 @@ PopularSeries.prototype.seriesDataFetched = function (data) {
   } else {
     var seriesSeasonsCount = '';
   }
-  var seriesLogo = '<img src="' + data.series_logo + '" alt="' + data.series_name + '"></img>';
+  var seriesLogo = '<div class="series-logo"><img src="' + data.series_logo + '" alt="' + data.series_name + '"></img></div>';
 
   var seriesMeta = seriesLogo + seriesTitle + seriesSeasonsCount + seriesEpisodesCount;
 
