@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 3.9.7
+
+- Modified `Notification.headline` to tolerate null and blank values.
+
 ## Version 3.9.6
 
 - Login redirect (`BaseContentDetailView` and `SpecialCoverageView`) preserves original query params.
