@@ -42,7 +42,8 @@ class ParseBodyTest(unittest.TestCase):
         self.assertEqual([{'text': {'raw': '<p>First paragraph.</p>'}},
                           {'betty': {'image_id': '9513',
                                      'caption': u"Testing «ταБЬℓσ» we're 20% done!",
-                                     'format': 'jpg'}},
+                                     'format': 'jpg',
+                                     'ratio': '3x1'}},
                           {'text': {'raw': '<p>Second <i>paragraph</i>.</p>'}},
                           {'text': {'raw': '<p>Third paragraph.</p>'}}],
                          parse_body(read_data('body-multiple')))
@@ -53,19 +54,22 @@ class ParseBettyTest(unittest.TestCase):
     def test_match(self):
         self.assertEqual({'betty': {'image_id': '9513',
                                     'caption': u"Testing «ταБЬℓσ» we're 20% done!",
-                                    'format': 'jpg'}},
+                                    'format': 'jpg',
+                                    'ratio': 'original'}},
                          parse_betty(read_tag_data('betty-caption')))
 
     def test_missing_caption(self):
         self.assertEqual({'betty': {'image_id': '9513',
                                     'caption': u'',
-                                    'format': 'jpg'}},
+                                    'format': 'jpg',
+                                    'ratio': '16x9'}},
                          parse_betty(read_tag_data('betty-no-caption')))
 
     def test_gif(self):
         self.assertEqual({'betty': {'image_id': '30359',
                                     'caption': u'Via cmyk-giffed.tumblr.com',
-                                    'format': 'gif'}},
+                                    'format': 'gif',
+                                    'ratio': 'original'}},
                          parse_betty(read_tag_data('betty-gif')))
 
 

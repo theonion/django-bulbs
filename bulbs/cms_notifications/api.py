@@ -16,7 +16,7 @@ class CmsNotificationsViewSet(viewsets.ModelViewSet):
 
 
 # defines a generic django view mapping for the CMS Notifications
-notifications_view = CmsNotificationsViewSet.as_view({
+cms_notifications_view = CmsNotificationsViewSet.as_view({
     'get': 'list',
     'post': 'create',
     'put': 'update',

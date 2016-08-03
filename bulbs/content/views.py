@@ -1,8 +1,7 @@
 import logging
 
-from django.conf import settings
 from django.core.urlresolvers import resolve, Resolver404
-from django.http import Http404, HttpResponsePermanentRedirect, HttpResponseRedirect
+from django.http import Http404, HttpResponsePermanentRedirect
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.cache import add_never_cache_headers
@@ -10,6 +9,8 @@ from django.views.generic import ListView, DetailView, View
 
 from bulbs.content.custom_search import custom_search_model
 from bulbs.content.models import Content, ObfuscatedUrlInfo
+from bulbs.utils.methods import redirect_unpublished_to_login_or_404
+
 
 logger = logging.getLogger(__name__)
 
@@ -178,12 +179,10 @@ class BaseContentDetailView(DetailView):
 
             # And the user doesn't have permission to view this
             if not request.user.is_staff and not allow_anonymous:
-                redirect_unpublished = getattr(settings, "REDIRECT_UNPUBLISHED_TO_LOGIN", True)
-                if not request.user.is_authenticated() and redirect_unpublished:
-                    next_url = self.object.get_absolute_url()
-                    response = HttpResponseRedirect("{}?next={}".format(settings.LOGIN_URL, next_url))
-                else:
-                    raise Http404
+                response = redirect_unpublished_to_login_or_404(
+                    request=request,
+                    next_url=self.object.get_absolute_url(),
+                    next_params=request.GET)
 
             # Never cache unpublished articles
             add_never_cache_headers(response)

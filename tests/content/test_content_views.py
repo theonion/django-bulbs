@@ -27,11 +27,23 @@ class TestContentViews(BaseIndexableTestCase):
         content = TestContentObj.objects.create(title="Testing Content")
         response = self.client.get(reverse("published", kwargs={"pk": content.id}))
         self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response["Location"],
+            "http://testserver/accounts/login/?next=%2Fdetail%2F{}%2F".format(content.id))
 
         # But this should work when we login
         self.client.login(username="admin", password="secret")
         response = self.client.get(reverse("published", kwargs={"pk": content.id}))
         self.assertEqual(response.status_code, 200)
+
+    def test_login_redirect_preserves_query_params(self):
+        content = TestContentObj.objects.create(title="Testing Content")
+        response = self.client.get(reverse("published", kwargs={"pk": content.id}), {'extra': True})
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response["Location"],
+            "http://testserver/accounts/login/?next=%2Fdetail%2F{}%2F%3Fextra%3DTrue".format(
+                content.id))
 
     def published_article(self):
         content = make_content(published=timezone.now() - timedelta(hours=2))
