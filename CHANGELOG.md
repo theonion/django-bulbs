@@ -2,6 +2,12 @@
 
 ## Development
 
+## Version 3.9.8
+
+- Added `/super-feature/` urls for CMS listing pages
+- Changed `/content/:id/relations/` route to `/super-feature/:id/relations/`
+- Added an 'exclude' filter to `/content/` endpoint (e.g. "GET /content/?exclude=DOC_TYPE")
+
 ## Version 3.9.7
 
 - Modified `Notification.headline` to tolerate null and blank values.
