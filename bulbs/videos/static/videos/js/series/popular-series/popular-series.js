@@ -30,7 +30,12 @@ PopularSeries.prototype.popularSeriesFetched = function (data) {
 
 PopularSeries.prototype.seriesDataFetched = function (data) {
   // build markup for popular series
-  var $container = $('<a class="popular-series-item" href="/series/' + data.series_slug + '"></a>');
+  var seriesLink = '<a \
+                        class="popular-series-item" \
+                        href="/series/' + data.series_slug + '" \
+                        data-track-action="Single Series: Popular Series" \
+                        data-track-label="' + data.series_slug + '"></a>';
+  var $container = $(seriesLink);
   var seriesTitle = '<div class="popular-series-item-title">' +
     data.series_name + '</div>';
   var seriesEpisodesCount = '<div class="popular-series-item-episodes">'
