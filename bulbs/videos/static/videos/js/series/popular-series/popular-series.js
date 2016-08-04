@@ -46,7 +46,7 @@ PopularSeries.prototype.seriesDataFetched = function (data) {
   var seriesMeta = seriesLogo + seriesTitle + seriesSeasonsCount + seriesEpisodesCount;
 
   $container.append(seriesMeta);
-  this.$popularSeries.append($container);
+  $('#popular-series').append($container);
 };
 
 module.exports = PopularSeries;
