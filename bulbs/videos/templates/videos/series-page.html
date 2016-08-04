@@ -15,33 +15,36 @@
  <p>Watch The Latest Episode</p>
 </section>
 
-<figure class="video-container">
-  <div class="content">
-    <bulbs-video
-      twitter-handle="{{ twitter_handle }}"
-      data-videohub-base="{{ VIDEOHUB_BASE_URL }}"
-    >
-    </bulbs-video>
-  </div>
-</figure>
+<div class="latest-episode-container">
+  <figure class="video-container">
+    <div class="content">
+      <bulbs-video
+        twitter-handle="{{ twitter_handle }}"
+        data-videohub-base="{{ VIDEOHUB_BASE_URL }}"
+      >
+      </bulbs-video>
+    </div>
+  </figure>
 
-{% if channel.slug == 'the-av-club' %}
-  <div id="latest-video-title"></div>
-{% else %}
-  <div class="latest-episode-data">
-    <div class="series-title"></div>
-    <hr>
+  {% if channel.slug == 'the-av-club' %}
     <div id="latest-video-title"></div>
-    <div id="latest-video-description"></div>
-    <!-- TODO update data tracking!!!! -->
-    <share-tools
-        class="circle-transparent latest-video-share-tools"
-        share-url={{ external_url }}
-        share-track-action="I need to be changed!!!!!!">
-      <share-via-facebook icon ></share-via-facebook>
-      <share-via-twitter icon twitter-handle={{twitter_handle}}></share-via-twitter>
-      <share-via-email icon message={{share_message}}></share-via-email>
-    <share-tools>
+  </div>
+  {% else %}
+    <div class="latest-episode-data">
+      <div class="series-title"></div>
+      <hr>
+      <div id="latest-video-title"></div>
+      <div id="latest-video-description"></div>
+      <!-- TODO update data tracking!!!! -->
+      <share-tools
+          class="circle-transparent latest-video-share-tools"
+          share-url={{ external_url }}
+          share-track-action="I need to be changed!!!!!!">
+        <share-via-facebook icon ></share-via-facebook>
+        <share-via-twitter icon twitter-handle={{twitter_handle}}></share-via-twitter>
+        <share-via-email icon message={{share_message}}></share-via-email>
+      <share-tools>
+    </div>
   </div>
   <div class="video-series-ad">
     <div class="ad-alert">Advertisement</div>

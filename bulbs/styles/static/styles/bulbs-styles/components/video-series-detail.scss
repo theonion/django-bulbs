@@ -132,7 +132,7 @@
   .series-logo {
     height: 0;
     overflow: hidden;
-    padding-bottom: 56.25%;
+    padding-bottom: 52%;
   }
   .popular-series-item-seasons {
     display: inline-block;
@@ -148,3 +148,8 @@
   }
 }
 
+@media all and (min-width: 600px) {
+  #popular-series {
+    @include flexgrid($columns: 4, $gutter: 10, $padding: 0);
+  }
+}
