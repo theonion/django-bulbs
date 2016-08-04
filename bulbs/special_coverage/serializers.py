@@ -11,6 +11,7 @@ class SpecialCoverageSerializer(ImageSerializerMixin, serializers.ModelSerialize
     query = JSONField(required=False, default={})
     videos = JSONField(required=False, default=[])
     config = JSONField(required=False, default={})
+    super_features = JSONField(required=False, default=[])
 
     class Meta:
         model = SpecialCoverage
