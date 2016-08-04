@@ -28,48 +28,48 @@ describe('PaginateVideoGrid', function () {
   describe('init', function () {
     it('adds click listener to previousButton', function () {
       sinon.spy(paginate.prototype, 'previousPage');
-      new paginate('.video-list', '.buttons-yo');
+      new paginate('.video-list', '.buttons-yo', [6, 8, 10]);
       $('previous-button').trigger('click');
       expect(paginate.prototype.previousPage.called).to.equal(true);
     });
 
     it('adds click listener to nextButton', function () {
       sinon.spy(paginate.prototype, 'nextPage');
-      new paginate('.video-list', '.buttons-yo');
+      new paginate('.video-list', '.buttons-yo', [6, 8, 10]);
       $('next-button').trigger('click');
       expect(paginate.prototype.nextPage.called).to.equal(true);
     });
 
     it('adds resize listener to window', function () {
       sinon.spy(paginate.prototype, 'handleResize');
-      new paginate('.video-list', '.buttons-yo');
+      new paginate('.video-list', '.buttons-yo', [6, 8, 10]);
       $(window).trigger('resize');
       expect(paginate.prototype.handleResize.called).to.equal(true);
     });
 
     it('calls getVideosPerPage', function () {
       sinon.spy(paginate.prototype, 'getVideosPerPage');
-      new paginate('.video-list', '.buttons-yo');
+      new paginate('.video-list', '.buttons-yo', [6, 8, 10]);
       expect(paginate.prototype.getVideosPerPage.called).to.equal(true);
     });
 
     it('calls updateCurrentPage', function () {
       sinon.spy(paginate.prototype, 'updateCurrentPage');
-      new paginate('.video-list', '.buttons-yo');
+      new paginate('.video-list', '.buttons-yo', [6, 8, 10]);
       expect(paginate.prototype.updateCurrentPage.called).to.equal(true);
       paginate.prototype.updateCurrentPage.restore();
     });
 
     it('calls updateButtons', function () {
       sinon.spy(paginate.prototype, 'updateButtons');
-      new paginate('.video-list', '.buttons-yo');
+      new paginate('.video-list', '.buttons-yo', [6, 8, 10]);
       expect(paginate.prototype.updateButtons.called).to.equal(true);
     });
   });
 
   describe('getVideosPerPage', function () {
     beforeEach(function () {
-      new paginate('.video-list', '.buttons-yo');
+      new paginate('.video-list', '.buttons-yo', [6, 8, 10]);
     });
 
     afterEach(function () {
@@ -82,14 +82,14 @@ describe('PaginateVideoGrid', function () {
       expect(expected).to.equal(6);
     });
 
-    it('returns 8 when the viewport is <= 600px', function () {
+    it('returns 8 when the viewport is <= 1000px', function () {
       sinon.stub($.fn, 'width').returns(599);
       var expected = paginate.prototype.getVideosPerPage([6, 8, 10]);
       expect(expected).to.equal(8);
     });
 
-    it('returns 10 when the viewport is > 600px', function () {
-      sinon.stub($.fn, 'width').returns(601);
+    it('returns 10 when the viewport is > 1000px', function () {
+      sinon.stub($.fn, 'width').returns(1001);
       var expected = paginate.prototype.getVideosPerPage([6, 8, 10]);
       expect(expected).to.equal(10);
     });
@@ -97,8 +97,8 @@ describe('PaginateVideoGrid', function () {
 
   describe('toggling', function () {
     beforeEach(function () {
-      sinon.stub($.fn, 'width').returns(601);
-      new paginate('.video-list', '.buttons-yo');
+      sinon.stub($.fn, 'width').returns(1001);
+      new paginate('.video-list', '.buttons-yo', [6, 8, 10]);
     });
 
     afterEach(function () {

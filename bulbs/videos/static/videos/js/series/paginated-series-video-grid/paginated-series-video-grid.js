@@ -29,7 +29,7 @@ PaginateVideoGrid.prototype.getVideosPerPage = function(elementsPerPage) {
   var viewportWidth = $(window).width();
   if (viewportWidth <= 450) {             // mobile
     return elementsPerPage[0];
-  } else if (viewportWidth <= 600) {      // tablet
+  } else if (viewportWidth <= 1000) {      // tablet
     return elementsPerPage[1];
   } else {
     return elementsPerPage[2];                           // desktop
