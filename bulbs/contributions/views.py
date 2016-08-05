@@ -2,25 +2,25 @@
 
 import datetime
 
-from django.http import Http404
+from django.http import StreamingHttpResponse
 from django.utils import dateparse, timezone
 
 from elasticsearch_dsl import filter as es_filter
 from rest_framework import viewsets, routers, mixins
 from rest_framework.settings import api_settings
-from rest_framework.response import Response
-from rest_framework_csv.renderers import CSVRenderer
 from rest_framework_nested import routers as nested_routers
 
 from bulbs.content.filters import FeatureTypes, Tags
-
 
 from .filters import ESPublishedFilterBackend, StartEndFilterBackend
 from .models import (
     ContributorRole, Contribution, FeatureTypeRate, FlatRate, FreelanceProfile, HourlyRate,
     LineItem, OverrideProfile, ReportContent, MANUAL
 )
-from .renderers import ContributionReportingRenderer, LineItemRenderer
+from .renderers import (ContributionReportingRenderer,
+                        ContentReportingRenderer,
+                        FreelanceProfileRenderer,
+                        LineItemRenderer)
 from .csv_serializers import ContributionCSVSerializer, LineItemCSVSerializer
 from .serializers import (
     ContributorRoleSerializer, ContributionReportingSerializer, ContentReportingSerializer,
@@ -28,6 +28,25 @@ from .serializers import (
     HourlyRateSerializer, LineEntrySerializer, OverrideProfileSerializer
 )
 from .utils import get_forced_payment_contributions
+
+
+class BaseReportViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
+
+    def list(self, request):
+        if "csv" == self.request.QUERY_PARAMS.get('format'):
+            resp = StreamingHttpResponse(request.accepted_renderer.render(
+                {'queryset': self.get_queryset(),
+                 # TODO: Just pass in serializer instance via get_serializer(), which includes context
+                 'serializer': self.get_serializer_class(),
+                 'context': self.get_serializer_context()}),
+                content_type="text/csv",
+            )
+
+            resp['Content-Disposition'] = 'attachment; filename="{}.csv"'.format(self.csv_filename)
+
+            return resp
+        else:
+            return super(BaseReportViewSet, self).list(request)
 
 
 class LineItemViewSet(viewsets.ModelViewSet):
@@ -85,12 +104,14 @@ class OverrideProfileViewSet(viewsets.ModelViewSet):
     serializer_class = OverrideProfileSerializer
 
 
-class ContentReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
+class ContentReportingViewSet(BaseReportViewSet):
 
-    renderer_classes = (CSVRenderer, ) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
+    renderer_classes = tuple(api_settings.DEFAULT_RENDERER_CLASSES) + (ContentReportingRenderer, )
+
     serializer_class = ContentReportingSerializer
     filter_backends = (ESPublishedFilterBackend,)
     paginate_by = 20
+    csv_filename = 'ContentReport'
 
     def get_queryset(self):
         qs = ReportContent.search_objects.search()
@@ -152,7 +173,7 @@ class ContentReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
         return qs
 
 
-class LineItemReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
+class LineItemReportingViewSet(BaseReportViewSet):
 
     renderer_classes = (
         LineItemRenderer,
@@ -161,15 +182,7 @@ class LineItemReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
     )
     paginate_by = 20
     serializer_class = LineItemCSVSerializer
-
-    def list(self, request):
-        if self.format == "csv":
-            serializer = self.get_serializer(
-                self.get_queryset(), many=True
-            )
-            return Response(serializer.data)
-        else:
-            raise Http404("""Invalid reporting format requested.""")
+    csv_filename = 'LineItemReport'
 
     def get_queryset(self):
         start = self.request.QUERY_PARAMS.get("start", None)
@@ -179,31 +192,15 @@ class LineItemReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
             end += timezone.timedelta(days=1)
         return LineItem.objects.filter(payment_date__range=(start, end))
 
-    @property
-    def format(self):
-        return self.request.QUERY_PARAMS.get("format", None)
 
+class ReportingViewSet(BaseReportViewSet):
 
-class ReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
-
-    renderer_classes = (
-        ContributionReportingRenderer,
-    ) + tuple(
+    renderer_classes = tuple(
         api_settings.DEFAULT_RENDERER_CLASSES
-    )
+    ) + (ContributionReportingRenderer, )
     filter_backends = (ESPublishedFilterBackend,)
     paginate_by = 20
-
-    def list(self, request):
-        format = self.request.QUERY_PARAMS.get('format', None)
-        if format == 'csv':
-            queryset = self.get_queryset()
-            # TODO: get rid of this csv pattern so it incorporates the typical restful patterns.
-            queryset = ESPublishedFilterBackend().filter_queryset(request, queryset, None)
-            queryset = queryset[:queryset.count()]
-            serializer = self.get_serializer(queryset, many=True)
-            return Response(serializer.data)
-        return super(ReportingViewSet, self).list(request)
+    csv_filename = 'ContributionReport'
 
     def get_serializer_class(self):
         format = self.request.QUERY_PARAMS.get('format', None)
@@ -236,14 +233,18 @@ class ReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
             qs = qs.filter(
                 es_filter.Term(**{'contributor.is_freelance': is_freelance})
             )
-        return qs.sort('id')
+
+        qs = qs.sort('id')
+
+        return ESPublishedFilterBackend().filter_queryset(self.request, qs, None)
 
 
-class FreelanceReportingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
+class FreelanceReportingViewSet(BaseReportViewSet):
 
-    renderer_classes = (CSVRenderer, ) + tuple(api_settings.DEFAULT_RENDERER_CLASSES)
+    renderer_classes = tuple(api_settings.DEFAULT_RENDERER_CLASSES) + (FreelanceProfileRenderer, )
     serializer_class = FreelanceProfileSerializer
     paginate_by = 20
+    csv_filename = 'FreelanceReport'
 
     def get_queryset(self):
         now = timezone.now()

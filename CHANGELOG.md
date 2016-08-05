@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 3.9.9
+
+- Contribution report CSV downloads are now streamed via Django's HTTPStreamingResponse to prevent timeouts
+
 ## Version 3.9.8
 
 - Added `/super-feature/` urls for CMS listing pages
