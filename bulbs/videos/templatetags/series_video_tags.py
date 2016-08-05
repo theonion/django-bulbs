@@ -19,3 +19,9 @@ def series_video_page(context, series_slug):
 def popular_series_list(context, channel_slug):
     context["channel_slug"] = channel_slug
     return context
+
+
+@register.inclusion_tag('videos/video-detail.html', takes_context=True)
+def video_detail_page(context, series_slug):
+    context["series_slug"] = series_slug
+    return context
