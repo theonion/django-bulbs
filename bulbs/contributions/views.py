@@ -36,7 +36,6 @@ class BaseReportViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
         if "csv" == self.request.QUERY_PARAMS.get('format'):
             resp = StreamingHttpResponse(request.accepted_renderer.render(
                 {'queryset': self.get_queryset(),
-                 # TODO: Just pass in serializer instance via get_serializer(), which includes context
                  'serializer': self.get_serializer_class(),
                  'context': self.get_serializer_context()}),
                 content_type="text/csv",
