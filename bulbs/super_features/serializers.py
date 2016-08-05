@@ -37,9 +37,17 @@ class BaseSuperFeatureSerializer(ContentSerializer):
     parent = serializers.PrimaryKeyRelatedField(
         queryset=BaseSuperFeature.objects.all(), required=False, allow_null=True, default=None
     )
+    children_count = serializers.SerializerMethodField()
 
     class Meta:
         model = BaseSuperFeature
+
+    def to_representation(self, obj):
+        self.superfeature_type = getattr(obj, 'superfeature_type')
+        return super(BaseSuperFeatureSerializer, self).to_representation(obj)
+
+    def get_children_count(self, obj):
+        return SUPERFEATURE_MODEL.objects.filter(parent=obj).count()
 
 
 class BaseSuperFeaturePartialSerializer(ContentSerializer):
@@ -47,3 +55,7 @@ class BaseSuperFeaturePartialSerializer(ContentSerializer):
     class Meta:
         model = BaseSuperFeature
         fields = ('id', 'internal_name', 'title')
+
+    def to_representation(self, obj):
+        self.superfeature_type = getattr(obj, 'superfeature_type')
+        return super(BaseSuperFeaturePartialSerializer, self).to_representation(obj)
