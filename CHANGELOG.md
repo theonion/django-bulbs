@@ -2,9 +2,14 @@
 
 ## Development
 
+## Version 3.9.10
+
+- Includes `thumbnail` fallback for `primary_image` hierarchy.
+
+
 ## Version 3.9.9
 
-- Added `primary_image` to content. *Patch for property discrepencies. 
+- Added `primary_image` to content. *Patch for property discrepencies.
 
 ## Version 3.9.8
 

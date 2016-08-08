@@ -294,7 +294,12 @@ class Content(PolymorphicModel, Indexable):
         if image:
             return image
         detail_image = getattr(self, "detail_image", None)
-        return detail_image
+        if detail_image:
+            return detail_image
+        thumbnail = getattr(self, "thumbnail", None)
+        if thumbnail:
+            return thumbnail
+        return None
 
     def get_absolute_url(self):
         """produces a url to link directly to this instance, given the URL config
