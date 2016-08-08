@@ -6,6 +6,7 @@
       <bulbs-video
       twitter-handle="{{ twitter_handle }}"
       data-videohub-base="{{ VIDEOHUB_BASE_URL }}"
+      src="{% videohub_player_src content.videohub_ref.id %}"
       >
       </bulbs-video>
     </div>
@@ -19,7 +20,8 @@
     <div id="latest-video-description"></div>
     <share-tools
         class="circle-transparent latest-video-share-tools"
-        share-url={{ external_url }}
+        share-url="{{ external_url }}"
+        share-title="{{ share_title }}"
         share-track-action="Single Series: Share">
       <share-via-facebook icon ></share-via-facebook>
       <share-via-twitter icon twitter-handle={{twitter_handle}}></share-via-twitter>

@@ -1,7 +1,7 @@
 SeriesMeta = function() {
   this.$seriesGrid = $('#series-video-list');
   this.videohubBase = this.$seriesGrid.data('videohub-base');
-  this.seriesSlug = this.$seriesGrid.data('series-slug');
+  this.seriesSlug = this.$seriesGrid.data('series-slug') || window.location.href.split('/')[4];
   this.$seriesTitle = $('.series-title');
   this.$seriesImage = $('.series-image');
   this.$seriesEpisodes = $('.series-episodes');
@@ -28,7 +28,7 @@ SeriesMeta.prototype.seriesMetaFetched = function(data) {
   this.$seriesEpisodes.html(data.total_episodes + ' Episodes');
 
   this.$seriesDescription.html(data.series_description);
-  
+
   this.$seriesTitle.html(data.series_name);
 
   if (data.series_logo) {
