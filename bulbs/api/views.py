@@ -43,7 +43,7 @@ from bulbs.content.serializers import (
 from bulbs.contributions.tasks import run_contributor_email_report
 from bulbs.contributions.models import Contribution
 from bulbs.contributions.serializers import ContributionSerializer, ContributorReportSerializer
-from bulbs.notifications.viewsets import NotificationViewSet, ReadOnlyNotificationViewSet
+from bulbs.notifications.viewsets import NotificationViewSet
 from bulbs.special_coverage.models import SpecialCoverage
 from bulbs.special_coverage.serializers import SpecialCoverageSerializer
 from bulbs.utils.methods import get_query_params, get_request_data
