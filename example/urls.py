@@ -16,6 +16,7 @@ urlpatterns = patterns("",
     url(r"^special/(?P<slug>[\w-]+)/?$", "bulbs.special_coverage.views.special_coverage", name="special"),
     url(r"", include("bulbs.instant_articles.urls")),
     url(r"", include("bulbs.videos.urls")),
+    url(r"", include("bulbs.notifications.urls")),
 
     url(r"^r/", include("bulbs.redirects.urls")),
     url(r"^feeds", include("bulbs.feeds.urls"))

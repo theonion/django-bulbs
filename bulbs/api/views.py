@@ -649,9 +649,6 @@ api_v1_router.register(r"contributor-email", SendContributorReport, base_name="c
 api_v1_router.register(r"custom-search-content", CustomSearchContentViewSet,
                        base_name="custom-search-content")
 api_v1_router.register(r"notification", NotificationViewSet, base_name="notification")
-api_v1_router.register(
-    r"notification-all", ReadOnlyNotificationViewSet, base_name="notification-all"
-)
 api_v1_router.register(r"feature-type", FeatureTypeViewSet, base_name="feature-type")
 api_v1_router.register(r"log", LogEntryViewSet, base_name="logentry")
 api_v1_router.register(r"special-coverage-resolve", SpecialCoverageResolveViewSet,
