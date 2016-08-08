@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 3.9.11
+
+- Relocate `notifications-all` to `notifications.json`
+
 ## Version 3.9.10
 
 - Includes `thumbnail` fallback for `primary_image` hierarchy.
