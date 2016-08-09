@@ -4,11 +4,16 @@ var LatestEpisode = require('./series-video-latest-episode/series-video-latest-e
 var SeriesVideoList = require('./series-video-list/series-video-list');
 var PopularSeries = require('./popular-series/popular-series');
 var SeriesPage = require('./series-page/series-page');
+var VideoDetailPage = require('./video-detail-page/video-detail-page');
+var CurrentEpisodeData = require('./current-episode-data/current-episode-data');
 
 $(document).ready(function () {
-  new SeriesMeta();
-  new SeriesPage();
+  if($('body').hasClass('video-detail')) {
+    new SeriesMeta();
+    new SeriesPage();
+  }
   new SeriesVideoList();
   new PopularSeries();
+  new VideoDetailPage();
 });
 
