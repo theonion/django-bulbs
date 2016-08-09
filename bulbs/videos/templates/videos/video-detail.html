@@ -12,14 +12,13 @@
     </div>
   </figure>
 
-  <div class="latest-episode-data">
+  <div class="current-episode-data">
     <div class="series-title"></div>
     <hr>
-    <div id="latest-video-title"></div>
-    <div id="latest-video-title"></div>
-    <div id="latest-video-description"></div>
+    <div id="current-video-title"></div>
+    <div id="current-video-description"></div>
     <share-tools
-        class="circle-transparent latest-video-share-tools"
+        class="circle-transparent current-video-share-tools"
         share-url="{{ external_url }}"
         share-title="{{ share_title }}"
         share-track-action="Single Series: Share">
@@ -66,9 +65,9 @@
     {% endif %}
   </header>
   <div class="video-list"
-       id="series-video-list"
+       id="detail-video-list"
        data-betty-url="{{ BETTY_ONION_STUDIOS_IMAGE_URL }}"
        data-videohub-base="{{ VIDEOHUB_BASE_URL }}"
-       data-series-slug="{{ series_slug }}">
+       data-channel-slug="{{ channel_slug }}">
   </div>
 </section>
