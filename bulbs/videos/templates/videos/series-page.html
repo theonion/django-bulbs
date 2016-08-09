@@ -29,7 +29,8 @@
   {% if channel.slug == 'the-av-club' %}
     <div id="latest-video-title"></div>
   </div>
-  {% else %}
+  {% endif %}
+  {% if channel.slug == 'the-onion' %}
     <div class="latest-episode-data">
       <div class="series-title"></div>
       <hr>
@@ -55,7 +56,7 @@
 <section class="video-grid">
   <header>
     <h2>Episodes</h2>
-    {% if channel.slug != 'the-av-club' %}
+    {% if channel.slug == 'the-onion' %}
     <div class="video-grid-pagination-button">
       <previous-button
           data-track-action="Single Series: Episodes Prev"
