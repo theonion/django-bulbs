@@ -288,6 +288,19 @@ class Content(PolymorphicModel, Indexable):
         # no non-none images, return None
         return None
 
+    @property
+    def primary_image(self):
+        image = getattr(self, "image", None)
+        if image:
+            return image
+        detail_image = getattr(self, "detail_image", None)
+        if detail_image:
+            return detail_image
+        thumbnail = getattr(self, "thumbnail", None)
+        if thumbnail:
+            return thumbnail
+        return None
+
     def get_absolute_url(self):
         """produces a url to link directly to this instance, given the URL config
 

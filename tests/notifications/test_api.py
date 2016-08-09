@@ -141,12 +141,12 @@ class ReadOnlyNotificationAPITestCase(BaseAPITestCase):
 
     def setUp(self):
         super(ReadOnlyNotificationAPITestCase, self).setUp()
-        self.list_endpoint = reverse('notification-all-list')
+        self.list_endpoint = reverse('notification-all')
         self.notification_data = DEFAULT_NOTIFICATION_DATA
         create_notifications()
 
     def test_list_endpoint(self):
-        self.assertEqual(self.list_endpoint, '/api/v1/notification-all/')
+        self.assertEqual(self.list_endpoint, '/notifications.json')
 
     def test_public_list_success(self):
         resp = self.client.get(self.list_endpoint)
