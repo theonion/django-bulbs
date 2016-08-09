@@ -61,23 +61,44 @@
     </div>
   {% endif %}
 <section class="video-grid">
-  <header>
-    <h2>Episodes</h2>
-    {% if channel.slug == 'the-onion' %}
-    <div class="video-grid-pagination-button">
-      <previous-button
-          data-track-action="Single Series: Episodes Prev"
-          data-track-label="#">
-        <i class="fa fa-angle-left"></i>
-      </previous-button>
-      <next-button
-          data-track-action="Single Series: Episodes Next"
-          data-track-label="#">
-          <i class="fa fa-angle-right"></i>
-      </next-button>
-    </div>
-    {% endif %}
-  </header>
+  {% if channel_slug == 'the-onion' %}
+    <bulbs-carousel class="video-carousel-carousel">
+      <header class="video-carousel-header">
+        <h2>Episodes</h2>
+        <bulbs-carousel-previous
+            class="video-carousel-previous"
+            data-track-action="Single Series: Carousel Prev"
+            data-track-label="#">
+        </bulbs-carousel-previous>
+        <bulbs-carousel-next
+            class="video-carousel-next"
+            data-track-action="Single Series: Carousel Next"
+            data-track-label="#">
+        </bulbs-carousel-next>
+      </header>
+
+      <bulbs-carousel-slider>
+      </bulbs-carousel-slider>
+    </bulbs-carousel>
+  {% endif %}
+  {% if channel_slug == 'the-av-club' %}
+    <header>
+      <h2>Episodes</h2>
+      <div class="video-grid-pagination-button">
+        <previous-button
+            data-track-action="Single Series: Episodes Prev"
+            data-track-label="#">
+          <i class="fa fa-angle-left"></i>
+        </previous-button>
+        <next-button
+            data-track-action="Single Series: Episodes Next"
+            data-track-label="#">
+            <i class="fa fa-angle-right"></i>
+        </next-button>
+      </div>
+
+    </header>
+  {% endif %}
   <div class="video-list"
        id="series-video-list"
        data-betty-url="{{ BETTY_ONION_STUDIOS_IMAGE_URL }}"
