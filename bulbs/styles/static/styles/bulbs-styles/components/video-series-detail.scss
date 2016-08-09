@@ -63,10 +63,6 @@
       padding-bottom: 5px;
       width: 100%;
     }
-
-    .video-list {
-      border-bottom: solid 1px #eaeaea;
-    }
   }
 
   .video-item {
@@ -103,6 +99,7 @@
 }
 
 .popular-series {
+  border-top: solid 1px #eaeaea;
   margin: 8px;
   padding-bottom: 45px;
 
