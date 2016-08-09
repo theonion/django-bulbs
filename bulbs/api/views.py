@@ -43,7 +43,7 @@ from bulbs.content.serializers import (
 from bulbs.contributions.tasks import run_contributor_email_report
 from bulbs.contributions.models import Contribution
 from bulbs.contributions.serializers import ContributionSerializer, ContributorReportSerializer
-from bulbs.notifications.viewsets import NotificationViewSet, ReadOnlyNotificationViewSet
+from bulbs.notifications.viewsets import NotificationViewSet
 from bulbs.special_coverage.models import SpecialCoverage
 from bulbs.special_coverage.serializers import SpecialCoverageSerializer
 from bulbs.utils.methods import get_query_params, get_request_data
@@ -649,9 +649,6 @@ api_v1_router.register(r"contributor-email", SendContributorReport, base_name="c
 api_v1_router.register(r"custom-search-content", CustomSearchContentViewSet,
                        base_name="custom-search-content")
 api_v1_router.register(r"notification", NotificationViewSet, base_name="notification")
-api_v1_router.register(
-    r"notification-all", ReadOnlyNotificationViewSet, base_name="notification-all"
-)
 api_v1_router.register(r"feature-type", FeatureTypeViewSet, base_name="feature-type")
 api_v1_router.register(r"log", LogEntryViewSet, base_name="logentry")
 api_v1_router.register(r"special-coverage-resolve", SpecialCoverageResolveViewSet,
