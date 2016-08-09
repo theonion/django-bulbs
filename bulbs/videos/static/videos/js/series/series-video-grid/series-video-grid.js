@@ -8,6 +8,10 @@ SeriesVideoGrid = function (videos, selector) {
     throw Error('SeriesVideoGrid requires series-video-list to have a data-betty-url attribute.');
   }
 
+  this.appendVideos(videos);
+};
+
+SeriesVideoGrid.prototype.appendVideos = function (videos) {
   var that = this;
 
   videos

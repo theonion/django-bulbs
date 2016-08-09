@@ -62,24 +62,7 @@
   {% endif %}
 <section class="video-grid">
   {% if channel_slug == 'the-onion' %}
-    <bulbs-carousel class="video-carousel-carousel">
-      <header class="video-carousel-header">
-        <h2>Episodes</h2>
-        <bulbs-carousel-previous
-            class="video-carousel-previous"
-            data-track-action="Single Series: Carousel Prev"
-            data-track-label="#">
-        </bulbs-carousel-previous>
-        <bulbs-carousel-next
-            class="video-carousel-next"
-            data-track-action="Single Series: Carousel Next"
-            data-track-label="#">
-        </bulbs-carousel-next>
-      </header>
-
-      <bulbs-carousel-slider>
-      </bulbs-carousel-slider>
-    </bulbs-carousel>
+    {% include "videos/series-carousel.html" %}
   {% endif %}
   {% if channel_slug == 'the-av-club' %}
     <header>
