@@ -1,3 +1,4 @@
+import csv
 import json
 
 from django.db.models import Max
@@ -8,6 +9,7 @@ from django.test.client import Client
 
 from elasticsearch_dsl import filter as es_filter
 from freezegun import freeze_time
+from six import StringIO
 
 from bulbs.content.models import Content, FeatureType, Tag
 from bulbs.contributions.models import (
@@ -1458,7 +1460,14 @@ class ReportingApiTestCase(BaseAPITestCase):
             }
         )
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(len(resp.data), 2)
+        csvreader = csv.reader(StringIO(''.join(v.decode('utf-8')
+                                                for v in resp.streaming_content)))
+        # Check Header
+        self.assertEqual(next(csvreader),
+                         ['Payment Date', 'Payroll Name', 'Amount', 'Note'])
+
+        rows = [r for r in csvreader]
+        self.assertEqual(2, len(rows))
 
 
 class FlatRateAPITestCase(BaseAPITestCase):
