@@ -74,6 +74,7 @@ describe('CurrentEpisodeData', function () {
       expect(function () {
         new subject(video);
       }).to.throw('CurrentEpisode requires bulbs-video to have a videohub base url.');
+      $('bulbs-video').remove();
     });
   });
 

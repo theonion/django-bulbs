@@ -78,6 +78,7 @@ describe('LatestEpisode', function() {
       expect(function () {
         new subject(videos);
       }).to.throw('LatestEpisode requires bulbs-video to have a videohub base url.');
+      $('bulbs-video').remove();
     });
   });
 
