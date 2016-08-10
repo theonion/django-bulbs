@@ -1,17 +1,14 @@
 import csv
 import datetime
 
-try:
-    import StringIO
-except ImportError:
-    import io as StringIO
-
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.test.client import Client
 from django.test.utils import override_settings
 from django.utils import timezone
 from django.contrib.auth.models import User
+
+from six import StringIO
 
 from bulbs.content.models import Content, FeatureType
 from bulbs.content.serializers import DefaultUserSerializer
@@ -160,11 +157,15 @@ class ContributionReportingTestCase(BaseAPITestCase):
             data={"start": start_date.strftime("%Y-%m-%d"), "format": "csv"}
         )
         self.assertEqual(response.status_code, 200)
-        csvreader = csv.DictReader(StringIO.StringIO(response.content.decode("utf8")))
-        self.assertEqual(len(csvreader.fieldnames), 8)
-        for line in csvreader:
-            pass
-        self.assertEqual(csvreader.line_num, 5)  # Header + 4 items
+        csvreader = csv.reader(StringIO(''.join(v.decode('utf-8')
+                                                for v in response.streaming_content)))
+        # Check Header
+        self.assertEqual(next(csvreader),
+                         ['Publish Date', 'First Name', 'Last Name', 'Content ID',
+                          'Title', 'Feature Type', 'Rate', 'Payroll Name'])
+
+        rows = [r for r in csvreader]
+        self.assertEqual(4, len(rows))
 
     @override_settings(REST_FRAMEWORK=PAGINATED_REST_FRAMEWORK)
     def test_content_reporting(self):
