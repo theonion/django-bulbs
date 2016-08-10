@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 3.10.1
+
+- fix js bug in VideoDetailPage.js
+
 ## Version 3.10.0
 
 - Add episode pagination to video series pages
