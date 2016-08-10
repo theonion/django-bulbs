@@ -1,7 +1,7 @@
 var SeriesVideoGrid = require('../series-video-grid/series-video-grid');
+var VideoDetailSeriesMeta = require('../video-detail-series-meta/video-detail-series-meta');
 
 VideoDetailPage = function() {
-  this.VideoDetailSeriesMeta = require('../video-detail-series-meta/video-detail-series-meta');
   this.$detailGrid = $('#detail-video-list');
   this.currentVideoSrc = $('bulbs-video').attr('src');
   this.videohubBase = this.$detailGrid.data('videohub-base');
