@@ -32,14 +32,14 @@ SeriesVideoGrid.prototype.initNextListener = function () {
   }
 };
 
-SeriesVideoGrid.prototype.carouselStateChanged = function (detailObj) {
+SeriesVideoGrid.prototype.carouselStateChanged = function (eventObject) {
+  var detailObj = eventObject.originalEvent.detail
   if (detailObj.desc !== 'next') {
     return;
   }
 
-  console.log('nextclicked', this.$carousel[0].state.isOnLastPage());
   if (this.nextUrl && this.$carousel[0].state.isOnLastPage()) {
-    this.fetchSeriesVideos(nextUrl);
+    this.fetchSeriesVideos(this.nextUrl);
   }
 };
 

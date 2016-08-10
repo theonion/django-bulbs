@@ -1,6 +1,6 @@
 SeriesPage = function() {
   this.$seriesGrid = $('#series-video-list');
-  this.seriesSlug = this.$seriesGrid.data('series-slug') || window.location.href.split('/')[4];
+  this.seriesSlug = this.$seriesGrid.data('series-slug');
   this.videohubBase = this.$seriesGrid.data('videohub-base');
   var sourceUrl = this.videohubBase + '/api/series/' + this.seriesSlug + '/videos';
   this.seriesVideoGrid = new SeriesVideoGrid(sourceUrl);
