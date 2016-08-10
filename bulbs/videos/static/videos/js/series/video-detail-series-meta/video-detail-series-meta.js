@@ -1,7 +1,8 @@
-SeriesMeta = function() {
-  this.$seriesGrid = $('#series-video-list');
-  this.videohubBase = this.$seriesGrid.data('videohub-base');
-  this.seriesSlug = this.$seriesGrid.data('series-slug') || window.location.href.split('/')[4];
+VideoDetailSeriesMeta = function (seriesSlug) {
+  this.seriesSlug = seriesSlug;
+  this.$detailGrid = $('#detail-video-list');
+  this.videohubBase = this.$detailGrid.data('videohub-base');
+  this.$seriesTitle = $('.series-title');
   this.$seriesTitle = $('.series-title');
   this.$seriesImage = $('.series-image');
   this.$seriesEpisodes = $('.series-episodes');
@@ -10,14 +11,11 @@ SeriesMeta = function() {
   this.fetchSeriesMeta();
 };
 
-SeriesMeta.prototype.fetchSeriesMeta = function() {
+VideoDetailSeriesMeta.prototype.fetchSeriesMeta = function () {
   $.getJSON(this.source, this.seriesMetaFetched.bind(this));
-};
+}
 
-SeriesMeta.prototype.seriesMetaFetched = function(data) {
-
-  /* Some shows are standalone and have no seasons */
-
+VideoDetailSeriesMeta.prototype.seriesMetaFetched = function(data) {
   if (data.total_seasons != 0) {
     $('<li>', {
         'class': 'series-seasons',
@@ -39,4 +37,4 @@ SeriesMeta.prototype.seriesMetaFetched = function(data) {
   }
 };
 
-module.exports = SeriesMeta;
+module.exports = VideoDetailSeriesMeta;

@@ -2,6 +2,12 @@
 
 ## Development
 
+## Version 3.10.0
+
+- Add episode pagination to video series pages
+- add video detail template
+- update styles and layouts for the onion video series and detail pages
+
 ## Version 3.9.12
 
 - Contribution report CSV downloads are now streamed via Django's HTTPStreamingResponse to prevent timeouts
