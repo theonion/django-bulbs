@@ -1,14 +1,46 @@
-SeriesVideoGrid = function (videos, selector) {
-
+SeriesVideoGrid = function (sourceUrl, selector) {
   this.$seriesGrid = $(selector || '#series-video-list');
-  this.$carousel = $('bulbs-carousel-slider bulbs-carousel-track');
+  this.$carousel = $('bulbs-carousel');
+  this.$carouselItemContainer = $('bulbs-carousel-slider bulbs-carousel-track');
   this.bettyUrl = this.$seriesGrid.data('bettyUrl');
 
   if (typeof this.bettyUrl === 'undefined') {
     throw Error('SeriesVideoGrid requires series-video-list to have a data-betty-url attribute.');
   }
 
-  this.appendVideos(videos);
+  this.fetchSeriesVideos(sourceUrl);
+  this.initNextListener();
+};
+
+SeriesVideoGrid.prototype.fetchSeriesVideos = function (sourceUrl) {
+  $.getJSON(sourceUrl, this.seriesVideosFetched.bind(this));
+};
+
+SeriesVideoGrid.prototype.seriesVideosFetched = function (data) {
+  this.appendVideos(data.results);
+
+  if (data.next) {
+    this.nextUrl = data.next;
+  } else {
+    delete this.nextUrl;
+  }
+};
+
+SeriesVideoGrid.prototype.initNextListener = function () {
+  if (this.$carousel.length > 0) {
+    this.$carousel.on('bulbs-carousel:stateChange', this.carouselStateChanged.bind(this));
+  }
+};
+
+SeriesVideoGrid.prototype.carouselStateChanged = function (detailObj) {
+  if (detailObj.desc !== 'next') {
+    return;
+  }
+
+  console.log('nextclicked', this.$carousel[0].state.isOnLastPage());
+  if (this.nextUrl && this.$carousel[0].state.isOnLastPage()) {
+    this.fetchSeriesVideos(nextUrl);
+  }
 };
 
 SeriesVideoGrid.prototype.appendVideos = function (videos) {
@@ -38,8 +70,8 @@ SeriesVideoGrid.prototype.appendVideos = function (videos) {
       anchor.appendTo(that.$seriesGrid);
     }
 
-    if (that.$carousel.length > 0) {
-      $('<bulbs-carousel-item>').html(anchor).appendTo(that.$carousel);
+    if (that.$carouselItemContainer.length > 0) {
+      $('<bulbs-carousel-item>').html(anchor).appendTo(that.$carouselItemContainer);
     }
   });
 };

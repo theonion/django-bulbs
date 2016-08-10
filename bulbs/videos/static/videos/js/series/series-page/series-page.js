@@ -2,17 +2,17 @@ SeriesPage = function() {
   this.$seriesGrid = $('#series-video-list');
   this.seriesSlug = this.$seriesGrid.data('series-slug') || window.location.href.split('/')[4];
   this.videohubBase = this.$seriesGrid.data('videohub-base');
-  this.source = this.videohubBase + '/api/series/' + this.seriesSlug + '/videos';
-  this.fetchSeriesVideos();
+  var sourceUrl = this.videohubBase + '/api/series/' + this.seriesSlug + '/videos';
+  this.seriesVideoGrid = new SeriesVideoGrid(sourceUrl);
+  this.fetchSeriesVideos(sourceUrl);
 };
 
-SeriesPage.prototype.fetchSeriesVideos = function() {
-  $.getJSON(this.source, this.seriesVideosFetched.bind(this));
+SeriesPage.prototype.fetchSeriesVideos = function(sourceUrl) {
+  $.getJSON(sourceUrl, this.seriesVideosFetched.bind(this));
 };
 
 SeriesPage.prototype.seriesVideosFetched = function(data) {
   this.latestEpisode = new LatestEpisode(data.results);
-  this.seriesVideoGrid = new SeriesVideoGrid(data.results);
 };
 
 module.exports = SeriesPage;
