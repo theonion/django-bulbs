@@ -15,7 +15,7 @@ VideoDetailPage.prototype.fetchVideo = function() {
 VideoDetailPage.prototype.videoDataFetched = function(videoObject) {
   var source = this.videohubBase + '/api/series/' + videoObject.series_slug + '/videos';
   new CurrentEpisodeData(videoObject);
-  new this.VideoDetailSeriesMeta(videoObject.series_slug);
+  new VideoDetailSeriesMeta(videoObject.series_slug);
   this.seriesVideoGrid = new SeriesVideoGrid(source, '#detail-video-list');
 };
 
