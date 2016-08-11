@@ -59,7 +59,7 @@ describe('CurrentEpisodeData', function () {
 
       it('appends the current video url', function() {
         var videoShareToolsUrl = $('.current-video-share-tools').attr('share-url');
-        expect(videoShareToolsUrl).to.equal("//foo.bar/v/5400");
+        expect(videoShareToolsUrl).to.equal("http://foo.bar/v/5400");
       });
     });
   });

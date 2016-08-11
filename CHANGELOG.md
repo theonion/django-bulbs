@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 3.10.2
+
+- add http protocol to share tools, to fix issue with twitter share tool
+
 ## Version 3.10.1
 
 - fix js bug in VideoDetailPage.js

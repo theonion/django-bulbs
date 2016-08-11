@@ -12,7 +12,7 @@ LatestEpisode = function(videos) {
   this.$videoPlayer.attr('src', this.$videohubBaseUrl + '/video/' + this.latestEpisode);
 
   this.$latestVideoShareTools.attr('share-url',
-    $(this.$latestVideoShareTools).attr('share-url') + this.latestEpisodeHref);
+   'http://' + $(this.$latestVideoShareTools).attr('share-url') + this.latestEpisodeHref);
   this.$latestVideoShareTools.attr('share-title', this.latestVideoTitle);
 
   $('<a>', {

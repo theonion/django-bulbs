@@ -11,7 +11,7 @@ CurrentEpisodeData = function(video) {
   this.$videoPlayer.attr('src', this.$videohubBaseUrl + '/video/' + this.currentEpisode);
 
   this.$currentVideoShareTools.attr('share-url',
-    '//' + $(this.$currentVideoShareTools).attr('share-url') + this.currentEpisodeHref);
+    'http://' + $(this.$currentVideoShareTools).attr('share-url') + this.currentEpisodeHref);
   this.$currentVideoShareTools.attr('share-title', this.currentVideoTitle);
 
   $('<a>', {
