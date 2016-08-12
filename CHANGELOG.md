@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 3.11.0
+
+- Added `super_features` field to `SpecialCoverage` model
+
 ## Version 3.10.2
 
 - add http protocol to share tools, to fix issue with twitter share tool
@@ -31,7 +35,7 @@
 
 ## Version 3.9.9
 
-- Added `primary_image` to content. *Patch for property discrepencies.
+- Added `primary_image` to content. *Patch for property discrepencies.*
 
 ## Version 3.9.8
 
