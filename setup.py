@@ -26,7 +26,7 @@ requires = [
     # TODO: remove django-json-field from previous JSONField references.
     "django-json-field==0.5.5",
     "django-polymorphic==0.7.1",
-    "djangorestframework-csv==1.3.3",
+    "djangorestframework-csv==1.4.1",
     "pageview_client==1.0.4",
     "djangorestframework==3.1.1",
     "djes>=0.1.109",

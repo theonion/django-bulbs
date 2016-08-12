@@ -2,6 +2,37 @@
 
 ## Development
 
+## Version 3.10.2
+
+- add http protocol to share tools, to fix issue with twitter share tool
+
+## Version 3.10.1
+
+- fix js bug in VideoDetailPage.js
+
+## Version 3.10.0
+
+- Add episode pagination to video series pages
+- add video detail template
+- update styles and layouts for the onion video series and detail pages
+
+## Version 3.9.12
+
+- Contribution report CSV downloads are now streamed via Django's HTTPStreamingResponse to prevent timeouts
+
+## Version 3.9.11
+
+- Relocate `notifications-all` to `notifications.json`
+
+## Version 3.9.10
+
+- Includes `thumbnail` fallback for `primary_image` hierarchy.
+
+
+## Version 3.9.9
+
+- Added `primary_image` to content. *Patch for property discrepencies.
+
 ## Version 3.9.8
 
 - Added `/super-feature/` urls for CMS listing pages

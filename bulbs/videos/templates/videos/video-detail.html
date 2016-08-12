@@ -1,0 +1,64 @@
+{% load betty core ads %}
+
+<div class="current-episode-container">
+  <figure class="video-container">
+    <div class="content">
+      <bulbs-video
+      twitter-handle="{{ twitter_handle }}"
+      data-videohub-base="{{ VIDEOHUB_BASE_URL }}"
+      src="{% videohub_player_src content.videohub_ref.id %}"
+      >
+      </bulbs-video>
+    </div>
+  </figure>
+
+  <div class="current-episode-data">
+    <div class="series-title"></div>
+    <hr>
+    <div id="current-video-title"></div>
+    <div id="current-video-description"></div>
+    <share-tools
+        class="circle-transparent current-video-share-tools"
+        share-url="{{ external_url }}"
+        share-title="{{ share_title }}"
+        share-track-action="Single Series: Share">
+      <share-via-facebook icon ></share-via-facebook>
+      <share-via-twitter icon twitter-handle={{twitter_handle}}></share-via-twitter>
+      <share-via-email icon message={{share_message}}></share-via-email>
+    <share-tools>
+  </div>
+</div>
+
+<div class="series-summary">
+  <div class="series-logo">
+    <div class="series-image"></div>
+  </div>
+  <ul class="series-meta">
+    <li class="series-title-li"><h1 class="series-title"></h1></li>
+    <li class="series-episodes"></li>
+    <li><p class="series-description"></p></li>
+  </ul>
+</div>
+
+<div class="video-detail-ad">
+  <div class="ad-alert">Advertisement</div>
+  {% dfp_ad "non-mobile-leaderboard" %}
+  {% dfp_ad "mobile-only-cube" %}
+</div>
+
+<section class="video-grid">
+  {% if channel_slug == 'the-onion' %}
+    {% include "videos/series-carousel.html" %}
+  {% endif %}
+  {% if channel_slug == 'the-av-club' %}
+    <header>
+      <h2>Episodes</h2>
+    </header>
+  {% endif %}
+  <div class="video-list"
+    id="detail-video-list"
+    data-betty-url="{{ BETTY_ONION_STUDIOS_IMAGE_URL }}"
+    data-videohub-base="{{ VIDEOHUB_BASE_URL }}"
+    data-channel-slug="{{ channel_slug }}">
+  </div>
+</section>

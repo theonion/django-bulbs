@@ -1,0 +1,157 @@
+///////////////////////////////
+// ************************* //
+//    VIDEO SERIES DETAIL    //
+// ************************* //
+///////////////////////////////
+
+@import '../mixins/flexbox';
+@import '../mixins/flex-grid';
+
+.video-series-content {
+  padding: 0px;
+
+  .series-logo {
+    & img {
+      max-width: 100%;
+    }
+  }
+
+  ul.series-meta {
+    list-style-type: none;
+    padding: 10px;
+    text-align: center;
+
+    .series-seasons {
+      display: inline-block;
+      &:after {
+        content: '\2022';
+        font-style: normal;
+        margin: 0 .5em;
+      }
+    }
+    .series-episodes {
+      display: inline-block;
+    }
+  }
+
+  .latest-episode-data {
+    margin-bottom: 20px;
+  }
+
+  .video-series-ad {
+    border-top: solid 1px #eaeaea;
+    border-bottom: solid 1px #eaeaea;
+
+    .ad-alert {
+      color: #c6c6c6;
+      font-family: ArialMT;
+      font-size: 9px;
+      padding: 5px;
+      text-align: center;
+      text-transform: uppercase;
+    }
+  }
+
+  .video-grid {
+    margin: 0 8px;
+
+    header {
+      @include inline-flex;
+      @include flex-direction(row);
+      border-bottom: solid 4px #eaeaea;
+      margin-bottom: 8px;
+      padding-bottom: 5px;
+      width: 100%;
+    }
+  }
+
+  .video-item {
+    img {
+      max-width: 100%;
+    }
+  }
+}
+
+.video-grid-pagination-button,
+.popular-series-pagination-button {
+  @include flexbox;
+  margin: 8px 0 0 auto;
+
+  .disabled {
+    background-color: #f2f2f2;
+  }
+  next-button,
+  previous-button {
+    @include flexbox;
+    @include align-items(center);
+    @include justify-content(space-around);
+    background-color: #004263;
+    color: white;
+    cursor: pointer;
+    font-size: 1.5em;
+    height: 30.5px;
+    width: 29.3px;
+  }
+
+  previous-button {
+    margin-right: .3em;
+  }
+}
+
+.popular-series {
+  border-top: solid 1px #eaeaea;
+  margin: 8px;
+  padding-bottom: 45px;
+
+  header {
+    @include inline-flex;
+    @include flex-direction(row);
+    border-bottom: solid 4px #eaeaea;
+    margin-bottom: 8px;
+    padding-bottom: 5px;
+    width: 100%;
+  }
+
+  .popular-series-item {
+    height: auto;
+    display: block;
+    padding-left: 10px;
+    width: calc(50% - 10px);
+
+    img {
+      max-width: 100%;
+    }
+  }
+}
+
+#popular-series {
+  @include flexgrid($columns: 2, $gutter: 10, $padding: 0);
+
+  .series-logo {
+    height: 0;
+    overflow: hidden;
+    padding-bottom: 52%;
+  }
+  .popular-series-item-seasons {
+    display: inline-block;
+    &:after {
+      content: '\2022';
+      font-style: normal;
+      margin: 0 .5em;
+    }
+  }
+
+  .popular-series-item-episodes {
+    display: inline-block;
+  }
+}
+
+@media all and (min-width: 600px) {
+  #popular-series {
+    @include flexgrid($columns: 4, $gutter: 10, $padding: 0);
+  }
+  .series-description {
+    margin: auto;
+    width: 75%;
+  }
+}

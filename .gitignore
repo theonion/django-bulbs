@@ -25,3 +25,4 @@ venv/
 scripts/.state
 node_modules
 *.sw[nop]
+npm-debug.log

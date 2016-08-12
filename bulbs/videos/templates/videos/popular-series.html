@@ -1,0 +1,26 @@
+{% load betty %}
+
+<div class="popular-series">
+  <header>
+    <h2>Popular Series</h2>
+    <div class="popular-series-pagination-button">
+      <previous-button
+          data-track-action="Single Series: Popular Series Prev"
+          data-track-label="#">
+        <i class="fa fa-angle-left"></i>
+      </previous-button>
+      <next-button
+          data-track-action="Single Series: Popular Series Next"
+          data-track-label="#">
+          <i class="fa fa-angle-right"></i>
+      </next-button>
+        </div>
+  </header>
+  <div
+      id="popular-series"
+      data-channel-series="{{ VIDEOHUB_BASE_URL }}/channel/{{ channel_slug }}/series.json"
+      data-videohub-base="{{ VIDEOHUB_BASE_URL }}"
+      data-series-slug="{{ series_slug }}"
+      >
+  </div>
+</div>
