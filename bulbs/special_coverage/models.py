@@ -82,7 +82,8 @@ class SpecialCoverage(DetailImageMixin, models.Model):
         Removes any null & non-integer values from the super feature list
         """
         if self.super_features:
-            self.super_features = [int(sf) for sf in self.super_features if sf is not None and is_valid_digit(sf)]  # NOQA
+            self.super_features = [int(sf) for sf in self.super_features
+                                   if sf is not None and is_valid_digit(sf)]
 
     def save(self, *args, **kwargs):
         """Saving ensures that the slug, if not set, is set to the slugified name."""

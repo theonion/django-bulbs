@@ -3,7 +3,8 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 
-from bulbs.special_coverage.models import SpecialCoverage
+# NOTE: Referring to the Special Coverage model directly in this migration stopped
+#       newer migrations from being run. This is fine though, since save() only needed to be run once
 
 
 class Migration(migrations.Migration):
