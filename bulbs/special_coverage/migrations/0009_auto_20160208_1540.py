@@ -3,14 +3,8 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 
-from bulbs.special_coverage.models import SpecialCoverage
-
-
-def save_func(apps, schema_editor):
-    # Trigger percolator save logic (new method ALWAYS saves percolator, previous
-    # deleted percolator if not active).
-    for special in SpecialCoverage.objects.all():
-        special.save()
+# NOTE: Referring to the Special Coverage model directly in this migration stopped
+#       newer migrations from being run. This is fine though, since save() only needed to be run once
 
 
 class Migration(migrations.Migration):
@@ -20,5 +14,4 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(save_func, save_func)
     ]

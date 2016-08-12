@@ -25,6 +25,7 @@ class SpecialCoverage(DetailImageMixin, models.Model):
     description = models.TextField(default="", blank=True)
     query = JSONField(default={}, blank=True)
     videos = JSONField(default=[], blank=True)
+    super_features = JSONField(default=[], blank=True)
     active = models.BooleanField(default=False)
     promoted = models.BooleanField(default=False)
     start_date = models.DateTimeField(blank=True, null=True)
@@ -46,6 +47,7 @@ class SpecialCoverage(DetailImageMixin, models.Model):
         self.clean_publish_dates()
         self.clean_query()
         self.clean_videos()
+        self.clean_super_features()
 
     def clean_publish_dates(self):
         """
@@ -74,6 +76,14 @@ class SpecialCoverage(DetailImageMixin, models.Model):
         """
         if self.videos:
             self.videos = [int(v) for v in self.videos if v is not None and is_valid_digit(v)]
+
+    def clean_super_features(self):
+        """
+        Removes any null & non-integer values from the super feature list
+        """
+        if self.super_features:
+            self.super_features = [int(sf) for sf in self.super_features
+                                   if sf is not None and is_valid_digit(sf)]
 
     def save(self, *args, **kwargs):
         """Saving ensures that the slug, if not set, is set to the slugified name."""

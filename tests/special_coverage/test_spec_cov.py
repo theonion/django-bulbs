@@ -33,6 +33,14 @@ class SpecialCoverageModelTests(BaseIndexableTestCase):
         sc = SpecialCoverage.objects.create(id=3, videos=['1', '2', 'dad'], name='dead')
         self.assertEqual(sc.videos, [1, 2])
 
+    def test_save_super_features(self):
+        sc = SpecialCoverage.objects.create(id=1, super_features=[1, 2], name='god')
+        self.assertEqual(sc.super_features, [1, 2])
+        sc = SpecialCoverage.objects.create(id=2, super_features=[1, 2, None], name='not')
+        self.assertEqual(sc.super_features, [1, 2])
+        sc = SpecialCoverage.objects.create(id=3, super_features=['1', '2', 'dad'], name='dead')
+        self.assertEqual(sc.super_features, [1, 2])
+
     def test_start_and_end_validation(self):
         sc = SpecialCoverage.objects.create(
             name="God",
