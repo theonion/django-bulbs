@@ -58,8 +58,6 @@ class SpecialCoverage(DetailImageMixin, models.Model):
                 raise ValidationError("""The End Date requires a Start Date value.""")
             elif self.end_date <= self.start_date:
                 raise ValidationError("""The End Date must not precede the Start Date.""")
-        if self.start_date and not self.end_date:
-            raise ValidationError("""The Start Date requires an End Date.""")
 
     def clean_query(self):
         """
@@ -161,7 +159,9 @@ class SpecialCoverage(DetailImageMixin, models.Model):
     @property
     def is_active(self):
         now = today_as_utc_datetime()
-        if self.start_date and self.end_date:
+        if self.start_date and not self.end_date:
+            return self.start_date <= now
+        elif self.start_date and self.end_date:
             return self.start_date <= now < self.end_date
         return False
 

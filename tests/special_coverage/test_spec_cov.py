@@ -51,9 +51,6 @@ class SpecialCoverageModelTests(BaseIndexableTestCase):
         self.assertTrue(sc.is_active)
 
         with self.assertRaises(ValidationError):
-            sc = SpecialCoverage.objects.create(name="Is", start_date=timezone.now())
-
-        with self.assertRaises(ValidationError):
             sc = SpecialCoverage.objects.create(name="Is", end_date=timezone.now())
 
         with self.assertRaises(ValidationError):
@@ -69,6 +66,14 @@ class SpecialCoverageModelTests(BaseIndexableTestCase):
             name="God",
             start_date=timezone.now() - timezone.timedelta(days=10),
             end_date=timezone.now() + timezone.timedelta(days=10)
+        )
+        self.assertTrue(sc.is_active)
+
+    @override_settings(TODAY=TODAY.date())
+    def test_is_active_without_end_date(self):
+        sc = SpecialCoverage.objects.create(
+            name="God",
+            start_date=timezone.now() - timezone.timedelta(days=10)
         )
         self.assertTrue(sc.is_active)
 
