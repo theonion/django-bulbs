@@ -61,8 +61,6 @@
       <bulbs-carousel-slider>
         {% for video in videos %}
           <bulbs-carousel-item
-              {# TODO implement /v/2323 redirect route in urls.py #}
-              {# see: https://trello.com/c/3bT7Xuc9/60 #}
               share-url="{% build_video_share_uri video.videohub_ref.id %}"
               share-title="{{ video.title }}"
               video-url="{{ VIDEOHUB_BASE_URL }}/video/{{ video.videohub_ref.id }}.json"
@@ -72,7 +70,7 @@
             <bulbs-video-summary
                 class="video-carousel-summary"
                 src="{{ VIDEOHUB_BASE_URL }}/video/{{ video.videohub_ref.id }}.json">
-            </bulbs-vido-summary>
+            </bulbs-video-summary>
           </bulbs-carousel-item>
         {% endfor %}
       </bulbs-carousel-slider>
