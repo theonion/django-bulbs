@@ -1,3 +1,6 @@
+import pytz
+from datetime import datetime
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db.models.signals import pre_delete
@@ -117,7 +120,9 @@ class SpecialCoverage(DetailImageMixin, models.Model):
         # support missing fields, so always need to include
 
         q["start_date"] = self.start_date
-        q["end_date"] = self.end_date
+        # NOTE: setting end_date to datetime.max if special coverage has no end date
+        # (i.e. neverending special coverage)
+        q["end_date"] = self.end_date if self.end_date else datetime.max.replace(tzinfo=pytz.UTC)
 
         # Elasticsearch v1.4 percolator range query does not support DateTime range queries
         # (PercolateContext.nowInMillisImpl is not implemented).
@@ -125,10 +130,6 @@ class SpecialCoverage(DetailImageMixin, models.Model):
             q['start_date_epoch'] = datetime_to_epoch_seconds(q["start_date"])
         if q["end_date"]:
             q['end_date_epoch'] = datetime_to_epoch_seconds(q["end_date"])
-        else:
-            # NOTE: set this to datetime.max - epoch
-            # if the end_date is null (i.e. never ending special coverage)
-            q['end_date_epoch'] = 253402300800.0
 
         # Store manually included IDs for percolator retrieval scoring (boost
         # manually included content).

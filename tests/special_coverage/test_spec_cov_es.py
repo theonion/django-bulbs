@@ -1,4 +1,5 @@
-from datetime import timedelta
+import pytz
+from datetime import timedelta, datetime
 
 from django.utils import timezone
 from elasticsearch.exceptions import TransportError
@@ -195,5 +196,8 @@ class SpecialCoverageQueryTests(BaseIndexableTestCase):
             doc_type=".percolator",
             id="specialcoverage.420"
         )
-        import pdb; pdb.set_trace()
+        self.assertEqual(
+            response["_source"]["end_date"],
+            datetime.max.replace(tzinfo=pytz.UTC).isoformat()
+        )
         self.assertEqual(response["_source"]["end_date_epoch"], 253402300800.0)
