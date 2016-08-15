@@ -125,6 +125,10 @@ class SpecialCoverage(DetailImageMixin, models.Model):
             q['start_date_epoch'] = datetime_to_epoch_seconds(q["start_date"])
         if q["end_date"]:
             q['end_date_epoch'] = datetime_to_epoch_seconds(q["end_date"])
+        else:
+            # NOTE: set this to datetime.max - epoch
+            # if the end_date is null (i.e. never ending special coverage)
+            q['end_date_epoch'] = 253402300800.0
 
         # Store manually included IDs for percolator retrieval scoring (boost
         # manually included content).
