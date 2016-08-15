@@ -1,0 +1,121 @@
+# Live Blog
+
+## API (v1) Documentation
+
+ - [Entry](#entry)
+
+### Entry
+
+#### Create a new entry (POST)
+
+```
+/api/v1/liveblog/entry/
+```
+
+##### Body
+
+```json
+{
+  "parent_id": 123,
+  "headline": "Something Really Funny",
+  "author": "TODO",
+  "copy": "Why are you reading this? Stop it.",
+  "related_articles": [501, 1801, 17203],
+  "published": "2015-01-01T01:01:00.000Z",
+  "responses": [
+    {
+      "author": "TODO",
+      "copy": "Some more really interesting stuff you should read."
+    }
+  ]
+}
+```
+
+##### Status Codes
+
+- `201` if successful
+
+#### Get All Entries
+
+**GET:**
+
+```
+/api/v1/liveblog/entries/<liveblog_id>/
+```
+
+##### Body
+
+```json
+{
+  "count": 2,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "parent_id": 123,
+      "headline": "Something Really Funny",
+      "author": "TODO",
+      "copy": "Why are you reading this? Stop it.",
+      "related_articles": [501, 1801, 17203],
+      "published": "2015-01-01T01:01:00.000Z",
+      "responses": [
+        {
+          "author": "TODO",
+          "copy": "Some more really interesting stuff you should read."
+        }
+      ]
+    },
+    {
+      "parent_id": 123,
+      "headline": "Something Really Funny",
+      "author": "TODO",
+      "copy": "Why are you reading this? Stop it.",
+      "related_articles": [501, 1801, 17203],
+      "published": "2015-01-01T01:01:00.000Z",
+      "responses": [
+        {
+          "author": "TODO",
+          "copy": "Some more really interesting stuff you should read."
+        }
+      ]
+    }
+  ]
+ }
+```
+
+
+##### Status Codes
+
+* `200` if successful
+
+#### Get an entry
+
+##### GET
+
+```
+/api/v1/liveblog/entry/<:entry_id>/
+```
+
+##### Response
+
+```json
+  {
+    "parent_id": 123,
+    "headline": "Something Really Funny",
+    "author": "TODO",
+    "copy": "Why are you reading this? Stop it.",
+    "related_articles": [501, 1801, 17203],
+    "published": "2015-01-01T01:01:00.000Z",
+    "responses": [
+      {
+        "author": "TODO",
+        "copy": "Some more really interesting stuff you should read."
+      }
+    ]
+  }
+```
+
+##### Status Codes
+
+* `200` if successful
+* `404` if entry doesn't exist
