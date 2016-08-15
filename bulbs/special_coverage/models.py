@@ -159,10 +159,11 @@ class SpecialCoverage(DetailImageMixin, models.Model):
     @property
     def is_active(self):
         now = today_as_utc_datetime()
-        if self.start_date and not self.end_date:
-            return self.start_date <= now
-        elif self.start_date and self.end_date:
-            return self.start_date <= now < self.end_date
+        if self.start_date:
+            if self.end_date:
+                return self.start_date <= now < self.end_date
+            else:
+                return self.start_date <= now
         return False
 
     @property
