@@ -492,6 +492,7 @@ class Content(PolymorphicModel, Indexable):
                             "weight": MANUALLY_ADDED_BOOST,
                         },
                         # Penalize Inactive (Zero Score Will be Omitted)
+                        # TODO: Fix this for NULL end_date
                         {
                             "filter": {
                                 "or": [

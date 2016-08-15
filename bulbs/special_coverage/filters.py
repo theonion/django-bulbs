@@ -18,6 +18,8 @@ class SpecialCoverageFilter(CaseInsensitiveBooleanFilter):
             if value == "true":
                 queryset = queryset.filter(
                     start_date__lte=today_filter, end_date__gte=today_filter
+                ) | queryset.filter(
+                    start_date__lte=today_filter, end_date__isnull=True
                 )
             elif value == "false":
                 queryset == queryset.exclude(
