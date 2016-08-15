@@ -120,8 +120,8 @@ class SpecialCoverage(DetailImageMixin, models.Model):
         # support missing fields, so always need to include
 
         q["start_date"] = self.start_date
-        # NOTE: setting end_date to datetime.max if special coverage has no end date
-        # (i.e. neverending special coverage)
+        # NOTE: set end_date to datetime.max if special coverage has no end date
+        # (i.e. is a neverending special coverage)
         q["end_date"] = self.end_date if self.end_date else datetime.max.replace(tzinfo=pytz.UTC)
 
         # Elasticsearch v1.4 percolator range query does not support DateTime range queries
