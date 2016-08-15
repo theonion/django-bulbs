@@ -18,7 +18,7 @@
 {
   "parent_id": 123,
   "headline": "Something Really Funny",
-  "author": "TODO",
+  "authors": ["TODO"],
   "copy": "Why are you reading this? Stop it.",
   "related_articles": [501, 1801, 17203],
   "published": "2015-01-01T01:01:00.000Z",
@@ -54,7 +54,7 @@
     {
       "parent_id": 123,
       "headline": "Something Really Funny",
-      "author": "TODO",
+      "authors": ["TODO"],
       "copy": "Why are you reading this? Stop it.",
       "related_articles": [501, 1801, 17203],
       "published": "2015-01-01T01:01:00.000Z",
@@ -68,7 +68,7 @@
     {
       "parent_id": 123,
       "headline": "Something Really Funny",
-      "author": "TODO",
+      "authors": ["TODO"],
       "copy": "Why are you reading this? Stop it.",
       "related_articles": [501, 1801, 17203],
       "published": "2015-01-01T01:01:00.000Z",
@@ -83,10 +83,14 @@
  }
 ```
 
+##### Filters
+
+`if_modified_since=2015-01-01T01:01:00.000Z` conditional filtering for new entries
 
 ##### Status Codes
 
 * `200` if successful
+* `304` no modified entries
 
 #### Get an entry
 
@@ -102,7 +106,7 @@
   {
     "parent_id": 123,
     "headline": "Something Really Funny",
-    "author": "TODO",
+    "authors": ["TODO"],
     "copy": "Why are you reading this? Stop it.",
     "related_articles": [501, 1801, 17203],
     "published": "2015-01-01T01:01:00.000Z",
