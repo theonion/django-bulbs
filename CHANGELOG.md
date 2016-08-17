@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 3.11.2
+
+- Series detail page uses 3x1 graphic **onion only**
+
 ## Version 3.11.1
 
 - Changed series summary to anchor tag on video detail page
