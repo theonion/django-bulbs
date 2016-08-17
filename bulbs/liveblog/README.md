@@ -19,13 +19,13 @@
   "parent_id": 123,
   "headline": "Something Really Funny",
   "authors": ["TODO"],
-  "copy": "Why are you reading this? Stop it.",
-  "related_articles": [501, 1801, 17203],
+  "body": "Why are you reading this? Stop it.",
+  "recirc_content": [501, 1801, 17203],
   "published": "2015-01-01T01:01:00.000Z",
   "responses": [
     {
       "author": "TODO",
-      "copy": "Some more really interesting stuff you should read."
+      "body": "Some more really interesting stuff you should read."
     }
   ]
 }
@@ -55,13 +55,13 @@
       "parent_id": 123,
       "headline": "Something Really Funny",
       "authors": ["TODO"],
-      "copy": "Why are you reading this? Stop it.",
-      "related_articles": [501, 1801, 17203],
+      "body": "Why are you reading this? Stop it.",
+      "recirc_content": [501, 1801, 17203],
       "published": "2015-01-01T01:01:00.000Z",
       "responses": [
         {
           "author": "TODO",
-          "copy": "Some more really interesting stuff you should read."
+          "body": "Some more really interesting stuff you should read."
         }
       ]
     },
@@ -69,13 +69,13 @@
       "parent_id": 123,
       "headline": "Something Really Funny",
       "authors": ["TODO"],
-      "copy": "Why are you reading this? Stop it.",
-      "related_articles": [501, 1801, 17203],
+      "body": "Why are you reading this? Stop it.",
+      "recirc_content": [501, 1801, 17203],
       "published": "2015-01-01T01:01:00.000Z",
       "responses": [
         {
           "author": "TODO",
-          "copy": "Some more really interesting stuff you should read."
+          "body": "Some more really interesting stuff you should read."
         }
       ]
     }
@@ -107,13 +107,13 @@
     "parent_id": 123,
     "headline": "Something Really Funny",
     "authors": ["TODO"],
-    "copy": "Why are you reading this? Stop it.",
-    "related_articles": [501, 1801, 17203],
+    "body": "Why are you reading this? Stop it.",
+    "recirc_content": [501, 1801, 17203],
     "published": "2015-01-01T01:01:00.000Z",
     "responses": [
       {
         "author": "TODO",
-        "copy": "Some more really interesting stuff you should read."
+        "body": "Some more really interesting stuff you should read."
       }
     ]
   }
