@@ -2,7 +2,7 @@ VideoDetailSeriesMeta = function (seriesSlug) {
   this.seriesSlug = seriesSlug;
   this.$detailGrid = $('#detail-video-list');
   this.videohubBase = this.$detailGrid.data('videohub-base');
-  this.$seriesTitle = $('.series-title');
+  this.$seriesSummary = $('.series-summary');
   this.$seriesTitle = $('.series-title');
   this.$seriesImage = $('.series-image');
   this.$seriesEpisodes = $('.series-episodes');
@@ -22,6 +22,11 @@ VideoDetailSeriesMeta.prototype.seriesMetaFetched = function(data) {
         'html' : data.total_seasons + ' Seasons'
     }).insertBefore(this.$seriesEpisodes);
   }
+
+  var seriesUrl = 'http://' + this.$seriesSummary.attr('href') +
+                  '/series/' + this.seriesSlug;
+
+  this.$seriesSummary.attr('href', seriesUrl);
 
   this.$seriesEpisodes.html(data.total_episodes + ' Episodes');
 

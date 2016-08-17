@@ -2,6 +2,11 @@
 
 ## Development
 
+## Version 3.11.1
+
+- Changed series summary to anchor tag on video detail page
+
+
 ## Version 3.11.0
 
 - Added `super_features` field to `SpecialCoverage` model
