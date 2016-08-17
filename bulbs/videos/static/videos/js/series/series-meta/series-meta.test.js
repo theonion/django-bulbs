@@ -49,15 +49,26 @@ describe('SeriesMeta', function() {
       var expected = data.series_logo;
       expect(seriesLogoSrc).to.eql(expected);
     });
+  });
 
-    describe('not avclub', function () {
-      it('populates series logo w/ 3x1', function () {
-        $('body').append('<div class="onion-series-page">');
-        var seriesLogoSrc = $('.series-image img').attr('src');
-        var expected = data.series_logo;
-        expect(seriesLogoSrc).to.eql(expected);
-        $('.onion-series-page').remove();
-      });
+  describe('not avclub', function () {
+    it('populates series logo w/ 3x1', function () {
+      // setup
+      $('body').append('<div class="onion-series-page">');
+      data = {
+        series_logo: 'www.picture.com/regular-picture',
+        series_logo_3x1: 'www.picture.com/three-by-one'
+      };
+      TestHelper.stub(SeriesMeta.prototype, 'fetchSeriesMeta');
+      seriesMeta = new SeriesMeta();
+      seriesMeta.seriesMetaFetched(data);
+
+      var seriesLogoSrc = $('.series-image img').attr('src');
+      var expected = data.series_logo_3x1;
+      expect(seriesLogoSrc).to.eql(expected);
+
+      // cleanup
+      $('.onion-series-page').remove();
     });
   });
 });
