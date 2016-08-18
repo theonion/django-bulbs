@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 3.11.3
+
+- Change `op-social` classes in Instant Articles to `op-interactive`, per Facebook
+
 ## Version 3.11.2
 
 - Series detail page uses 3x1 graphic **onion only**
