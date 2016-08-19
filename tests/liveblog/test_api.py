@@ -1,15 +1,16 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 import json
 
 from model_mommy import mommy
 import six
 from six.moves.urllib.parse import urlencode
 
+from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.utils import timezone
 
-from bulbs.liveblog.models import LiveBlogEntry
-from bulbs.utils.test import BaseAPITestCase
+from bulbs.liveblog.models import LiveBlogEntry, LiveBlogResponse
+from bulbs.utils.test import BaseAPITestCase, make_content
 
 from example.testcontent.models import TestLiveBlog
 
@@ -31,26 +32,27 @@ class TestLiveBlogApi(BaseAPITestCase):
 
 class TestLiveBlogEntryApi(BaseAPITestCase):
 
-    def test_create(self):
+    def test_create_entry(self):
+        content = make_content(_quantity=3)
+        authors = mommy.make(get_user_model(), _quantity=2)
         liveblog = mommy.make(TestLiveBlog)
         data = {
             "liveblog": liveblog.id,
             "headline": "Something Really Funny",
-            "authors": [
-                # TODO
-            ],
+            "authors": [a.id for a in authors],
             "body": "Why are you reading this? Stop it.",
-            "recirc_content": [
-                # TODO
-            ],
-            "published": "2015-01-01T01:01:00Z",
-            # TODO
-            # "responses": [
-            #     {
-            #         "author": "TODO",
-            #         "body": "Some more really interesting stuff you should read."
-            #     }
-            # ]
+            "recirc_content": [c.id for c in content],
+            "published": "2015-01-02T03:04:05Z",
+            "responses": [
+                {
+                    "author": authors[0].id,
+                    "body": "First response"
+                },
+                {
+                    "author": authors[1].id,
+                    "body": "Second response"
+                }
+            ]
         }
         resp = self.api_client.post(reverse('liveblog-entry-list'),
                                     data=json.dumps(data),
@@ -63,7 +65,18 @@ class TestLiveBlogEntryApi(BaseAPITestCase):
         self.assertEqual(entry.liveblog, liveblog)
         self.assertEqual(entry.headline, data['headline'])
         self.assertEqual(entry.body, data['body'])
-        # TODO: Check more fields
+        self.assertEqual(entry.published, datetime(2015, 1, 2, 3, 4, 5, tzinfo=timezone.utc))
+        six.assertCountEqual(self, entry.authors.all(), authors)
+        six.assertCountEqual(self, entry.recirc_content.all(), content)
+
+        responses = entry.responses.all()
+        self.assertEqual(len(responses), 2)
+        self.assertEqual(responses[0].body, 'First response')
+        self.assertEqual(responses[0].author, authors[0])
+        self.assertEqual(responses[0].ordering, 0)
+        self.assertEqual(responses[1].body, 'Second response')
+        self.assertEqual(responses[1].author, authors[1])
+        self.assertEqual(responses[1].ordering, 1)
 
     def test_list_empty(self):
         resp = self.api_client.get(reverse('liveblog-entry-list'))
@@ -106,33 +119,36 @@ class TestLiveBlogEntryApi(BaseAPITestCase):
         resp = self.api_client.get(reverse('liveblog-entry-list') + '?if_modified_since=ABC')
         self.assertEqual(resp.status_code, 400)
 
-    def test_detail_get(self):
+    def test_get_entry(self):
         entry = mommy.make(LiveBlogEntry)
         resp = self.api_client.get(reverse('liveblog-entry-detail', kwargs={'pk': entry.id}))
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data['id'], entry.id)
 
-    def test_detail_update(self):
+    def test_update_entry(self):
+        content = make_content()
+        author = mommy.make(get_user_model())
         liveblog = mommy.make(TestLiveBlog)
         entry = mommy.make(LiveBlogEntry, liveblog=liveblog)
+        orig_response = mommy.make(LiveBlogResponse, entry=entry, author=author, body='Original',
+                                   ordering=0)
         data = {
             "liveblog": liveblog.id,
             "headline": "Updated Headline",
-            "authors": [
-                # TODO
-            ],
+            "authors": [author.id],
             "body": "Updated Body",
-            "recirc_content": [
-                # TODO
-            ],
-            "published": "2015-02-02T02:02:00Z",
-            # TODO
-            # "responses": [
-            #     {
-            #         "author": "TODO",
-            #         "body": "Some more really interesting stuff you should read."
-            #     }
-            # ]
+            "recirc_content": [content.id],
+            "published": "2015-02-02T02:02:02Z",
+            "responses": [
+                {
+                    "author": author.id,
+                    "body": "New Response 1"
+                },
+                {
+                    "author": author.id,
+                    "body": "New Response 2"
+                }
+            ]
         }
         self.give_permissions()
         resp = self.api_client.put(reverse('liveblog-entry-detail', kwargs={'pk': entry.id}),
@@ -142,4 +158,24 @@ class TestLiveBlogEntryApi(BaseAPITestCase):
         self.assertEqual(resp.data['id'], entry.id)
         self.assertEqual(resp.data['headline'], 'Updated Headline')
         entry.refresh_from_db()
+        self.assertEqual(entry.liveblog, liveblog)
         self.assertEqual(entry.headline, 'Updated Headline')
+        self.assertEqual(entry.body, data['body'])
+        self.assertEqual(entry.published, datetime(2015, 2, 2, 2, 2, 2, tzinfo=timezone.utc))
+        six.assertCountEqual(self, entry.authors.all(), [author])
+        six.assertCountEqual(self, entry.recirc_content.all(), [content])
+
+        responses = entry.responses.all()
+        self.assertEqual(len(responses), 2)
+
+        self.assertEqual(responses[0].body, 'New Response 1')
+        self.assertEqual(responses[0].author, author)
+        self.assertEqual(responses[0].ordering, 0)
+
+        self.assertEqual(responses[1].body, 'New Response 2')
+        self.assertEqual(responses[1].author, author)
+        self.assertEqual(responses[1].ordering, 1)
+
+        # Verify original response was deleted
+        with self.assertRaises(LiveBlogResponse.DoesNotExist):
+            orig_response.refresh_from_db()

@@ -8,32 +8,32 @@ from django.conf import settings
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('content', '0012_auto_20160615_1605'),
-        ('testcontent', '0011_testliveblog'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+        ('testcontent', '0011_testliveblog'),
+        ('content', '0012_auto_20160615_1605'),
     ]
 
     operations = [
         migrations.CreateModel(
             name='LiveBlogEntry',
             fields=[
-                ('id', models.AutoField(serialize=False, verbose_name='ID', auto_created=True, primary_key=True)),
-                ('published', models.DateTimeField(blank=True, null=True)),
+                ('id', models.AutoField(auto_created=True, primary_key=True, verbose_name='ID', serialize=False)),
+                ('published', models.DateTimeField(null=True, blank=True)),
                 ('headline', models.CharField(max_length=255)),
                 ('body', models.TextField(blank=True)),
                 ('authors', models.ManyToManyField(to=settings.AUTH_USER_MODEL)),
-                ('liveblog', models.ForeignKey(related_name='entries', to='testcontent.TestLiveBlog')),
-                ('recirc_content', models.ManyToManyField(related_name='liveblog_entry_recirc', to='content.Content')),
+                ('liveblog', models.ForeignKey(to='testcontent.TestLiveBlog', related_name='entries')),
+                ('recirc_content', models.ManyToManyField(to='content.Content', related_name='liveblog_entry_recirc')),
             ],
         ),
         migrations.CreateModel(
-            name='Response',
+            name='LiveBlogResponse',
             fields=[
-                ('id', models.AutoField(serialize=False, verbose_name='ID', auto_created=True, primary_key=True)),
-                ('ordering', models.IntegerField(blank=True, default=None, null=True)),
+                ('id', models.AutoField(auto_created=True, primary_key=True, verbose_name='ID', serialize=False)),
+                ('ordering', models.IntegerField(null=True, blank=True, default=None)),
                 ('body', models.TextField(blank=True)),
                 ('author', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
-                ('entry', models.ForeignKey(related_name='responses', to='liveblog.LiveBlogEntry')),
+                ('entry', models.ForeignKey(to='liveblog.LiveBlogEntry', related_name='responses')),
             ],
         ),
     ]

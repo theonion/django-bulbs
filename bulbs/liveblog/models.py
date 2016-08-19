@@ -33,7 +33,7 @@ class LiveBlogEntry(models.Model):  # TODO: Or Indexable?
     recirc_content = models.ManyToManyField(Content, related_name='liveblog_entry_recirc')
 
 
-class Response(models.Model):  # TODO: Or Indexable?
+class LiveBlogResponse(models.Model):  # TODO: Or Indexable?
 
     entry = models.ForeignKey(LiveBlogEntry, related_name='responses')
     ordering = models.IntegerField(blank=True, null=True, default=None)
