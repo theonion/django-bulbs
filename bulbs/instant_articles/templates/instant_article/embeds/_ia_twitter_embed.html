@@ -1,6 +1,8 @@
 {% spaceless %}
 <figure class="op-interactive">
-  {{ blockquote|safe }}
-  <script async="" src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+  <iframe>
+    {{ blockquote|safe }}
+    <script async="" src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+  </iframe>
 </figure>
 {% endspaceless %}
