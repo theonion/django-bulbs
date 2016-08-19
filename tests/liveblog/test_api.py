@@ -15,21 +15,6 @@ from bulbs.utils.test import BaseAPITestCase, make_content
 from example.testcontent.models import TestLiveBlog
 
 
-class TestLiveBlogApi(BaseAPITestCase):
-
-    def test_create(self):
-        pass
-
-    def test_update(self):
-        pass
-
-    def test_get(self):
-        pass
-
-    def test_list(self):
-        pass
-
-
 class TestLiveBlogEntryApi(BaseAPITestCase):
 
     def test_create_entry(self):
