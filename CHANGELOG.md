@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 3.11.4
+
+- Instant Articles: Wrap twitter embeds in an `<iframe>`
+
 ## Version 3.11.3
 
 - Change `op-social` classes in Instant Articles to `op-interactive`, per Facebook
