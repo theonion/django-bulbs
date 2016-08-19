@@ -6,6 +6,7 @@ from elasticsearch_dsl import field
 from djbetty.fields import ImageField
 
 from bulbs.content.models import Content, Tag, ElasticsearchImageField
+from bulbs.liveblog.models import AbstractLiveBlog
 from bulbs.reading_list.mixins import ReadingListMixin
 from bulbs.recirc.mixins import BaseQueryMixin
 from bulbs.videos.mixins import VideoMixin
@@ -104,3 +105,7 @@ class TestVideoContentObj(Content, VideoMixin):
 
     def get_absolute_url(self):
         return '/detail/%s/' % self.pk
+
+
+class TestLiveBlog(Content, AbstractLiveBlog):
+    """Example LiveBlog implementation"""
