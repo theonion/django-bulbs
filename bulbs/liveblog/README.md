@@ -16,7 +16,7 @@
 
 ```json
 {
-  "parent_id": 123,
+  "liveblog": 123,
   "headline": "Something Really Funny",
   "authors": ["TODO"],
   "body": "Why are you reading this? Stop it.",
@@ -52,7 +52,7 @@
   "previous": null,
   "results": [
     {
-      "parent_id": 123,
+      "liveblog": 123,
       "headline": "Something Really Funny",
       "authors": ["TODO"],
       "body": "Why are you reading this? Stop it.",
@@ -66,7 +66,7 @@
       ]
     },
     {
-      "parent_id": 123,
+      "liveblog": 123,
       "headline": "Something Really Funny",
       "authors": ["TODO"],
       "body": "Why are you reading this? Stop it.",
@@ -104,7 +104,7 @@
 
 ```json
   {
-    "parent_id": 123,
+    "liveblog": 123,
     "headline": "Something Really Funny",
     "authors": ["TODO"],
     "body": "Why are you reading this? Stop it.",
@@ -123,3 +123,52 @@
 
 * `200` if successful
 * `404` if entry doesn't exist
+
+
+#### Update an entry
+
+##### PUT
+
+* `200` if successful
+* `404` if entry doesn't exist
+
+```
+/api/v1/liveblog/entry/<:entry_id>/
+```
+
+##### Body
+```
+  {
+    "liveblog": 123,
+    "headline": "Something Really Funny",
+    "authors": ["TODO"],
+    "body": "Why are you reading this? Stop it.",
+    "recirc_content": [501, 1801, 17203],
+    "published": "2015-01-01T01:01:00.000Z",
+    "responses": [
+      {
+        "author": "TODO",
+        "body": "Some more really interesting stuff you should read."
+      }
+    ]
+  }
+```
+
+##### Response
+
+```json
+  {
+    "liveblog": 123,
+    "headline": "Something Really Funny",
+    "authors": ["TODO"],
+    "body": "Why are you reading this? Stop it.",
+    "recirc_content": [501, 1801, 17203],
+    "published": "2015-01-01T01:01:00.000Z",
+    "responses": [
+      {
+        "author": "TODO",
+        "body": "Some more really interesting stuff you should read."
+      }
+    ]
+  }
+```

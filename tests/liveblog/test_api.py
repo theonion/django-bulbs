@@ -65,12 +65,6 @@ class TestLiveBlogEntryApi(BaseAPITestCase):
         self.assertEqual(entry.body, data['body'])
         # TODO: Check more fields
 
-    def test_update(self):
-        pass
-
-    def test_get(self):
-        pass
-
     def test_list_empty(self):
         resp = self.api_client.get(reverse('liveblog-entry-list'))
         self.assertEqual(resp.status_code, 200)
@@ -111,3 +105,41 @@ class TestLiveBlogEntryApi(BaseAPITestCase):
     def test_list_invalid_if_modified_since(self):
         resp = self.api_client.get(reverse('liveblog-entry-list') + '?if_modified_since=ABC')
         self.assertEqual(resp.status_code, 400)
+
+    def test_detail_get(self):
+        entry = mommy.make(LiveBlogEntry)
+        resp = self.api_client.get(reverse('liveblog-entry-detail', kwargs={'pk': entry.id}))
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data['id'], entry.id)
+
+    def test_detail_update(self):
+        liveblog = mommy.make(TestLiveBlog)
+        entry = mommy.make(LiveBlogEntry, liveblog=liveblog)
+        data = {
+            "liveblog": liveblog.id,
+            "headline": "Updated Headline",
+            "authors": [
+                # TODO
+            ],
+            "body": "Updated Body",
+            "recirc_content": [
+                # TODO
+            ],
+            "published": "2015-02-02T02:02:00Z",
+            # TODO
+            # "responses": [
+            #     {
+            #         "author": "TODO",
+            #         "body": "Some more really interesting stuff you should read."
+            #     }
+            # ]
+        }
+        self.give_permissions()
+        resp = self.api_client.put(reverse('liveblog-entry-detail', kwargs={'pk': entry.id}),
+                                   data=json.dumps(data),
+                                   content_type="application/json")
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data['id'], entry.id)
+        self.assertEqual(resp.data['headline'], 'Updated Headline')
+        entry.refresh_from_db()
+        self.assertEqual(entry.headline, 'Updated Headline')
