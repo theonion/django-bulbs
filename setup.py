@@ -29,7 +29,7 @@ requires = [
     "djangorestframework-csv==1.4.1",
     "pageview_client==1.0.4",
     "djangorestframework==3.1.1",
-   "drf-extensions==0.2.8",
+    "drf-extensions==0.2.8",
     "djes>=0.1.109",
     "drf-nested-routers==0.11.1",
     "firebase-token-generator==1.3.2",
