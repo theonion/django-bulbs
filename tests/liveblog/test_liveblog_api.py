@@ -67,12 +67,12 @@ class TestLiveBlogEntryApi(BaseAPITestCase):
         self.assertEqual(1, liveblog.entries.count())
         self.assertEqual(entry, liveblog.entries.first())
 
-    def test_list_empty(self):
+    def test_get_list_empty(self):
         resp = self.api_client.get(reverse('liveblog-entry-list'))
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data['count'], 0)
 
-    def test_list(self):
+    def test_get_list(self):
         liveblog = mommy.make(TestLiveBlog)
         entries = mommy.make(LiveBlogEntry, liveblog=liveblog, _quantity=3)
         resp = self.api_client.get(reverse('liveblog-entry-list'))
@@ -81,32 +81,6 @@ class TestLiveBlogEntryApi(BaseAPITestCase):
         six.assertCountEqual(self,
                              [e['id'] for e in resp.data['results']],
                              [e.id for e in entries])
-
-    def test_list_if_modified_since(self):
-        now = timezone.now()
-        liveblog = mommy.make(TestLiveBlog)
-        entries = [mommy.make(LiveBlogEntry, liveblog=liveblog, published=(now + timedelta(days=i)))
-                   for i in range(5)]
-
-        def check(days, expected_entries, expected_status_code=200):
-            when = now + timedelta(days=days)
-            resp = self.api_client.get(
-                reverse('liveblog-entry-list') + '?{}'.format(
-                    urlencode({'if_modified_since': when.isoformat()})))
-
-            self.assertEqual(resp.status_code, 200)
-            self.assertEqual(resp.data['count'], len(expected_entries))
-            self.assertEqual([e['id'] for e in resp.data['results']],
-                             [e.id for e in expected_entries])
-
-        check(days=-1, expected_entries=entries)
-        check(days=0, expected_entries=entries[1:])
-        check(days=3, expected_entries=entries[4:])
-        check(days=4, expected_entries=[], expected_status_code=304)
-
-    def test_list_invalid_if_modified_since(self):
-        resp = self.api_client.get(reverse('liveblog-entry-list') + '?if_modified_since=ABC')
-        self.assertEqual(resp.status_code, 400)
 
     def test_get_entry(self):
         entry = mommy.make(LiveBlogEntry)
@@ -172,3 +146,50 @@ class TestLiveBlogEntryApi(BaseAPITestCase):
         # Verify backref
         self.assertEqual(1, liveblog.entries.count())
         self.assertEqual(entry, liveblog.entries.first())
+
+    def test_liveblog_filter(self):
+        liveblogs = mommy.make(TestLiveBlog, _quantity=5)
+        entries = [mommy.make(LiveBlogEntry, liveblog=liveblog, _quantity=2)
+                   for liveblog in liveblogs]
+        resp = self.api_client.get(reverse('liveblog-entry-list') +
+                                   '?liveblog_id={}'.format(liveblogs[0].id))
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data['count'], 2)
+        six.assertCountEqual(self,
+                             [e['id'] for e in resp.data['results']],
+                             [e.id for e in entries[0]])
+
+
+class TestPublicLiveBlogEntryApi(BaseAPITestCase):
+
+    def test_read_only(self):
+        for method in [self.api_client.post,
+                       self.api_client.put]:
+            self.assertEquals(405, method(reverse('public-liveblog-entry'),
+                                          content_type="application/json").status_code)
+
+    def test_list_if_modified_since(self):
+        now = timezone.now()
+        liveblog = mommy.make(TestLiveBlog)
+        entries = [mommy.make(LiveBlogEntry, liveblog=liveblog, published=(now + timedelta(days=i)))
+                   for i in range(5)]
+
+        def check(days, expected_entries, expected_status_code=200):
+            when = now + timedelta(days=days)
+            resp = self.api_client.get(
+                reverse('public-liveblog-entry') + '?{}'.format(
+                    urlencode({'if_modified_since': when.isoformat()})))
+
+            self.assertEqual(resp.status_code, 200)
+            self.assertEqual(resp.data['count'], len(expected_entries))
+            self.assertEqual([e['id'] for e in resp.data['results']],
+                             [e.id for e in expected_entries])
+
+        check(days=-1, expected_entries=entries)
+        check(days=0, expected_entries=entries[1:])
+        check(days=3, expected_entries=entries[4:])
+        check(days=4, expected_entries=[], expected_status_code=304)
+
+    def test_list_invalid_if_modified_since(self):
+        resp = self.api_client.get(reverse('public-liveblog-entry') + '?if_modified_since=ABC')
+        self.assertEqual(resp.status_code, 400)

@@ -23,3 +23,15 @@ class IfModifiedSinceFilterBackend(filters.BaseFilterBackend):
                 raise ParseError('Bad "if_modified_since" date: {}'.format(if_modified_since))
         else:
             return queryset
+
+
+class LiveBlogFilterBackend(filters.BaseFilterBackend):
+    """
+    Optionally include only entries belonging to specified LiveBlog.
+    """
+    def filter_queryset(self, request, queryset, view):
+        liveblog_id = request.GET.get('liveblog_id')
+        if liveblog_id:
+            queryset = queryset.filter(liveblog_id=liveblog_id)
+
+        return queryset

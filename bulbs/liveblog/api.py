@@ -1,9 +1,8 @@
-# from django.conf.urls import url
+from django.conf.urls import url
 
 from rest_framework import routers
 
-# from bulbs.liveblog.views import RelationViewSet
-from bulbs.liveblog.viewsets import LiveBlogEntryViewSet
+from bulbs.liveblog.viewsets import LiveBlogEntryViewSet, PublicLiveBlogEntryViewSet
 
 api_v1_router = routers.DefaultRouter()
 api_v1_router.register(
@@ -12,8 +11,10 @@ api_v1_router.register(
     base_name="liveblog-entry"
 )
 
-# TODO
 urlpatterns = [
+    url(r"api/v1/liveblog/public/entry/?$",
+        PublicLiveBlogEntryViewSet.as_view({'get': 'list'}),
+        name="public-liveblog-entry"),
 ]
 
 urlpatterns += api_v1_router.urls
