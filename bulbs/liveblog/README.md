@@ -1,49 +1,43 @@
-# Live Blog
+# Live Blog Entry API
 
-## API (v1) Documentation
-
- - [Entry](#entry)
-
-### Entry
-
-#### Create a new entry (POST)
+## Create new entry (POST)
 
 ```
 /api/v1/liveblog/entry/
 ```
 
-##### Body
+### Body
 
 ```json
 {
   "liveblog": 123,
   "headline": "Something Really Funny",
-  "authors": ["TODO"],
+  "authors": [50, 57],
   "body": "Why are you reading this? Stop it.",
   "recirc_content": [501, 1801, 17203],
   "published": "2015-01-01T01:01:00.000Z",
   "responses": [
     {
-      "author": "TODO",
+      "author": 85,
       "body": "Some more really interesting stuff you should read."
     }
   ]
 }
 ```
 
-##### Status Codes
+### Status Codes
 
 - `201` if successful
 
-#### Get All Entries
+## Get All Entries
 
 **GET:**
 
 ```
-/api/v1/liveblog/entries/<liveblog_id>/
+/api/v1/liveblog/entry/<liveblog_id>/
 ```
 
-##### Body
+### Body
 
 ```json
 {
@@ -54,13 +48,13 @@
     {
       "liveblog": 123,
       "headline": "Something Really Funny",
-      "authors": ["TODO"],
+      "authors": [50, 57],
       "body": "Why are you reading this? Stop it.",
       "recirc_content": [501, 1801, 17203],
       "published": "2015-01-01T01:01:00.000Z",
       "responses": [
         {
-          "author": "TODO",
+          "author": 85,
           "body": "Some more really interesting stuff you should read."
         }
       ]
@@ -68,13 +62,13 @@
     {
       "liveblog": 123,
       "headline": "Something Really Funny",
-      "authors": ["TODO"],
+      "authors": [50, 57],
       "body": "Why are you reading this? Stop it.",
       "recirc_content": [501, 1801, 17203],
       "published": "2015-01-01T01:01:00.000Z",
       "responses": [
         {
-          "author": "TODO",
+          "author": 85,
           "body": "Some more really interesting stuff you should read."
         }
       ]
@@ -83,51 +77,51 @@
  }
 ```
 
-##### Filters
+### Filters
 
-`if_modified_since=2015-01-01T01:01:00.000Z` conditional filtering for new entries
+`if_modified_since=2015-01-01T01:01:00.000Z` Conditional filtering to return all entries published after specified ISO 8601 date/time.
 
-##### Status Codes
+### Status Codes
 
-* `200` if successful
+* `200` if successful (modified entries found)
 * `304` no modified entries
 
-#### Get an entry
+## Get single entry
 
-##### GET
+### GET
 
 ```
 /api/v1/liveblog/entry/<:entry_id>/
 ```
 
-##### Response
+### Response
 
 ```json
   {
     "liveblog": 123,
     "headline": "Something Really Funny",
-    "authors": ["TODO"],
+    "authors": [50, 57],
     "body": "Why are you reading this? Stop it.",
     "recirc_content": [501, 1801, 17203],
     "published": "2015-01-01T01:01:00.000Z",
     "responses": [
       {
-        "author": "TODO",
+        "author": 60,
         "body": "Some more really interesting stuff you should read."
       }
     ]
   }
 ```
 
-##### Status Codes
+### Status Codes
 
 * `200` if successful
 * `404` if entry doesn't exist
 
 
-#### Update an entry
+## Update entry
 
-##### PUT
+### PUT
 
 * `200` if successful
 * `404` if entry doesn't exist
@@ -136,37 +130,37 @@
 /api/v1/liveblog/entry/<:entry_id>/
 ```
 
-##### Body
+### Body
 ```
   {
     "liveblog": 123,
     "headline": "Something Really Funny",
-    "authors": ["TODO"],
+    "authors": [50, 57],
     "body": "Why are you reading this? Stop it.",
     "recirc_content": [501, 1801, 17203],
     "published": "2015-01-01T01:01:00.000Z",
     "responses": [
       {
-        "author": "TODO",
+        "author": 85,
         "body": "Some more really interesting stuff you should read."
       }
     ]
   }
 ```
 
-##### Response
+### Response
 
 ```json
   {
     "liveblog": 123,
     "headline": "Something Really Funny",
-    "authors": ["TODO"],
+    "authors": [50, 57],
     "body": "Why are you reading this? Stop it.",
     "recirc_content": [501, 1801, 17203],
     "published": "2015-01-01T01:01:00.000Z",
     "responses": [
       {
-        "author": "TODO",
+        "author": 85,
         "body": "Some more really interesting stuff you should read."
       }
     ]

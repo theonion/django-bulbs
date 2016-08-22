@@ -7,7 +7,7 @@ from bulbs.liveblog.viewsets import LiveBlogEntryViewSet
 
 api_v1_router = routers.DefaultRouter()
 api_v1_router.register(
-    r"entry",
+    r"liveblog/entry",
     LiveBlogEntryViewSet,
     base_name="liveblog-entry"
 )

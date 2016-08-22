@@ -123,7 +123,11 @@ def redirect_unpublished_to_login_or_404(request, next_url, next_params=None):
 
 
 def import_class(name):
-    # TODO: Add better error messages
+    """Load class from fully-qualified python module name.
+
+    ex: import_class('bulbs.content.models.Content')
+    """
+
     module, _, klass = name.rpartition('.')
     mod = import_module(module)
     return getattr(mod, klass)
