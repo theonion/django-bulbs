@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 3.11.6
+
+- Use share_url context variable from onion views instead of external url
+
 ## Version 3.11.4
 
 - Instant Articles: Wrap twitter embeds in an `<iframe>`
