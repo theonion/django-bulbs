@@ -2,6 +2,18 @@
 
 ## Development
 
+## Version 3.11.4
+
+- Instant Articles: Wrap twitter embeds in an `<iframe>`
+
+## Version 3.11.3
+
+- Change `op-social` classes in Instant Articles to `op-interactive`, per Facebook
+
+## Version 3.11.2
+
+- Series detail page uses 3x1 graphic **onion only**
+
 ## Version 3.11.1
 
 - Changed series summary to anchor tag on video detail page

@@ -32,8 +32,10 @@ SeriesMeta.prototype.seriesMetaFetched = function(data) {
   this.$seriesTitle.html(data.series_name);
 
   if (data.series_logo) {
+    var isOnion = $('.onion-series-page').length > 0;
+    var logo = isOnion  ? data.series_logo_3x1 : data.series_logo;
     $('<img>', {
-        'src' : data.series_logo,
+        'src' : logo,
         'alt' : data.series_name
     }).appendTo(this.$seriesImage);
   }
