@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 3.12.0
+
+- Add LiveBlog API
+
 ## Version 3.11.4
 
 - Instant Articles: Wrap twitter embeds in an `<iframe>`
