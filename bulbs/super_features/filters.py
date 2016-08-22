@@ -10,8 +10,8 @@ def filter_status(queryset, value):
     if not value:
         return queryset
     else:
-        return [x for x in SUPERFEATURE_MODEL.objects.filter(parent__isnull=True)
-                if x.status.lower() == value.lower()]
+        return [sf for sf in queryset
+                if sf.status.lower() == value.lower()]
 
 
 class SuperFeatureFilter(filters.FilterSet):

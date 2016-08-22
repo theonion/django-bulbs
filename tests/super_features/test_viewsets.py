@@ -90,7 +90,6 @@ class SuperFeatureViewsetsTestCase(BaseAPITestCase):
         self.assertEqual(response.data['results'][0]['title'], self.parent.title)
 
     def test_super_feature_listing_filtering(self):
-        import pdb; pdb.set_trace()
         ordering_url = self.list_url + "?status=Draft"
         response = self.api_client.get(ordering_url)
 
