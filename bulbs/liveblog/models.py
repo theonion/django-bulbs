@@ -18,7 +18,7 @@ class AbstractLiveBlog(models.Model):
         abstract = True
 
 
-class LiveBlogEntry(models.Model):  # TODO: Or Indexable?
+class LiveBlogEntry(models.Model):
 
     # Must import class (using string values for ForeignKeys doesn't work)
     liveblog = models.ForeignKey(get_liveblog_model(), related_name='entries')
@@ -31,7 +31,7 @@ class LiveBlogEntry(models.Model):  # TODO: Or Indexable?
     recirc_content = models.ManyToManyField(Content, related_name='liveblog_entry_recirc')
 
 
-class LiveBlogResponse(models.Model):  # TODO: Or Indexable?
+class LiveBlogResponse(models.Model):
 
     entry = models.ForeignKey(LiveBlogEntry, related_name='responses')
     ordering = models.IntegerField(blank=True, null=True, default=None)
