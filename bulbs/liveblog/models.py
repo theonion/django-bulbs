@@ -6,8 +6,6 @@ from bulbs.content.models import Content
 from bulbs.liveblog.utils import (get_liveblog_author_model,
                                   get_liveblog_model)
 
-from bulbs.utils.methods import import_class
-
 
 class AbstractLiveBlog(models.Model):
     """Base mixin inherited by each property's concrete LiveBlog implementation (along with base
@@ -23,7 +21,7 @@ class AbstractLiveBlog(models.Model):
 class LiveBlogEntry(models.Model):  # TODO: Or Indexable?
 
     # Must import class (using string values for ForeignKeys doesn't work)
-    liveblog = models.ForeignKey(import_class(get_liveblog_model()), related_name='entries')
+    liveblog = models.ForeignKey(get_liveblog_model(), related_name='entries')
 
     published = models.DateTimeField(blank=True, null=True)
     authors = models.ManyToManyField(get_liveblog_author_model())
