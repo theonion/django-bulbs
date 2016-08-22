@@ -10,6 +10,9 @@ def filter_status(queryset, value):
     if not value:
         return queryset
     else:
+        # NOTE: this list comprehension is happening because
+        # status is a property, not a model field
+        # see: http://stackoverflow.com/a/1205416
         return [sf for sf in queryset
                 if sf.status.lower() == value.lower()]
 
