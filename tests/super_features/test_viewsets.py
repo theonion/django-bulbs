@@ -1,4 +1,5 @@
 from django.core.urlresolvers import reverse
+from django.utils import timezone
 
 from bulbs.super_features.models import (
     BaseSuperFeature, GUIDE_TO_HOMEPAGE, GUIDE_TO_ENTRY
@@ -50,6 +51,7 @@ class SuperFeatureViewsetsTestCase(BaseAPITestCase):
             title="ZZZZZZZ",
             notes="what",
             superfeature_type=GUIDE_TO_HOMEPAGE,
+            published=timezone.now(),
             data={
                 "sponsor_text": "Fancy Feast",
                 "sponsor_image": {"id": 1}
@@ -82,6 +84,14 @@ class SuperFeatureViewsetsTestCase(BaseAPITestCase):
 
     def test_super_feature_listing_search(self):
         ordering_url = self.list_url + "?search=A Guide"
+        response = self.api_client.get(ordering_url)
+
+        self.assertEqual(len(response.data['results']), 1)
+        self.assertEqual(response.data['results'][0]['title'], self.parent.title)
+
+    def test_super_feature_listing_filtering(self):
+        import pdb; pdb.set_trace()
+        ordering_url = self.list_url + "?status=Draft"
         response = self.api_client.get(ordering_url)
 
         self.assertEqual(len(response.data['results']), 1)
