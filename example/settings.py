@@ -174,4 +174,3 @@ WWW_URL = "www.theonion.com"
 # LiveBlog
 BULBS_LIVEBLOG_MODEL = 'example.testcontent.models.TestLiveBlog'
 BULBS_LIVEBLOG_SERIALIZER = 'example.testcontent.serializers.TestLiveBlogSerializer'
-# BULBS_LIVEBLOG_AUTHOR_MODEL
