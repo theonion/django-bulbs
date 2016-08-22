@@ -4,12 +4,14 @@ from __future__ import unicode_literals
 from django.db import migrations, models
 from django.conf import settings
 
+from bulbs.liveblog.utils import get_liveblog_author_model
+
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('testcontent', '0011_testliveblog'),
+        migrations.swappable_dependency(get_liveblog_author_model()),
+        migrations.swappable_dependency(settings.BULBS_LIVEBLOG_MODEL),
         ('content', '0012_auto_20160615_1605'),
     ]
 
@@ -21,8 +23,8 @@ class Migration(migrations.Migration):
                 ('published', models.DateTimeField(null=True, blank=True)),
                 ('headline', models.CharField(max_length=255)),
                 ('body', models.TextField(blank=True)),
-                ('authors', models.ManyToManyField(to=settings.AUTH_USER_MODEL)),
-                ('liveblog', models.ForeignKey(to='testcontent.TestLiveBlog', related_name='entries')),
+                ('authors', models.ManyToManyField(to=get_liveblog_author_model())),
+                ('liveblog', models.ForeignKey(to=settings.BULBS_LIVEBLOG_MODEL, related_name='entries')),
                 ('recirc_content', models.ManyToManyField(to='content.Content', related_name='liveblog_entry_recirc')),
             ],
         ),
@@ -32,7 +34,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, verbose_name='ID', serialize=False)),
                 ('ordering', models.IntegerField(null=True, blank=True, default=None)),
                 ('body', models.TextField(blank=True)),
-                ('author', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('author', models.ForeignKey(to=get_liveblog_author_model())),
                 ('entry', models.ForeignKey(to='liveblog.LiveBlogEntry', related_name='responses')),
             ],
         ),

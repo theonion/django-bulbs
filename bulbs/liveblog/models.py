@@ -1,10 +1,8 @@
+from django.conf import settings
 from django.db import models
 
-# from djes.models import Indexable
-
 from bulbs.content.models import Content
-from bulbs.liveblog.utils import (get_liveblog_author_model,
-                                  get_liveblog_model)
+from bulbs.liveblog.utils import get_liveblog_author_model
 
 
 class AbstractLiveBlog(models.Model):
@@ -20,8 +18,7 @@ class AbstractLiveBlog(models.Model):
 
 class LiveBlogEntry(models.Model):
 
-    # Must import class (using string values for ForeignKeys doesn't work)
-    liveblog = models.ForeignKey(get_liveblog_model(), related_name='entries')
+    liveblog = models.ForeignKey(settings.BULBS_LIVEBLOG_MODEL, related_name='entries')
 
     published = models.DateTimeField(blank=True, null=True)
     authors = models.ManyToManyField(get_liveblog_author_model())
