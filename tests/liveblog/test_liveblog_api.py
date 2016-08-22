@@ -63,6 +63,10 @@ class TestLiveBlogEntryApi(BaseAPITestCase):
         self.assertEqual(responses[1].author, authors[1])
         self.assertEqual(responses[1].ordering, 1)
 
+        # Verify backref
+        self.assertEqual(1, liveblog.entries.count())
+        self.assertEqual(entry, liveblog.entries.first())
+
     def test_list_empty(self):
         resp = self.api_client.get(reverse('liveblog-entry-list'))
         self.assertEqual(resp.status_code, 200)
@@ -164,3 +168,7 @@ class TestLiveBlogEntryApi(BaseAPITestCase):
         # Verify original response was deleted
         with self.assertRaises(LiveBlogResponse.DoesNotExist):
             orig_response.refresh_from_db()
+
+        # Verify backref
+        self.assertEqual(1, liveblog.entries.count())
+        self.assertEqual(entry, liveblog.entries.first())
