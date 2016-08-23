@@ -1,3 +1,5 @@
+from django.shortcuts import get_object_or_404
+
 from rest_framework import views, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
@@ -19,3 +21,24 @@ class RelationViewSet(views.APIView):
         result = SUPERFEATURE_PARTIAL_SERIALIZER(children, many=True)
 
         return Response(result.data, status=status.HTTP_200_OK)
+
+
+class SetChildrenDatesViewSet(views.APIView):
+
+    permission_classes = (IsAdminUser, CanEditContent,)
+
+    def put(self, request, pk):
+        parent = get_object_or_404(SUPERFEATURE_MODEL, pk=pk)
+
+        if not parent.is_published:
+            return Response(
+                {'detail': 'Parent publish date is not set'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        children = SUPERFEATURE_MODEL.objects.filter(parent__id=pk)
+        for child in children:
+            child.published = parent.published
+            child.save()
+
+        return Response(status=status.HTTP_200_OK)

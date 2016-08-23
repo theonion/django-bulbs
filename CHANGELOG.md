@@ -2,6 +2,15 @@
 
 ## Development
 
+## Version 3.11.9
+
+- Updated `GuideToParentSerializer` and `GuideToChildSerializer`
+- Changed `super-feature/:id/set-children-dates` from a `POST` to a `PUT`
+
+## Version 3.11.8
+
+- Added `super-feature/:id/set-children-dates` endpoint to set all children publish dates to its parent
+
 ## Version 3.11.7
 
 - Add `?status` filter to the Super Feature viewset
