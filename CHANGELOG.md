@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 3.11.7
+
+- Add `?status` filter to the Super Feature viewset
+
 ## Version 3.11.6
 
 - Use share_url context variable from onion views instead of external url
