@@ -42,11 +42,11 @@ class VideoRedirectViewTestCase(TestCase):
 
     def test_choose_video_for_redirect_chooses_first_video(self):
         videos = [self.older_video, self.newer_video]
-        self.assertEqual(self.view.choose_video_for_redirect(videos), self.older_video)
+        self.assertEqual(self.view.temporary_workaround_to_choose_from_duplicate_videos(videos), self.older_video)
 
     def test_choose_for_redirect_chooses_none(self):
         videos = []
-        self.assertEqual(self.view.choose_video_for_redirect(videos), None)
+        self.assertEqual(self.view.temporary_workaround_to_choose_from_duplicate_videos(videos), None)
 
     def test_get_videos_for_redirect_gets_videos_for_videohub_ref_id(self):
         self.assertSequenceEqual(self.view.get_videos_for_redirect('4382'), [self.newer_video, self.older_video])
