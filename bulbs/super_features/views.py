@@ -23,6 +23,17 @@ class RelationViewSet(views.APIView):
         return Response(result.data, status=status.HTTP_200_OK)
 
 
+class RelationOrderingViewSet(views.APIView):
+
+    permission_classes = (IsAdminUser, CanEditContent,)
+
+    def put(self, request, pk):
+        parent = get_object_or_404(SUPERFEATURE_MODEL, pk=pk)
+        children = SUPERFEATURE_MODEL.objects.filter(parent__id=pk)
+
+        return Response(status=status.HTTP_200_OK)
+
+
 class SetChildrenDatesViewSet(views.APIView):
 
     permission_classes = (IsAdminUser, CanEditContent,)
