@@ -50,7 +50,7 @@ class SuperFeatureViewsTestCase(BaseAPITestCase):
         ])
 
     def test_parent_set_child_dates(self):
-        url = reverse('super-feature-set-children-dates',  kwargs={'pk': self.parent.pk})
+        url = reverse('super-feature-set-children-dates', kwargs={'pk': self.parent.pk})
         resp = self.api_client.post(url)
 
         # Will be 400 since parent publish date is not set
@@ -59,7 +59,7 @@ class SuperFeatureViewsTestCase(BaseAPITestCase):
         self.parent.published = timezone.now()
         self.parent.save()
 
-        url = reverse('super-feature-set-children-dates',  kwargs={'pk': self.parent.pk})
+        url = reverse('super-feature-set-children-dates', kwargs={'pk': self.parent.pk})
         resp = self.api_client.post(url)
 
         # Will be 200 since parent publish date is now set
