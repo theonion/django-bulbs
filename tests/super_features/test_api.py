@@ -41,7 +41,7 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
             "superfeature_type": GUIDE_TO_HOMEPAGE,
             "data": {
                 "sponsor_brand_messaging": "Presented by Reds",
-                "sponsor_1x1_product_shot": {"id": 1}
+                "sponsor_product_shot": {"id": 1}
             }
         }
         resp = self.api_client.post(
@@ -60,7 +60,7 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
             "superfeature_type": GUIDE_TO_HOMEPAGE,
             "data": {
                 "sponsor_brand_messaging": "Presented by Reds",
-                "sponsor_1x1_product_shot": {"id": 1}
+                "sponsor_product_shot": {"id": 1}
             }
         }
         resp = self.api_client.post(
@@ -109,7 +109,7 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
             superfeature_type=GUIDE_TO_HOMEPAGE,
             data={
                 "sponsor_brand_messaging": "Fancy Feast",
-                "sponsor_1x1_product_shot": {"id": 1}
+                "sponsor_product_shot": {"id": 1}
             }
         )
 
@@ -126,10 +126,11 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
                     ('required', False),
                     ('read_only', False)
                 ]),
-                'sponsor_1x1_product_shot': OrderedDict([
+                'sponsor_product_shot': OrderedDict([
                     ('type', 'image'),
                     ('required', False),
-                    ('read_only', False)
+                    ('read_only', False),
+                    ('label',  'Sponsor Product Shot (1x1 Image)')
                 ])
             }
         })
@@ -141,7 +142,7 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
             superfeature_type=GUIDE_TO_HOMEPAGE,
             data={
                 "sponsor_brand_messaging": "Fancy Feast",
-                "sponsor_1x1_product_shot": {"id": 1}
+                "sponsor_product_shot": {"id": 1}
             }
         )
         BaseSuperFeature.objects.create(

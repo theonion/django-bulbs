@@ -11,4 +11,7 @@ class GuideToChildSerializer(serializers.Serializer):
 
 class GuideToParentSerializer(serializers.Serializer):
     sponsor_brand_messaging = serializers.CharField(required=False)
-    sponsor_1x1_product_shot = ImageFieldSerializer(required=False)
+    sponsor_product_shot = ImageFieldSerializer(
+        required=False,
+        label="Sponsor Product Shot (1x1 Image)"
+    )
