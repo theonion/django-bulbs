@@ -27,7 +27,7 @@ class SetChildrenDatesViewSet(views.APIView):
 
     permission_classes = (IsAdminUser, CanEditContent,)
 
-    def post(self, request, pk):
+    def put(self, request, pk):
         parent = get_object_or_404(SUPERFEATURE_MODEL, pk=pk)
 
         if not parent.is_published:
