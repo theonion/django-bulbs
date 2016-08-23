@@ -130,7 +130,7 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
                     ('type', 'image'),
                     ('required', False),
                     ('read_only', False),
-                    ('label',  'Sponsor Product Shot (1x1 Image)')
+                    ('label', 'Sponsor Product Shot (1x1 Image)')
                 ])
             }
         })
