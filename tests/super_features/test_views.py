@@ -51,7 +51,7 @@ class SuperFeatureViewsTestCase(BaseAPITestCase):
 
     def test_parent_set_child_dates(self):
         url = reverse('super-feature-set-children-dates', kwargs={'pk': self.parent.pk})
-        resp = self.api_client.post(url)
+        resp = self.api_client.put(url)
 
         # Will be 400 since parent publish date is not set
         self.assertEqual(resp.status_code, 400)
@@ -60,7 +60,7 @@ class SuperFeatureViewsTestCase(BaseAPITestCase):
         self.parent.save()
 
         url = reverse('super-feature-set-children-dates', kwargs={'pk': self.parent.pk})
-        resp = self.api_client.post(url)
+        resp = self.api_client.put(url)
 
         # Will be 200 since parent publish date is now set
         self.assertEqual(resp.status_code, 200)

@@ -40,8 +40,8 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
             "title": "Guide to Summer",
             "superfeature_type": GUIDE_TO_HOMEPAGE,
             "data": {
-                "sponsor_text": "Presented by Reds",
-                "sponsor_image": {"id": 1}
+                "sponsor_brand_messaging": "Presented by Reds",
+                "sponsor_1x1_product_shot": {"id": 1}
             }
         }
         resp = self.api_client.post(
@@ -59,8 +59,8 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
             "title": "Guide to Summer",
             "superfeature_type": GUIDE_TO_HOMEPAGE,
             "data": {
-                "sponsor_text": "Presented by Reds",
-                "sponsor_image": {"id": 1}
+                "sponsor_brand_messaging": "Presented by Reds",
+                "sponsor_1x1_product_shot": {"id": 1}
             }
         }
         resp = self.api_client.post(
@@ -108,8 +108,8 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
             notes="This is the guide to cats",
             superfeature_type=GUIDE_TO_HOMEPAGE,
             data={
-                "sponsor_text": "Fancy Feast",
-                "sponsor_image": {"id": 1}
+                "sponsor_brand_messaging": "Fancy Feast",
+                "sponsor_1x1_product_shot": {"id": 1}
             }
         )
 
@@ -121,12 +121,12 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
         data_field = fields.get("data")
         self.assertEqual(data_field, {
             'fields': {
-                'sponsor_text': OrderedDict([
+                'sponsor_brand_messaging': OrderedDict([
                     ('type', 'string'),
                     ('required', False),
                     ('read_only', False)
                 ]),
-                'sponsor_image': OrderedDict([
+                'sponsor_1x1_product_shot': OrderedDict([
                     ('type', 'image'),
                     ('required', False),
                     ('read_only', False)
@@ -140,8 +140,8 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
             notes="This is the guide to cats",
             superfeature_type=GUIDE_TO_HOMEPAGE,
             data={
-                "sponsor_text": "Fancy Feast",
-                "sponsor_image": {"id": 1}
+                "sponsor_brand_messaging": "Fancy Feast",
+                "sponsor_1x1_product_shot": {"id": 1}
             }
         )
         BaseSuperFeature.objects.create(
