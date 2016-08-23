@@ -17,14 +17,10 @@ class VideoRedirectView(View):
         return HttpResponseRedirect(video.get_absolute_url())
 
     def choose_video_for_redirect(self, videos):
-        if len(videos) is 0:
-            video = None
-        elif len(videos) is 1:
-            video = videos[0]
-        else:
-            video = videos
-
-        return video
+        try:
+            return videos[0]
+        except IndexError:
+            return None
 
     def get_videos_for_redirect(self, videohub_ref_id):
         video_model_name = getattr(settings, "VIDEO_MODEL", "")
