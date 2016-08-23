@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 3.11.8
+
+- Added `super-feature/:id/set-children-dates` endpoint to set all children publish dates to its parent
+
 ## Version 3.11.7
 
 - Add `?status` filter to the Super Feature viewset
