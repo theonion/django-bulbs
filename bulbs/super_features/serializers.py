@@ -59,3 +59,9 @@ class BaseSuperFeaturePartialSerializer(ContentSerializer):
     def to_representation(self, obj):
         self.superfeature_type = getattr(obj, 'superfeature_type')
         return super(BaseSuperFeaturePartialSerializer, self).to_representation(obj)
+
+
+class BaseSuperFeatureRelationOrderingSerializer(serializers.Serializer):
+
+    id = serializers.IntegerField(required=True, allow_null=False)
+    ordering = serializers.IntegerField(required=True, allow_null=False)
