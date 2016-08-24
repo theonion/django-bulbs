@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 3.12.1
+
+- Added `super-feature/:id/relations/ordering/` endpoint
+
 ## Version 3.12.0
 
 - Add LiveBlog API
