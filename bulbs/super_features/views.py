@@ -1,11 +1,8 @@
 from django.shortcuts import get_object_or_404
-from django.db import transaction
 
 from rest_framework import views, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
-
-from bulk_update.helper import bulk_update
 
 from bulbs.api.permissions import CanEditContent
 from bulbs.super_features.utils import get_superfeature_model, get_superfeature_partial_serializer
