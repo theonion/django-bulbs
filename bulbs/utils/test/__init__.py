@@ -39,6 +39,7 @@ def make_content(*args, **kwargs):
                     'content_content',
                     'poll_poll',
                     'super_features_basesuperfeature',
+                    'testcontent_testliveblog',
                     SUPERFEATURE_MODEL._meta.db_table]:
                 model_keys.append(key)
         key = random.choice(model_keys)

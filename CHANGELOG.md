@@ -2,6 +2,14 @@
 
 ## Development
 
+## Version 3.12.0
+
+- Add LiveBlog API
+
+## Version 3.11.10
+
+- Added workaround for `/v/:videohub_id` redirect 404s when there are multiple matching content
+
 ## Version 3.11.9
 
 - Updated `GuideToParentSerializer` and `GuideToChildSerializer`
