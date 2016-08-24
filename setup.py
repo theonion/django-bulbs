@@ -21,7 +21,6 @@ requires = [
     "contextdecorator==0.10.0",
     "django-enumfield==1.2.1",
     "django-betty-cropper>=0.2.6",
-    "django-bulk-update==1.1.10",
     "django-filter==0.9.2",
     "django-jsonfield==0.9.19",
     # TODO: remove django-json-field from previous JSONField references.
