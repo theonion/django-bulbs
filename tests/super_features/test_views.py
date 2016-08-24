@@ -1,6 +1,7 @@
 from collections import OrderedDict
 
 from django.core.urlresolvers import reverse
+from django.utils import timezone
 
 from bulbs.super_features.models import (
     BaseSuperFeature, GUIDE_TO_HOMEPAGE, GUIDE_TO_ENTRY
@@ -47,3 +48,22 @@ class SuperFeatureViewsTestCase(BaseAPITestCase):
                 ('title', 'Guide to Cats')
             ])
         ])
+
+    def test_parent_set_child_dates(self):
+        url = reverse('super-feature-set-children-dates', kwargs={'pk': self.parent.pk})
+        resp = self.api_client.put(url)
+
+        # Will be 400 since parent publish date is not set
+        self.assertEqual(resp.status_code, 400)
+
+        self.parent.published = timezone.now()
+        self.parent.save()
+
+        url = reverse('super-feature-set-children-dates', kwargs={'pk': self.parent.pk})
+        resp = self.api_client.put(url)
+
+        # Will be 200 since parent publish date is now set
+        self.assertEqual(resp.status_code, 200)
+
+        child = BaseSuperFeature.objects.get(id=self.child.id)
+        self.assertEqual(self.parent.published, child.published)
