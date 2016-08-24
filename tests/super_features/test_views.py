@@ -67,3 +67,39 @@ class SuperFeatureViewsTestCase(BaseAPITestCase):
 
         child = BaseSuperFeature.objects.get(id=self.child.id)
         self.assertEqual(self.parent.published, child.published)
+
+    def test_relations_ordering(self):
+        child2 = BaseSuperFeature.objects.create(
+            title="Guide to Bats",
+            notes="This is the guide to bats",
+            superfeature_type=GUIDE_TO_ENTRY,
+            parent=self.parent,
+            ordering=2,
+            data={
+                "entries": [{
+                    "title": "bats",
+                    "copy": "Everybody loves bats"
+                }]
+            }
+        )
+
+        url = reverse('super-feature-relations-ordering', kwargs={'pk': self.parent.pk})
+        data = [
+            {
+                "id": child2.id,
+                "ordering": 1
+            },
+            {
+                "id": self.child.id,
+                "ordering": 2
+            }
+        ]
+        resp = self.api_client.put(url, data, format="json")
+        self.assertEqual(resp.status_code, 200)
+
+        child = BaseSuperFeature.objects.get(id=self.child.id)
+        child2 = BaseSuperFeature.objects.get(id=child2.id)
+
+        # check that the ordering has been reversed
+        self.assertEqual(child.ordering, 2)
+        self.assertEqual(child2.ordering, 1)

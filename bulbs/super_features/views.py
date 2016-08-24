@@ -1,11 +1,15 @@
 from django.shortcuts import get_object_or_404
+from django.db import transaction
 
 from rest_framework import views, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
 
+from bulk_update.helper import bulk_update
+
 from bulbs.api.permissions import CanEditContent
 from bulbs.super_features.utils import get_superfeature_model, get_superfeature_partial_serializer
+from bulbs.super_features.serializers import BaseSuperFeatureRelationOrderingSerializer
 
 
 SUPERFEATURE_MODEL = get_superfeature_model()
@@ -29,7 +33,29 @@ class RelationOrderingViewSet(views.APIView):
 
     def put(self, request, pk):
         parent = get_object_or_404(SUPERFEATURE_MODEL, pk=pk)
-        children = SUPERFEATURE_MODEL.objects.filter(parent__id=pk)
+
+        serializer = BaseSuperFeatureRelationOrderingSerializer(data=request.data, many=True)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        for item in serializer.data:
+            child = get_object_or_404(SUPERFEATURE_MODEL, id=item['id'])
+
+            if child.parent.id != parent.id:
+                return Response(
+                    {'detail': 'Child {} has incorrect parent'.format(child.id)},
+                    status=status.HTTP_400_BAD_REQUEST)
+
+            # NOTE: Django doesn't allow for swapping values in place,
+            # so set the ordering of other object to NULL for now
+            SUPERFEATURE_MODEL.objects.filter(
+                parent=parent, ordering=item['ordering']
+            ).update(
+                ordering=None
+            )
+
+            child.ordering = item['ordering']
+            child.save()
 
         return Response(status=status.HTTP_200_OK)
 
