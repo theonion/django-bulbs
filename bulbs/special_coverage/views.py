@@ -46,7 +46,7 @@ class SpecialCoverageView(BaseContentDetailView):
         context = super(SpecialCoverageView, self).get_context_data()
         context["content_list"] = self.special_coverage.get_content(
             published=self.show_published_only()
-        ).full()
+        )
         if hasattr(self.object, "get_reading_list"):
             context["reading_list"] = self.object.get_reading_list()
         context["special_coverage"] = self.special_coverage
