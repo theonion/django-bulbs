@@ -18,7 +18,7 @@ class RelationViewSet(views.APIView):
     permission_classes = (IsAdminUser, CanEditContent,)
 
     def get(self, request, pk):
-        children = SUPERFEATURE_MODEL.objects.filter(parent__id=pk)
+        children = SUPERFEATURE_MODEL.objects.filter(parent__id=pk).order_by("ordering")
         result = SUPERFEATURE_PARTIAL_SERIALIZER(children, many=True)
 
         return Response(result.data, status=status.HTTP_200_OK)
