@@ -1,6 +1,8 @@
 # django-bulbs Change Log
 
-## Development
+## Version 3.12.3
+
+- Added LiveBlog fields
 
 ## Version 3.12.2
 
@@ -21,6 +23,7 @@
 ## Version 3.11.9
 
 - Updated `GuideToParentSerializer` and `GuideToChildSerializer`
+
 - Changed `super-feature/:id/set-children-dates` from a `POST` to a `PUT`
 
 ## Version 3.11.8
