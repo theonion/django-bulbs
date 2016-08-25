@@ -2,6 +2,10 @@
 
 ## Development
 
+## Version 3.12.2
+
+- Changed `super-feature/:id/relations/` to guarantee child ordering
+
 ## Version 3.12.1
 
 - Added `super-feature/:id/relations/ordering/` endpoint
