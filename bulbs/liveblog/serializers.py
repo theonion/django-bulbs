@@ -9,7 +9,7 @@ class LiveBlogResponseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = LiveBlogResponse
-        fields = ('author', 'body')
+        fields = ('author', 'body', 'internal_name')
 
 
 class LiveBlogEntrySerializer(serializers.ModelSerializer):

@@ -10,6 +10,8 @@ class AbstractLiveBlog(models.Model):
     content class).
     """
 
+    pinned_content = models.ForeignKey(Content, blank=True, null=True,
+                                       related_name='liveblog_pinned')
     recirc_content = models.ManyToManyField(Content, related_name='liveblog_recirc')
 
     class Meta:
@@ -33,5 +35,9 @@ class LiveBlogResponse(models.Model):
     entry = models.ForeignKey(LiveBlogEntry, related_name='responses')
     ordering = models.IntegerField(blank=True, null=True, default=None)
 
+    internal_name = models.CharField(max_length=255, blank=True, null=True)
     author = models.ForeignKey(get_liveblog_author_model())
     body = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ['ordering']

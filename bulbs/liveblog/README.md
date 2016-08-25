@@ -19,6 +19,7 @@
   "responses": [
     {
       "author": 85,
+      "internal_name": "Secret Name",
       "body": "Some more really interesting stuff you should read."
     }
   ]
@@ -55,6 +56,7 @@
       "responses": [
         {
           "author": 85,
+          "internal_name": "Secret Name",
           "body": "Some more really interesting stuff you should read."
         }
       ]
@@ -69,6 +71,7 @@
       "responses": [
         {
           "author": 85,
+          "internal_name": "Secret Name",
           "body": "Some more really interesting stuff you should read."
         }
       ]
@@ -107,6 +110,7 @@
       "responses": [
         {
           "author": 85,
+          "internal_name": "Secret Name",
           "body": "Some more really interesting stuff you should read."
         }
       ]
@@ -121,6 +125,7 @@
       "responses": [
         {
           "author": 85,
+          "internal_name": "Secret Name",
           "body": "Some more really interesting stuff you should read."
         }
       ]
@@ -160,6 +165,7 @@
     "responses": [
       {
         "author": 60,
+        "internal_name": "Secret Name",
         "body": "Some more really interesting stuff you should read."
       }
     ]
@@ -195,6 +201,7 @@
     "responses": [
       {
         "author": 85,
+        "internal_name": "Secret Name",
         "body": "Some more really interesting stuff you should read."
       }
     ]
@@ -214,6 +221,7 @@
     "responses": [
       {
         "author": 85,
+        "internal_name": "Secret Name",
         "body": "Some more really interesting stuff you should read."
       }
     ]
