@@ -16,7 +16,7 @@ class TestLiveBlogModel(BaseIndexableTestCase):
     def test_recirc_content(self):
         content = make_content(_quantity=3)
 
-        liveblog = TestLiveBlog.objects.create(recirc_content=content)
+        liveblog = TestLiveBlog.objects.create()
         liveblog.recirc_content.add(*content)
         liveblog.save()
 
