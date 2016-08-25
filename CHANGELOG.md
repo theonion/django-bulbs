@@ -1,6 +1,6 @@
 # django-bulbs Change Log
 
-## Version 3.12.2
+## Version 3.12.3
 
 - Added LiveBlog fields
 
