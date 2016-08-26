@@ -1,6 +1,20 @@
 # django-bulbs Change Log
 
-## Development
+## Version 3.12.3
+
+- Added LiveBlog fields
+
+## Version 3.12.2
+
+- Changed `super-feature/:id/relations/` to guarantee child ordering
+
+## Version 3.12.1
+
+- Added `super-feature/:id/relations/ordering/` endpoint
+
+## Version 3.12.0
+
+- Add LiveBlog API
 
 ## Version 3.11.10
 
@@ -9,6 +23,7 @@
 ## Version 3.11.9
 
 - Updated `GuideToParentSerializer` and `GuideToChildSerializer`
+
 - Changed `super-feature/:id/set-children-dates` from a `POST` to a `PUT`
 
 ## Version 3.11.8

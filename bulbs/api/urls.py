@@ -46,3 +46,11 @@ if "bulbs.super_features" in settings.INSTALLED_APPS:
     urlpatterns += (
         url(r"^", include("bulbs.super_features.api")),
     )
+
+
+# mparent(2016-08-18): Add new apps here, simpler!
+for app in ['bulbs.liveblog']:
+    if app in settings.INSTALLED_APPS:
+        urlpatterns += (
+            url(r"^", include("{}.api".format(app))),
+        )
