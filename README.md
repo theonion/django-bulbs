@@ -19,15 +19,12 @@ pip install "file://$(pwd)#egg=django-bulbs[dev]"
 
 ## Running Tests
 
-1. Clone [django-elastimorphic](https://github.com/theonion/django-elastimorphic) into a sibiling directory
-2. Install dev requirements
-```bash
-pip install -e ".[dev]"
-```
-3. Run tests
-```bash
-py.test tests/
-```
+1. Clone, setup, and start [onion-services](https://github.com/theonion/onion-services/blob/master/README.md).
+2. Run `./scripts/init_db`
+3. Run `./scripts/test`
+
+A relative path to a folder or file can be given to `./scripts/test` to run
+only a specific subset of tests.
 
 ## Building Docs
 ```bash
