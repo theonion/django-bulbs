@@ -24,6 +24,7 @@ describe('SpecialCoverageLoader', function () {
     currentPage = 1;
     perPage = 10;
     element = document.createElement('button');
+    element.innerHTML = 'Load More';
     element.dataset.total = 20;
     element.dataset.perPage = 10;
     listElement = document.createElement('ul');
@@ -92,6 +93,18 @@ describe('SpecialCoverageLoader', function () {
     expect(subject.perPage).to.equal(10);
   });
 
+  it('has an isLoading flag', function () {
+    expect(subject.isLoading).to.equal(false);
+  });
+
+  it('saves a reference to the default text', function () {
+    expect(subject.defaultText).to.equal('Load More');
+  });
+
+  it('has loadingText', function () {
+    expect(subject.loadingText).to.equal('Loading...');
+  });
+
   describe('options', function () {
     it('accepts an optional baseUrl value', function () {
       subject = new SpecialCoverageLoader(element, listElement, { baseUrl: url });
@@ -142,10 +155,22 @@ describe('SpecialCoverageLoader', function () {
   });
 
   describe('loadMore', function () {
+    it('does nothing when there is a pending load', function () {
+      subject.isLoading = true;
+      subject.loadMore(url);
+      expect(requests.length).to.equal(0);
+    });
+
     it('throws an error if no url is given', function () {
       expect(function () {
         subject.loadMore();
       }).to.throw('SpecialCoverageLoader.loadMore(url): url is undefined');
+    });
+
+    it('sets the element text to the loading text ', function () {
+      sandbox.stub(subject, 'handleLoadMoreSuccess');
+      subject.loadMore(url);
+      expect(subject.element.innerHTML).to.equal(subject.loadingText);
     });
 
     it('loads more content items', function () {
@@ -154,6 +179,12 @@ describe('SpecialCoverageLoader', function () {
       expect(request.method).to.equal('GET');
       expect(request.requestHeaders.Accept).to.match(/text\/html/);
       expect(request.url).to.equal(url);
+    });
+
+    it('sets the isLoading flag to true', function () {
+      sandbox.stub(subject, 'handleLoadMoreSuccess');
+      subject.loadMore(url);
+      expect(subject.isLoading).to.equal(true);
     });
   });
 
@@ -185,6 +216,39 @@ describe('SpecialCoverageLoader', function () {
       sandbox.stub(subject, 'setButtonVisibility');
       subject.handleLoadMoreSuccess('content');
       expect(subject.setButtonVisibility).to.have.been.called;
+    });
+
+    it('toggles the loading state', function () {
+      sandbox.stub(subject, 'toggleLoadingState');
+      subject.handleLoadMoreSuccess('content');
+      expect(subject.toggleLoadingState).to.have.been.calledWith(subject.isLoading, element);
+    });
+  });
+
+  describe('toggleLoadingState', function () {
+    it('throws an error if no loadingState is provided', function () {
+      expect(() => {
+        subject.toggleLoadingState();
+      }).to.throw('SpecialCoverageLoader.toggleLoadingState(loadingState, element): loadingState is undefined');
+    });
+
+    it('throws an error if no element id given', function () {
+      expect(() => {
+        subject.toggleLoadingState(true);
+      }).to.throw('SpecialCoverageLoader.toggleLoadingState(loadingState, element): element is undefined');
+    });
+
+    it('toggles the loading state', function () {
+      subject.toggleLoadingState(true, element);
+      expect(subject.isLoading).to.equal(false);
+
+      subject.toggleLoadingState(false, element);
+      expect(subject.isLoading).to.equal(true);
+    });
+
+    it('toggles the element text', function () {
+      subject.toggleLoadingState(false, element);
+      expect(element.innerHTML).to.equal(subject.loadingText);
     });
   });
 
@@ -234,6 +298,12 @@ describe('SpecialCoverageLoader', function () {
       var message = 'SpecialCoverageLoader.loadMore("' + nextUrl + '"): server responded with "404 Not Found"';
       subject.handleLoadMoreFailure(response);
       expect(console.log).to.have.been.calledWith(message);
+    });
+
+    it('toggles the loading state', function () {
+      sandbox.stub(subject, 'toggleLoadingState');
+      subject.handleLoadMoreFailure('content');
+      expect(subject.toggleLoadingState).to.have.been.calledWith(subject.isLoading, subject.element);
     });
   });
 
