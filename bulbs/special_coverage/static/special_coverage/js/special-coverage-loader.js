@@ -27,9 +27,7 @@ module.exports = (function () { // eslint-disable-line no-unused-vars
       baseUrl: window.location.href,
     }, options);
 
-    Object.keys(options).forEach(function (key) {
-      this[key] = options[key];
-    }.bind(this));
+    Object.assign(this, options);
 
     element.addEventListener('click', function () {
       var url = this.buildUrl(this.currentPage, this.perPage, this.baseUrl);
