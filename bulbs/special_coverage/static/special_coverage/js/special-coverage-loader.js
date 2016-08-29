@@ -84,7 +84,6 @@ module.exports = (function () { // eslint-disable-line no-unused-vars
         this.currentPage += 1;
         this.listElement.innerHTML = this.listElement.innerHTML + response;
       }
-      console.log('list items: ' + this.listElement.children.length);
       this.setButtonVisibility(response);
     },
 
