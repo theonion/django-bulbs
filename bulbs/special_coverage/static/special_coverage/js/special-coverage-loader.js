@@ -1,9 +1,7 @@
 module.exports = (function () { // eslint-disable-line no-unused-vars
-  var _ = require('lodash');
-  var assign = _.assign;
-  var defaults = _.defaults;
-  var isUndefined = _.isUndefined;
-  var trim = _.trim;
+  function isUndefined (suspect) {
+    return suspect === undefined; // eslint-disable-line no-undefined
+  }
 
   function requireArgument (value, message) {
     if (isUndefined(value)) { throw new Error(message); }
@@ -25,11 +23,13 @@ module.exports = (function () { // eslint-disable-line no-unused-vars
     this.defaultText = element.innerHTML;
     this.loadingText = 'Loading...';
 
-    defaults(options, {
+    options = Object.assign({
       baseUrl: window.location.href,
-    });
+    }, options);
 
-    assign(this, options);
+    Object.keys(options).forEach(function (key) {
+      this[key] = options[key];
+    }.bind(this));
 
     element.addEventListener('click', function () {
       var url = this.buildUrl(this.currentPage, this.perPage, this.baseUrl);
@@ -37,7 +37,7 @@ module.exports = (function () { // eslint-disable-line no-unused-vars
     }.bind(this));
   }
 
-  assign(SpecialCoverageLoader.prototype, {
+  Object.assign(SpecialCoverageLoader.prototype, {
     nextOffset: function (currentPage, perPage) {
       requireArgument(currentPage, 'SpecialCoverageLoader.nextOffset(currentPage, perPage): currentPage is undefined');
       requireArgument(perPage, 'SpecialCoverageLoader.nextOffset(currentPage, perPage): perPage is undefined');
@@ -79,7 +79,7 @@ module.exports = (function () { // eslint-disable-line no-unused-vars
     handleLoadMoreSuccess: function (response) {
       this.toggleLoadingState(this.isLoading, this.element);
       requireArgument(response, 'SpecialCoverageLoader.handleLoadMoreSuccess(response): response is undefined');
-      response = trim(response);
+      response = response.trim();
       if (response) {
         this.currentPage += 1;
         this.listElement.innerHTML = this.listElement.innerHTML + response;
