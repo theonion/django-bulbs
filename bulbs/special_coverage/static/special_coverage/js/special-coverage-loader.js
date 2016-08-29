@@ -21,6 +21,9 @@ module.exports = (function () { // eslint-disable-line no-unused-vars
     this.currentPage = 1;
     this.listElement = listElement;
     this.element = element;
+    this.isLoading = false;
+    this.defaultText = element.innerHTML;
+    this.loadingText = 'Loading...';
 
     defaults(options, {
       baseUrl: window.location.href,
@@ -53,8 +56,10 @@ module.exports = (function () { // eslint-disable-line no-unused-vars
     },
 
     loadMore: function (url) {
+      if (this.isLoading) { return; }
       requireArgument(url, 'SpecialCoverageLoader.loadMore(url): url is undefined');
-
+      this.isLoading = true;
+      this.element.innerHTML = this.loadingText;
       $.ajax({
         url: url,
         type: 'get',
@@ -64,9 +69,16 @@ module.exports = (function () { // eslint-disable-line no-unused-vars
         .fail(this.handleLoadMoreFailure.bind(this));
     },
 
-    handleLoadMoreSuccess: function (response) {
-      requireArgument(response, 'SpecialCoverageLoader.handleLoadMoreSuccess(response): response is undefined');
+    toggleLoadingState: function (loadingState, element) {
+      requireArgument(loadingState, 'SpecialCoverageLoader.toggleLoadingState(loadingState, element): loadingState is undefined');
+      requireArgument(element, 'SpecialCoverageLoader.toggleLoadingState(loadingState, element): element is undefined');
+      this.isLoading = !loadingState;
+      element.innerHTML = this.isLoading ? this.loadingText : this.defaultText;
+    },
 
+    handleLoadMoreSuccess: function (response) {
+      this.toggleLoadingState(this.isLoading, this.element);
+      requireArgument(response, 'SpecialCoverageLoader.handleLoadMoreSuccess(response): response is undefined');
       response = trim(response);
       if (response) {
         this.currentPage += 1;
@@ -77,6 +89,7 @@ module.exports = (function () { // eslint-disable-line no-unused-vars
     },
 
     handleLoadMoreFailure: function (response) {
+      this.toggleLoadingState(this.isLoading, this.element);
       requireArgument(response, 'SpecialCoverageLoader.handleLoadMoreFailure(response): response id undefined');
 
       var message = [
