@@ -816,7 +816,6 @@ class ContributionApiTestCase(BaseAPITestCase):
         response = client.post(
             endpoint, json.dumps(contribution_data), content_type="application/json"
         )
-        # import pdb; pdb.set_trace()
         override_rate = response.data[0].get("override_rate")
         self.assertEqual(override_rate, 70)
         Contribution.search_objects.refresh()
