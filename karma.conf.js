@@ -1,4 +1,4 @@
-module.exports = function(config) {
+module.exports = function (config) {
   config.set({
     basePath: '',
 
@@ -6,27 +6,22 @@ module.exports = function(config) {
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
     frameworks: [
       'browserify',
-      'chai',
+      'sinon-chai',
       'mocha',
-      'sinon'
     ],
 
     // list of files / patterns to load in the browser
     files: [
       'node_modules/jquery/dist/jquery.min.js',
       'test_helper.js',
-      'bulbs/**/*.test.js'
+      'bulbs/**/*.test.js',
     ],
 
     // list of files to exclude
     exclude: [],
 
     preprocessors: {
-      'bulbs/**/*.test.js': [ 'browserify' ]
-    },
-
-    browserify: {
-      debug: true
+      'bulbs/**/*.test.js': ['browserify'],
     },
 
     // test results reporter to use
@@ -37,8 +32,8 @@ module.exports = function(config) {
     client: {
       mocha: {
         reporter: 'html',
-        ui: 'bdd'
-      }
+        ui: 'bdd',
+      },
     },
 
     // web server port
@@ -65,9 +60,9 @@ module.exports = function(config) {
     customLaunchers: {
       Chrome_travis_ci: {
         base: 'Chrome',
-        flags: ['--no-sandbox']
-      }
-    }
+        flags: ['--no-sandbox'],
+      },
+    },
   });
 
   if (process.env.TRAVIS) {

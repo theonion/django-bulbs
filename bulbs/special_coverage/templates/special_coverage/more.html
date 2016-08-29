@@ -1,0 +1,23 @@
+{% load betty humanize ads static content %}
+
+{% for content in content_list  %}
+  <li class="sc-landing-list-item">
+    <a
+      data-track-category="Special Coverage Landing"
+      data-track-action="Article: "
+      data-track-label="{{ content.get_absolute_url }}"
+      href="{{ content.get_absolute_url }}"
+      class="sc-landing-list-item-link"
+    >
+      <span class="sc-landing-list-item-link-bar"></span>
+      <figure>
+        {% cropped content.primary_image %}
+      </figure>
+      <div class="meta">
+        <span class="feature-type">{{ content.feature_type }}</span>
+        <h2>{{ content.title|safe }}</h2>
+        <span class="pub">{{ content.published|naturalday|capfirst }}</span>
+      </div>
+    </a>
+  </li>
+{% endfor %}
