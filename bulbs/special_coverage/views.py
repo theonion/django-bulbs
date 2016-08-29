@@ -6,7 +6,6 @@ from django.views.decorators.cache import cache_control
 from bulbs.content.views import BaseContentDetailView
 from bulbs.special_coverage.models import SpecialCoverage
 from bulbs.utils.methods import redirect_unpublished_to_login_or_404
-from elasticsearch_dsl import filter as es_filters
 
 
 class SpecialCoverageView(BaseContentDetailView):
