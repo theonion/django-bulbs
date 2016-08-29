@@ -359,9 +359,16 @@ class ContributionListSerializer(serializers.ListSerializer):
 
     contributor = UserSerializer()
 
+    def create(self, validated_data, **kwargs):
+        instance = self.instance or None
+        while not instance:
+            for obj in validated_data:
+                instance = obj.get('content')
+        return self.update(instance, validated_data)
+
     def update(self, instance, validated_data):
         # Maps for id->instance and id->data item.
-        contribution_mapping = {c.id: c for c in instance}
+        contribution_mapping = {c.id: c for c in instance.contributions.all()}
         data_mapping = {item['id']: item for item in validated_data if "id" in item}
 
         # Perform creations and updates.
