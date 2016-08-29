@@ -7,6 +7,18 @@ module.exports = (function () { // eslint-disable-line no-unused-vars
     if (isUndefined(value)) { throw new Error(message); }
   }
 
+  function assign (target, source) {
+    Object.keys(source).forEach(function (key) {
+      target[key] = source[key];
+    });
+  }
+
+  function defaults (target, source) {
+    Object.keys(source).forEach(function (key) {
+      if (!target[key]) { target[key] = source[key]; }
+    });
+  }
+
   function SpecialCoverageLoader (element, listElement, options) {
     requireArgument(element, 'new SpecialCoverageLoader(element, listElement, options): element is undefined');
     requireArgument(listElement, 'new SpecialCoverageLoader(element, listElement, options): listElement is undefined');
@@ -23,11 +35,11 @@ module.exports = (function () { // eslint-disable-line no-unused-vars
     this.defaultText = element.innerHTML;
     this.loadingText = 'Loading...';
 
-    options = Object.assign({
+    defaults(options, {
       baseUrl: window.location.href,
-    }, options);
+    });
 
-    Object.assign(this, options);
+    assign(this, options);
 
     element.addEventListener('click', function () {
       var url = this.buildUrl(this.currentPage, this.perPage, this.baseUrl);
@@ -35,7 +47,7 @@ module.exports = (function () { // eslint-disable-line no-unused-vars
     }.bind(this));
   }
 
-  Object.assign(SpecialCoverageLoader.prototype, {
+  assign(SpecialCoverageLoader.prototype, {
     nextOffset: function (currentPage, perPage) {
       requireArgument(currentPage, 'SpecialCoverageLoader.nextOffset(currentPage, perPage): currentPage is undefined');
       requireArgument(perPage, 'SpecialCoverageLoader.nextOffset(currentPage, perPage): perPage is undefined');
