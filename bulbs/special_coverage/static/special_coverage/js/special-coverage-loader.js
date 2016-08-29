@@ -22,10 +22,6 @@ module.exports = (function () { // eslint-disable-line no-unused-vars
     this.listElement = listElement;
     this.element = element;
 
-    console.log('list items: ' + this.listElement.children.length);
-    console.log('total: ' + this.total);
-    console.log('per_page: ' + this.perPage);
-
     defaults(options, {
       baseUrl: window.location.href,
     });

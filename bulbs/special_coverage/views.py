@@ -50,8 +50,6 @@ class SpecialCoverageView(BaseContentDetailView):
 
         content_list = self.special_coverage.get_content(
             published=self.show_published_only()
-        ).filter(
-            ~es_filters.Ids(values=[self.object.id])
         )[:100]
 
         context["content_list_total"] = len(content_list)
@@ -98,8 +96,6 @@ class SpecialCoverageLoadMoreView(SpecialCoverageView):
         context = super(SpecialCoverageLoadMoreView, self).get_context_data()
         context["content_list"] = self.special_coverage.get_content(
             published=self.show_published_only()
-        ).filter(
-            ~es_filters.Ids(values=[self.object.id])
         )[offset:offset + per_page]
 
         return context
