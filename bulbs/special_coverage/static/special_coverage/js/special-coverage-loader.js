@@ -1,12 +1,22 @@
 module.exports = (function () { // eslint-disable-line no-unused-vars
-  var _ = require('lodash');
-  var assign = _.assign;
-  var defaults = _.defaults;
-  var isUndefined = _.isUndefined;
-  var trim = _.trim;
+  function isUndefined (suspect) {
+    return typeof(suspect) === 'undefined';
+  }
 
   function requireArgument (value, message) {
     if (isUndefined(value)) { throw new Error(message); }
+  }
+
+  function assign (target, source) {
+    Object.keys(source).forEach(function (key) {
+      target[key] = source[key];
+    });
+  }
+
+  function defaults (target, source) {
+    Object.keys(source).forEach(function (key) {
+      if (!target[key]) { target[key] = source[key]; }
+    });
   }
 
   function SpecialCoverageLoader (element, listElement, options) {
@@ -79,7 +89,7 @@ module.exports = (function () { // eslint-disable-line no-unused-vars
     handleLoadMoreSuccess: function (response) {
       this.toggleLoadingState(this.isLoading, this.element);
       requireArgument(response, 'SpecialCoverageLoader.handleLoadMoreSuccess(response): response is undefined');
-      response = trim(response);
+      response = response.trim();
       if (response) {
         this.currentPage += 1;
         this.listElement.innerHTML = this.listElement.innerHTML + response;
