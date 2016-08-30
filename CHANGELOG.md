@@ -1,5 +1,11 @@
 # django-bulbs Change Log
 
+
+## Version 3.14.0
+
+- Fix `ContributionListSerializer` to handle group deletion and avoid duplication.
+
+
 ## Version 3.12.3
 
 - Added LiveBlog fields
