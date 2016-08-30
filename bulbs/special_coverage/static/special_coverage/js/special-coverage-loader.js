@@ -134,7 +134,16 @@ module.exports = (function () { // eslint-disable-line no-unused-vars
       requireArgument(total, 'SpecialCoverageLoader.isLastPage(total, listElement): total is undefined');
       requireArgument(listElement, 'SpecialCoverageLoader.isLastPage(total, listElement): listElement is undefined');
 
-      return total === listElement.children.length;
+      var listItems = [];
+      for (var i = 0; i < listElement.children.length; i += 1) {
+        var item = listElement.children[i];
+
+        if (item.classList.contains('sc-landing-list-item')) {
+          listItems.push(item);
+        }
+      }
+
+      return total <= listItems.length;
     },
 
     setButtonVisibility: function (response) {
