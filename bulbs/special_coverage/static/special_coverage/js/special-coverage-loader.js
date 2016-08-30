@@ -1,6 +1,6 @@
 module.exports = (function () { // eslint-disable-line no-unused-vars
   function isUndefined (suspect) {
-    return suspect === undefined; // eslint-disable-line no-undefined
+    return typeof(suspect) === 'undefined';
   }
 
   function requireArgument (value, message) {
