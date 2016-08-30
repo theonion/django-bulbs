@@ -143,6 +143,21 @@ class TestLiveBlogEntryApi(BaseAPITestCase):
         self.assertEqual(1, liveblog.entries.count())
         self.assertEqual(entry, liveblog.entries.first())
 
+    def test_delete_entry(self):
+        liveblog = mommy.make(TestLiveBlog)
+        entry = mommy.make(LiveBlogEntry, liveblog=liveblog)
+
+        self.assertEqual(1, liveblog.entries.count())
+
+        resp = self.api_client.delete(reverse('liveblog-entry-detail', kwargs={'pk': entry.id}))
+        self.assertEqual(resp.status_code, 204)
+
+        self.assertEqual(0, liveblog.entries.count())
+
+        with self.assertRaises(LiveBlogEntry.DoesNotExist):
+            entry.refresh_from_db()
+        self.assertEqual(0, LiveBlogEntry.objects.count())
+
     def test_liveblog_filter(self):
         liveblogs = mommy.make(TestLiveBlog, _quantity=5)
         entries = [mommy.make(LiveBlogEntry, liveblog=liveblog, _quantity=2)
