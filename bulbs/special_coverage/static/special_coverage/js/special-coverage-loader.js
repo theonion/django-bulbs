@@ -19,6 +19,10 @@ module.exports = (function () { // eslint-disable-line no-unused-vars
     });
   }
 
+  function stripTrailingSlash (string) {
+    return string.replace(/\/?$/, '');
+  }
+
   function SpecialCoverageLoader (element, listElement, options) {
     requireArgument(element, 'new SpecialCoverageLoader(element, listElement, options): element is undefined');
     requireArgument(listElement, 'new SpecialCoverageLoader(element, listElement, options): listElement is undefined');
@@ -38,7 +42,7 @@ module.exports = (function () { // eslint-disable-line no-unused-vars
     defaults(options, {
       baseUrl: window.location.href,
     });
-
+    options.baseUrl = stripTrailingSlash(options.baseUrl);
     assign(this, options);
 
     element.addEventListener('click', function () {
