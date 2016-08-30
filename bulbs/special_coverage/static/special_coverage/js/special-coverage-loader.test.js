@@ -259,8 +259,12 @@ describe('SpecialCoverageLoader', function () {
 
   describe('isLastPage', function () {
     var total;
+    var liElement;
     beforeEach(function () {
       total = 13;
+      liElement = document.createElement('li');
+      liElement.classList.add('sc-landing-list-item');
+      listElement.appendChild(liElement);
     });
 
     it('throws an error if no total is given', function () {
@@ -280,9 +284,20 @@ describe('SpecialCoverageLoader', function () {
     });
 
     it('returns true when there is no more content', function () {
-      var li = document.createElement('li');
-      listElement.appendChild(li);
       expect(subject.isLastPage(1, listElement)).to.equal(true);
+    });
+
+    it('only considers .sc-landing-list-item children', function () {
+      let carouselItem = document.createElement('li');
+      var extraLiElement = document.createElement('li');
+
+      carouselItem.classList.add('sc-landing-carousel');
+      extraLiElement.classList.add('sc-landing-list-item');
+
+      listElement.appendChild(carouselItem);
+      listElement.appendChild(extraLiElement);
+
+      expect(subject.isLastPage(2, listElement)).to.equal(true);
     });
   });
 
