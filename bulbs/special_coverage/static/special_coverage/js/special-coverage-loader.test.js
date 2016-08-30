@@ -69,6 +69,11 @@ describe('SpecialCoverageLoader', function () {
     expect(subject.baseUrl).to.equal(window.location.href);
   });
 
+  it('strips the trailing slash from the baseUrl', function() {
+    subject = new SpecialCoverageLoader(element, listElement, { baseUrl: 'http://staff.avclub.com/special/1996-week/' });
+    expect(subject.baseUrl).to.equal('http://staff.avclub.com/special/1996-week');
+  });
+
   it('registers loadMore to the element click', function () {
     sandbox.stub(subject, 'loadMore');
     element.click();
