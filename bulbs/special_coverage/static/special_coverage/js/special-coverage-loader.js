@@ -40,9 +40,17 @@ module.exports = (function () { // eslint-disable-line no-unused-vars
     this.loadingText = 'Loading...';
 
     defaults(options, {
-      baseUrl: window.location.href,
+      baseUrl: [
+        window.location.protocol, '//',
+        window.location.host,
+        window.location.pathname,
+        window.location.search,
+        window.location.hash,
+      ].join(''),
     });
+
     options.baseUrl = stripTrailingSlash(options.baseUrl);
+
     assign(this, options);
 
     element.addEventListener('click', function () {
