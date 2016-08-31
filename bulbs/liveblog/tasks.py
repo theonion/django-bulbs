@@ -10,6 +10,7 @@ def firebase_update_timestamp(liveblog_id):
     endpoint = getattr(settings, 'LIVEBLOG_FIREBASE_NOTIFY_ENDPOINT', None)
     if endpoint:
         url = endpoint.format(liveblog_id=liveblog_id)
-        requests.put(url, json={
+        resp = requests.put(url, json={
             'updatedAt': timezone.now().timestamp()  # TODO: What time format?
         })
+        resp.raise_for_status()
