@@ -821,7 +821,7 @@ class ContributionApiTestCase(BaseAPITestCase):
         Contribution.search_objects.refresh()
 
         response = client.get(endpoint)
-        override_rate = response.data[5].get("override_rate")
+        override_rate = response.data[0].get("override_rate")
         self.assertEqual(override_rate, 70)
 
         # Update the rate
@@ -1302,7 +1302,6 @@ class ReportingApiTestCase(BaseAPITestCase):
         # TODO: Fix the goddamn tag query
         # resp = self.client.get(endpoint, {'tags': [self.t1.slug]})
         # self.assertEqual(resp.status_code, 200)
-        # import pdb; pdb.set_trace()
         # self.assertEqual(len(resp.data['results']), 12)
 
         # resp = self.client.get(endpoint, {'tags': [self.t2.slug]})
@@ -1686,3 +1685,106 @@ class FeatureTypeRateAPITestCase(BaseAPITestCase):
         for resp_rate in resp.data["results"]:
             id = resp_rate.get("id")
             self.assertEqual(FeatureTypeRate.objects.get(id=id).role, another_role)
+
+
+class DuplicateContributionTestCase(BaseAPITestCase):
+    """
+    VERY annoying bug where save triggers *some* duplicate contributions for larger querysets.
+    Trying to emulate the conditions as best I can.
+    """
+
+    def setUp(self):
+        super(DuplicateContributionTestCase, self).setUp()
+        self.user_cls = get_user_model()
+        self.draft_writer = ContributorRole.objects.create(
+            name='Draft Writer',
+            payment_type=1
+        )
+        self.feature_type = FeatureType.objects.create(name='Example')
+        rate = self.feature_type.feature_type_rates.all()[0]
+        rate.rate = 25
+        rate.save()
+        self.content = Content.objects.create(
+            title='God help us',
+            feature_type=self.feature_type,
+            published=self.now
+        )
+        self.contribution_endpoint = reverse(
+            "content-contributions",
+            kwargs={"pk": self.content.pk}
+        )
+        for i in range(30):
+            self.user_cls.objects.create(
+                username='user:{}'.format(i),
+                email='{0}@{1}.com'.format(i, i),
+                first_name='first_name:{}'.format(i),
+                last_name='last_name:{}'.format(i),
+                is_active=True,
+                is_staff=True
+            )
+        self.content.contributions.all().delete()
+        Content.search_objects.refresh()
+
+    def test_ten_no_duplicate_delete(self):
+        self._test_quantity(_quantity=10)
+        self._test_delete(_quantity=2)
+
+    def _test_delete(self, _quantity=0):
+        original_count = self.content.contributions.count()
+        resp = self.api_client.get(
+            self.contribution_endpoint,
+            content_type='application/json'
+        )
+        self.assertEqual(resp.status_code, 200)
+        data = resp.data
+        for i in range(_quantity):
+            data.pop()
+
+        resp2 = self.api_client.post(
+            self.contribution_endpoint,
+            data=json.dumps(data),
+            content_type='application/json'
+        )
+        self.assertEqual(resp2.status_code, 200)
+        self.assertEqual(len(resp2.data), original_count - _quantity)
+
+    def _test_quantity(self, _quantity=0):
+        # check empty
+        resp1 = self.api_client.get(self.contribution_endpoint)
+        self.assertEqual(resp1.status_code, 200)
+        self.assertEqual(len(resp1.data), 0)
+        self.update_contributions(_quantity=_quantity)
+
+        # GET before POST
+        resp2 = self.api_client.get(
+            self.contribution_endpoint,
+            content_type='application/json',
+        )
+        self.assertEqual(resp2.status_code, 200)
+        self.assertEqual(len(resp2.data), _quantity)
+
+        # check POST response
+        resp3 = self.api_client.post(
+            self.contribution_endpoint,
+            data=json.dumps(resp2.data),
+            content_type="application/json",
+        )
+        self.assertEqual(resp3.status_code, 200)
+        self.assertEqual(len(resp3.data), _quantity)
+
+        # GET after POST
+        resp4 = self.api_client.get(
+            self.contribution_endpoint,
+            content_type='application/json'
+        )
+        self.assertEqual(resp4.status_code, 200)
+        self.assertEqual(len(resp4.data), _quantity)
+
+    def update_contributions(self, _quantity=0):
+        user_qs = self.user_cls.objects.all()
+        for i in range(_quantity):
+            self.content.contributions.create(
+                contributor=user_qs[i % user_qs.count()],
+                role=self.draft_writer
+            )
+        Contribution.search_objects.refresh()

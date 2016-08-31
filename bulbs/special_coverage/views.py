@@ -44,9 +44,21 @@ class SpecialCoverageView(BaseContentDetailView):
 
     def get_context_data(self, *args, **kwargs):
         context = super(SpecialCoverageView, self).get_context_data()
-        context["content_list"] = self.special_coverage.get_content(
+        per_page = 10
+        context["per_page"] = per_page
+
+        content_list = self.special_coverage.get_content(
             published=self.show_published_only()
-        )
+        )[:100]
+
+        context["content_list_total"] = len(content_list)
+        context["content_list"] = content_list[:per_page]
+
+        if len(content_list) > per_page:
+            context["more_content"] = True
+        else:
+            context["more_content"] = False
+
         if hasattr(self.object, "get_reading_list"):
             context["reading_list"] = self.object.get_reading_list()
         context["special_coverage"] = self.special_coverage
@@ -61,6 +73,7 @@ class SpecialCoverageView(BaseContentDetailView):
             context["targeting"]["dfp_specialcoverage"] = self.special_coverage.slug
             if self.special_coverage.tunic_campaign_id:
                 context["targeting"]["dfp_campaign_id"] = self.special_coverage.tunic_campaign_id
+
         return context
 
     def show_published_only(self):
@@ -69,6 +82,22 @@ class SpecialCoverageView(BaseContentDetailView):
         Used to determine unpublished preview state.
         """
         return bool("full_preview" not in self.request.GET)
+
+
+class SpecialCoverageLoadMoreView(SpecialCoverageView):
+
+    def get_template_names(self, *args, **kwargs):
+        return ["special_coverage/more.html"]
+
+    def get_context_data(self, *args, **kwargs):
+        per_page = 10
+        offset = int(self.kwargs.get("offset"))
+        context = super(SpecialCoverageLoadMoreView, self).get_context_data()
+        context["content_list"] = self.special_coverage.get_content(
+            published=self.show_published_only()
+        )[offset:offset + per_page]
+
+        return context
 
 
 class SpecialCoverageVideoView(SpecialCoverageView):
@@ -86,4 +115,5 @@ class SpecialCoverageVideoView(SpecialCoverageView):
 
 
 special_coverage = cache_control(max_age=600)(SpecialCoverageView.as_view())
+special_coverage_load_more = cache_control(max_age=600)(SpecialCoverageLoadMoreView.as_view())
 special_coverage_video = cache_control(max_age=600)(SpecialCoverageVideoView.as_view())

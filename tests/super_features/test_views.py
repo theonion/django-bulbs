@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from datetime import timedelta
 
 from django.core.urlresolvers import reverse
 from django.utils import timezone
@@ -120,6 +121,24 @@ class SuperFeatureViewsTestCase(BaseAPITestCase):
         resp = self.api_client.put(url)
 
         # Will be 200 since parent publish date is now set
+        self.assertEqual(resp.status_code, 200)
+
+        child = BaseSuperFeature.objects.get(id=self.child.id)
+        self.assertEqual(self.parent.published, child.published)
+
+    def test_parent_set_child_dates_in_future(self):
+        """Should be able to set publish dates for children even if parent
+            publish date is in the future."""
+
+        self.parent.published = timezone.now() + timedelta(days=1)
+        self.parent.save()
+
+        url = reverse(
+            'super-feature-set-children-dates',
+            kwargs={'pk': self.parent.pk}
+        )
+        resp = self.api_client.put(url)
+
         self.assertEqual(resp.status_code, 200)
 
         child = BaseSuperFeature.objects.get(id=self.child.id)

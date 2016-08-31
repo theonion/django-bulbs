@@ -220,23 +220,19 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
         if Contribution not in get_models():
             return Response([])
 
-        content_pk = kwargs.get('pk', None)
-        if content_pk is None:
-            return Response([], status=status.HTTP_404_NOT_FOUND)
-
-        queryset = Contribution.search_objects.search().filter(
-            es_filter.Term(**{'content.id': content_pk})
-        )
         if request.method == "POST":
-            serializer = ContributionSerializer(
-                queryset[:queryset.count()].sort('id')[:25],
-                data=get_request_data(request),
-                many=True)
+            serializer = ContributionSerializer(data=get_request_data(request), many=True)
             if not serializer.is_valid():
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             serializer.save()
             return Response(serializer.data)
         else:
+            content_pk = kwargs.get('pk', None)
+            if content_pk is None:
+                return Response([], status=status.HTTP_404_NOT_FOUND)
+            queryset = Contribution.search_objects.search().filter(
+                es_filter.Term(**{'content.id': content_pk})
+            )
             serializer = ContributionSerializer(queryset[:queryset.count()].sort('id'), many=True)
             return Response(serializer.data)
 
