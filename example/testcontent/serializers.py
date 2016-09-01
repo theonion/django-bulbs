@@ -1,4 +1,4 @@
-from .models import TestContentObj, TestContentObjTwo, TestContentDetailImage
+from .models import TestContentObj, TestContentObjTwo, TestContentDetailImage, TestLiveBlog
 
 from bulbs.content.serializers import ContentSerializer
 
@@ -26,3 +26,9 @@ class TestContentDetailImageSerializer(ContentSerializer):
 
     class Meta:
         model = TestContentDetailImage
+
+
+class TestLiveBlogSerializer(ContentSerializer):
+
+    class Meta:
+        model = TestLiveBlog

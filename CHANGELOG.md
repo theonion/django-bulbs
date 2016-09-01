@@ -2,6 +2,56 @@
 
 ## Development
 
+## Version 3.12.2
+
+- Changed `super-feature/:id/relations/` to guarantee child ordering
+
+## Version 3.12.1
+
+- Added `super-feature/:id/relations/ordering/` endpoint
+
+## Version 3.12.0
+
+- Add LiveBlog API
+
+## Version 3.11.10
+
+- Added workaround for `/v/:videohub_id` redirect 404s when there are multiple matching content
+
+## Version 3.11.9
+
+- Updated `GuideToParentSerializer` and `GuideToChildSerializer`
+- Changed `super-feature/:id/set-children-dates` from a `POST` to a `PUT`
+
+## Version 3.11.8
+
+- Added `super-feature/:id/set-children-dates` endpoint to set all children publish dates to its parent
+
+## Version 3.11.7
+
+- Add `?status` filter to the Super Feature viewset
+
+## Version 3.11.6
+
+- Use share_url context variable from onion views instead of external url
+
+## Version 3.11.4
+
+- Instant Articles: Wrap twitter embeds in an `<iframe>`
+
+## Version 3.11.3
+
+- Change `op-social` classes in Instant Articles to `op-interactive`, per Facebook
+
+## Version 3.11.2
+
+- Series detail page uses 3x1 graphic **onion only**
+
+## Version 3.11.1
+
+- Changed series summary to anchor tag on video detail page
+
+
 ## Version 3.11.0
 
 - Added `super_features` field to `SpecialCoverage` model

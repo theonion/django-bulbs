@@ -149,6 +149,7 @@ class ReadOnlyNotificationAPITestCase(BaseAPITestCase):
         self.assertEqual(self.list_endpoint, '/notifications.json')
 
     def test_public_list_success(self):
+        self.client.logout()
         resp = self.client.get(self.list_endpoint)
         self.assertEqual(resp.status_code, 200)
         self.assertIn('page=2', resp.data['next'])

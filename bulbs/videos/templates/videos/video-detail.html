@@ -7,7 +7,7 @@
       twitter-handle="{{ twitter_handle }}"
       data-videohub-base="{{ VIDEOHUB_BASE_URL }}"
       src="{% videohub_player_src content.videohub_ref.id %}"
-      >
+      autoplay>
       </bulbs-video>
     </div>
   </figure>
@@ -19,7 +19,7 @@
     <div id="current-video-description"></div>
     <share-tools
         class="circle-transparent current-video-share-tools"
-        share-url="{{ external_url }}"
+        share-url="{{ share_url }}"
         share-title="{{ share_title }}"
         share-track-action="Single Series: Share">
       <share-via-facebook icon ></share-via-facebook>
@@ -29,7 +29,7 @@
   </div>
 </div>
 
-<div class="series-summary">
+<a href="{{ external_url }}" class="series-summary">
   <div class="series-logo">
     <div class="series-image"></div>
   </div>
@@ -38,7 +38,7 @@
     <li class="series-episodes"></li>
     <li><p class="series-description"></p></li>
   </ul>
-</div>
+</a>
 
 <div class="video-detail-ad">
   <div class="ad-alert">Advertisement</div>

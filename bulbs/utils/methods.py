@@ -1,5 +1,6 @@
 from datetime import date, datetime
 from dateutil import tz
+from importlib import import_module
 from six import string_types, text_type, binary_type
 from six.moves.urllib.parse import urlencode
 
@@ -119,3 +120,14 @@ def redirect_unpublished_to_login_or_404(request, next_url, next_params=None):
                                                    urlencode({'next': next_url})))
     else:
         raise Http404
+
+
+def import_class(name):
+    """Load class from fully-qualified python module name.
+
+    ex: import_class('bulbs.content.models.Content')
+    """
+
+    module, _, klass = name.rpartition('.')
+    mod = import_module(module)
+    return getattr(mod, klass)
