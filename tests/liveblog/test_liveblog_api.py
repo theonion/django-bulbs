@@ -43,7 +43,12 @@ class TestLiveBlogEntryApi(BaseAPITestCase):
                                     content_type="application/json")
         self.assertEqual(resp.status_code, 201)
 
-        self.assertDictContainsSubset(data, resp.data)
+        UNORDERED_KEYS = ['authors', 'recirc_content']
+        self.assertDictContainsSubset({k: v for k, v in data.items()
+                                       if k not in UNORDERED_KEYS},
+                                      resp.data)
+        for key in UNORDERED_KEYS:
+            six.assertCountEqual(self, data[key], resp.data[key])
 
         entry = LiveBlogEntry.objects.get(id=resp.data['id'])
         self.assertEqual(entry.liveblog, liveblog)
