@@ -7,6 +7,7 @@ from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.test.client import Client
 
+from dateutil.relativedelta import relativedelta
 from elasticsearch_dsl import filter as es_filter
 from freezegun import freeze_time
 from six import StringIO
@@ -1136,7 +1137,7 @@ class ReportingApiTestCase(BaseAPITestCase):
         )
         LineItem.objects.create(
             contributor=self.a3,
-            payment_date=self.now.replace(month=self.now.month + 1),
+            payment_date=(self.now + relativedelta(months=1)),
             amount=20
         )
 
