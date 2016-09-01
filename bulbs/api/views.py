@@ -515,7 +515,11 @@ class SpecialCoverageResolveViewSet(viewsets.ReadOnlyModelViewSet):
                         start_date__lte=now, end_date__isnull=True
                     )
                 elif active == 'false':
-                    qs = qs.exclude(start_date__lte=now, end_date__gte=now)
+                    qs = qs.exclude(
+                        start_date__lte=now, end_date__gte=now
+                    ) | qs.exclude(
+                        start_date__lte=now, end_date__isnull=False
+                    )
 
                 # Sponsored Filter
                 sponsored = get_query_params(self.request).get('sponsored', '').lower()
