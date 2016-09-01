@@ -81,16 +81,16 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'bulbs.promotion.middleware.PromotionMiddleware'
 )
 
 CELERY_ALWAYS_EAGER = True
-
 CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
+BROKER_BACKEND = 'memory'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -173,3 +173,15 @@ WWW_URL = "www.theonion.com"
 
 # LiveBlog
 BULBS_LIVEBLOG_MODEL = 'testcontent.TestLiveBlog'
+
+# --------------------------------------------------
+# Test Speed Optimizations
+# --------------------------------------------------
+
+# Faster password hashing
+PASSWORD_HASHERS = (
+    'django.contrib.auth.hashers.MD5PasswordHasher',
+)
+# Don't need extended traceback during tests
+DEBUG = False
+TEMPLATE_DEBUG = False

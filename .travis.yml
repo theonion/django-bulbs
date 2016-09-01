@@ -33,7 +33,7 @@ before_script:
   # Wait for ES startup
   - until curl http://localhost:9200/; do sleep 1; done
 script:
-  - py.test --cov bulbs --cov-report term-missing
+  - py.test --cov bulbs --cov-report term-missing --reuse-db --nomigrations
   - scripts/lint
 after_success:
   - coveralls
