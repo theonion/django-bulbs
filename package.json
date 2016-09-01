@@ -4,6 +4,7 @@
   "devDependencies": {
     "browserify": "^13.0.1",
     "chai": "^3.4.1",
+    "chai-spies": "^0.7.1",
     "faker": "^3.1.0",
     "jquery": "^2.2.1",
     "karma": "^0.13.19",
@@ -19,7 +20,7 @@
     "karma-html2js-preprocessor": "^0.1.0",
     "karma-mocha": "^0.2.1",
     "karma-sinon": "^1.0.4",
-    "karma-sinon-chai": "^1.2.0",
+    "karma-sinon-chai": "^1.2.3",
     "mocha": "^2.3.4",
     "sinon": "^1.17.4",
     "sinon-chai": "^2.8.0",
@@ -27,7 +28,11 @@
   },
   "private": true,
   "scripts": {
-    "karma": "karma start --single-run",
-    "test": "karma start"
+    "karma": "karma start",
+    "test": "karma start --single-run"
+  },
+  "dependencies": {
+    "invariant": "^2.2.1",
+    "lodash": "^4.15.0"
   }
 }

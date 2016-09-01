@@ -19,7 +19,7 @@ class TestLiveBlogEntryApi(BaseAPITestCase):
 
     def test_create_entry(self):
         content = make_content(_quantity=3)
-        authors = mommy.make(get_user_model(), _quantity=2)
+        authors = mommy.make(get_user_model(), _quantity=5)
         liveblog = mommy.make(TestLiveBlog)
         data = {
             "liveblog": liveblog.id,
@@ -30,13 +30,12 @@ class TestLiveBlogEntryApi(BaseAPITestCase):
             "published": "2015-01-02T03:04:05Z",
             "responses": [
                 {
-                    "author": authors[0].id,
-                    "body": "First response"
-                },
-                {
-                    "author": authors[1].id,
-                    "body": "Second response"
+                    "author": authors[i].id,
+                    "body": "New Response {}".format(i),
+                    "internal_name": "Internal {}".format(i)
                 }
+                for i in range(5)
+
             ]
         }
         resp = self.api_client.post(reverse('liveblog-entry-list'),
@@ -44,7 +43,12 @@ class TestLiveBlogEntryApi(BaseAPITestCase):
                                     content_type="application/json")
         self.assertEqual(resp.status_code, 201)
 
-        self.assertDictContainsSubset(data, resp.data)
+        UNORDERED_KEYS = ['authors', 'recirc_content']
+        self.assertDictContainsSubset({k: v for k, v in data.items()
+                                       if k not in UNORDERED_KEYS},
+                                      resp.data)
+        for key in UNORDERED_KEYS:
+            six.assertCountEqual(self, data[key], resp.data[key])
 
         entry = LiveBlogEntry.objects.get(id=resp.data['id'])
         self.assertEqual(entry.liveblog, liveblog)
@@ -55,13 +59,12 @@ class TestLiveBlogEntryApi(BaseAPITestCase):
         six.assertCountEqual(self, entry.recirc_content.all(), content)
 
         responses = entry.responses.all()
-        self.assertEqual(len(responses), 2)
-        self.assertEqual(responses[0].body, 'First response')
-        self.assertEqual(responses[0].author, authors[0])
-        self.assertEqual(responses[0].ordering, 0)
-        self.assertEqual(responses[1].body, 'Second response')
-        self.assertEqual(responses[1].author, authors[1])
-        self.assertEqual(responses[1].ordering, 1)
+        self.assertEqual(len(responses), 5)
+        for i, response in enumerate(responses):
+            self.assertEqual(response.author, authors[i])
+            self.assertEqual(response.ordering, i)
+            self.assertEqual(response.body, 'New Response {}'.format(i))
+            self.assertEqual(response.internal_name, 'Internal {}'.format(i))
 
         # Verify backref
         self.assertEqual(1, liveblog.entries.count())
@@ -105,12 +108,10 @@ class TestLiveBlogEntryApi(BaseAPITestCase):
             "responses": [
                 {
                     "author": author.id,
-                    "body": "New Response 1"
-                },
-                {
-                    "author": author.id,
-                    "body": "New Response 2"
+                    "body": "New Response {}".format(i),
+                    "internal_name": "Internal {}".format(i)
                 }
+                for i in range(10)
             ]
         }
         self.give_permissions()
@@ -118,30 +119,30 @@ class TestLiveBlogEntryApi(BaseAPITestCase):
                                    data=json.dumps(data),
                                    content_type="application/json")
         self.assertEqual(resp.status_code, 200)
+
+        self.assertDictContainsSubset(data, resp.data)
         self.assertEqual(resp.data['id'], entry.id)
-        self.assertEqual(resp.data['headline'], 'Updated Headline')
+
         entry.refresh_from_db()
         self.assertEqual(entry.liveblog, liveblog)
         self.assertEqual(entry.headline, 'Updated Headline')
-        self.assertEqual(entry.body, data['body'])
+        self.assertEqual(entry.body, 'Updated Body')
         self.assertEqual(entry.published, datetime(2015, 2, 2, 2, 2, 2, tzinfo=timezone.utc))
         six.assertCountEqual(self, entry.authors.all(), [author])
         six.assertCountEqual(self, entry.recirc_content.all(), [content])
 
         responses = entry.responses.all()
-        self.assertEqual(len(responses), 2)
-
-        self.assertEqual(responses[0].body, 'New Response 1')
-        self.assertEqual(responses[0].author, author)
-        self.assertEqual(responses[0].ordering, 0)
-
-        self.assertEqual(responses[1].body, 'New Response 2')
-        self.assertEqual(responses[1].author, author)
-        self.assertEqual(responses[1].ordering, 1)
+        self.assertEqual(len(responses), 10)
+        for i, response in enumerate(responses):
+            self.assertEqual(response.author, author)
+            self.assertEqual(response.ordering, i)
+            self.assertEqual(response.body, 'New Response {}'.format(i))
+            self.assertEqual(response.internal_name, 'Internal {}'.format(i))
 
         # Verify original response was deleted
         with self.assertRaises(LiveBlogResponse.DoesNotExist):
             orig_response.refresh_from_db()
+        self.assertEqual(10, LiveBlogResponse.objects.count())
 
         # Verify backref
         self.assertEqual(1, liveblog.entries.count())

@@ -64,7 +64,7 @@ class SetChildrenDatesViewSet(views.APIView):
     def put(self, request, pk):
         parent = get_object_or_404(SUPERFEATURE_MODEL, pk=pk)
 
-        if not parent.is_published:
+        if not parent.published:
             return Response(
                 {'detail': 'Parent publish date is not set'},
                 status=status.HTTP_400_BAD_REQUEST
