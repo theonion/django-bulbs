@@ -1,8 +1,6 @@
 from freezegun import freeze_time
-import requests_mock
 import six
-
-from django.test.utils import override_settings
+from mock import call, patch
 
 from bulbs.utils.test import BaseIndexableTestCase, make_content
 from bulbs.liveblog.models import LiveBlogEntry
@@ -32,27 +30,22 @@ class TestLiveBlogModel(BaseIndexableTestCase):
 class TestLiveBlogEntryModel(BaseIndexableTestCase):
 
     @freeze_time('2016-08-31 12:13:14')
-    @override_settings(LIVEBLOG_FIREBASE_NOTIFY_ENDPOINT='http://firebase.local/{liveblog_id}.json')
     def test_save_signal(self):
 
         liveblog = TestLiveBlog.objects.create()
 
-        with requests_mock.mock() as mocker:
-            mocker.put('http://firebase.local/{}.json'.format(liveblog.id),
-                       status_code=200)
-
+        with patch('bulbs.liveblog.signals.firebase_update_timestamp.delay') as mock_task:
             # Create
             entry = LiveBlogEntry.objects.create(liveblog=liveblog)
-            self.assertEqual(mocker.call_count, 1)
+            self.assertEqual(1, mock_task.call_count)
 
             # Update
             entry.save()
-            self.assertEqual(mocker.call_count, 2)
+            self.assertEqual(2, mock_task.call_count)
 
             # Delete
             entry.delete()
-            self.assertEqual(mocker.call_count, 3)
+            self.assertEqual(3, mock_task.call_count)
 
-            # Verify all request arguments
-            for req in mocker.request_history:
-                self.assertEqual(req.json(), {'updatedAt': 1472645594.0})
+            # Called 3 times with liveblog ID
+            mock_task.assert_has_calls([call(liveblog.id) for _ in range(3)])

@@ -11,6 +11,6 @@ def firebase_update_timestamp(liveblog_id):
     if endpoint:
         url = endpoint.format(liveblog_id=liveblog_id)
         resp = requests.put(url, json={
-            'updatedAt': timezone.now().timestamp()  # TODO: What time format?
+            'updatedAt': timezone.now().isoformat(),
         })
         resp.raise_for_status()

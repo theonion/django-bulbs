@@ -20,7 +20,7 @@ class TestFiresbaseUpdateTimestamp(TestCase):
 
             self.assertEqual(mocker.call_count, 1)
             self.assertEqual(mocker.request_history[0].json(),
-                             {'updatedAt': 1472645594.0})
+                             {'updatedAt': '2016-08-31T12:13:14+00:00'})
 
     def test_request_error(self):
         with requests_mock.mock() as mocker:
