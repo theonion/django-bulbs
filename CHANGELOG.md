@@ -1,6 +1,10 @@
 # django-bulbs Change Log
 
 
+## Version 3.15.0
+
+- Allow Special Coverage end date to be optional
+
 ## Version 3.14.3
 
 - LiveBlog updates (Firebase, DELETE test + doc, LiveBlogResposne ordering)
