@@ -505,9 +505,17 @@ class SpecialCoverageResolveViewSet(viewsets.ReadOnlyModelViewSet):
                 active = get_query_params(self.request).get('active', '').lower()
                 now = timezone.now()
                 if active == 'true':
-                    qs = qs.filter(start_date__lte=now, end_date__gte=now)
+                    qs = qs.filter(
+                        start_date__lte=now, end_date__gte=now
+                    ) | qs.filter(
+                        start_date__lte=now, end_date__isnull=True
+                    )
                 elif active == 'false':
-                    qs = qs.exclude(start_date__lte=now, end_date__gte=now)
+                    qs = qs.exclude(
+                        start_date__lte=now, end_date__gte=now
+                    ) | qs.exclude(
+                        start_date__lte=now, end_date__isnull=False
+                    )
 
                 # Sponsored Filter
                 sponsored = get_query_params(self.request).get('sponsored', '').lower()

@@ -1,4 +1,5 @@
-from datetime import timedelta
+import pytz
+from datetime import timedelta, datetime
 
 from django.utils import timezone
 from elasticsearch.exceptions import TransportError
@@ -162,3 +163,41 @@ class SpecialCoverageQueryTests(BaseIndexableTestCase):
         assert response["_source"].get("sponsored")is True
         assert response["_source"]["start_date"] == yesterday.isoformat()
         assert response["_source"]["end_date"] == tomorrow.isoformat()
+
+    def test_save_pecoltor_without_end_date(self):
+        joe_biden_condition = {
+            "values": [{
+                "value": "joe-biden",
+                "label": "Joe Biden"
+            }],
+            "type": "all",
+            "field": "tag"
+        }
+        query = {
+            "label": "Uncle Joe",
+            "query": {
+                "groups": [{
+                    "conditions": [joe_biden_condition]
+                }]
+            },
+        }
+
+        sc = SpecialCoverage(
+            id=420,
+            name="Uncle Joe",
+            description="Classic Joeseph Biden",
+            query=query,
+            start_date=timezone.now() - timedelta(days=1),
+        )
+        sc._save_percolator()
+
+        response = self.es.get(
+            index=Content.search_objects.mapping.index,
+            doc_type=".percolator",
+            id="specialcoverage.420"
+        )
+        self.assertEqual(
+            response["_source"]["end_date"],
+            datetime.max.replace(tzinfo=pytz.UTC).isoformat()
+        )
+        self.assertEqual(response["_source"]["end_date_epoch"], 253402300800.0)
