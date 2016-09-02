@@ -1,6 +1,10 @@
 # django-bulbs Change Log
 
 
+## Version 3.14.3
+
+- LiveBlog updates (Firebase, DELETE test + doc, LiveBlogResposne ordering)
+
 ## Version 3.14.0
 
 - Fix `ContributionListSerializer` to handle group deletion and avoid duplication.
