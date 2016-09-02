@@ -98,3 +98,28 @@ class SpecialCoverageModelTests(BaseIndexableTestCase):
         self.assertEqual(
             sc.custom_template_name, "templates/garbage/kill_me_now_custom.html"
         )
+
+    def test_custom_manager_active_inactive(self):
+        # active
+        SpecialCoverage.objects.create(
+            name="Active 1",
+            start_date=timezone.now() - timezone.timedelta(days=10),
+            end_date=timezone.now() + timezone.timedelta(days=10)
+        )
+
+        # endless active
+        SpecialCoverage.objects.create(
+            name="Active 2",
+            start_date=timezone.now() - timezone.timedelta(days=10),
+        )
+
+        # inactive
+        SpecialCoverage.objects.create(
+            name="Inactive",
+            start_date=timezone.now() - timezone.timedelta(days=20),
+            end_date=timezone.now() - timezone.timedelta(days=10)
+        )
+
+        self.assertEqual(SpecialCoverage.objects.active().count(), 2)
+        self.assertEqual(SpecialCoverage.objects.inactive().count(), 1)
+        self.assertEqual(SpecialCoverage.objects.inactive()[0].name, "Inactive")
