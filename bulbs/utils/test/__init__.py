@@ -84,35 +84,56 @@ def _iso_datetime(value):
 class BaseIndexableTestCase(TestCase):
     """A TestCase which handles setup and teardown of elasticsearch indexes."""
 
-    elasticsearchLogger = logging.getLogger('elasticsearch')
-
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
+        super(BaseIndexableTestCase, cls).setUpClass()
         """ If you're reading this. I am gone and dead, presumably.
             Elasticsearch's logging is quite loud and lets us know
             about anticipated errors, so I set the level to ERROR only.
             If elasticsearch is giving you trouble in tests and you
             aren't seeing any info, get rid of this. God bless you.
         """
-        self.elasticsearchLogger.setLevel(logging.ERROR)
-        self.es = connections.get_connection("default")
-        self.indexes = get_indexes()
+        logging.getLogger('elasticsearch').setLevel(logging.ERROR)
+        # One-time setup per fixture
+        cls.es = connections.get_connection("default")
+        cls.indexes = get_indexes()
+
+        cls._delete_es()
+
+        for index, body in cls.indexes.items():
+            sync_index(index, body)
+
+    @classmethod
+    def tearDownClass(cls):
+        super(BaseIndexableTestCase, cls).tearDownClass()
+        cls._delete_es()
+
+    def setUp(self):
+        super(BaseIndexableTestCase, self).setUp()
 
         self.now = timezone.now()
 
-        for index in list(self.indexes):
-            self.es.indices.delete_alias("{}*".format(index), "_all", ignore=[404])
-            self.es.indices.delete("{}*".format(index), ignore=[404])
-
-        for index, body in self.indexes.items():
-            sync_index(index, body)
-
+        # TODO: When to call me? setUp or setUpClass?
         self._wait_for_allocation()
 
+    def tearDown(self):
+        super(BaseIndexableTestCase, self).tearDown()
+
+        # TODO: Move to setUp? Maybe don't do this the last (first in setUp) time?
+        for index, body in self.indexes.items():
+            self.es.indices.delete(index=index)
+            self.es.indices.create(index=index, body=body)
+
+    # TODO: Class method called by setUpClass?
     def _wait_for_allocation(self):
         """Wait for shards to be ready, to avoid flaky test errors when ES searches triggered before
         cluster is initialized.
         This is especially important for tests that do not trigger any sort of ES refresh.
         """
+
+        # TODO: Or this?
+        # self.es.cluster.health(wait_for_status='yellow', request_timeout=30)
+
         MAX_WAIT_SEC = 30
         start = time.time()
         while (time.time() - start) < MAX_WAIT_SEC:
@@ -121,10 +142,10 @@ class BaseIndexableTestCase(TestCase):
                 return
         self.fail('One or more ES shards failed to startup within {} seconds'.format(MAX_WAIT_SEC))
 
-    def tearDown(self):
-        for index in list(self.indexes):
-            self.es.indices.delete_alias("{}*".format(index), "_all", ignore=[404])
-            self.es.indices.delete("{}*".format(index), ignore=[404])
+    @classmethod
+    def _delete_es(cls):
+        cls.es.indices.delete_alias("_all", "_all", ignore=[404])
+        cls.es.indices.delete("*", ignore=[404])
 
 
 class BaseAPITestCase(BaseIndexableTestCase):
