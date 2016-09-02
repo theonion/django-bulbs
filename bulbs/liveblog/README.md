@@ -227,3 +227,15 @@
     ]
   }
 ```
+
+
+## Delete entry
+
+### DELETE
+
+* `204` if successful
+* `404` if entry doesn't exist
+
+```
+/api/v1/liveblog/entry/<:entry_id>/
+```
