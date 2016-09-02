@@ -8,6 +8,7 @@ from elasticsearch_dsl.connections import connections
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
+from django.db import transaction
 from django.test import TestCase
 from django.utils import timezone
 
@@ -45,8 +46,8 @@ def make_content(*args, **kwargs):
         key = random.choice(model_keys)
         klass = indexable_registry.all_models[key]
 
-    content = mommy.make(klass, **kwargs)
-    return content
+    with transaction.atomic(savepoint=False):
+        return mommy.make(klass, **kwargs)
 
 
 def random_title():
