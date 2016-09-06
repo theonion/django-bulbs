@@ -78,9 +78,7 @@ module.exports = (function () { // eslint-disable-line no-unused-vars
       var base = urlSplit[0];
       var queryString = urlSplit[1] || '';
 
-      var qstring = baseUrl.split('?')[1] || '';
-
-      return [base, 'more', offset].join('/') + '?' + qstring;
+      return [base, 'more', offset].join('/') + '?' + queryString;
     },
 
     loadMore: function (url) {
