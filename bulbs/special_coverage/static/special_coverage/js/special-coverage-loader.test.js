@@ -157,6 +157,11 @@ describe('SpecialCoverageLoader', function () {
     it('returns a url with the next offset', function () {
       expect(subject.buildUrl(currentPage, perPage, url)).to.equal(url + '/more/' + 10);
     });
+
+    it('returns a url with query parameters appended', function () {
+      var queryUrl = url + '?full_preview=true';
+      expect(subject.buildUrl(currentPage, perPage, url)).to.equal(url + '/more/10?full_preview=True');
+    });
   });
 
   describe('loadMore', function () {
