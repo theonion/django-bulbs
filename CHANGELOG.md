@@ -1,5 +1,9 @@
 # django-bulbs Change Log
 
+## Version 3.15.4
+
+- RSS feed excludes SuperFeatures
+
 ## Version 3.15.3
 
 - Make SpecialCoverageLoadMore Query Parameter aware.

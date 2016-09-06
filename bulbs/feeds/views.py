@@ -1,3 +1,4 @@
+from elasticsearch_dsl.filter import Not, Type
 from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny
@@ -9,6 +10,7 @@ from bulbs.content.filters import Published
 from bulbs.content.models import Content
 from bulbs.content.views import ContentListView
 from bulbs.special_coverage.models import SpecialCoverage
+from bulbs.super_features.utils import get_superfeature_model
 
 from .serializers import GlanceContentSerializer
 
@@ -27,6 +29,12 @@ class RSSView(ContentListView):
         response = super(RSSView, self).get(request, *args, **kwargs)
         response["Content-Type"] = "application/rss+xml"
         return response
+
+    def get_queryset(self):
+        return super(RSSView, self).get_queryset().filter(
+            # Exclude all SuperFeatures (until we ever decide to support them)
+            Not(filter=Type(value=get_superfeature_model().search_objects.mapping.doc_type))
+        )
 
     def get_context_data(self, *args, **kwargs):
         context = super(RSSView, self).get_context_data(*args, **kwargs)
