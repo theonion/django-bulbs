@@ -11,6 +11,8 @@ from bulbs.utils.test import BaseAPITestCase
 
 class BaseSuperFeatureTestCase(BaseAPITestCase):
 
+    maxDiff = None
+
     def setUp(self):
         super(BaseSuperFeatureTestCase, self).setUp()
         self.doc_type = BaseSuperFeature.search_objects.mapping.doc_type
@@ -121,6 +123,12 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
         data_field = fields.get("data")
         self.assertEqual(data_field, {
             'fields': {
+                'copy': OrderedDict([
+                    ("field_size", "long"),
+                    ("read_only", False),
+                    ("required", False),
+                    ("type", "richtext")
+                ]),
                 'sponsor_brand_messaging': OrderedDict([
                     ('type', 'string'),
                     ('required', False),
