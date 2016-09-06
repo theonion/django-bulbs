@@ -74,7 +74,13 @@ module.exports = (function () { // eslint-disable-line no-unused-vars
 
       var offset = this.nextOffset(currentPage, perPage);
 
-      return [baseUrl, 'more', offset].join('/');
+      var urlSplit = baseUrl.split('?');
+      var base = urlSplit[0];
+      var queryString = urlSplit[1] || '';
+
+      var qstring = baseUrl.split('?')[1] || '';
+
+      return [base, 'more', offset].join('/') + '?' + qstring;
     },
 
     loadMore: function (url) {
