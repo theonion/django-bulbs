@@ -1,5 +1,8 @@
 # django-bulbs Change Log
 
+## Version 3.15.1
+
+- fix video detail page by pointing to actual EXTERNAL_URL
 
 ## Version 3.15.0
 
