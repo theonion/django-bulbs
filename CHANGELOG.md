@@ -1,6 +1,10 @@
 # django-bulbs Change Log
 
 
+## Version 3.15.3
+
+- RSS feed excludes SuperFeatures
+
 ## Version 3.15.0
 
 - Allow Special Coverage end date to be optional
