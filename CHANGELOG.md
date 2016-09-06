@@ -1,5 +1,9 @@
 # django-bulbs Change Log
 
+## Version 3.15.3
+
+- Make SpecialCoverageLoadMore Query Parameter aware.
+
 ## Version 3.15.2
 
 - Update GUIDE_TO serializers
