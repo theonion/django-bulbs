@@ -1,0 +1,5 @@
+@import "../functions/linear-gradient";
+
+@mixin gradient-background ($origin: top, $start, $stop, $begin, $end) {
+  background-image: linear-gradient($origin, $start, $stop, $begin, $end);
+}

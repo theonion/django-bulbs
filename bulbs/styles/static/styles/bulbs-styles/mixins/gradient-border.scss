@@ -1,0 +1,9 @@
+@import "../functions/linear-gradient";
+
+@mixin gradient-border($from, $start, $stop, $begin, $end) {
+  -webkit-border-image: linear-gradient($from, $start, $stop, $begin, $end);
+  -webkit-border-image: linear-gradient($from, $start, $stop, $begin, $end);
+  -moz-border-image: linear-gradient($from, $start, $stop, $begin, $end);
+  -o-border-image: linear-gradient($from, $start, $stop, $begin, $end);
+  border-image: linear-gradient($from, $start, $stop, $begin, $end);
+}
