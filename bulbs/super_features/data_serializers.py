@@ -3,11 +3,10 @@ from rest_framework import serializers
 from djbetty.serializers import ImageFieldSerializer
 
 from bulbs.utils.fields import RichTextField
-from bulbs.utils.data_serializers import BaseEntrySerializer
+from bulbs.utils.data_serializers import BaseEntrySerializer, CopySerializer
 
 
-class GuideToEntrySerializer(BaseEntrySerializer):
-    copy = RichTextField(required=True, field_size="long")
+class GuideToEntrySerializer(BaseEntrySerializer, CopySerializer):
     image = ImageFieldSerializer(required=False, default=None, allow_null=True)
 
 
