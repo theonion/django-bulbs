@@ -143,6 +143,61 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
             }
         })
 
+    def test_options_guide_to_child(self):
+        parent = BaseSuperFeature.objects.create(
+            title="A Guide to Cats",
+            notes="This is the guide to cats",
+            superfeature_type=GUIDE_TO_HOMEPAGE,
+            data={
+                "sponsor_brand_messaging": "Fancy Feast",
+                "sponsor_product_shot": {"id": 1}
+            }
+        )
+        child = BaseSuperFeature.objects.create(
+            title="Cats are cool",
+            notes="Child page 1",
+            superfeature_type=GUIDE_TO_ENTRY,
+            parent=parent,
+            ordering=1,
+            data={
+                "entries": [{
+                    "copy": "Everybody loves cats"
+                }]
+            }
+        )
+
+        url = self.get_detail_endpoint(child.pk)
+        resp = self.api_client.options(url)
+        self.assertEqual(resp.status_code, 200)
+
+        fields = resp.data.get("fields")
+        data_field = fields.get("data")
+        self.assertEqual(data_field, {
+            "fields": {
+                "entries": OrderedDict([
+                    ("type", "array"),
+                    ("fields", OrderedDict([(
+                        "copy",
+                        OrderedDict([
+                            ("field_size", "long"),
+                            ("label", "Copy"),
+                            ("read_only", False),
+                            ("required", True),
+                            ("type", "richtext")
+                        ]),
+                    ), (
+                        "image", OrderedDict([
+                            ("label", "Image"),
+                            ("read_only", False),
+                            ("required", False),
+                            ("type", "image")
+                        ]),
+                    )])),
+                    ("child_label", "entry")
+                ]),
+            }
+        })
+
     def test_content_list_excludes_super_features(self):
         parent = BaseSuperFeature.objects.create(
             title="A Guide to Cats",
