@@ -1,5 +1,9 @@
 # django-bulbs Change Log
 
+## Version 3.15.5
+
+- Only try to delete an Instant Article from Facebook if the content has its instant_article_id set
+
 ## Version 3.15.4
 
 - RSS feed excludes SuperFeatures
