@@ -1,9 +1,0 @@
-@function linear-gradient($from: let, $start: #eee, $stop: #fff, $begin: 0%, $end: 100%) {
-  @return (
-    -webkit-linear-gradient($from, $start $begin, $stop $end);
-    -moz-linear-gradient($from, $start $begin, $stop $end);
-    -o-linear-gradient($from, $start $begin, $stop $end);
-    -ms-linear-gradient($from, $start $begin, $stop $end);
-    linear-gradient($from, $start $begin, $stop $end);
-  );
-}
