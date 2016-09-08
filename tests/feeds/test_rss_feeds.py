@@ -63,6 +63,20 @@ class RSSTestCase(BaseIndexableTestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(0, len(resp.context["page_obj"].object_list))
 
+    def test_hidden_content(self):
+        TestContentObj.objects.create(
+            title="Content1",
+            published=timezone.now(),
+            hide_from_rss=True
+        )
+        TestContentObj.objects.create(title="Content2", published=timezone.now())
+        TestContentObj.search_objects.refresh()
+
+        resp = Client().get(reverse("rss-feed"))
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.context["page_obj"].object_list), 1)
+
     def test_special_coverage_rss_feed(self):
         # make content
         c1 = TestContentObj.objects.create(title="Content1", published=timezone.now())

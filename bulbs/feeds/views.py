@@ -1,4 +1,4 @@
-from elasticsearch_dsl.filter import Not, Type
+from elasticsearch_dsl.filter import Not, Type, Term
 from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny
@@ -34,6 +34,8 @@ class RSSView(ContentListView):
         return super(RSSView, self).get_queryset().filter(
             # Exclude all SuperFeatures (until we ever decide to support them)
             Not(filter=Type(value=get_superfeature_model().search_objects.mapping.doc_type))
+        ).filter(
+            Term(**{'hide_from_rss': False})
         )
 
     def get_context_data(self, *args, **kwargs):
