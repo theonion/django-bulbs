@@ -41,14 +41,13 @@ requires = [
 ]
 
 dev_requires = [
-    "pylint==1.0.0",
     "mock==1.0.1",
     "httmock==1.0.5",
-    "model-mommy==1.2.4",
+    "model-mommy==1.2.6",
     "psycopg2==2.5.1",
-    "pytest==2.7.3",
-    "pytest-cov==1.8.1",
-    "pytest-django==2.8.0",
+    "pytest==3.0.1",
+    "pytest-cov==2.3.1",
+    "pytest-django==3.0.0",
     "coveralls==0.4.1",
     "freezegun",
     "vcrpy",
