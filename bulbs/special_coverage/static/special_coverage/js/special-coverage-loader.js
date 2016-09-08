@@ -1,26 +1,20 @@
+var _ = require('lodash');
+
 module.exports = (function () { // eslint-disable-line no-unused-vars
-  function isUndefined (suspect) {
-    return typeof(suspect) === 'undefined';
-  }
-
   function requireArgument (value, message) {
-    if (isUndefined(value)) { throw new Error(message); }
-  }
-
-  function assign (target, source) {
-    Object.keys(source).forEach(function (key) {
-      target[key] = source[key];
-    });
-  }
-
-  function defaults (target, source) {
-    Object.keys(source).forEach(function (key) {
-      if (!target[key]) { target[key] = source[key]; }
-    });
+    if (_.isUndefined(value)) { throw new Error(message); }
   }
 
   function stripTrailingSlash (string) {
     return string.replace(/\/?$/, '');
+  }
+
+  function stripBeginingSlash (string) {
+    return string.replace(/^\/?/, '');
+  }
+
+  function stripEndSlashes (string) {
+    return stripTrailingSlash(stripBeginingSlash(string));
   }
 
   function SpecialCoverageLoader (element, listElement, options) {
@@ -39,19 +33,17 @@ module.exports = (function () { // eslint-disable-line no-unused-vars
     this.defaultText = element.innerHTML;
     this.loadingText = 'Loading...';
 
-    defaults(options, {
-      baseUrl: [
-        window.location.protocol, '//',
-        window.location.host,
-        window.location.pathname,
-        window.location.search,
-        window.location.hash,
-      ].join(''),
-    });
+    var defaultBaseUrl = [
+      window.location.protocol, '//',
+      window.location.hostname + ':' + window.location.port,
+      window.location.pathname,
+      window.location.search,
+      window.location.hash,
+    ].join('');
 
+    _.defaults(options, { baseUrl: defaultBaseUrl });
     options.baseUrl = stripTrailingSlash(options.baseUrl);
-
-    assign(this, options);
+    _.assign(this, options);
 
     element.addEventListener('click', function () {
       var url = this.buildUrl(this.currentPage, this.perPage, this.baseUrl);
@@ -59,7 +51,7 @@ module.exports = (function () { // eslint-disable-line no-unused-vars
     }.bind(this));
   }
 
-  assign(SpecialCoverageLoader.prototype, {
+  _.assign(SpecialCoverageLoader.prototype, {
     nextOffset: function (currentPage, perPage) {
       requireArgument(currentPage, 'SpecialCoverageLoader.nextOffset(currentPage, perPage): currentPage is undefined');
       requireArgument(perPage, 'SpecialCoverageLoader.nextOffset(currentPage, perPage): perPage is undefined');
@@ -73,12 +65,17 @@ module.exports = (function () { // eslint-disable-line no-unused-vars
       requireArgument(baseUrl, 'SpecialCoverageLoader.buildUrl(currentPage, perPage, baseUrl, offset): baseUrl is undefined');
 
       var offset = this.nextOffset(currentPage, perPage);
+      var parser = document.createElement('a');
 
-      var urlSplit = baseUrl.split('?');
-      var base = urlSplit[0];
-      var queryString = urlSplit[1] || '';
+      parser.href = stripTrailingSlash(baseUrl);
 
-      return [base, 'more', offset].join('/') + '?' + queryString;
+      return _.compact([
+        parser.protocol + '/',
+        parser.hostname,
+        stripEndSlashes(parser.pathname),
+        'more',
+        offset + parser.search,
+      ]).join('/');
     },
 
     loadMore: function (url) {
