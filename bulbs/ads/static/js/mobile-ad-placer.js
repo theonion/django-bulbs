@@ -10,7 +10,6 @@ var MobileAdPlacer = {
     var paragraphs = body.find('p');
     var wordCount = 0;
     var adsPlaced = 0;
-    debugger;
 
     for (var i = 0; i < paragraphs.length; i++) {
       var paragraphLength = MobileAdPlacer.wordCount($(paragraphs[i]).html());
