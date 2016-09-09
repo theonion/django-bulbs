@@ -64,11 +64,4 @@ module.exports = function (config) {
       },
     },
   });
-
-  if (process.env.TRAVIS) {
-    config.captureTimeout = 0;
-    config.browsers = ['Chrome_travis_ci'];
-    config.singleRun = true;
-    config.autoWatch = false;
-  }
 };
