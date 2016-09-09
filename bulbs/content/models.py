@@ -221,6 +221,8 @@ class Content(PolymorphicModel, Indexable):
     template_choice = models.IntegerField(default=0, choices=TEMPLATE_CHOICES)
     # Facebook Instant Article ID
     instant_article_id = models.BigIntegerField(blank=True, null=True, default=None)
+    # should this content be exlcluded from the RSS feed?
+    hide_from_rss = models.BooleanField(default=False)
 
     # custom ES manager
     search_objects = ContentManager()

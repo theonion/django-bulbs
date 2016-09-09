@@ -1,5 +1,10 @@
 # django-bulbs Change Log
 
+## Version 3.16.1
+
+- Fix special_coverage lodash error from 3.16.0
+- Added `hide_from_rss` field to `Content` model
+
 ## Version 3.15.6
 
 - Fix GuideToEntrySerializer to return type of array with OPTIONS requests
