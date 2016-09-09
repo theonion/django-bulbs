@@ -25,7 +25,7 @@ PopularSeries.prototype.popularSeriesFetched = function (data) {
   for(var i = 0; i < data.length; i++) {
     var series = data[i];
     this.loadSeriesData(series.slug);
-  };
+  }
 };
 
 PopularSeries.prototype.seriesDataFetched = function (data) {

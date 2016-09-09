@@ -8,11 +8,11 @@ describe('PopularSeries', function () {
       series_description: 'blah blah blah',
       series_logo: 'http://foobar.com/image/600.png',
       total_episodes: 6,
-      total_seasons: 0
+      total_seasons: 0,
     },
     {
       total_episodes: 20,
-      total_seasons: 1
+      total_seasons: 1,
     }];
 
   beforeEach(function () {
@@ -20,7 +20,7 @@ describe('PopularSeries', function () {
             data-channel-series='foobar.com/channel/funky/series.json' \
             data-vidoehub-base='foobar.com' \
             data-series-slug='funk-yeah'> \
-       </div>"
+       </div>";
     $('body').append(popularSeriesDiv);
   });
 

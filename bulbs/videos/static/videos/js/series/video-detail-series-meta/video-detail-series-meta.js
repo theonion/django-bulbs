@@ -1,4 +1,4 @@
-VideoDetailSeriesMeta = function (seriesSlug) {
+var VideoDetailSeriesMeta = function (seriesSlug) {
   this.seriesSlug = seriesSlug;
   this.$detailGrid = $('#detail-video-list');
   this.videohubBase = this.$detailGrid.data('videohub-base');
@@ -13,13 +13,13 @@ VideoDetailSeriesMeta = function (seriesSlug) {
 
 VideoDetailSeriesMeta.prototype.fetchSeriesMeta = function () {
   $.getJSON(this.source, this.seriesMetaFetched.bind(this));
-}
+};
 
-VideoDetailSeriesMeta.prototype.seriesMetaFetched = function(data) {
-  if (data.total_seasons != 0) {
+VideoDetailSeriesMeta.prototype.seriesMetaFetched = function (data) {
+  if (data.total_seasons !== 0) {
     $('<li>', {
-        'class': 'series-seasons',
-        'html' : data.total_seasons + ' Seasons'
+      'class': 'series-seasons',
+      html: data.total_seasons + ' Seasons',
     }).insertBefore(this.$seriesEpisodes);
   }
 
@@ -36,8 +36,8 @@ VideoDetailSeriesMeta.prototype.seriesMetaFetched = function(data) {
 
   if (data.series_logo) {
     $('<img>', {
-        'src' : data.series_logo,
-        'alt' : data.series_name
+      src: data.series_logo,
+      alt: data.series_name,
     }).appendTo(this.$seriesImage);
   }
 };

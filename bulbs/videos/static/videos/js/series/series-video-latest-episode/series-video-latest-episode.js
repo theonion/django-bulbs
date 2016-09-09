@@ -1,4 +1,4 @@
-LatestEpisode = function(videos) {
+LatestEpisode = function (videos) {
 
   this.$videoPlayer = $('bulbs-video');
   this.$latestVideoTitle = $('#latest-video-title');
@@ -16,15 +16,15 @@ LatestEpisode = function(videos) {
   this.$latestVideoShareTools.attr('share-title', this.latestVideoTitle);
 
   $('<a>', {
-      'href' : this.latestEpisodeHref,
-      'data-track-action' : 'Single Series: Latest Episode Title',
-      'data-track-label' : this.latestEpisodeHref,
-      'html' : '<h2>' + this.latestVideoTitle + '</h2>'
+    'href' : this.latestEpisodeHref,
+    'data-track-action' : 'Single Series: Latest Episode Title',
+    'data-track-label' : this.latestEpisodeHref,
+    'html' : '<h2>' + this.latestVideoTitle + '</h2>',
 
   }).appendTo(this.$latestVideoTitle);
 
   if (videos[0].description) {
-    $('<p>' +  videos[0].description + '</p>')
+    $('<p>' + videos[0].description + '</p>')
       .appendTo(this.$latestVideoDescription);
   }
 

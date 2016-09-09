@@ -1,4 +1,4 @@
-SeriesPage = function() {
+SeriesPage = function () {
   this.$seriesGrid = $('#series-video-list');
   this.seriesSlug = this.$seriesGrid.data('series-slug');
   this.videohubBase = this.$seriesGrid.data('videohub-base');
@@ -7,11 +7,11 @@ SeriesPage = function() {
   this.fetchSeriesVideos(sourceUrl);
 };
 
-SeriesPage.prototype.fetchSeriesVideos = function(sourceUrl) {
+SeriesPage.prototype.fetchSeriesVideos = function (sourceUrl) {
   $.getJSON(sourceUrl, this.seriesVideosFetched.bind(this));
 };
 
-SeriesPage.prototype.seriesVideosFetched = function(data) {
+SeriesPage.prototype.seriesVideosFetched = function (data) {
   this.latestEpisode = new LatestEpisode(data.results);
 };
 

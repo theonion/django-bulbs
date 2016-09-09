@@ -1,37 +1,38 @@
-describe('SeriesVideoList', function() {
+describe('SeriesVideoList', function () {
   var SeriesVideoList = require('./series-video-list');
   var seriesList;
 
-  beforeEach(function() {
+  beforeEach(function () {
     seriesList = document.createElement('div');
     seriesList.id = 'series-list';
 
     $('body').append(seriesList);
   });
 
-  afterEach(function() {
+  afterEach(function () {
     document.body.removeChild(seriesList);
   });
 
-  describe('#seriesFetched', function() {
-    var seriesVideoList, data;
+  describe('#seriesFetched', function () {
+    var seriesVideoList;
+    var data;
 
-    beforeEach(function() {
+    beforeEach(function () {
       TestHelper.stub(SeriesVideoList.prototype, 'loadSeries');
 
       data = [
         { slug: 'av-undercover', name: 'AV Undercover' },
-        { slug: 'polite-fight', name: 'Polite Fight' }
+        { slug: 'polite-fight', name: 'Polite Fight' },
       ];
 
       seriesVideoList = new SeriesVideoList();
       seriesVideoList.seriesFetched(data);
     });
 
-    it('adds a link for every video series', function() {
+    it('adds a link for every video series', function () {
       var links = seriesVideoList.$seriesList.find('li a');
 
-      links.each(function(index, link) {
+      links.each(function (index, link) {
         expect($(link).attr('href')).to.equal('/series/' + data[index].slug);
         expect($(link).html()).to.equal(data[index].name);
       });

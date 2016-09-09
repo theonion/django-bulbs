@@ -17,6 +17,7 @@
     "Cookies": false,
     "Clickventure": false,
     "SpecialCoverageLoader": false,
+    "TestHelper": false
   },
   "ecmaFeatures": {
     "arrowFunctions": true,

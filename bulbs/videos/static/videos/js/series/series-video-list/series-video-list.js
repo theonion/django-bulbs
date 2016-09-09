@@ -14,13 +14,13 @@ SeriesVideoList.prototype.seriesFetched = function (data) {
   data
     .forEach(function (series) {
       $('<li>',{
-        'data-track-action' : 'Series Flyout: Browse',
-        'data-track-label' : '/series/' + series.slug,
+        'data-track-action': 'Series Flyout: Browse',
+        'data-track-label': '/series/' + series.slug,
         'html': $('<a>',{
-          'class' : '',
-          'href' : '/series/' + series.slug,
-          'html' : series.name,
-        })
+          'class': '',
+          href: '/series/' + series.slug,
+          html: series.name,
+        }),
       }).appendTo(that.$seriesList);
     });
 };

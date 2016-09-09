@@ -18,14 +18,14 @@ VideoRecircList.prototype.loadVideoRecirc = function () {
 
 VideoRecircList.prototype.videoRecircFetched = function (data) {
   var that = this;
-  
+
   var recirc = data.videos.slice(0,that.recircCount);
 
   recirc
     .forEach(function (video) {
-    var videoTitle = video.title;
-    var videoHref = '/v/' + video.id;
-    var posterSource = that.bettyUrl + '/' + video.poster.id;
+      var videoTitle = video.title;
+      var videoHref = '/v/' + video.id;
+      var posterSource = that.bettyUrl + '/' + video.poster.id;
       $('<a>',{
         'class' : that.videoItem,
         'href' : videoHref,
@@ -35,8 +35,8 @@ VideoRecircList.prototype.videoRecircFetched = function (data) {
           'class' : 'content',
           'html' : '<div class="image"><bulbs-video-play-button></bulbs-video-play-button><img src="' + posterSource + '/16x9/480.jpg"></div>',
         }).add($('<p>',{
-          'html' : videoTitle
-        }))
+          'html' : videoTitle,
+        })),
       }).appendTo(that.$videoRecircList);
     });
 };

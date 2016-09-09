@@ -1,9 +1,10 @@
 'use strict';
 var _ = require('lodash/lodash');
-var adHtml = '<div class="dfp dfp-slot-inread" data-ad-unit="inread"> \
-                Content continues below advertisement \
-              </div>';
-
+var adHtml = [
+  '<div class="dfp dfp-slot-inread" data-ad-unit="inread">',
+  'Content continues below advertisement',
+  '</div>',
+].join('');
 
 var MobileAdPlacer = {
   placeAds: function () {
