@@ -1,0 +1,8 @@
+@mixin gradient-background ($origin: top, $start-color: #eee, $stop-color: #fff, $start-at: 1%, $stop-at: 100%) {
+  @if $origin == top { $to: bottom; }
+  @if $origin == bottom { $to: top; }
+  @if $origin == left { $to: right; }
+  @if $origin == right { $to: left; }
+  background: -ms-linear-gradient($origin,  $start-color $start-at, $stop-color $stop-at); /* IE10+ */
+  background: linear-gradient(to $to,  $start-color $start-at, $stop-color $stop-at);
+}
