@@ -1,32 +1,30 @@
 module.exports = function (config) {
-  config.set({
+  var configuration = {
     basePath: '',
+    port: 9876,
+    colors: true,
+    logLevel: config.LOG_INFO,
+    autoWatch: true,
+    browsers: ['Chrome'],
+    singleRun: false,
+    exclude: [],
 
-    // frameworks to use
-    // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
     frameworks: [
       'browserify',
       'sinon-chai',
       'mocha',
     ],
 
-    // list of files / patterns to load in the browser
     files: [
       'node_modules/jquery/dist/jquery.min.js',
       'test_helper.js',
       'bulbs/**/*.test.js',
     ],
 
-    // list of files to exclude
-    exclude: [],
-
     preprocessors: {
       'bulbs/**/*.test.js': ['browserify'],
     },
 
-    // test results reporter to use
-    // possible values: 'dots', 'progress'
-    // available reporters: https://npmjs.org/browse/keyword/karma-reporter
     reporters: ['progress'],
 
     client: {
@@ -35,26 +33,21 @@ module.exports = function (config) {
         ui: 'bdd',
       },
     },
+  };
 
-    // web server port
-    port: 9876,
+  if (process.env.TRAVIS) {
+    configuration.browsers = ['Chrome_travis_ci'];
+    configuration.captureTimeout = 0;
+    configuration.colors = false;
+    configuration.autoWatch = false;
+    configuration.singleRun = true;
+    configuration.customLaunchers = {
+      Chrome_travis_ci: {
+        base: 'Chrome',
+        flags: ['--no-sandbox'],
+      },
+    };
+  }
 
-    // enable / disable colors in the output (reporters and logs)
-    colors: true,
-
-    // level of logging
-    // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
-    logLevel: config.LOG_INFO,
-
-    // enable / disable watching file and executing tests whenever any file changes
-    autoWatch: true,
-
-    // start these browsers
-    // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['Chrome'],
-
-    // Continuous Integration mode
-    // if true, Karma captures browsers, runs the tests and exits
-    singleRun: false,
-  });
+  config.set(configuration);
 };
