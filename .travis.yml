@@ -3,15 +3,15 @@ language: python
 sudo: required
 
 matrix:
-    include:
-        # Current production
-        - python: '2.7'
-          env: ELASTICSEARCH_VERSION=1.4.4
-        - python: "3.5"
-          env: ELASTICSEARCH_VERSION=1.4.4
-        # Latest in 1.X line (as of 2016-02-10). For speed, just run future ES version with latest Python
-        - python: '3.5'
-          env: ELASTICSEARCH_VERSION=1.7.5
+  include:
+    # Current production
+    - python: '2.7'
+      env: ELASTICSEARCH_VERSION=1.4.4
+    - python: "3.5"
+      env: ELASTICSEARCH_VERSION=1.4.4
+    # Latest in 1.X line (as of 2016-02-10). For speed, just run future ES version with latest Python
+    - python: '3.5'
+      env: ELASTICSEARCH_VERSION=1.7.5
 cache:
   directories:
     - $HOME/.cache/pip
@@ -35,7 +35,7 @@ before_script:
 script:
   - py.test --cov bulbs --cov-report term-missing
   - npm install
-  - npm test
+  - npm run ci-test
   - scripts/lint
 after_success:
   - coveralls
