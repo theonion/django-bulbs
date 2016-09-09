@@ -76,6 +76,7 @@ class RSSTestCase(BaseIndexableTestCase):
 
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.context["page_obj"].object_list), 1)
+        self.assertEqual(resp.context["page_obj"].object_list[0].title, "Content2")
 
     def test_special_coverage_rss_feed(self):
         # make content
