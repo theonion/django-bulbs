@@ -12,7 +12,8 @@ describe('SeriesVideoGrid', function () {
   });
 
   context('normal functionality', function () {
-
+    var seriesVideoGrid;
+    var bettyUrl;
     beforeEach(function () {
       bettyUrl = 'http://i.onionstatic.com';
       seriesGrid = $('<div id="series-video-list" data-betty-url="' + bettyUrl + '">');
@@ -32,17 +33,17 @@ describe('SeriesVideoGrid', function () {
     });
 
     it('adds a title for every video series', function () {
-      var title = seriesVideoGrid.$seriesGrid.find('a p');
+      var titles = seriesVideoGrid.$seriesGrid.find('a p');
 
-      title.each(function (index, title) {
+      titles.each(function (index, title) {
         expect($(title).html()).to.equal(videos[index].title);
       });
     });
 
     it('adds a poster image url for every video series', function () {
-      var poster = seriesVideoGrid.$seriesGrid.find('a img');
+      var posters = seriesVideoGrid.$seriesGrid.find('a img');
 
-      poster.each(function (index, poster) {
+      posters.each(function (index, poster) {
         expect($(poster).attr('src')).to.equal(bettyUrl + '/' + videos[index].poster.id + '/16x9/480.jpg');
       });
     });
@@ -56,7 +57,7 @@ describe('SeriesVideoGrid', function () {
       var subject = sinon.spy(SeriesVideoGrid);
 
       expect(function () {
-        new subject(videos);
+        new subject(videos); // eslint-disable-line no-new
       }).to.throw('SeriesVideoGrid requires series-video-list to have a data-betty-url attribute.');
     });
   });

@@ -1,4 +1,7 @@
-SeriesPage = function () {
+var SeriesVideoGrid = require('../series-video-grid/series-video-grid');
+var LatestEpisode = require('../series-video-latest-episode/series-video-latest-episode');
+
+var SeriesPage = function () {
   this.$seriesGrid = $('#series-video-list');
   this.seriesSlug = this.$seriesGrid.data('series-slug');
   this.videohubBase = this.$seriesGrid.data('videohub-base');

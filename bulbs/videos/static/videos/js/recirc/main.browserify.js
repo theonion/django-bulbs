@@ -1,3 +1,4 @@
+/* eslint no-new: 0 */
 var VideoRecircList = require('./video-recirc-list/video-recirc-list');
 var SeriesVideoList = require('../series/series-video-list/series-video-list');
 

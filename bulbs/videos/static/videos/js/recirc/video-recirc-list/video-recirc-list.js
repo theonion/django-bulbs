@@ -27,15 +27,15 @@ VideoRecircList.prototype.videoRecircFetched = function (data) {
       var videoHref = '/v/' + video.id;
       var posterSource = that.bettyUrl + '/' + video.poster.id;
       $('<a>',{
-        'class' : that.videoItem,
-        'href' : videoHref,
-        'data-track-action' : 'Video: Recirc',
-        'data-track-label' : videoHref,
-        'html': $('<figure>',{
-          'class' : 'content',
-          'html' : '<div class="image"><bulbs-video-play-button></bulbs-video-play-button><img src="' + posterSource + '/16x9/480.jpg"></div>',
+        'class': that.videoItem,
+        href: videoHref,
+        'data-track-action': 'Video: Recirc',
+        'data-track-label': videoHref,
+        html: $('<figure>', {
+          'class': 'content',
+          html: '<div class="image"><bulbs-video-play-button></bulbs-video-play-button><img src="' + posterSource + '/16x9/480.jpg"></div>',
         }).add($('<p>',{
-          'html' : videoTitle,
+          html: videoTitle,
         })),
       }).appendTo(that.$videoRecircList);
     });

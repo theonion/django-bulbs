@@ -1,3 +1,4 @@
+/* eslint no-new: 0 */
 describe('PopularSeries', function () {
   var PopularSeries = require('./popular-series');
   var seriesData = [
@@ -16,11 +17,13 @@ describe('PopularSeries', function () {
     }];
 
   beforeEach(function () {
-    var popularSeriesDiv = "<div id='popular-series' \
-            data-channel-series='foobar.com/channel/funky/series.json' \
-            data-vidoehub-base='foobar.com' \
-            data-series-slug='funk-yeah'> \
-       </div>";
+    var popularSeriesDiv = [
+      '<div id="popular-series" ',
+      'data-channel-series="foobar.com/channel/funky/series.json" ',
+      'data-vidoehub-base="foobar.com" ',
+      'data-series-slug="funk-yeah"> ',
+      '</div>',
+    ].join('');
     $('body').append(popularSeriesDiv);
   });
 

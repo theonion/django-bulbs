@@ -6,16 +6,11 @@ describe('CurrentEpisodeData', function () {
     poster: { id: 1234 },
     description: 'it sucks',
   };
-  var videoPlayer;
-
   var videohubBaseUrl = 'http://onionstudios.com';
   var videoPlayer = $('<bulbs-video data-videohub-base="' + videohubBaseUrl + '">');
   var currentVideoTitle = '<div id="current-video-title"></div>';
   var currentVideoDescription = '<div id="current-video-description"></div>';
-  var currentVideoShareTools = '<share-tools \
-                                  class="current-video-share-tools" \
-                                  share-url="foo.bar" \
-                              </share-tools>';
+  var currentVideoShareTools = '<share-tools class="current-video-share-tools" share-url="foo.bar"></share-tools>';
 
   context('normal functionality', function () {
 
@@ -26,7 +21,7 @@ describe('CurrentEpisodeData', function () {
       $('body').append(currentVideoDescription);
       $('body').append(currentVideoShareTools);
 
-      currentEpisodeData = new CurrentEpisodeData(video);
+      new CurrentEpisodeData(video); // eslint-disable-line no-new
     });
 
     afterEach(function () {
@@ -72,10 +67,9 @@ describe('CurrentEpisodeData', function () {
       var subject = sinon.spy(CurrentEpisodeData);
 
       expect(function () {
-        new subject(video);
+        new subject(video); // eslint-disable-line no-new
       }).to.throw('CurrentEpisode requires bulbs-video to have a videohub base url.');
       $('bulbs-video').remove();
     });
   });
-
 });

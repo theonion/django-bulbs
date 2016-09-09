@@ -1,4 +1,4 @@
-SeriesVideoGrid = function (sourceUrl, selector) {
+var SeriesVideoGrid = function (sourceUrl, selector) {
   this.$seriesGrid = $(selector || '#series-video-list');
   this.$carousel = $('bulbs-carousel');
   this.$carouselItemContainer = $('bulbs-carousel-slider bulbs-carousel-track');
@@ -21,7 +21,8 @@ SeriesVideoGrid.prototype.seriesVideosFetched = function (data) {
 
   if (data.next) {
     this.nextUrl = data.next;
-  } else {
+  }
+  else {
     delete this.nextUrl;
   }
 };
@@ -54,15 +55,15 @@ SeriesVideoGrid.prototype.appendVideos = function (videos) {
       var posterSource = that.bettyUrl + '/' + video.poster.id + '/16x9/480.jpg';
 
       var anchor = $('<a>',{
-        'class' : 'video-item',
-        'href' : videoHref,
-        'data-track-action' : 'Single Series: Episodes',
-        'data-track-label' : videoHref,
-        'html': $('<figure>',{
-          'class' : 'content',
-          'html' : '<div class="image"><bulbs-video-play-button></bulbs-video-play-button><img src="' + posterSource + '"></div>',
+        'class': 'video-item',
+        href: videoHref,
+        'data-track-action': 'Single Series: Episodes',
+        'data-track-label': videoHref,
+        html: $('<figure>',{
+          'class': 'content',
+          html: '<div class="image"><bulbs-video-play-button></bulbs-video-play-button><img src="' + posterSource + '"></div>',
         }).add($('<p>',{
-          'html' : videoTitle,
+          html: videoTitle,
         })),
       });
 

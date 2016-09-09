@@ -30,21 +30,25 @@ PopularSeries.prototype.popularSeriesFetched = function (data) {
 
 PopularSeries.prototype.seriesDataFetched = function (data) {
   // build markup for popular series
-  var seriesLink = '<a \
-                        class="popular-series-item" \
-                        href="/series/' + data.series_slug + '" \
-                        data-track-action="Single Series: Popular Series" \
-                        data-track-label="' + data.series_slug + '"></a>';
+  var seriesLink = [
+    '<a class="popular-series-item" href="/series/',
+    data.series_slug,
+    '" data-track-action="Single Series: Popular Series" data-track-label="',
+    data.series_slug,
+    '"></a>',
+  ].join('');
+  var seriesSeasonsCount;
   var $container = $(seriesLink);
   var seriesTitle = '<div class="popular-series-item-title">' +
     data.series_name + '</div>';
   var seriesEpisodesCount = '<div class="popular-series-item-episodes">'
     + data.total_episodes + ' Videos</div>';
   if (data.total_seasons > 0) {
-    var seriesSeasonsCount = '<div class="popular-series-item-seasons">'
+    seriesSeasonsCount = '<div class="popular-series-item-seasons">'
     + data.total_seasons + ' Seasons</div>';
-  } else {
-    var seriesSeasonsCount = '';
+  }
+  else {
+    seriesSeasonsCount = '';
   }
   var seriesLogo = '<div class="series-logo"><img src="' + data.series_logo + '" alt="' + data.series_name + '"></img></div>';
 

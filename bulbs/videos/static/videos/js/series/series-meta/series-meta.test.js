@@ -18,7 +18,8 @@ describe('SeriesMeta', function () {
   });
 
   describe('#seriesMetaFetched', function () {
-    var seriesMeta, data;
+    var seriesMeta;
+    var data;
 
     beforeEach(function () {
       data = {
@@ -55,12 +56,12 @@ describe('SeriesMeta', function () {
     it('populates series logo w/ 3x1', function () {
       // setup
       $('body').append('<div class="onion-series-page">');
-      data = {
+      var data = {
         series_logo: 'www.picture.com/regular-picture',
         series_logo_3x1: 'www.picture.com/three-by-one',
       };
       TestHelper.stub(SeriesMeta.prototype, 'fetchSeriesMeta');
-      seriesMeta = new SeriesMeta();
+      var seriesMeta = new SeriesMeta();
       seriesMeta.seriesMetaFetched(data);
 
       var seriesLogoSrc = $('.series-image img').attr('src');
