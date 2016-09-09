@@ -2,4 +2,4 @@
 #
 # Run linter(s) over project
 
-flake8 .
+flake8 . --exclude node_modules

@@ -38,7 +38,6 @@ before_script:
   - 'sh -e /etc/init.d/xvfb start'
 script:
   - py.test --cov bulbs --cov-report term-missing
-  - npm install
   - npm run ci-test
   - scripts/lint
 after_success:
