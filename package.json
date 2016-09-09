@@ -31,7 +31,7 @@
   "scripts": {
     "karma": "karma start",
     "test": "karma start --single-run",
-    "ci-test": "karma start --config karma.conf.travis.js --single-run",
+    "test-ci": "karma start karma.travis.conf.js",
     "lint": "eslint ."
   },
   "dependencies": {
