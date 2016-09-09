@@ -34,6 +34,7 @@ before_script:
   - until curl http://localhost:9200/; do sleep 1; done
 script:
   - py.test --cov bulbs --cov-report term-missing
+  - npm install
   - npm test
   - scripts/lint
 after_success:
