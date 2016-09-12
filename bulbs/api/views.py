@@ -135,7 +135,13 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
             authors = get_query_params(self.request).getlist("authors")
             queryset = queryset.filter(Authors(authors))
 
-        # filter out Super Features from listing page
+        if "exclude" in get_query_params(self.request):
+            exclude = get_query_params(self.request).get("exclude")
+            queryset = queryset.filter(
+                es_filter.Not(es_filter.Type(**{'value': exclude}))
+            )
+
+        # always filter out Super Features from listing page
         queryset = queryset.filter(
             es_filter.Not(filter=es_filter.Type(
                 value=get_superfeature_model().search_objects.mapping.doc_type))
