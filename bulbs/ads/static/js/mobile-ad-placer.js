@@ -6,8 +6,8 @@ var adHtml = '<div class="dfp dfp-slot-inread" data-ad-unit="inread"> \
 
 var MobileAdPlacer = {
   placeAds: function () {
-    var body = $('body');
-    var paragraphs = body.find('p');
+    var articleText = $('.article-text');
+    var paragraphs = articleText.find('p');
     var wordCount = 0;
     var adsPlaced = 0;
 
