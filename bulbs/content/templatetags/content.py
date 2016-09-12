@@ -38,3 +38,13 @@ def content_tunic_campaign_url(campaign_id,
 @register.simple_tag(takes_context=True)
 def build_video_share_uri(context, video_id):
     return context["request"].build_absolute_uri("/v/" + format(video_id))
+
+
+@register.simple_tag
+def campaign_display_preamble(tunic_campaign_id):
+    tunic_campaign_whitelist = [563]
+
+    if tunic_campaign_id in tunic_campaign_whitelist:
+        return "Sponsored by"
+    else:
+        return "Presented by"

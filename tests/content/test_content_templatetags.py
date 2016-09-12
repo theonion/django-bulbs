@@ -2,6 +2,7 @@ from django.template import Context, Template, TemplateSyntaxError
 from django.test import override_settings
 
 from bulbs.utils.test import BaseIndexableTestCase
+from bulbs.content.templatetags.content import campaign_display_preamble
 
 
 TEST_TUNIC_BACKEND_ROOT = "//my.tunic.url"
@@ -104,3 +105,20 @@ class ContentTemplateTagTunicCampaignUrlTestCase(BaseIndexableTestCase):
                 image_format
             )
         )
+
+
+class ContentTemplateTagTunicCampaignDisplayPreamble(BaseIndexableTestCase):
+    def setUp(self):
+        super(ContentTemplateTagTunicCampaignDisplayPreamble, self).setUp()
+
+    def test_campaign_display_preamble_whitelisted_id(self):
+        response = campaign_display_preamble(563)
+        expected_response = "Sponsored by"
+
+        self.assertEquals(response, expected_response)
+
+    def test_campaign_display_preamble_non_whitelisted_id(self):
+        response = campaign_display_preamble(1)
+        expected_response = "Presented by"
+
+        self.assertEquals(response, expected_response)
