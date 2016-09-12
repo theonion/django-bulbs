@@ -46,6 +46,7 @@ from bulbs.contributions.serializers import ContributionSerializer, ContributorR
 from bulbs.notifications.viewsets import NotificationViewSet
 from bulbs.special_coverage.models import SpecialCoverage
 from bulbs.special_coverage.serializers import SpecialCoverageSerializer
+from bulbs.super_features.utils import get_superfeature_model
 from bulbs.utils.methods import get_query_params, get_request_data
 
 from .metadata import PolymorphicContentMetadata
@@ -134,11 +135,11 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
             authors = get_query_params(self.request).getlist("authors")
             queryset = queryset.filter(Authors(authors))
 
-        if "exclude" in get_query_params(self.request):
-            exclude = get_query_params(self.request).get("exclude")
-            queryset = queryset.filter(
-                es_filter.Not(es_filter.Type(**{'value': exclude}))
-            )
+        # filter out Super Features from listing page
+        queryset = queryset.filter(
+            es_filter.Not(filter=es_filter.Type(
+                value=get_superfeature_model().search_objects.mapping.doc_type))
+        )
 
         page = self.paginate_queryset(queryset)
         if page is not None:
