@@ -1,5 +1,9 @@
 # django-bulbs Change Log
 
+## Version 3.16.3
+
+- Change preamble on special coverage video player from "Presented by" to "Sponsored by"
+
 ## Version 3.16.2
 
 - Always exclude SuperFeatures from list view on ContentViewSet
