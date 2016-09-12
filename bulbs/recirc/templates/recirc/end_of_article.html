@@ -1,0 +1,15 @@
+{% load core %}
+
+<div class="end-of-article-video">
+  <h2>{{ recirc_text }}</h2>
+  <bulbs-video
+      twitter-handle="{{ twitter_handle }}"
+      src="{{ video_src }}">
+  </bulbs-video>
+  <bulbs-video-meta
+    src="{{ video_src }}"
+    share-email-message="{{share_message}}"
+    share-twitter-handle="{{twitter_handle}}"
+  >
+  </bulbs-video-meta>
+</div>
