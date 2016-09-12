@@ -1,5 +1,9 @@
 # django-bulbs Change Log
 
+## Version 3.16.2
+
+- Always exclude SuperFeatures from list view on ContentViewSet
+
 ## Version 3.16.1
 
 - Fix special_coverage lodash error from 3.16.0
