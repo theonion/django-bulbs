@@ -3,7 +3,7 @@ class SuperFeatureMixin(object):
         if self.parent:
             return self.parent.get_absolute_url() + "/{}".format(self.slug)
 
-        return "/{}".format(self.slug)
+        return "/interactive/{}".format(self.slug)
 
     @property
     def is_indexed(self):
