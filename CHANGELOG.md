@@ -1,5 +1,10 @@
 # django-bulbs Change Log
 
+## Version 3.17.0
+
+- Update SuperFeature get_absolute_url() to prepend with `/interactive/`
+- NOTE: When updating Onion, make sure that * TO WATCH Super Features have appropriate redirect
+
 ## Version 3.16.3
 
 - Change preamble on special coverage video player from "Presented by" to "Sponsored by"
