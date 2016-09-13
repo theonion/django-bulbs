@@ -1,8 +1,24 @@
-var _ = require('lodash');
-
 module.exports = (function () { // eslint-disable-line no-unused-vars
+  // These quasi-copies of lodash methods are used instead of lodash
+  // because we do not want to depend on it here
+  function isUndefined (suspect) {
+    return typeof(suspect) === 'undefined';
+  }
+
   function requireArgument (value, message) {
-    if (_.isUndefined(value)) { throw new Error(message); }
+    if (isUndefined(value)) { throw new Error(message); }
+  }
+
+  function assign (target, source) {
+    Object.keys(source).forEach(function (key) {
+      target[key] = source[key];
+    });
+  }
+
+  function defaults (target, source) {
+    Object.keys(source).forEach(function (key) {
+      if (!target[key]) { target[key] = source[key]; }
+    });
   }
 
   function stripTrailingSlash (string) {
@@ -15,6 +31,17 @@ module.exports = (function () { // eslint-disable-line no-unused-vars
 
   function stripEndSlashes (string) {
     return stripTrailingSlash(stripBeginingSlash(string));
+  }
+
+  function compact (list) {
+    var newList = [];
+    list.forEach(function (item) {
+      if (!isUndefined(item) || item.length > 0) {
+        newList.push(item);
+      }
+    });
+
+    return newList;
   }
 
   function SpecialCoverageLoader (element, listElement, options) {
@@ -41,9 +68,9 @@ module.exports = (function () { // eslint-disable-line no-unused-vars
       window.location.hash,
     ].join('');
 
-    _.defaults(options, { baseUrl: defaultBaseUrl });
+    defaults(options, { baseUrl: defaultBaseUrl });
     options.baseUrl = stripTrailingSlash(options.baseUrl);
-    _.assign(this, options);
+    assign(this, options);
 
     element.addEventListener('click', function () {
       var url = this.buildUrl(this.currentPage, this.perPage, this.baseUrl);
@@ -51,7 +78,7 @@ module.exports = (function () { // eslint-disable-line no-unused-vars
     }.bind(this));
   }
 
-  _.assign(SpecialCoverageLoader.prototype, {
+  assign(SpecialCoverageLoader.prototype, {
     nextOffset: function (currentPage, perPage) {
       requireArgument(currentPage, 'SpecialCoverageLoader.nextOffset(currentPage, perPage): currentPage is undefined');
       requireArgument(perPage, 'SpecialCoverageLoader.nextOffset(currentPage, perPage): perPage is undefined');
@@ -69,7 +96,7 @@ module.exports = (function () { // eslint-disable-line no-unused-vars
 
       parser.href = stripTrailingSlash(baseUrl);
 
-      return _.compact([
+      return compact([
         parser.protocol + '/',
         parser.hostname,
         stripEndSlashes(parser.pathname),
