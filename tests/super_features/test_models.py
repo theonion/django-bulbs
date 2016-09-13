@@ -140,3 +140,16 @@ class SuperFeatureModelTestCase(BaseIndexableTestCase):
         # check that child id is not in index
         self.assertEqual(results['hits']['total'], 1)
         self.assertTrue(child.id not in results['hits'])
+
+    def test_super_feature_absolute_url(self):
+        sf = BaseSuperFeature.objects.create(
+            title="Guide to Cats",
+            notes="This is the guide to cats",
+            superfeature_type=GUIDE_TO_HOMEPAGE,
+            data={
+                "sponsor_text": "Fancy Feast",
+                "sponsor_image": {"id": 1}
+            }
+        )
+
+        self.assertTrue(sf.get_absolute_url().startswith('/interactive/'))
