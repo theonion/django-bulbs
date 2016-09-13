@@ -1,5 +1,9 @@
 # django-bulbs Change Log
 
+## Version 3.17.1
+
+- Remove lodash dependency in mobile-ad-placer.js this should have no affect on any property 
+
 ## Version 3.17.0
 
 - Update SuperFeature get_absolute_url() to prepend with `/interactive/`
