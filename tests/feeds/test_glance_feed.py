@@ -9,6 +9,7 @@ from django.test.utils import override_settings
 from django.utils import timezone
 
 from bulbs.content.models import Tag
+from bulbs.section.models import Section
 from bulbs.utils.test import BaseIndexableTestCase, make_content
 
 from example.testcontent.models import TestContentObj
@@ -36,39 +37,86 @@ class GlanceFeedTestCase(BaseIndexableTestCase):
 
     @freeze_time('2016-5-3 10:11:12')
     def test_single_item(self):
+        section = Section.objects.create(name='Test Section')
         content = make_content(TestContentObj,
                                id=52852,
                                title='The Pros And Cons Of Taking A Gap Year',
+                               body='<div>Test Body</div>',
                                published=datetime(2016, 5, 2, 14, 43, 0, tzinfo=timezone.utc),
-                               thumbnail_override=53338)
-        for name in ['College', 'Technology']:
-            content.tags.add(Tag.objects.create(name=name))
-        content.save()
+                               description='Test Description',
+                               thumbnail_override=53338,
+                               tunic_campaign_id=300,
+                               )
+        tag = Tag.objects.create(name='College')
+        content.tags.add(tag)
 
         resp = self.get_feed()
         self.assertEqual(
             resp,
             {
-                'count': 1,
-                'next': None,
-                'previous': None,
-                'results': [{
-                    'type': 'post',
+                'content': [{
                     'id': 52852,
+                    'url': 'http://www.theonion.com/detail/52852/',
                     'title': 'The Pros And Cons Of Taking A Gap Year',
-                    'link': 'http://www.theonion.com/detail/52852/',
-                    'modified': '2016-05-03T10:11:12+00:00',
+                    'authors': [
+                        {'label': "America's Finest News Source",
+                         'id': 0,  # TODO: correct?
+                         },
+                    ],
                     'published': '2016-05-02T14:43:00+00:00',
-                    'slug': 'the-pros-and-cons-of-taking-a-gap-year',
+                    'modified': '2016-05-03T10:11:12+00:00',
+                    'sections': [
+                        {'id': section.id,
+                         'label': 'Test Section',
+                         },
+                    ],
+                    'description': 'Test Description',
+                    'body': '<div>Test Body</div>',
+                    'tags': [
+                        {'id': tag.id,
+                         'label': 'College'
+                         },
+                    ],
+                    'type': 'article',
+                    'feature_type': '',  # TODO
                     'images': {
-                        'post-16-9-thumbnail': '//images.onionstatic.com/onion/5333/8/16x9/600.jpg',
+                        '//images.onionstatic.com/onion/5333/8/16x9/600.jpg',
                     },
-                    'authors': ["America's Finest News Source"],
-                    'tags': {
-                        'section': ['College', 'Technology']
-                    }
-                }]
+                    'videos': [
+                         # TODO: Format?
+                    ],
+                    'campaign_id': 300,
+                }],
+                'page': 1,
+                'per_page': 10,
+                'total_items': 1,
+                'next': None,
+                # 'previous': None,
             })
+
+    def test_multiple_pages(self):
+        # TODO
+        pass
+
+    def test_default_author(self):
+        # TODO
+        pass
+
+    def test_with_authors(self):
+        # TODO
+        pass
+
+    def test_type_video(self):
+        # TODO
+        pass
+
+    def test_type_graphic(self):
+        # TODO
+        pass
+
+    def test_pagination_query_param(self):
+        # TODO: Test '?per_page=<int>' query param
+        pass
 
     def test_pagination(self):
         make_content(TestContentObj,
