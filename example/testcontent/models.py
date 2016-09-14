@@ -110,7 +110,15 @@ class TestVideoContentObj(Content, VideoMixin):
 class TestLiveBlog(Content, AbstractLiveBlog):
     """Example LiveBlog implementation"""
 
+    def get_absolute_url(self):
+        return '/liveblog/{}-{}'.format(self.slug, self.pk)
+
     class Mapping(Content.Mapping):
         class Meta:
             # Exclude until actually needed, to avoid dealing with custom mappings
             excludes = ('pinned_content', 'recirc_content')
+
+    @classmethod
+    def get_serializer_class(cls):
+        from .serializers import TestLiveBlogSerializer
+        return TestLiveBlogSerializer

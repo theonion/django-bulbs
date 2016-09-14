@@ -1,0 +1,102 @@
+{% load ads betty liveblog_tags %}
+{% for entry in entries %}
+  <bulbs-liveblog-entry
+    class="
+      liveblog-entry
+      {% if request.GET.entry == entry.id %}
+        liveblog-entry-shared
+      {% endif %}
+    "
+    entry-id="{{ entry.id }}"
+    entry-url="{{ entry.get_absolute_url }}"
+  >
+
+    {% if request.GET.entry == entry.id %}
+      <button class="liveblog-entry-reset">
+        PUT BACK IN ORDER &times;
+      </button>
+    {% endif %}
+
+    <div class="liveblog-entry-header">
+      <div class="liveblog-avatar">
+        {% cropped entry.authors.all.0.avatar '1x1' 100 %}
+      </div>
+
+      <div class="liveblog-entry-meta">
+        <div class="liveblog-author-name">
+          <a href="{{ entry.authors.all.0.get_absolute_url }}">
+            {{ entry.authors.all.0.first_name }} {{ entry.authors.all.0.last_name }}
+          </a>
+        </div>
+        <div class="liveblog-published-time">6:27  AM</div>
+        <div class="liveblog-published-date">JULY 19TH, 2016</div>
+      </div>
+
+    </div>
+
+    <h1 class="liveblog-entry-headline">
+      <a href="{{ entry.get_absolute_url }}">
+        {{ entry.headline | safe }}
+      </a>
+    </h1>
+
+    <div class="liveblog-entry-body">
+      {{ entry.body | safe }}
+    </div>
+
+    {% for response in entry.responses.all %}
+      <div class="liveblog-response">
+        <div class="liveblog-avatar">
+          {% cropped response.author.avatar '1x1' 100 %}
+        </div>
+
+        <div class="liveblog-response-content">
+          <div class="liveblog-author-name">
+            <a href="{{ response.author.get_absolute_url }}">
+              {{ response.author.first_name }} {{ response.author.last_name }}
+            </a>
+          </div>
+
+          <div class="liveblog-response-body">
+            {{ response.body | safe }}
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+
+
+    {% if entry.recirc_content.all %}
+      <div class="liveblog-related-header">
+        RELATED
+      </div>
+
+      {% for recirc_item in entry.recirc_content.all %}
+        <div class="liveblog-related-article">
+          <a href="{{ recirc_item.get_absolute_url }}">
+            <div class="liveblog-related-image">
+              {% cropped recirc_item.thumbnail "1x1" 100 %}
+            </div>
+
+            <div class="liveblog-related-meta">
+              <div class="liveblog-related-title">
+                {{ recirc_item.title | safe }}
+              </div>
+
+              {% if content.subhead %}
+                <div class="liveblog-related-excerpt">
+                  {{ content.subhead | removetags:"p br" | safe }}
+                </div>
+              {% endif %}
+
+              <div class="liveblog-published-date"></div>
+            </div>
+          </a>
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    {% liveblog_entry_sharetools_partial %}
+
+  </bulbs-liveblog-entry>
+{% endfor %}
+

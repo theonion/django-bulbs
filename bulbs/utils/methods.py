@@ -78,7 +78,7 @@ def get_template_choices():
     return ((0, None),) + configured_templates
 
 
-def get_overridable_template_name(parent_name, child_name):
+def get_overridable_template_name(parent_name, child_name, must_inherit=True):
     get_template = template.loader.get_template
 
     try:
@@ -86,7 +86,7 @@ def get_overridable_template_name(parent_name, child_name):
     except template.loader.TemplateDoesNotExist:
         child_template = None
 
-    if child_template:
+    if child_template and must_inherit:
         bad_inheritance_message = "{} MUST extend {}".format(child_name, parent_name)
 
         extends_node = child_template.template.nodelist.get_nodes_by_type(

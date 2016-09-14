@@ -3,9 +3,25 @@ from rest_framework import serializers
 from bulbs.content.models import Content
 
 from .models import LiveBlogEntry, LiveBlogResponse
+from .utils import get_liveblog_author_model
+
+
+LIVEBLOG_MODEL = get_liveblog_author_model()
+
+
+class LiveBlogSerializerMixin(serializers.Serializer):
+
+    recirc_content = serializers.PrimaryKeyRelatedField(many=True, required=False,
+                                                        queryset=Content.objects.all())
+
+    class Meta:
+        abstract = True
 
 
 class LiveBlogResponseSerializer(serializers.ModelSerializer):
+
+    author = serializers.PrimaryKeyRelatedField(required=False,
+                                                queryset=LIVEBLOG_MODEL.objects.all())
 
     class Meta:
         model = LiveBlogResponse
@@ -14,15 +30,19 @@ class LiveBlogResponseSerializer(serializers.ModelSerializer):
 
 class LiveBlogEntrySerializer(serializers.ModelSerializer):
 
-    responses = LiveBlogResponseSerializer(many=True)
+    responses = LiveBlogResponseSerializer(many=True, required=False)
 
-    recirc_content = serializers.PrimaryKeyRelatedField(many=True, queryset=Content.objects.all())
+    authors = serializers.PrimaryKeyRelatedField(many=True, required=False,
+                                                 queryset=LIVEBLOG_MODEL.objects.all())
+
+    recirc_content = serializers.PrimaryKeyRelatedField(many=True, required=False,
+                                                        queryset=Content.objects.all())
 
     class Meta:
         model = LiveBlogEntry
 
     def create(self, validated_data):
-        responses = validated_data.pop('responses')
+        responses = validated_data.pop('responses', [])
 
         entry = super(LiveBlogEntrySerializer, self).create(validated_data)
 
@@ -33,7 +53,7 @@ class LiveBlogEntrySerializer(serializers.ModelSerializer):
         return entry
 
     def update(self, instance, validated_data):
-        responses = validated_data.pop('responses')
+        responses = validated_data.pop('responses', [])
 
         entry = super(LiveBlogEntrySerializer, self).update(instance, validated_data)
 

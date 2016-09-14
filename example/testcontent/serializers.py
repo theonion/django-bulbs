@@ -1,6 +1,7 @@
 from .models import TestContentObj, TestContentObjTwo, TestContentDetailImage, TestLiveBlog
 
 from bulbs.content.serializers import ContentSerializer
+from bulbs.liveblog.serializers import LiveBlogSerializerMixin
 
 from djbetty.serializers import ImageFieldSerializer
 
@@ -28,7 +29,7 @@ class TestContentDetailImageSerializer(ContentSerializer):
         model = TestContentDetailImage
 
 
-class TestLiveBlogSerializer(ContentSerializer):
+class TestLiveBlogSerializer(ContentSerializer, LiveBlogSerializerMixin):
 
     class Meta:
         model = TestLiveBlog

@@ -49,6 +49,7 @@ dev_requires = [
     "pytest-cov==2.3.1",
     "pytest-django==3.0.0",
     "coveralls==0.4.1",
+    "factory_boy==2.7.0",
     "freezegun",
     "vcrpy",
     "ipdb",

@@ -34,7 +34,7 @@ class TestLiveBlogEntryModel(BaseIndexableTestCase):
 
         liveblog = TestLiveBlog.objects.create()
 
-        with patch('bulbs.liveblog.signals.firebase_update_timestamp.delay') as mock_task:
+        with patch('bulbs.liveblog.signals.firebase_update_entry.delay') as mock_task:
             # Create
             entry = LiveBlogEntry.objects.create(liveblog=liveblog)
             self.assertEqual(1, mock_task.call_count)
@@ -43,9 +43,16 @@ class TestLiveBlogEntryModel(BaseIndexableTestCase):
             entry.save()
             self.assertEqual(2, mock_task.call_count)
 
-            # Delete
-            entry.delete()
-            self.assertEqual(3, mock_task.call_count)
+            # Called 2 times with liveblog ID
+            mock_task.assert_has_calls([call(entry.id) for _ in range(2)])
 
-            # Called 3 times with liveblog ID
-            mock_task.assert_has_calls([call(liveblog.id) for _ in range(3)])
+    def test_delete_signal(self):
+
+        liveblog = TestLiveBlog.objects.create()
+        entry = LiveBlogEntry.objects.create(liveblog=liveblog)
+
+        with patch('bulbs.liveblog.signals.firebase_delete_entry.delay') as mock_task:
+
+            entry_id = entry.id
+            entry.delete()
+            mock_task.assert_called_once_with(entry_id)

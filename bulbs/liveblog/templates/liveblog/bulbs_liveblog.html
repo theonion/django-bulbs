@@ -1,0 +1,56 @@
+{% load ads core betty liveblog_tags %}
+<div class="liveblog-cover">
+  {% cropped content.thumbnail '3x1' 500 %}
+</div>
+<bulbs-liveblog
+  firebase-url="{{ FIREBASE_URL }}"
+  firebase-api-key="{{ FIREBASE_API_KEY }}"
+  firebase-path="{{ FIREBASE_PUBLIC_ROOT }}/articles/{{ content.id }}/entries"
+  liveblog-id="{{ content.id }}"
+  liveblog-url="{% url 'liveblog-new-entries' slug=content.slug pk=content.pk %}"
+>
+  <div>LIVE COVERAGE</div>
+
+  <h1 class="liveblog-title">{{ content.title | safe }}</h1>
+
+  {% if content.pinned_content %}
+    {% with pinned_content=content.pinned_content %}
+    <div class="liveblog-pinned-article">
+      <a href="{{ content.get_absolute_url }}">
+        <div class="liveblog-pinned-image">
+          {% cropped pinned_content.thumbnail "1x1" 100 %}
+        </div>
+
+        <div class="liveblog-pinned-meta">
+          <div class="liveblog-pinned-title">
+            <i class="fa fa-thumb-tack" aria-hidden="true"></i>
+            {{ pinned_content.title | safe }}
+          </div>
+
+          {% if content.subhead %}
+            <div class="liveblog-pinned-excerpt">
+              {{ content.subhead | removetags:"p br" | safe }}
+            </div>
+          {% endif %}
+
+          <div class="liveblog-published-date"></div>
+        </div>
+      </a>
+    </div>
+    {% endwith %}
+  {% endif %}
+
+  <div class="liveblog-entries">
+    {% with entries=content.entries.all %}
+      {% liveblog_entries_partial %}
+    {% endwith %}
+  </div>
+
+  <div class="liveblog-more">
+    <button class="liveblog-more-button">
+      SHOW MORE
+    </button>
+  </div>
+</bulbs-liveblog>
+
+{% liveblog_recirc_partial %}
