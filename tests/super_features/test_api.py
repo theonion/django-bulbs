@@ -11,6 +11,8 @@ from bulbs.utils.test import BaseAPITestCase
 
 class BaseSuperFeatureTestCase(BaseAPITestCase):
 
+    maxDiff = None
+
     def setUp(self):
         super(BaseSuperFeatureTestCase, self).setUp()
         self.doc_type = BaseSuperFeature.search_objects.mapping.doc_type
@@ -121,6 +123,12 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
         data_field = fields.get("data")
         self.assertEqual(data_field, {
             'fields': {
+                'copy': OrderedDict([
+                    ("field_size", "long"),
+                    ("read_only", False),
+                    ("required", False),
+                    ("type", "richtext")
+                ]),
                 'sponsor_brand_messaging': OrderedDict([
                     ('type', 'string'),
                     ('required', False),
@@ -132,6 +140,61 @@ class BaseSuperFeatureTestCase(BaseAPITestCase):
                     ('read_only', False),
                     ('label', 'Sponsor Product Shot (1x1 Image)')
                 ])
+            }
+        })
+
+    def test_options_guide_to_child(self):
+        parent = BaseSuperFeature.objects.create(
+            title="A Guide to Cats",
+            notes="This is the guide to cats",
+            superfeature_type=GUIDE_TO_HOMEPAGE,
+            data={
+                "sponsor_brand_messaging": "Fancy Feast",
+                "sponsor_product_shot": {"id": 1}
+            }
+        )
+        child = BaseSuperFeature.objects.create(
+            title="Cats are cool",
+            notes="Child page 1",
+            superfeature_type=GUIDE_TO_ENTRY,
+            parent=parent,
+            ordering=1,
+            data={
+                "entries": [{
+                    "copy": "Everybody loves cats"
+                }]
+            }
+        )
+
+        url = self.get_detail_endpoint(child.pk)
+        resp = self.api_client.options(url)
+        self.assertEqual(resp.status_code, 200)
+
+        fields = resp.data.get("fields")
+        data_field = fields.get("data")
+        self.assertEqual(data_field, {
+            "fields": {
+                "entries": OrderedDict([
+                    ("type", "array"),
+                    ("fields", OrderedDict([(
+                        "copy",
+                        OrderedDict([
+                            ("field_size", "long"),
+                            ("label", "Copy"),
+                            ("read_only", False),
+                            ("required", True),
+                            ("type", "richtext")
+                        ]),
+                    ), (
+                        "image", OrderedDict([
+                            ("label", "Image"),
+                            ("read_only", False),
+                            ("required", False),
+                            ("type", "image")
+                        ]),
+                    )])),
+                    ("child_label", "entry")
+                ]),
             }
         })
 

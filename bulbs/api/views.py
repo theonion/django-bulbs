@@ -46,6 +46,7 @@ from bulbs.contributions.serializers import ContributionSerializer, ContributorR
 from bulbs.notifications.viewsets import NotificationViewSet
 from bulbs.special_coverage.models import SpecialCoverage
 from bulbs.special_coverage.serializers import SpecialCoverageSerializer
+from bulbs.super_features.utils import get_superfeature_model
 from bulbs.utils.methods import get_query_params, get_request_data
 
 from .metadata import PolymorphicContentMetadata
@@ -139,6 +140,12 @@ class ContentViewSet(UncachedResponse, viewsets.ModelViewSet):
             queryset = queryset.filter(
                 es_filter.Not(es_filter.Type(**{'value': exclude}))
             )
+
+        # always filter out Super Features from listing page
+        queryset = queryset.filter(
+            es_filter.Not(filter=es_filter.Type(
+                value=get_superfeature_model().search_objects.mapping.doc_type))
+        )
 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -505,9 +512,17 @@ class SpecialCoverageResolveViewSet(viewsets.ReadOnlyModelViewSet):
                 active = get_query_params(self.request).get('active', '').lower()
                 now = timezone.now()
                 if active == 'true':
-                    qs = qs.filter(start_date__lte=now, end_date__gte=now)
+                    qs = qs.filter(
+                        start_date__lte=now, end_date__gte=now
+                    ) | qs.filter(
+                        start_date__lte=now, end_date__isnull=True
+                    )
                 elif active == 'false':
-                    qs = qs.exclude(start_date__lte=now, end_date__gte=now)
+                    qs = qs.exclude(
+                        start_date__lte=now, end_date__gte=now
+                    ) | qs.exclude(
+                        start_date__lte=now, end_date__isnull=False
+                    )
 
                 # Sponsored Filter
                 sponsored = get_query_params(self.request).get('sponsored', '').lower()

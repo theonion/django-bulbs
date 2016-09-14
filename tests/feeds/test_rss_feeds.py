@@ -5,6 +5,7 @@ from django.test.client import Client
 from django.utils import timezone
 
 from bulbs.special_coverage.models import SpecialCoverage
+from bulbs.super_features.models import BaseSuperFeature, GUIDE_TO_HOMEPAGE
 from bulbs.utils.test import BaseIndexableTestCase, make_content
 
 from example.testcontent.models import TestContentObj
@@ -49,6 +50,33 @@ class RSSTestCase(BaseIndexableTestCase):
 
         for content in page1_content_list:
             self.assertNotIn(content, page2_content_list)
+
+    def test_exclude_superfeatures(self):
+
+        BaseSuperFeature.objects.create(title="Guide to Cats",
+                                        superfeature_type=GUIDE_TO_HOMEPAGE,
+                                        published=timezone.now())
+        BaseSuperFeature.search_objects.refresh()
+
+        resp = Client().get(reverse("rss-feed"))
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(0, len(resp.context["page_obj"].object_list))
+
+    def test_hidden_content(self):
+        TestContentObj.objects.create(
+            title="Content1",
+            published=timezone.now(),
+            hide_from_rss=True
+        )
+        TestContentObj.objects.create(title="Content2", published=timezone.now())
+        TestContentObj.search_objects.refresh()
+
+        resp = Client().get(reverse("rss-feed"))
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.context["page_obj"].object_list), 1)
+        self.assertEqual(resp.context["page_obj"].object_list[0].title, "Content2")
 
     def test_special_coverage_rss_feed(self):
         # make content

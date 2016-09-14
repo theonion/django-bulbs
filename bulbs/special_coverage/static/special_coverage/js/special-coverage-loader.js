@@ -1,4 +1,6 @@
 module.exports = (function () { // eslint-disable-line no-unused-vars
+  // These quasi-copies of lodash methods are used instead of lodash
+  // because we do not want to depend on it here
   function isUndefined (suspect) {
     return typeof(suspect) === 'undefined';
   }
@@ -23,6 +25,25 @@ module.exports = (function () { // eslint-disable-line no-unused-vars
     return string.replace(/\/?$/, '');
   }
 
+  function stripBeginingSlash (string) {
+    return string.replace(/^\/?/, '');
+  }
+
+  function stripEndSlashes (string) {
+    return stripTrailingSlash(stripBeginingSlash(string));
+  }
+
+  function compact (list) {
+    var newList = [];
+    list.forEach(function (item) {
+      if (!isUndefined(item) || item.length > 0) {
+        newList.push(item);
+      }
+    });
+
+    return newList;
+  }
+
   function SpecialCoverageLoader (element, listElement, options) {
     requireArgument(element, 'new SpecialCoverageLoader(element, listElement, options): element is undefined');
     requireArgument(listElement, 'new SpecialCoverageLoader(element, listElement, options): listElement is undefined');
@@ -39,18 +60,16 @@ module.exports = (function () { // eslint-disable-line no-unused-vars
     this.defaultText = element.innerHTML;
     this.loadingText = 'Loading...';
 
-    defaults(options, {
-      baseUrl: [
-        window.location.protocol, '//',
-        window.location.host,
-        window.location.pathname,
-        window.location.search,
-        window.location.hash,
-      ].join(''),
-    });
+    var defaultBaseUrl = [
+      window.location.protocol, '//',
+      window.location.hostname + ':' + window.location.port,
+      window.location.pathname,
+      window.location.search,
+      window.location.hash,
+    ].join('');
 
+    defaults(options, { baseUrl: defaultBaseUrl });
     options.baseUrl = stripTrailingSlash(options.baseUrl);
-
     assign(this, options);
 
     element.addEventListener('click', function () {
@@ -73,8 +92,17 @@ module.exports = (function () { // eslint-disable-line no-unused-vars
       requireArgument(baseUrl, 'SpecialCoverageLoader.buildUrl(currentPage, perPage, baseUrl, offset): baseUrl is undefined');
 
       var offset = this.nextOffset(currentPage, perPage);
+      var parser = document.createElement('a');
 
-      return [baseUrl, 'more', offset].join('/');
+      parser.href = stripTrailingSlash(baseUrl);
+
+      return compact([
+        parser.protocol + '/',
+        parser.hostname,
+        stripEndSlashes(parser.pathname),
+        'more',
+        offset + parser.search,
+      ]).join('/');
     },
 
     loadMore: function (url) {

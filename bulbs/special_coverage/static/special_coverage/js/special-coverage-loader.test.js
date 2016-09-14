@@ -20,7 +20,7 @@ describe('SpecialCoverageLoader', function () {
       requests.push(request);
     };
 
-    url = 'http://example.com';
+    url = 'http://example.com/some/page';
     currentPage = 1;
     perPage = 10;
     element = document.createElement('button');
@@ -69,7 +69,7 @@ describe('SpecialCoverageLoader', function () {
     expect(subject.baseUrl).to.equal(window.location.href);
   });
 
-  it('strips the trailing slash from the baseUrl', function() {
+  it('strips the trailing slash from the baseUrl', function () {
     subject = new SpecialCoverageLoader(element, listElement, { baseUrl: 'http://staff.avclub.com/special/1996-week/' });
     expect(subject.baseUrl).to.equal('http://staff.avclub.com/special/1996-week');
   });
@@ -156,6 +156,11 @@ describe('SpecialCoverageLoader', function () {
 
     it('returns a url with the next offset', function () {
       expect(subject.buildUrl(currentPage, perPage, url)).to.equal(url + '/more/' + 10);
+    });
+
+    it('returns a url with query parameters appended', function () {
+      var queryUrl = url + '?full_preview=true';
+      expect(subject.buildUrl(currentPage, perPage, queryUrl)).to.equal(url + '/more/10?full_preview=true');
     });
   });
 

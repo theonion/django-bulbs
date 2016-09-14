@@ -1771,6 +1771,8 @@ class DuplicateContributionTestCase(BaseAPITestCase):
         self.assertEqual(resp3.status_code, 200)
         self.assertEqual(len(resp3.data), _quantity)
 
+        Contribution.search_objects.refresh()
+
         # GET after POST
         resp4 = self.api_client.get(
             self.contribution_endpoint,
