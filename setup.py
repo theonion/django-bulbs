@@ -29,6 +29,7 @@ requires = [
     "djangorestframework-csv==1.4.1",
     "pageview_client==1.0.4",
     "djangorestframework==3.1.1",
+    "drf-extensions==0.2.8",
     "djes>=0.1.109",
     "drf-nested-routers==0.11.1",
     "firebase-token-generator==1.3.2",
@@ -40,14 +41,13 @@ requires = [
 ]
 
 dev_requires = [
-    "pylint==1.0.0",
     "mock==1.0.1",
     "httmock==1.0.5",
-    "model-mommy==1.2.4",
+    "model-mommy==1.2.6",
     "psycopg2==2.5.1",
-    "pytest==2.7.3",
-    "pytest-cov==1.8.1",
-    "pytest-django==2.8.0",
+    "pytest==3.0.1",
+    "pytest-cov==2.3.1",
+    "pytest-django==3.0.0",
     "coveralls==0.4.1",
     "freezegun",
     "vcrpy",

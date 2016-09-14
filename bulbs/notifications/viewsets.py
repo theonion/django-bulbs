@@ -1,5 +1,5 @@
 from rest_framework import filters, viewsets
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import AllowAny, IsAdminUser
 
 from .models import Notification
 from .serializers import NotificationSerializer
@@ -26,3 +26,4 @@ class ReadOnlyNotificationViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Notification.objects.filter(is_published=True)
     serializer_class = NotificationSerializer
     paginate_by = 20
+    permission_classes = [AllowAny]

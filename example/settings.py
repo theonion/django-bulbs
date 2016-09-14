@@ -53,6 +53,7 @@ INSTALLED_APPS = (
     "bulbs.cms_notifications",
     "bulbs.content",
     "bulbs.instant_articles",
+    "bulbs.liveblog",
     "bulbs.promotion",
     "bulbs.special_coverage",
     "bulbs.sections",
@@ -168,3 +169,7 @@ FACEBOOK_API_BASE_URL = 'https://graph.facebook.com/v2.6'
 FACEBOOK_API_DEVELOPMENT_MODE = True
 FACEBOOK_API_PUBLISH_ARTICLE = False
 WWW_URL = "www.theonion.com"
+
+
+# LiveBlog
+BULBS_LIVEBLOG_MODEL = 'testcontent.TestLiveBlog'

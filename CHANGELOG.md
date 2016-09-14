@@ -1,6 +1,118 @@
 # django-bulbs Change Log
 
-## Development
+## Version 3.17.1
+
+- Remove lodash dependency in mobile-ad-placer.js this should have no affect on any property 
+
+## Version 3.17.0
+
+- Update SuperFeature get_absolute_url() to prepend with `/interactive/`
+- NOTE: When updating Onion, make sure that * TO WATCH Super Features have appropriate redirect
+
+## Version 3.16.3
+
+- Change preamble on special coverage video player from "Presented by" to "Sponsored by"
+
+## Version 3.16.2
+
+- Always exclude SuperFeatures from list view on ContentViewSet
+
+## Version 3.16.1
+
+- Fix special_coverage lodash error from 3.16.0
+- Added `hide_from_rss` field to `Content` model
+
+## Version 3.15.6
+
+- Fix GuideToEntrySerializer to return type of array with OPTIONS requests
+
+## Version 3.15.5
+
+- Only try to delete an Instant Article from Facebook if the content has its instant_article_id set
+
+## Version 3.15.4
+
+- RSS feed excludes SuperFeatures
+
+## Version 3.15.3
+
+- Make SpecialCoverageLoadMore Query Parameter aware.
+
+## Version 3.15.2
+
+- Update GUIDE_TO serializers
+
+## Version 3.15.1
+
+- fix video detail page by pointing to actual EXTERNAL_URL
+
+## Version 3.15.0
+
+- Allow Special Coverage end date to be optional
+
+## Version 3.14.3
+
+- LiveBlog updates (Firebase, DELETE test + doc, LiveBlogResposne ordering)
+
+## Version 3.14.0
+
+- Fix `ContributionListSerializer` to handle group deletion and avoid duplication.
+
+
+## Version 3.12.3
+
+- Added LiveBlog fields
+
+## Version 3.12.2
+
+- Changed `super-feature/:id/relations/` to guarantee child ordering
+
+## Version 3.12.1
+
+- Added `super-feature/:id/relations/ordering/` endpoint
+
+## Version 3.12.0
+
+- Add LiveBlog API
+
+## Version 3.11.10
+
+- Added workaround for `/v/:videohub_id` redirect 404s when there are multiple matching content
+
+## Version 3.11.9
+
+- Updated `GuideToParentSerializer` and `GuideToChildSerializer`
+
+- Changed `super-feature/:id/set-children-dates` from a `POST` to a `PUT`
+
+## Version 3.11.8
+
+- Added `super-feature/:id/set-children-dates` endpoint to set all children publish dates to its parent
+
+## Version 3.11.7
+
+- Add `?status` filter to the Super Feature viewset
+
+## Version 3.11.6
+
+- Use share_url context variable from onion views instead of external url
+
+## Version 3.11.4
+
+- Instant Articles: Wrap twitter embeds in an `<iframe>`
+
+## Version 3.11.3
+
+- Change `op-social` classes in Instant Articles to `op-interactive`, per Facebook
+
+## Version 3.11.2
+
+- Series detail page uses 3x1 graphic **onion only**
+
+## Version 3.11.1
+
+- Changed series summary to anchor tag on video detail page
+
 
 ## Version 3.11.0
 

@@ -1,5 +1,4 @@
 'use strict';
-var _ = require('lodash/lodash');
 var adHtml = '<div class="dfp dfp-slot-inread" data-ad-unit="inread"> \
                 Content continues below advertisement \
               </div>';
@@ -7,13 +6,13 @@ var adHtml = '<div class="dfp dfp-slot-inread" data-ad-unit="inread"> \
 
 var MobileAdPlacer = {
   placeAds: function () {
-    var body = $('body');
-    var paragraphs = body.find('p');
+    var articleText = $('.article-text');
+    var paragraphs = articleText.find('p');
     var wordCount = 0;
     var adsPlaced = 0;
 
     for (var i = 0; i < paragraphs.length; i++) {
-      var paragraphLength = _.words($(paragraphs[i]).html()).length;
+      var paragraphLength = MobileAdPlacer.wordCount($(paragraphs[i]).html());
       wordCount = wordCount + paragraphLength;
 
       if(wordCount > 350 && adsPlaced < 4) {
@@ -26,6 +25,9 @@ var MobileAdPlacer = {
     if (window.ads) {
       window.ads.loadAds();
     }
+  },
+  wordCount: function (paragraph) {
+    return paragraph.split(' ').length;
   },
 };
 

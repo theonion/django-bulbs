@@ -1,3 +1,6 @@
+import pytz
+from datetime import datetime
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db.models.signals import pre_delete
@@ -58,8 +61,6 @@ class SpecialCoverage(DetailImageMixin, models.Model):
                 raise ValidationError("""The End Date requires a Start Date value.""")
             elif self.end_date <= self.start_date:
                 raise ValidationError("""The End Date must not precede the Start Date.""")
-        if self.start_date and not self.end_date:
-            raise ValidationError("""The Start Date requires an End Date.""")
 
     def clean_query(self):
         """
@@ -119,7 +120,9 @@ class SpecialCoverage(DetailImageMixin, models.Model):
         # support missing fields, so always need to include
 
         q["start_date"] = self.start_date
-        q["end_date"] = self.end_date
+        # NOTE: set end_date to datetime.max if special coverage has no end date
+        # (i.e. is a neverending special coverage)
+        q["end_date"] = self.end_date if self.end_date else datetime.max.replace(tzinfo=pytz.UTC)
 
         # Elasticsearch v1.4 percolator range query does not support DateTime range queries
         # (PercolateContext.nowInMillisImpl is not implemented).
@@ -161,8 +164,11 @@ class SpecialCoverage(DetailImageMixin, models.Model):
     @property
     def is_active(self):
         now = today_as_utc_datetime()
-        if self.start_date and self.end_date:
-            return self.start_date <= now < self.end_date
+        if self.start_date:
+            if self.end_date:
+                return self.start_date <= now < self.end_date
+            else:
+                return self.start_date <= now
         return False
 
     @property
