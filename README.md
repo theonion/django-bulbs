@@ -1,3 +1,5 @@
+# DEPRECATED: This project is now part of the [Mono Repo](https://github.com/theonion/omni)
+
 # Django Bulbs [![Build Status](https://travis-ci.org/theonion/django-bulbs.svg?branch=promotions)](https://travis-ci.org/theonion/django-bulbs) [![Coverage Status](https://img.shields.io/coveralls/theonion/django-bulbs.svg)](https://coveralls.io/r/theonion/django-bulbs?branch=master)
 
 
